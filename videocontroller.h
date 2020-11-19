@@ -10,7 +10,6 @@
 #include <QTime>
 #include <QDial>
 
-
 class VideoController : public QWidget
 {
     Q_OBJECT
@@ -20,7 +19,7 @@ public:
     ~VideoController();
 
 signals:
-    void frameChanged(const qint32& frame);
+    void frameChanged(const qint32 &frame);
 
 public slots:
     void setFrame(const qint32 frame);
@@ -29,23 +28,23 @@ public slots:
     void setStop(); // Forces a video to stop, no emit.
 
 private:
-    QPushButton* cmdBack = new QPushButton(this);
-    QPushButton* cmdPlay = new QPushButton(this);
-    QPushButton* cmdForw = new QPushButton(this);
-    QPushButton* cmdLoop = new QPushButton(this);
-    QSlider* sliScrub = new QSlider(Qt::Horizontal, this);
-    QLabel* lblTime = new QLabel(this);
-    QTimer* clock = new QTimer(this);
-    QDial* dialSpeed = new QDial(this);
-    QLineEdit* txtSpeed = new QLineEdit(this);
+    QPushButton *cmdBack = new QPushButton(this);
+    QPushButton *cmdPlay = new QPushButton(this);
+    QPushButton *cmdForw = new QPushButton(this);
+    QPushButton *cmdLoop = new QPushButton(this);
+    QSlider *sliScrub = new QSlider(Qt::Horizontal, this);
+    QLabel *lblTime = new QLabel(this);
+    QTimer *clock = new QTimer(this);
+    QDial *dialSpeed = new QDial(this);
+    QLineEdit *txtSpeed = new QLineEdit(this);
 
     qint32 currframe = 0;
-    qint32 framerate = 30; 
+    qint32 framerate = 30;
     QTime lastframetime;
 
-    void PushPlay(const bool& flag);
+    void PushPlay(const bool &flag);
     void clockStep();
-    void updateTimeLabel(); // 
+    void updateTimeLabel(); //
     qint32 nframes();
     float speedmult();
     void setSpeedDial(const qint32 val);

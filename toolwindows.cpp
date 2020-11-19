@@ -9,50 +9,46 @@
 
 using namespace tool;
 
-
-imgData::imgData(QWidget* parent) 
+imgData::imgData(QWidget *parent)
 {
-    QVBoxLayout* topLay = new QVBoxLayout(this);
-    QWidget* widMain = new QWidget(this);
-    QFormLayout* layMain = new QFormLayout(widMain);
+    QVBoxLayout *topLay = new QVBoxLayout(this);
+    QWidget *widMain = new QWidget(this);
+    QFormLayout *layMain = new QFormLayout(widMain);
 
     topLay->addWidget(widMain);
     topLay->setAlignment(Qt::AlignTop);
 
     // file path:
     {
-        QWidget* w_fp = new QWidget(widMain);
-        QHBoxLayout* l_fp = new QHBoxLayout(w_fp);
+        QWidget *w_fp = new QWidget(widMain);
+        QHBoxLayout *l_fp = new QHBoxLayout(w_fp);
         l_fp->addWidget(txtFilePath);
         l_fp->addWidget(cmdBrowseFilePath);
         l_fp->setAlignment(Qt::AlignLeft);
 
         // an autocompleter for the textbox? Not sure why this doesn't work
-        QCompleter* completer = new QCompleter(this);
-        QFileSystemModel* fsmodel = new QFileSystemModel;
+        QCompleter *completer = new QCompleter(this);
+        QFileSystemModel *fsmodel = new QFileSystemModel;
         fsmodel->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
         fsmodel->setRootPath(QDir::currentPath());
         completer->setModel(fsmodel);
         completer->setCompletionMode(QCompleter::InlineCompletion);
         txtFilePath->setCompleter(completer);
 
-
         txtFilePath->setMinimumWidth(100);
         txtFilePath->setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
-
 
         cmdBrowseFilePath->setText("...");
         auto textSize = cmdBrowseFilePath->fontMetrics().size(Qt::TextShowMnemonic, cmdBrowseFilePath->text());
         QStyleOptionButton opt;
         opt.initFrom(cmdBrowseFilePath);
         opt.rect.setSize(textSize);
-        cmdBrowseFilePath->setFixedSize(cmdBrowseFilePath->style()->sizeFromContents(QStyle::CT_PushButton,&opt,textSize,cmdBrowseFilePath));
+        cmdBrowseFilePath->setFixedSize(cmdBrowseFilePath->style()->sizeFromContents(QStyle::CT_PushButton, &opt, textSize, cmdBrowseFilePath));
         l_fp->setContentsMargins(0, 0, 0, 0);
         layMain->addRow(tr("&File Path:"), w_fp);
 
         txtFilePath->setToolTip(tr("Input a path to a folder that contains a dataset (i.e. tiff files)"));
         cmdBrowseFilePath->setToolTip(tr("Open a dialog to select a folder"));
-
     }
 
     // Frame Rate
@@ -109,7 +105,6 @@ imgData::imgData(QWidget* parent)
         lblFileInfo->setSizePolicy(QSizePolicy::Policy::Ignored, QSizePolicy::Policy::Preferred);
     }
 
-
     // emit something when framerate changes, and when load is complete...
     connect(cmdBrowseFilePath, &QPushButton::clicked, this, &imgData::browse);
     connect(txtFilePath, &QLineEdit::textChanged, this, &imgData::filePathChanged);
@@ -120,48 +115,68 @@ imgData::imgData(QWidget* parent)
 }
 imgData::~imgData() {}
 
-void imgData::browse() {
+void imgData::browse()
+{
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Select a Tiff File in the Dataset"), QDir::currentPath(), tr("Tiff Files (*.tif *.tiff)"));
-    
-    if (!fileName.isEmpty()) {
+                                                    tr("Select a Tiff File in the Dataset"), QDir::currentPath(), tr("Tiff Files (*.tif *.tiff)"));
+
+    if (!fileName.isEmpty())
+    {
         txtFilePath->setText(QFileInfo(fileName).absolutePath());
     }
 }
-void imgData::filePathChanged(const QString& filepath) {
+void imgData::filePathChanged(const QString &filepath)
+{
     QFileInfo fp(filepath);
     cmdLoad->setEnabled(false);
 
-    if (!fp.isDir()) {
+    if (!fp.isDir())
+    {
         // Not a valid path, set the label, disable the button, return
         lblFileInfo->setText(filepath + tr(" is not a valid path."));
         return;
     }
-    
-    QStringList fl = QDir(filepath).entryList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
+
+    QStringList fl = QDir(filepath).entryList(QStringList() << "*.tif"
+                                                            << "*.tiff",
+                                              QDir::Files);
     lblFileInfo->setText(filepath + tr(" contains ") + QString::number(fl.size()) + tr(" files."));
 
-    if (fl.size() > 0) { cmdLoad->setEnabled(true); }
+    if (fl.size() > 0)
+    {
+        cmdLoad->setEnabled(true);
+    }
 }
 
-void imgData::load() {
+void imgData::load()
+{
     // load just emits the load signal with all the data...
-    QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
+    QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif"
+                                                                                       << "*.tiff",
+                                                                         QDir::Files);
     QStringList filelist;
-    foreach(QFileInfo filename, fileinfolist){filelist<<filename.absoluteFilePath();}
-    
+    foreach (QFileInfo filename, fileinfolist)
+    {
+        filelist << filename.absoluteFilePath();
+    }
+
     lblFileInfo->setText(txtFilePath->text() + tr(" contains ") + QString::number(filelist.size()) + tr(" files.\nLoading..."));
     emit fileLoadRequested(filelist, spinFrameRate->value(), spinDownTime->value(), spinDownSpace->value());
 }
 
-void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width) {
-    QStringList filelist = QDir(txtFilePath->text()).entryList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
+void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
+{
+    QStringList filelist = QDir(txtFilePath->text()).entryList(QStringList() << "*.tif"
+                                                                             << "*.tiff",
+                                                               QDir::Files);
     QString lbl = txtFilePath->text() + tr(" contains ") + QString::number(filelist.size()) + tr(" files.\n");
-    
-    if (nframes > 0) {
+
+    if (nframes > 0)
+    {
         lbl += (tr("Loaded") + QString::number(nframes) + tr(" frames at (") + QString::number(width) + "x" + QString::number(height) + ")");
     }
-    else {
+    else
+    {
         lbl += (tr("Loading failed"));
     }
     lblFileInfo->setText(lbl);

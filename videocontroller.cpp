@@ -3,7 +3,7 @@
 #include <QGridLayout>
 #include <QDebug>
 
-VideoController::VideoController(QWidget* parent) : QWidget(parent)
+VideoController::VideoController(QWidget *parent) : QWidget(parent)
 {
 
     sliScrub->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
@@ -46,10 +46,10 @@ VideoController::VideoController(QWidget* parent) : QWidget(parent)
     txtSpeed->setText("1");
     txtSpeed->setToolTip(tr("Set playback speed multiplier"));
 
-    QVBoxLayout* layTop = new QVBoxLayout;
-    QGridLayout* layUnder = new QGridLayout;
-    QHBoxLayout* layButtons = new QHBoxLayout;
-    QHBoxLayout* layTxt = new QHBoxLayout;
+    QVBoxLayout *layTop = new QVBoxLayout;
+    QGridLayout *layUnder = new QGridLayout;
+    QHBoxLayout *layButtons = new QHBoxLayout;
+    QHBoxLayout *layTxt = new QHBoxLayout;
 
     this->setLayout(layTop);
     layTop->addWidget(sliScrub);
@@ -66,20 +66,16 @@ VideoController::VideoController(QWidget* parent) : QWidget(parent)
     layButtons->addWidget(txtSpeed);
     layButtons->setSpacing(0);
 
-
     layUnder->addLayout(layTxt, 0, 2, Qt::AlignRight);
     layTxt->addWidget(lblTime);
 
-
-
     connect(cmdPlay, &QPushButton::clicked, this, &VideoController::PushPlay);
-    connect(cmdBack, &QPushButton::clicked, this, [=]() {setFrame(currframe - 1); });
-    connect(cmdForw, &QPushButton::clicked, this, [=]() {setFrame(currframe + 1); });
+    connect(cmdBack, &QPushButton::clicked, this, [=]() { setFrame(currframe - 1); });
+    connect(cmdForw, &QPushButton::clicked, this, [=]() { setFrame(currframe + 1); });
     connect(sliScrub, &QAbstractSlider::valueChanged, this, &VideoController::setFrame);
     connect(this->clock, &QTimer::timeout, this, &VideoController::clockStep);
     connect(dialSpeed, &QDial::valueChanged, this, &VideoController::setSpeedDial);
     connect(txtSpeed, &QLineEdit::editingFinished, this, &VideoController::setSpeedText);
-
 
     setNFrames(100);
     setFrameRate(30);
@@ -93,50 +89,61 @@ VideoController::~VideoController()
 {
 }
 
-void VideoController::setFrame(const qint32 frame) {
-    if (frame != currframe && frame >= 1 && frame <= nframes()) {
+void VideoController::setFrame(const qint32 frame)
+{
+    if (frame != currframe && frame >= 1 && frame <= nframes())
+    {
         currframe = frame;
         sliScrub->setValue(frame);
         updateTimeLabel();
-        
-        if (lastframetime.elapsed() >= 33) {
+
+        if (lastframetime.elapsed() >= 33)
+        {
             emit frameChanged(frame);
             lastframetime.start();
         }
     }
 }
-void VideoController::setNFrames(const qint32 frames) {
+void VideoController::setNFrames(const qint32 frames)
+{
     setEnabled(frames > 0);
     sliScrub->setMaximum(frames);
     currframe = -1;
     setFrame(1);
     updateTimeLabel();
 }
-void VideoController::setStop() {
+void VideoController::setStop()
+{
     cmdPlay->setIcon(QIcon(":/icons/icons/vid_play.png"));
     cmdPlay->setChecked(false);
     clock->stop();
 }
 
-void VideoController::PushPlay(const bool& down) {
+void VideoController::PushPlay(const bool &down)
+{
     // flip icon
-    if (down) {
+    if (down)
+    {
         cmdPlay->setIcon(QIcon(":/icons/icons/vid_stop.png"));
         timechecker.start();
         clock->start();
     }
-    else {
+    else
+    {
         cmdPlay->setIcon(QIcon(":/icons/icons/vid_play.png"));
         clock->stop();
     }
 }
-void VideoController::clockStep() {
+void VideoController::clockStep()
+{
     //int ellapsed = lastframetime.elapsed(); // ms
     //int inc = floor((framerate * ellapsed * speedmult()) / 1000);
     int inc = 1;
     qint32 frame = currframe + inc;
-    if (frame > nframes()) {
-        if (cmdLoop->isChecked()) {
+    if (frame > nframes())
+    {
+        if (cmdLoop->isChecked())
+        {
             frame = frame % nframes() + 1;
         }
         else
@@ -147,50 +154,60 @@ void VideoController::clockStep() {
     }
     setFrame(frame);
 }
-void VideoController::setFrameRate(const float fr) {
+void VideoController::setFrameRate(const float fr)
+{
     framerate = fr;
     clock->setInterval(clockrate());
 }
 
-void VideoController::updateTimeLabel() {
+void VideoController::updateTimeLabel()
+{
     // qtime has to be specified as int, let's do it ms
-    int ms = 1000 * (currframe-1) / (framerate);
-    QTime t(0,0,0,0);
-    t=t.addMSecs(ms);
+    int ms = 1000 * (currframe - 1) / (framerate);
+    QTime t(0, 0, 0, 0);
+    t = t.addMSecs(ms);
 
     QString fmt = QString("ss:zzz (%1/%2)").arg(currframe).arg(nframes());
-    if (t.minute() > 0) {
+    if (t.minute() > 0)
+    {
         fmt = QString("mm:ss:zzz (%1/%2)").arg(currframe).arg(nframes());
     }
     lblTime->setText(t.toString(fmt));
 }
-qint32 VideoController::nframes() {
+qint32 VideoController::nframes()
+{
     return sliScrub->maximum();
 }
 
-void VideoController::setSpeedDial(const qint32 val) {
+void VideoController::setSpeedDial(const qint32 val)
+{
     // val ranges from -100 to 100,
     float speed;
 
-    if (val >= 0) {
+    if (val >= 0)
+    {
         speed = round(pow(10, val / 50.));
     }
-    else {
-        speed = round(pow(10, val / 50.)*100.)/100.;
+    else
+    {
+        speed = round(pow(10, val / 50.) * 100.) / 100.;
     }
     txtSpeed->setText(QString::number(speed));
     clock->setInterval(clockrate());
 }
-void VideoController::setSpeedText() {
+void VideoController::setSpeedText()
+{
     float val = txtSpeed->text().toFloat();
     dialSpeed->setValue(log10(val) * 50);
     clock->setInterval(clockrate());
 }
 
-float VideoController::speedmult() {
+float VideoController::speedmult()
+{
     return txtSpeed->text().toFloat();
 }
 
-int VideoController::clockrate() {
+int VideoController::clockrate()
+{
     return 1000 / ((float)framerate * speedmult());
 }

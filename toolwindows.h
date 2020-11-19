@@ -15,7 +15,7 @@
 //
 //  2. Image Settings:
 //       Histogram + min/max/alpha tool
-//       raw | df/f 
+//       raw | df/f
 //       (for later) smooth?
 //       (for later) colorizing options
 //
@@ -26,7 +26,6 @@
 //
 //  4. (future) event detection...
 
-
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
@@ -36,14 +35,15 @@
 #include <QValidator>
 #include <QLabel>
 
-namespace tool {
+namespace tool
+{
 
     class imgData : public QWidget
     {
         Q_OBJECT
 
     public:
-        imgData(QWidget* parent);
+        imgData(QWidget *parent);
         ~imgData();
 
     signals:
@@ -54,22 +54,22 @@ namespace tool {
         void fileLoadCompleted(size_t nframes, size_t height, size_t width);
 
     private:
-        QLineEdit* txtFilePath = new QLineEdit(this);
-        QPushButton* cmdBrowseFilePath = new QPushButton(this);
-        QDoubleSpinBox* spinFrameRate = new QDoubleSpinBox(this);;
-        QSpinBox* spinDownTime = new QSpinBox(this);
-        QSpinBox* spinDownSpace = new QSpinBox(this);
-        QLabel* lblFileInfo = new QLabel(this);
-        QPushButton* cmdLoad = new QPushButton(this);
+        QLineEdit *txtFilePath = new QLineEdit(this);
+        QPushButton *cmdBrowseFilePath = new QPushButton(this);
+        QDoubleSpinBox *spinFrameRate = new QDoubleSpinBox(this);
+        ;
+        QSpinBox *spinDownTime = new QSpinBox(this);
+        QSpinBox *spinDownSpace = new QSpinBox(this);
+        QLabel *lblFileInfo = new QLabel(this);
+        QPushButton *cmdLoad = new QPushButton(this);
 
         void load();
 
     private slots:
         void browse();
-        void filePathChanged(const QString& filepath);
-
+        void filePathChanged(const QString &filepath);
     };
-}
+} // namespace tool
 
 //  1. Image Data:
 //       Label - file info

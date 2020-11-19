@@ -8,34 +8,23 @@
 #include "qspinbox.h"
 #include "qdockwidget.h"
 
-
 Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
 {
-    
-    // the slider approach is neat, but I think it's better to use dockwidgets...
-    //  I think each of my settings things is going to subclass a qdockwidget...?
-    //  Or maybe it will contain a qdockwidget...
-    //  Or third option is i just make some standard frame thingy, that goes in a qdockwidget...
-
     ui.setupUi(this);
-    
-    QGridLayout* gridLayout = new QGridLayout(ui.centralWidget);    // top level layout that makes everything stretch-to-fit
-    //QSplitter* splitter = new QSplitter(ui.centralWidget);          // Splitter between video and menu
-    //splitter->setOrientation(Qt::Horizontal);
+
+    QGridLayout *gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
-
     t_img = new tool::imgData(this);
-    QDockWidget* testwidg = new QDockWidget();
+    QDockWidget *testwidg = new QDockWidget();
     testwidg->setWidget(t_img);
     testwidg->setWindowTitle("Image Data");
     addDockWidget(Qt::LeftDockWidgetArea, testwidg);
 
-
     // Right Side:
-    QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);               
-    QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
+    QWidget *rightLayoutWidget = new QWidget(ui.centralWidget);
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightLayoutWidget);
     rightLayout->setContentsMargins(0, 0, 0, 0);
 
     // Image Viewer:
@@ -47,10 +36,8 @@ Roivert::Roivert(QWidget *parent)
     rightLayout->addWidget(vidctrl);
     gridLayout->addWidget(rightLayoutWidget);
 
-    
     connect(t_img, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
-
 
     // testcode:
     //QImage testimage("C://Users//dbulk//OneDrive//Documents//qtprojects//Roivert//testimage.JPG");
@@ -62,11 +49,10 @@ Roivert::Roivert(QWidget *parent)
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 550);
-
-
 }
 
-void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace) {
+void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
+{
     // loadVideo slot : this is the main loading loop
     size_t nfiles = fileList.size();
     size_t nframes = nfiles / dsTime;
@@ -74,8 +60,9 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     viddata->clear();
     viddata->reserve(nframes);
 
-    for (size_t i = 0; i < nfiles; i += dsTime) {
-        
+    for (size_t i = 0; i < nfiles; i += dsTime)
+    {
+
         std::string filename = fileList[i].toLocal8Bit().constData();
         cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
 
@@ -88,16 +75,18 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     vidctrl->setFrameRate(frameRate / dsTime);
 }
 
-void Roivert::changeFrame(const qint32 frame) {
-    if (frame > 0 && frame<=viddata->size()) {// frame is 1 indexed
+void Roivert::changeFrame(const qint32 frame)
+{
+    if (frame > 0 && frame <= viddata->size())
+    { // frame is 1 indexed
         QTime t;
 
         cv::Mat thisframe = viddata->at((size_t)frame - 1);
         QImage qimg(thisframe.data,
-            thisframe.cols,
-            thisframe.rows,
-            thisframe.step,
-            QImage::Format_Grayscale8);
+                    thisframe.cols,
+                    thisframe.rows,
+                    thisframe.step,
+                    QImage::Format_Grayscale8);
         imview->setImage(qimg);
     }
 }

@@ -20,10 +20,10 @@ public slots:
 
 private:
     Ui::RoivertClass ui;
-    ImageROIViewer* imview;
-    VideoController* vidctrl; 
+    ImageROIViewer *imview;
+    VideoController *vidctrl;
 
-    tool::imgData* t_img;
+    tool::imgData *t_img;
 
-    std::vector<cv::Mat>* viddata = new std::vector<cv::Mat>;
+    std::vector<cv::Mat> *viddata = new std::vector<cv::Mat>;
 };
