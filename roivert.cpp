@@ -90,6 +90,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 
 void Roivert::changeFrame(const qint32 frame) {
     if (frame > 0 && frame<=viddata->size()) {// frame is 1 indexed
+        QTime t;
+
         cv::Mat thisframe = viddata->at((size_t)frame - 1);
         QImage qimg(thisframe.data,
             thisframe.cols,

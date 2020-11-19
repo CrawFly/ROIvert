@@ -1,6 +1,8 @@
 #include "imageroiviewer.h"
 #include <QMouseEvent>
 #include <qdebug.h>
+#include <QTime>
+
 
 namespace {
     bool clickOutOfBounds(const QPointF clickpos, const QSize imgsize) {
@@ -17,11 +19,12 @@ ImageROIViewer::ImageROIViewer(QWidget* parent)
     scene = new QGraphicsScene(parent);
     pixitem = new QGraphicsPixmapItem();
     scene->addItem(pixitem);
+    scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+
     setScene(scene);
     setBackgroundBrush(Qt::black);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
 
     this->setParent(parent);
 }
@@ -31,6 +34,7 @@ ImageROIViewer::~ImageROIViewer()
 
 // Image Stuff
 void ImageROIViewer::setImage(const QImage image) {
+    QTime t;
     pixitem->setPixmap(QPixmap::fromImage(image));
     QSize oldSize = img.size();
     QSize newSize = image.size();
@@ -85,7 +89,6 @@ void ImageROIViewer::mousePressEvent(QMouseEvent* event) {
     if (clickOutOfBounds(clickpos, getImageSize())) {
         return;
     }
-    qDebug() << (roishape == ROIVert::ELLIPSE) << (mousestatus.ActiveVert > 0);
 
     if (mousestatus.mode == ROIVert::ADDROI ) {
 

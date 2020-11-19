@@ -40,7 +40,7 @@ private:
     QLineEdit* txtSpeed = new QLineEdit(this);
 
     qint32 currframe = 0;
-    qint32 framerate = 30; // fps (i think this will be the native, and i'll include a multiplier?
+    qint32 framerate = 30; 
     QTime lastframetime;
 
     void PushPlay(const bool& flag);
@@ -48,11 +48,10 @@ private:
     void updateTimeLabel(); // 
     qint32 nframes();
     float speedmult();
-
-
     void setSpeedDial(const qint32 val);
     void setSpeedText();
 
-    QTime timechecker;
+    int clockrate();
 
+    QTime timechecker;
 };
