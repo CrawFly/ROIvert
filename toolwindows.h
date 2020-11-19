@@ -48,7 +48,6 @@ namespace tool
 
     signals:
         void fileLoadRequested(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
-        void frameRateChanged(const int frameRate);
 
     public slots:
         void fileLoadCompleted(size_t nframes, size_t height, size_t width);
@@ -57,7 +56,6 @@ namespace tool
         QLineEdit *txtFilePath = new QLineEdit(this);
         QPushButton *cmdBrowseFilePath = new QPushButton(this);
         QDoubleSpinBox *spinFrameRate = new QDoubleSpinBox(this);
-        ;
         QSpinBox *spinDownTime = new QSpinBox(this);
         QSpinBox *spinDownSpace = new QSpinBox(this);
         QLabel *lblFileInfo = new QLabel(this);

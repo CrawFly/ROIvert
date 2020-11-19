@@ -1,7 +1,8 @@
-#include "videocontroller.h"
+﻿#include "videocontroller.h"
 #include <QBoxLayout>
 #include <QGridLayout>
 #include <QDebug>
+#include <QStyleOption>
 
 VideoController::VideoController(QWidget *parent) : QWidget(parent)
 {
@@ -27,8 +28,6 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     QSize textSize = lblTime->fontMetrics().size(Qt::TextShowMnemonic, "00:00:000 (0000/0000)");
     lblTime->setMinimumSize(textSize);
     lblTime->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    //mm:ss:zzz (%1/%2)
-    // need to get a minimum width for lbltime...
 
     dialSpeed->setWrapping(false);
     dialSpeed->setNotchesVisible(false);
@@ -45,6 +44,12 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     txtSpeed->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
     txtSpeed->setText("1");
     txtSpeed->setToolTip(tr("Set playback speed multiplier"));
+
+    cmdDff->setText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");
+    cmdDff->setFixedWidth(ctextSize.width());
+    cmdDff->setCheckable(true);
+    
 
     QVBoxLayout *layTop = new QVBoxLayout;
     QGridLayout *layUnder = new QGridLayout;
@@ -64,6 +69,8 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
 
     layButtons->addWidget(dialSpeed);
     layButtons->addWidget(txtSpeed);
+    layButtons->addSpacing(15);
+    layButtons->addWidget(cmdDff);
     layButtons->setSpacing(0);
 
     layUnder->addLayout(layTxt, 0, 2, Qt::AlignRight);
@@ -121,11 +128,11 @@ void VideoController::setStop()
 
 void VideoController::PushPlay(const bool &down)
 {
-    // flip icon
     if (down)
     {
         cmdPlay->setIcon(QIcon(":/icons/icons/vid_stop.png"));
         timechecker.start();
+        clock->setInterval(clockrate());
         clock->start();
     }
     else

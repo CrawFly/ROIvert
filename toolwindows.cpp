@@ -109,8 +109,7 @@ imgData::imgData(QWidget *parent)
     connect(cmdBrowseFilePath, &QPushButton::clicked, this, &imgData::browse);
     connect(txtFilePath, &QLineEdit::textChanged, this, &imgData::filePathChanged);
     connect(cmdLoad, &QPushButton::clicked, this, &imgData::load);
-    connect(spinFrameRate, SIGNAL(valueChanged(int)), this, SIGNAL(frameRateChanged(int)));
-
+    
     txtFilePath->setText("C:\\tdeitcher\\");
 }
 imgData::~imgData() {}
@@ -173,7 +172,7 @@ void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
 
     if (nframes > 0)
     {
-        lbl += (tr("Loaded") + QString::number(nframes) + tr(" frames at (") + QString::number(width) + "x" + QString::number(height) + ")");
+        lbl += (tr("Loaded ") + QString::number(nframes) + tr(" frames at (") + QString::number(width) + "x" + QString::number(height) + ")");
     }
     else
     {

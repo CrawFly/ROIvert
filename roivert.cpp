@@ -38,7 +38,7 @@ Roivert::Roivert(QWidget *parent)
 
     connect(t_img, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
-
+    
     // testcode:
     //QImage testimage("C://Users//dbulk//OneDrive//Documents//qtprojects//Roivert//testimage.JPG");
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
@@ -53,26 +53,43 @@ Roivert::Roivert(QWidget *parent)
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-    // loadVideo slot : this is the main loading loop
+    if (fileList.empty()) { return; };
+
     size_t nfiles = fileList.size();
     size_t nframes = nfiles / dsTime;
 
     viddata->clear();
     viddata->reserve(nframes);
 
-    for (size_t i = 0; i < nfiles; i += dsTime)
+    vidmeta.dsSpace = dsSpace;
+    vidmeta.dsTime = dsTime;
+
+    // Load the first file to get size information, and initialize projections:
+    std::string filename = fileList[0].toLocal8Bit().constData();
+    cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
+    const cv::Size sz = image.size();
+    vidmeta.init(image);
+
+    for (size_t i = dsTime; i < nfiles; i += dsTime)
     {
+        filename = fileList[i].toLocal8Bit().constData();
+        image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
+        if (dsSpace > 1) {
+            cv::resize(image.clone(), image, cv::Size(), 1. / dsSpace, 1. / dsSpace, cv::INTER_NEAREST); // do i need clone here?
+        }
 
-        std::string filename = fileList[i].toLocal8Bit().constData();
-        cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
-
-        // downsample in space here..
-        viddata->push_back(image.clone());
-
-        // accumulate stuff
+        if (sz == image.size()){
+            viddata->push_back(image.clone());
+            vidmeta.accum(image);
+        }
     }
+
     vidctrl->setNFrames(viddata->size());
     vidctrl->setFrameRate(frameRate / dsTime);
+    vidmeta.complete();
+
+    // todo: pass something about success, i.e. if frames were skipped because they didn't match the size
+    t_img->fileLoadCompleted(viddata->size(), sz.height, sz.width);
 }
 
 void Roivert::changeFrame(const qint32 frame)
@@ -82,11 +99,16 @@ void Roivert::changeFrame(const qint32 frame)
         QTime t;
 
         cv::Mat thisframe = viddata->at((size_t)frame - 1);
+        if (vidctrl->dff()) {
+            thisframe = vidmeta.dff(thisframe);
+        }
+        
         QImage qimg(thisframe.data,
                     thisframe.cols,
                     thisframe.rows,
                     thisframe.step,
                     QImage::Format_Grayscale8);
+
         imview->setImage(qimg);
     }
 }

@@ -37,7 +37,6 @@ ImageROIViewer::~ImageROIViewer()
 // Image Stuff
 void ImageROIViewer::setImage(const QImage image)
 {
-    QTime t;
     pixitem->setPixmap(QPixmap::fromImage(image));
     QSize oldSize = img.size();
     QSize newSize = image.size();

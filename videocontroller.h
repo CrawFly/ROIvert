@@ -9,6 +9,7 @@
 #include <QTimer>
 #include <QTime>
 #include <QDial>
+#include <QCheckBox>
 
 class VideoController : public QWidget
 {
@@ -17,6 +18,7 @@ class VideoController : public QWidget
 public:
     VideoController(QWidget *parent);
     ~VideoController();
+    bool dff() { return cmdDff->isChecked(); }
 
 signals:
     void frameChanged(const qint32 &frame);
@@ -37,6 +39,7 @@ private:
     QTimer *clock = new QTimer(this);
     QDial *dialSpeed = new QDial(this);
     QLineEdit *txtSpeed = new QLineEdit(this);
+    QPushButton* cmdDff = new QPushButton(this);
 
     qint32 currframe = 0;
     qint32 framerate = 30;
