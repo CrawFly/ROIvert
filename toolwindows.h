@@ -3,15 +3,7 @@
 //
 //
 //  1. Image Data:
-//       LineEdit File Path + Browse button
-//       (future) File List (checkable?)
-//       (future) Filter/ordering tools
-//       (future) drop target
-//       LineEdit Frame Rate
-//       Downsample Time chk + spinner
-//       Downsample Space chk + spinner
-//       Label - file info
-//       Push - Load Commit
+//      .. done
 //
 //  2. Image Settings:
 //       Histogram + min/max/alpha tool
@@ -31,8 +23,7 @@
 #include <QPushButton>
 #include <QCheckBox>
 #include <QSpinBox>
-
-#include <QValidator>
+#include <QProgressBar>
 #include <QLabel>
 
 namespace tool
@@ -51,6 +42,7 @@ namespace tool
 
     public slots:
         void fileLoadCompleted(size_t nframes, size_t height, size_t width);
+        void setProgBar(int val);
 
     private:
         QLineEdit *txtFilePath = new QLineEdit(this);
@@ -59,6 +51,7 @@ namespace tool
         QSpinBox *spinDownTime = new QSpinBox(this);
         QSpinBox *spinDownSpace = new QSpinBox(this);
         QLabel *lblFileInfo = new QLabel(this);
+        QProgressBar* progBar = new QProgressBar(this);
         QPushButton *cmdLoad = new QPushButton(this);
 
         void load();

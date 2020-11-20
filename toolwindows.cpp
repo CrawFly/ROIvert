@@ -68,25 +68,12 @@ imgData::imgData(QWidget *parent)
         layMain->addRow(tr("Frame Subset:"), spinDownTime);
         layMain->addRow(tr("Pixel Subset:"), spinDownSpace);
 
-        /*
-        QWidget* w_ds = new QWidget(widMain);
-        QFormLayout* l_ds = new QFormLayout(w_ds);
-        l_ds->setAlignment(Qt::AlignRight);
-        l_ds->addRow("Time", spinDownTime);
-        l_ds->addRow("Space", spinDownSpace);
-        */
         spinDownTime->setMinimum(1);
         spinDownSpace->setMinimum(1);
         spinDownTime->setMaximum(100);
         spinDownSpace->setMaximum(100);
         spinDownSpace->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
         spinDownTime->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
-        /*
-        l_ds->setAlignment(Qt::AlignLeft);
-        l_ds->setContentsMargins(0, 0, 0, 0);
-        layMain->addRow(tr("&Subset:"),w_ds);
-
-        */
         spinDownTime->setToolTip(tr("Import only every nth frame\nFrame rate should reflect the raw value"));
         spinDownSpace->setToolTip(tr("Import only every nth pixel"));
     }
@@ -97,6 +84,11 @@ imgData::imgData(QWidget *parent)
         cmdLoad->setText("Load Files");
         cmdLoad->setEnabled(false);
         topLay->addWidget(cmdLoad);
+    }
+    {
+        progBar->setMaximum(100);
+        progBar->setVisible(false);
+        topLay->addWidget(progBar);
     }
     // Info Label
     {
@@ -179,4 +171,13 @@ void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
         lbl += (tr("Loading failed"));
     }
     lblFileInfo->setText(lbl);
+}
+
+void imgData::setProgBar(int val) {
+    if (val >= 0 && val <= progBar->maximum()) {
+        progBar->setVisible(true);
+        progBar->setValue(val);
+        return;
+    }
+    progBar->setVisible(false);
 }

@@ -29,12 +29,12 @@ void VideoData::load(QStringList filelist, int dst, int dss){
     dsSpace = dss;
 
     init();
+
     for (size_t i = 1; i < files.size(); i+=dsTime) {
         if (readframe(i)) { 
             accum(data->at(data->size() - 1));
         }
-        //emit here
-        emit frameLoaded(i);
+        emit loadProgress((100 - (storeDff * 50)) * (float)i / files.size());
     }
     complete();
 
@@ -44,11 +44,9 @@ void VideoData::load(QStringList filelist, int dst, int dss){
         dataDff->reserve(data->size());
         for (size_t i = 0; i < data->size(); i++) {
             dataDff->push_back(calcDffNative(data->at(i)));
+            emit loadProgress(50 + 50 * (float)i / data->size());
         }
     }
-
-    //emit the load complete:
-    emit loadComplete(getNFrames(), height, width, getNFrames()-files.size());
 }
 
 void VideoData::init() {

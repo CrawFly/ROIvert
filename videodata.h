@@ -38,8 +38,8 @@ public:
     size_t getNFrames();
 
 signals:
-    void frameLoaded(size_t frameNumber); // fires whether it's valid or not
-    void loadComplete(size_t nframes, int height, int width, int ndropped);
+    void loadProgress(int progress);          // progress goes 0-100
+
 
 private:
     bool storeDff = true;

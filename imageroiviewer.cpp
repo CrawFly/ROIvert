@@ -20,6 +20,7 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
 {
     scene = new QGraphicsScene(parent);
     pixitem = new QGraphicsPixmapItem();
+    pixitem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
     scene->addItem(pixitem);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 
@@ -45,8 +46,10 @@ void ImageROIViewer::setImage(const QImage image)
     hasImage = true;
     emit imgLoaded();
 
+    
     if (oldSize != newSize)
     {
+        scene->setSceneRect(pixitem->boundingRect());
         fitInView(pixitem, Qt::KeepAspectRatio);
         emit imgSizeChanged(newSize);
     }

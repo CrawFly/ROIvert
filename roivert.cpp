@@ -7,6 +7,7 @@
 #include "qcheckbox.h"
 #include "qspinbox.h"
 #include "qdockwidget.h"
+#include "qprogressdialog.h"
 
 Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
@@ -14,6 +15,8 @@ Roivert::Roivert(QWidget *parent)
     ui.setupUi(this);
     viddata = new VideoData(this);
 
+    setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
+    
     QGridLayout *gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
@@ -23,6 +26,7 @@ Roivert::Roivert(QWidget *parent)
     testwidg->setWindowTitle("Image Data");
     addDockWidget(Qt::LeftDockWidgetArea, testwidg);
 
+    
     // Right Side:
     QWidget *rightLayoutWidget = new QWidget(ui.centralWidget);
     QVBoxLayout *rightLayout = new QVBoxLayout(rightLayoutWidget);
@@ -56,51 +60,16 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 {
     QTime t;
     t.start();
+    // Can't wrap my head around doing this with a progress dialog, but I can debug it, can probably do it with a progress bar?
+    //connect(viddata, &VideoData::loadProgress, this, [=](int prog) {qDebug() << prog; });
+    connect(viddata, &VideoData::loadProgress, t_img, &tool::imgData::setProgBar);
     viddata->load(fileList, dsTime, dsSpace);
-    
+    t_img->setProgBar(-1);
     qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
 
-    /*
-    if (fileList.empty()) { return; };
-
-    size_t nfiles = fileList.size();
-    size_t nframes = nfiles / dsTime;
-
-    viddata->clear();
-    viddata->reserve(nframes);
-
-    vidmeta.dsSpace = dsSpace;
-    vidmeta.dsTime = dsTime;
-
-    // Load the first file to get size information, and initialize projections:
-    std::string filename = fileList[0].toLocal8Bit().constData();
-    cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
-    const cv::Size sz = image.size();
-    vidmeta.init(image);
-
-    for (size_t i = dsTime; i < nfiles; i += dsTime)
-    {
-        filename = fileList[i].toLocal8Bit().constData();
-        image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
-        if (dsSpace > 1) {
-            cv::resize(image.clone(), image, cv::Size(), 1. / dsSpace, 1. / dsSpace, cv::INTER_NEAREST); // do i need clone here?
-        }
-
-        if (sz == image.size()){
-            viddata->push_back(image.clone());
-            vidmeta.accum(image);
-        }
-    }
-
-    vidctrl->setNFrames(viddata->size());
-    vidctrl->setFrameRate(frameRate / dsTime);
-    vidmeta.complete();
-
-    // todo: pass something about success, i.e. if frames were skipped because they didn't match the size
-    t_img->fileLoadCompleted(viddata->size(), sz.height, sz.width);
-    */
+    t_img->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
 }
 
 void Roivert::changeFrame(const qint32 frame)
