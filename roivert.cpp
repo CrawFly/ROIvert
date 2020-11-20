@@ -12,6 +12,7 @@ Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+    viddata = new VideoData(this);
 
     QGridLayout *gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
@@ -53,6 +54,15 @@ Roivert::Roivert(QWidget *parent)
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
+    QTime t;
+    t.start();
+    viddata->load(fileList, dsTime, dsSpace);
+    
+    qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
+    vidctrl->setNFrames(viddata->getNFrames());
+    vidctrl->setFrameRate(frameRate / dsTime);
+
+    /*
     if (fileList.empty()) { return; };
 
     size_t nfiles = fileList.size();
@@ -90,17 +100,21 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 
     // todo: pass something about success, i.e. if frames were skipped because they didn't match the size
     t_img->fileLoadCompleted(viddata->size(), sz.height, sz.width);
+    */
 }
 
 void Roivert::changeFrame(const qint32 frame)
 {
-    if (frame > 0 && frame <= viddata->size())
+    if (frame > 0 && frame <= viddata->getNFrames())
     { // frame is 1 indexed
-        QTime t;
+        size_t f = frame;
 
-        cv::Mat thisframe = viddata->at((size_t)frame - 1);
+        cv::Mat thisframe;
         if (vidctrl->dff()) {
-            thisframe = vidmeta.dff(thisframe);
+            thisframe = viddata->getFrameDff(f - 1);
+        }
+        else {
+            thisframe = viddata->getFrameRaw(f - 1);
         }
         
         QImage qimg(thisframe.data,
@@ -108,7 +122,8 @@ void Roivert::changeFrame(const qint32 frame)
                     thisframe.rows,
                     thisframe.step,
                     QImage::Format_Grayscale8);
-
+        
         imview->setImage(qimg);
     }
+ 
 }

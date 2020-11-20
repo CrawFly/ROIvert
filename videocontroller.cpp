@@ -6,7 +6,6 @@
 
 VideoController::VideoController(QWidget *parent) : QWidget(parent)
 {
-
     sliScrub->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
     sliScrub->setMinimum(1);
     sliScrub->setSingleStep(1);
@@ -83,6 +82,7 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     connect(this->clock, &QTimer::timeout, this, &VideoController::clockStep);
     connect(dialSpeed, &QDial::valueChanged, this, &VideoController::setSpeedDial);
     connect(txtSpeed, &QLineEdit::editingFinished, this, &VideoController::setSpeedText);
+    connect(cmdDff, &QPushButton::clicked, this, [=]() {emit frameChanged(currframe); });
 
     setNFrames(100);
     setFrameRate(30);
