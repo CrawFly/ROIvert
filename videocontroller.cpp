@@ -165,6 +165,7 @@ void VideoController::setFrameRate(const float fr)
 {
     framerate = fr;
     clock->setInterval(clockrate());
+    updateTimeLabel();
 }
 
 void VideoController::updateTimeLabel()

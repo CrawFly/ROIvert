@@ -36,6 +36,9 @@ public:
     int getWidth();
     int getHeight();
     size_t getNFrames();
+    int getdsTime();
+    int getdsSpace();
+
 
 signals:
     void loadProgress(int progress);          // progress goes 0-100

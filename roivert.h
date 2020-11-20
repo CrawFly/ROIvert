@@ -23,8 +23,8 @@ private:
     Ui::RoivertClass ui;
     ImageROIViewer *imview;
     VideoController *vidctrl;
-
-    tool::imgData *t_img;
-
     VideoData* viddata;
+    tool::imgData* t_img;
+
+    void frameRateChanged(double frameRate);
 };

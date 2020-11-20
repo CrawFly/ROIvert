@@ -39,6 +39,8 @@ namespace tool
 
     signals:
         void fileLoadRequested(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
+        void frameRateChanged(double fr);
+
 
     public slots:
         void fileLoadCompleted(size_t nframes, size_t height, size_t width);

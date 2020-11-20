@@ -101,7 +101,8 @@ imgData::imgData(QWidget *parent)
     connect(cmdBrowseFilePath, &QPushButton::clicked, this, &imgData::browse);
     connect(txtFilePath, &QLineEdit::textChanged, this, &imgData::filePathChanged);
     connect(cmdLoad, &QPushButton::clicked, this, &imgData::load);
-    
+    connect(spinFrameRate, SIGNAL(valueChanged(double)), this, SIGNAL(frameRateChanged(double)));
+
     txtFilePath->setText("C:\\tdeitcher\\");
 }
 imgData::~imgData() {}

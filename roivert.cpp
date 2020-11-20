@@ -43,7 +43,10 @@ Roivert::Roivert(QWidget *parent)
 
     connect(t_img, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
-    
+    connect(viddata, &VideoData::loadProgress, t_img, &tool::imgData::setProgBar);
+    connect(t_img, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
+
+
     // testcode:
     //QImage testimage("C://Users//dbulk//OneDrive//Documents//qtprojects//Roivert//testimage.JPG");
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
@@ -60,9 +63,6 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 {
     QTime t;
     t.start();
-    // Can't wrap my head around doing this with a progress dialog, but I can debug it, can probably do it with a progress bar?
-    //connect(viddata, &VideoData::loadProgress, this, [=](int prog) {qDebug() << prog; });
-    connect(viddata, &VideoData::loadProgress, t_img, &tool::imgData::setProgBar);
     viddata->load(fileList, dsTime, dsSpace);
     t_img->setProgBar(-1);
     qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
@@ -95,4 +95,7 @@ void Roivert::changeFrame(const qint32 frame)
         imview->setImage(qimg);
     }
  
+}
+void Roivert::frameRateChanged(double frameRate){
+    vidctrl->setFrameRate(frameRate / viddata->getdsTime());
 }

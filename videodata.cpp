@@ -176,4 +176,5 @@ bool VideoData::getStoreDff() { return storeDff; }
 int VideoData::getWidth() { return width; }
 int VideoData::getHeight() { return height; }
 size_t VideoData::getNFrames() { return data->size(); }
-
+int VideoData::getdsTime() { return dsTime; }
+int VideoData::getdsSpace() { return dsSpace; }
