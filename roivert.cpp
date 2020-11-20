@@ -68,8 +68,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
-
     t_img->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
+    vidctrl->setEnabled(true);
 }
 
 void Roivert::changeFrame(const qint32 frame)
