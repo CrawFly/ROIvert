@@ -4,21 +4,25 @@
 #include <QGraphicsPixmapItem>
 #include "roi.h"
 
-namespace ROIVert {
-	enum MODE {
+namespace ROIVert
+{
+	enum MODE
+	{
 		NONE,
 		ADDROI,
 		SELROI,
 		ZOOM
 	};
-	enum ROISHAPE {
+	enum ROISHAPE
+	{
 		RECTANGLE,
 		ELLIPSE,
 		POLYGON
 	};
-}
+} // namespace ROIVert
 
-struct MouseStatus {
+struct MouseStatus
+{
 	ROIVert::MODE mode = ROIVert::NONE;
 	size_t ActiveROI = 0;
 	size_t ActiveVert = 0;
@@ -31,13 +35,12 @@ class ImageROIViewer : public QGraphicsView
 public:
 	explicit ImageROIViewer(QWidget *parent = nullptr);
 	virtual ~ImageROIViewer();
-	void setImage(const QImage image); 
-	QImage getImage();				   
+	void setImage(const QImage image);
+	QImage getImage();
 	QSize getImageSize();
 	void pushROI();
 	void setMouseMode(ROIVert::MODE);
 	void setROIShape(ROIVert::ROISHAPE);
-
 
 	/*
 
@@ -69,27 +72,27 @@ public:
 	*/
 signals:
 	void roiSelected(const size_t roiind);
-	void roiEdited(const size_t roiind, const QVector<QPoint>& Vertices); // this fires on commit?
+	void roiEdited(const size_t roiind, const QVector<QPoint> &Vertices); // this fires on commit?
 	void imgLoaded();
 	void imgSizeChanged(const QSize newSize);
 
 protected:
-	void resizeEvent(QResizeEvent* event);
-	void mousePressEvent(QMouseEvent* event) override;
-	void mouseMoveEvent(QMouseEvent* event) override;
-	void mouseReleaseEvent(QMouseEvent* event) override;
-	void mouseDoubleClickEvent(QMouseEvent* event) override;
-	void keyPressEvent(QKeyEvent* event) override;
-	void wheelEvent(QWheelEvent* event) override;
+	void resizeEvent(QResizeEvent *event);
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void wheelEvent(QWheelEvent *event) override;
 
 private:
 	QImage img;
-	QGraphicsScene* scene;
-	QGraphicsPixmapItem* pixitem;
-	
+	QGraphicsScene *scene;
+	QGraphicsPixmapItem *pixitem;
+
 	bool hasImage = false;
 
-	std::vector<roi*> rois;
+	std::vector<roi *> rois;
 	//cv::Mat *roimap = new cv::Mat;
 	MouseStatus mousestatus;
 	ROIVert::ROISHAPE roishape = ROIVert::RECTANGLE;

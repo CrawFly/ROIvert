@@ -6,6 +6,7 @@
 #include "videocontroller.h"
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
+#include "videodata.h"
 
 class Roivert : public QMainWindow
 {
@@ -20,10 +21,10 @@ public slots:
 
 private:
     Ui::RoivertClass ui;
-    ImageROIViewer* imview;
-    VideoController* vidctrl; 
+    ImageROIViewer *imview;
+    VideoController *vidctrl;
 
-    tool::imgData* t_img;
+    tool::imgData *t_img;
 
-    std::vector<cv::Mat>* viddata = new std::vector<cv::Mat>;
+    VideoData* viddata;
 };

@@ -7,35 +7,29 @@
 #include "qcheckbox.h"
 #include "qspinbox.h"
 #include "qdockwidget.h"
-
+#include "qprogressdialog.h"
 
 Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
 {
-    
-    // the slider approach is neat, but I think it's better to use dockwidgets...
-    //  I think each of my settings things is going to subclass a qdockwidget...?
-    //  Or maybe it will contain a qdockwidget...
-    //  Or third option is i just make some standard frame thingy, that goes in a qdockwidget...
-
     ui.setupUi(this);
+    viddata = new VideoData(this);
+
+    setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
     
-    QGridLayout* gridLayout = new QGridLayout(ui.centralWidget);    // top level layout that makes everything stretch-to-fit
-    //QSplitter* splitter = new QSplitter(ui.centralWidget);          // Splitter between video and menu
-    //splitter->setOrientation(Qt::Horizontal);
+    QGridLayout *gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
-
     t_img = new tool::imgData(this);
-    QDockWidget* testwidg = new QDockWidget();
+    QDockWidget *testwidg = new QDockWidget();
     testwidg->setWidget(t_img);
     testwidg->setWindowTitle("Image Data");
     addDockWidget(Qt::LeftDockWidgetArea, testwidg);
 
-
+    
     // Right Side:
-    QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);               
-    QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
+    QWidget *rightLayoutWidget = new QWidget(ui.centralWidget);
+    QVBoxLayout *rightLayout = new QVBoxLayout(rightLayoutWidget);
     rightLayout->setContentsMargins(0, 0, 0, 0);
 
     // Image Viewer:
@@ -47,11 +41,9 @@ Roivert::Roivert(QWidget *parent)
     rightLayout->addWidget(vidctrl);
     gridLayout->addWidget(rightLayoutWidget);
 
-    
     connect(t_img, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
-
-
+    
     // testcode:
     //QImage testimage("C://Users//dbulk//OneDrive//Documents//qtprojects//Roivert//testimage.JPG");
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
@@ -62,40 +54,45 @@ Roivert::Roivert(QWidget *parent)
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 550);
-
-
 }
 
-void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace) {
-    // loadVideo slot : this is the main loading loop
-    size_t nfiles = fileList.size();
-    size_t nframes = nfiles / dsTime;
-
-    viddata->clear();
-    viddata->reserve(nframes);
-
-    for (size_t i = 0; i < nfiles; i += dsTime) {
-        
-        std::string filename = fileList[i].toLocal8Bit().constData();
-        cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
-
-        // downsample in space here..
-        viddata->push_back(image.clone());
-
-        // accumulate stuff
-    }
-    vidctrl->setNFrames(viddata->size());
+void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
+{
+    QTime t;
+    t.start();
+    // Can't wrap my head around doing this with a progress dialog, but I can debug it, can probably do it with a progress bar?
+    //connect(viddata, &VideoData::loadProgress, this, [=](int prog) {qDebug() << prog; });
+    connect(viddata, &VideoData::loadProgress, t_img, &tool::imgData::setProgBar);
+    viddata->load(fileList, dsTime, dsSpace);
+    t_img->setProgBar(-1);
+    qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
+    vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
+
+    t_img->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
 }
 
-void Roivert::changeFrame(const qint32 frame) {
-    if (frame > 0 && frame<=viddata->size()) {// frame is 1 indexed
-        cv::Mat thisframe = viddata->at((size_t)frame - 1);
+void Roivert::changeFrame(const qint32 frame)
+{
+    if (frame > 0 && frame <= viddata->getNFrames())
+    { // frame is 1 indexed
+        size_t f = frame;
+
+        cv::Mat thisframe;
+        if (vidctrl->dff()) {
+            thisframe = viddata->getFrameDff(f - 1);
+        }
+        else {
+            thisframe = viddata->getFrameRaw(f - 1);
+        }
+        
         QImage qimg(thisframe.data,
-            thisframe.cols,
-            thisframe.rows,
-            thisframe.step,
-            QImage::Format_Grayscale8);
+                    thisframe.cols,
+                    thisframe.rows,
+                    thisframe.step,
+                    QImage::Format_Grayscale8);
+        
         imview->setImage(qimg);
     }
+ 
 }
