@@ -28,11 +28,12 @@ public:
     void setStoreDff(bool enabled);
     bool getStoreDff();
     
-    //cv::Mat getFrameHistogramRaw(size_t frameindex); 
-    //cv::Mat getFrameHistogramDff(size_t frameindex);
-    //cv::Mat getHistogramRaw(size_t frameindex);
-    //cv::Mat getHistogramDff(size_t frameindex);
-
+    // these get the total histograms
+    void getHistogramRaw(std::vector<float>& histogram);
+    void getHistogramDff(std::vector<float>& histogram);
+    void getHistogramRaw(std::vector<float>& histogram, size_t framenum);
+    void getHistogramDff(std::vector<float>& histogram, size_t framenum);
+    
     int getWidth();
     int getHeight();
     size_t getNFrames();
@@ -68,10 +69,15 @@ private:
     cv::Mat calcDffDouble(const cv::Mat& frame);
     cv::Mat calcDffNative(const cv::Mat& frame);
 
+    // Histogram stuff:
+    void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
+
+    cv::Mat rawhistogram;
+    cv::Mat dffhistogram;
+
     // Actual storage:
     std::vector<cv::Mat>* data = new std::vector<cv::Mat>;
     std::vector<cv::Mat>* dataDff = new std::vector<cv::Mat>;
 
-    //cv::Mat rawhistogram;
-    //cv::Mat dffhistogram;
+    
 };

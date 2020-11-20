@@ -44,6 +44,7 @@ void VideoData::load(QStringList filelist, int dst, int dss){
         dataDff->reserve(data->size());
         for (size_t i = 0; i < data->size(); i++) {
             dataDff->push_back(calcDffNative(data->at(i)));
+            calcHist(&dataDff->at(i), dffhistogram, true);
             emit loadProgress(50 + 50 * (float)i / data->size());
         }
     }
@@ -77,6 +78,11 @@ void VideoData::init() {
         proj[i] = first.clone();
         first.convertTo(projd[i], CV_64FC1);
     }
+
+    // initialize histograms
+    rawhistogram = cv::Mat(1, 256, CV_32F); rawhistogram = 0;
+    dffhistogram = cv::Mat(1, 256, CV_32F); dffhistogram = 0;
+    
     data->push_back(first.clone());
 }
 
@@ -101,6 +107,7 @@ void VideoData::accum(const cv::Mat &frame) {
     proj[(size_t)VideoData::projection::MIN] = cv::min(proj[(size_t)VideoData::projection::MIN], frame);
     proj[(size_t)VideoData::projection::MAX] = cv::max(proj[(size_t)VideoData::projection::MAX], frame);
     cv::accumulate(frame, projd[(size_t)VideoData::projection::SUM]);
+    calcHist(&frame, rawhistogram, true);
 }
 
 void VideoData::complete() {
@@ -178,3 +185,37 @@ int VideoData::getHeight() { return height; }
 size_t VideoData::getNFrames() { return data->size(); }
 int VideoData::getdsTime() { return dsTime; }
 int VideoData::getdsSpace() { return dsSpace; }
+
+
+void VideoData::getHistogramRaw(std::vector<float>& h) {
+    // this will handle expansion just fine
+    rawhistogram.copyTo(h);
+}
+void VideoData::getHistogramDff(std::vector<float>& h) {
+    // this will handle expansion just fine
+    dffhistogram.copyTo(h);
+}
+void VideoData::getHistogramRaw(std::vector<float>& histogram, size_t framenum) {
+    if (framenum < data->size()) {
+        cv::Mat hist;
+        calcHist(&data->at(framenum), hist, false);
+        hist.copyTo(histogram);
+    }
+}
+void VideoData::getHistogramDff(std::vector<float>& histogram, size_t framenum) {
+    if (framenum < dataDff->size()) {
+        cv::Mat hist;
+        calcHist(&dataDff->at(framenum), hist, false);
+        hist.copyTo(histogram);
+    }
+}
+
+void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
+    // thin wrapper on opencv calchist
+    const int chnl = 0;
+    const int histsize = 256;
+    float range[] = { 0, pow(2,bitdepth) + 1 }; //the upper boundary is exclusive
+    const float* histRange = { range };
+
+    cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
+}
