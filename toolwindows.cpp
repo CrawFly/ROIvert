@@ -6,8 +6,11 @@
 #include <QFileDialog>
 #include <qcompleter.h>
 #include <qfilesystemmodel.h>
+#include <QtCharts/qvalueaxis.h>
+#include <QtCharts/qareaseries.h>
 
 using namespace tool;
+using namespace QtCharts;
 
 imgData::imgData(QWidget *parent)
 {
@@ -106,7 +109,6 @@ imgData::imgData(QWidget *parent)
     txtFilePath->setText("C:\\tdeitcher\\");
 }
 imgData::~imgData() {}
-
 void imgData::browse()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
@@ -139,7 +141,6 @@ void imgData::filePathChanged(const QString &filepath)
         cmdLoad->setEnabled(true);
     }
 }
-
 void imgData::load()
 {
     // load just emits the load signal with all the data...
@@ -155,7 +156,6 @@ void imgData::load()
     lblFileInfo->setText(txtFilePath->text() + tr(" contains ") + QString::number(filelist.size()) + tr(" files.\nLoading..."));
     emit fileLoadRequested(filelist, spinFrameRate->value(), spinDownTime->value(), spinDownSpace->value());
 }
-
 void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
 {
     QStringList filelist = QDir(txtFilePath->text()).entryList(QStringList() << "*.tif"
@@ -173,7 +173,6 @@ void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
     }
     lblFileInfo->setText(lbl);
 }
-
 void imgData::setProgBar(int val) {
     if (val >= 0 && val <= progBar->maximum()) {
         progBar->setVisible(true);
@@ -181,4 +180,49 @@ void imgData::setProgBar(int val) {
         return;
     }
     progBar->setVisible(false);
+}
+
+
+imgSettings::imgSettings(QWidget* parent) {
+    QGridLayout* topLay = new QGridLayout(this);
+    rawContrast = new ContrastWidget;
+    dffContrast = new ContrastWidget;
+    topLay->addWidget(rawContrast,0,0);
+    topLay->addWidget(dffContrast,0,0);
+    dffContrast->setVisible(false);
+
+    connect(rawContrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
+}
+imgSettings::~imgSettings(){}
+
+void imgSettings::setRawHistogram(std::vector<float> &data){
+    rawContrast->setHist(data);
+}
+void imgSettings::setDffHistogram(std::vector<float> &data){
+    dffContrast->setHist(data);
+}
+
+
+void imgSettings::setDffVisible(bool vis) {
+    rawContrast->setVisible(!vis);
+    dffContrast->setVisible(vis);
+}
+
+void imgSettings::getContrast(float* mmg) {
+    if (rawContrast->isVisible()) {
+        mmg[0] = rawContrast->getMin();
+        mmg[1] = rawContrast->getMax();
+        mmg[2] = rawContrast->getGamma();
+    }
+    else {
+        mmg[0] = dffContrast->getMin();
+        mmg[1] = dffContrast->getMax();
+        mmg[2] = dffContrast->getGamma();
+    }
+}
+cv::Mat imgSettings::getLUT() {
+    if (rawContrast->isVisible()) {
+        return rawContrast->getLUT();
+    }
+    return dffContrast->getLUT();
 }

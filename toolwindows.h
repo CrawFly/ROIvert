@@ -26,6 +26,9 @@
 #include <QProgressBar>
 #include <QLabel>
 
+#include "contrastwidget.h"
+
+
 namespace tool
 {
 
@@ -62,9 +65,26 @@ namespace tool
         void browse();
         void filePathChanged(const QString &filepath);
     };
-} // namespace tool
 
-//  1. Image Data:
-//       Label - file info
-//       Push - Load Commit
-//
+    class imgSettings : public QWidget {
+        Q_OBJECT
+
+    public:
+        imgSettings(QWidget* parent);
+        ~imgSettings();
+        void setRawHistogram(std::vector<float> &data);
+        void setDffHistogram(std::vector<float> &data);
+
+        void setDffVisible(bool vis = true);
+
+        void getContrast(float* mmg);
+        cv::Mat getLUT();
+    
+    signals:
+        void contrastChanged();
+
+    private:
+        ContrastWidget* rawContrast;
+        ContrastWidget* dffContrast;
+    };
+} // namespace tool

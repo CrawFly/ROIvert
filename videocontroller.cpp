@@ -83,7 +83,7 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     connect(this->clock, &QTimer::timeout, this, &VideoController::clockStep);
     connect(dialSpeed, &QDial::valueChanged, this, &VideoController::setSpeedDial);
     connect(txtSpeed, &QLineEdit::editingFinished, this, &VideoController::setSpeedText);
-    connect(cmdDff, &QPushButton::clicked, this, [=]() {emit frameChanged(currframe); });
+    connect(cmdDff, &QPushButton::clicked, this, [=](bool checked) {emit frameChanged(currframe); emit dffToggle(checked); });
 
     clock->setTimerType(Qt::PreciseTimer);
     clock->setInterval(clockrate());

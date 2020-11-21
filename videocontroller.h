@@ -19,9 +19,10 @@ public:
     VideoController(QWidget *parent);
     ~VideoController();
     bool dff() { return cmdDff->isChecked(); }
-
+    void forceUpdate() { qint32 f = currframe; currframe = 0; setFrame(f); };
 signals:
     void frameChanged(const qint32 &frame);
+    void dffToggle(bool isdff);
 
 public slots:
     void setFrame(const qint32 frame);

@@ -24,7 +24,8 @@ private:
     ImageROIViewer *imview;
     VideoController *vidctrl;
     VideoData* viddata;
-    tool::imgData* t_img;
+    tool::imgData* t_imgData;
+    tool::imgSettings* t_imgSettings;
 
     void frameRateChanged(double frameRate);
 };
