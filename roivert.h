@@ -7,6 +7,7 @@
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
 #include "videodata.h"
+#include "displaysettings.h"
 
 class Roivert : public QMainWindow
 {
@@ -18,6 +19,7 @@ public:
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const qint32 frame);
+    void contrastChange(double min, double max, double gamma);
 
 private:
     Ui::RoivertClass ui;
@@ -26,6 +28,7 @@ private:
     VideoData* viddata;
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;
+    DisplaySettings dispSettings;
 
     void frameRateChanged(double frameRate);
 };

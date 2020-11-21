@@ -192,6 +192,8 @@ imgSettings::imgSettings(QWidget* parent) {
     dffContrast->setVisible(false);
 
     connect(rawContrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
+    connect(dffContrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
+    setEnabled(false);
 }
 imgSettings::~imgSettings(){}
 
@@ -202,27 +204,7 @@ void imgSettings::setDffHistogram(std::vector<float> &data){
     dffContrast->setHist(data);
 }
 
-
 void imgSettings::setDffVisible(bool vis) {
     rawContrast->setVisible(!vis);
     dffContrast->setVisible(vis);
-}
-
-void imgSettings::getContrast(float* mmg) {
-    if (rawContrast->isVisible()) {
-        mmg[0] = rawContrast->getMin();
-        mmg[1] = rawContrast->getMax();
-        mmg[2] = rawContrast->getGamma();
-    }
-    else {
-        mmg[0] = dffContrast->getMin();
-        mmg[1] = dffContrast->getMax();
-        mmg[2] = dffContrast->getGamma();
-    }
-}
-cv::Mat imgSettings::getLUT() {
-    if (rawContrast->isVisible()) {
-        return rawContrast->getLUT();
-    }
-    return dffContrast->getLUT();
 }

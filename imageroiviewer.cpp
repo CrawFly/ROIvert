@@ -30,6 +30,7 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     this->setParent(parent);
+    setEnabled(false);
 }
 ImageROIViewer::~ImageROIViewer()
 {

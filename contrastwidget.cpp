@@ -44,9 +44,9 @@ ContrastWidget::ContrastWidget(QWidget* parent) {
         connect(spinMax, SIGNAL(valueChanged(double)), contChart, SLOT(changeMax(double)));
         connect(spinGamma, SIGNAL(valueChanged(double)), contChart, SLOT(changeGamma(double)));
 
-        connect(spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma()); updateLUT(); });
-        connect(spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma()); updateLUT(); });
-        connect(spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma()); updateLUT(); });
+        connect(spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma());});
+        connect(spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma());});
+        connect(spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma());});
 
     }
 
@@ -56,20 +56,4 @@ double ContrastWidget::getMin() { return spinMin->value(); }
 double ContrastWidget::getMax() { return spinMax->value(); }
 double ContrastWidget::getGamma() { return spinGamma->value(); }
 void ContrastWidget::setHist(std::vector<float> histval) {contChart->setData(histval);}
-void ContrastWidget::updateLUT(){
-    uchar* p = lut.ptr();
-
-    double xmin = getMin();
-    double xrng = getMax() - getMin();
-    double xgma = getGamma();
-
-    for (int i = 0; i < 256; ++i) {
-        double val = pow((i / 255. - xmin) / xrng, xgma) * 255.;
-        p[i] = cv::saturate_cast<uchar>(val);
-    }
-    
-}
-cv::Mat ContrastWidget::getLUT() {
-    return lut;
-}
 

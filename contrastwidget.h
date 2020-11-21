@@ -311,7 +311,6 @@ public:
     double getGamma();
 
     void setHist(std::vector<float> histval);
-    cv::Mat getLUT();
 
 signals:
     void contrastChanged(double min, double max, double gamma);
@@ -321,8 +320,5 @@ private:
     QDoubleSpinBox* spinMax = new QDoubleSpinBox;
     QDoubleSpinBox* spinGamma = new QDoubleSpinBox;
     ContrastHistogramChart* contChart;
-    void updateLUT();
-
-    cv::Mat lut = cv::Mat(1, 256, CV_8U);
 };
 

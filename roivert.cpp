@@ -8,6 +8,7 @@
 #include "qspinbox.h"
 #include "qdockwidget.h"
 #include "qprogressdialog.h"
+#include "displaysettings.h"
 
 Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
@@ -52,8 +53,7 @@ Roivert::Roivert(QWidget *parent)
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(vidctrl, &VideoController::dffToggle, t_imgSettings, &tool::imgSettings::setDffVisible);
-    
-    connect(t_imgSettings, &tool::imgSettings::contrastChanged, vidctrl, &VideoController::forceUpdate);
+    connect(t_imgSettings, &tool::imgSettings::contrastChanged, this, &Roivert::contrastChange);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -75,7 +75,10 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
     t_imgData->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
+    
     vidctrl->setEnabled(true);
+    t_imgSettings->setEnabled(true);
+    imview->setEnabled(true);
 
     std::vector<float> rawhist;viddata->getHistogramRaw(rawhist);
     std::vector<float> dffhist; viddata->getHistogramDff(dffhist);
@@ -99,16 +102,10 @@ void Roivert::changeFrame(const qint32 frame)
             thisframe = viddata->getFrameRaw(f - 1).clone();
         }
 
-        float contrast[3];
-        t_imgSettings->getContrast(contrast);
-
-        // use a LUT to move it: (this LUT should live on the contrast tool!!!
-        //  this LUT should only be calculated when it changes...
-
-        if (contrast[0] != 0. || contrast[1] != 1. || contrast[2] !=1) {
-            cv::LUT(thisframe, t_imgSettings->getLUT(), thisframe);
+        if (dispSettings.hasContrast(vidctrl->dff())) {
+            cv::LUT(thisframe, dispSettings.getLut(vidctrl->dff()), thisframe);
         }
-        
+
         QImage qimg(thisframe.data,
                     thisframe.cols,
                     thisframe.rows,
@@ -121,4 +118,9 @@ void Roivert::changeFrame(const qint32 frame)
 }
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
+}
+
+void Roivert::contrastChange(double min, double max, double gamma) {
+    dispSettings.setContrast(vidctrl->dff(), min, max, gamma);
+    vidctrl->forceUpdate();
 }

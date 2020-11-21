@@ -74,14 +74,11 @@ namespace tool
         ~imgSettings();
         void setRawHistogram(std::vector<float> &data);
         void setDffHistogram(std::vector<float> &data);
-
         void setDffVisible(bool vis = true);
 
-        void getContrast(float* mmg);
-        cv::Mat getLUT();
     
     signals:
-        void contrastChanged();
+        void contrastChanged(double min, double max, double gamma);
 
     private:
         ContrastWidget* rawContrast;

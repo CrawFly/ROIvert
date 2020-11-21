@@ -93,7 +93,6 @@ private:
 	bool hasImage = false;
 
 	std::vector<roi *> rois;
-	//cv::Mat *roimap = new cv::Mat;
 	MouseStatus mousestatus;
 	ROIVert::ROISHAPE roishape = ROIVert::RECTANGLE;
 };
