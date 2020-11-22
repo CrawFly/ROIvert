@@ -10,6 +10,9 @@
 #include "qprogressdialog.h"
 #include "displaysettings.h"
 
+#include "qactiongroup.h"
+
+
 Roivert::Roivert(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -22,16 +25,16 @@ Roivert::Roivert(QWidget *parent)
     setDockNestingEnabled(true);
 
     t_imgData = new tool::imgData(this);
-    QDockWidget* testwidg = new QDockWidget();
-    testwidg->setWidget(t_imgData);
-    testwidg->setWindowTitle("Image Data");
-    addDockWidget(Qt::LeftDockWidgetArea, testwidg);
+    w_imgData = new QDockWidget();
+    w_imgData->setWidget(t_imgData);
+    w_imgData->setWindowTitle("Image Data");
+    addDockWidget(Qt::RightDockWidgetArea, w_imgData);
 
     t_imgSettings = new tool::imgSettings(this);
-    QDockWidget* testwidg2 = new QDockWidget();
-    testwidg2->setWidget(t_imgSettings);
-    testwidg2->setWindowTitle("Image Settings");
-    addDockWidget(Qt::LeftDockWidgetArea, testwidg2);
+    w_imgSettings = new QDockWidget();
+    w_imgSettings->setWidget(t_imgSettings);
+    w_imgSettings->setWindowTitle("Image Settings");
+    addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
 
     
     // Right Side:
@@ -60,6 +63,10 @@ Roivert::Roivert(QWidget *parent)
     imview->setImage(testimage);
     imview->setMouseMode(ROIVert::ADDROI);
     imview->setROIShape(ROIVert::RECTANGLE);
+
+    makeToolbar();
+
+
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 550);
@@ -105,13 +112,11 @@ void Roivert::changeFrame(const qint32 frame)
         if (dispSettings.hasContrast(vidctrl->dff())) {
             cv::LUT(thisframe, dispSettings.getLut(vidctrl->dff()), thisframe);
         }
-
         QImage qimg(thisframe.data,
                     thisframe.cols,
                     thisframe.rows,
                     thisframe.step,
                     QImage::Format_Grayscale8);
-        
         imview->setImage(qimg);
     }
  
@@ -124,3 +129,60 @@ void Roivert::contrastChange(double min, double max, double gamma) {
     dispSettings.setContrast(vidctrl->dff(), min, max, gamma);
     vidctrl->forceUpdate();
 }
+
+void Roivert::makeToolbar() {
+
+    QActionGroup* ROIGroup = new QActionGroup(this);
+
+    QAction* actROIEllipse = new QAction(QIcon(":/icons/icons/ROIEllipse.png"), "", ROIGroup);
+    QAction* actROIPoly = new QAction(QIcon(":/icons/icons/ROIPoly.png"), "", ROIGroup);
+    QAction* actROIRect = new QAction(QIcon(":/icons/icons/ROIRect.png"), "", ROIGroup);
+    QAction* actROISelect = new QAction(QIcon(":/icons/icons/ROISelect.png"), "", ROIGroup);
+
+    actROIEllipse->setCheckable(true);
+    actROIPoly->setCheckable(true);
+    actROIRect->setCheckable(true);
+    actROISelect->setCheckable(true);
+
+    actROIEllipse->setChecked(true);
+    imview->setROIShape(ROIVert::ELLIPSE); // setting default here so it matches with checked
+
+    actROIEllipse->setProperty("Shape", ROIVert::ELLIPSE);
+    actROIPoly->setProperty("Shape", ROIVert::POLYGON);
+    actROIRect->setProperty("Shape", ROIVert::RECTANGLE);
+
+    actROIEllipse->setProperty("Mode", ROIVert::ADDROI);
+    actROIPoly->setProperty("Mode", ROIVert::ADDROI);
+    actROIRect->setProperty("Mode", ROIVert::ADDROI);
+    actROISelect->setProperty("Mode", ROIVert::SELROI);
+
+    actROIEllipse->setToolTip(tr("Draw ellipse ROIs"));
+    actROIPoly->setToolTip(tr("Draw polygon ROIs"));
+    actROIRect->setToolTip(tr("Draw rectangle ROIs"));
+    actROISelect->setToolTip(tr("Select ROIs"));
+
+
+    ui.mainToolBar->addActions(ROIGroup->actions());
+    ui.mainToolBar->addSeparator();
+    connect(ROIGroup, &QActionGroup::triggered, this, [=](QAction* act)
+                {
+                    ROIVert::MODE mode = (ROIVert::MODE)act->property("Mode").toInt();
+                    imview->setMouseMode(mode);
+                    if (mode == ROIVert::ADDROI) {
+                        ROIVert::ROISHAPE shape = (ROIVert::ROISHAPE)act->property("Shape").toInt();
+                        imview->setROIShape(shape);
+                    }
+                }
+            );
+
+    // add dockables...
+    w_imgData->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
+    ui.mainToolBar->addAction(w_imgData->toggleViewAction());
+    w_imgSettings->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgSettings.png"));
+    ui.mainToolBar->addAction(w_imgSettings->toggleViewAction());
+    
+
+
+    addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+}
+

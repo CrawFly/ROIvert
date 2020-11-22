@@ -42,13 +42,13 @@ public:
 	void setMouseMode(ROIVert::MODE);
 	void setROIShape(ROIVert::ROISHAPE);
 
-	/*
+	size_t selectedROI();
+	void setSelectedROI(size_t ind);
 
+
+	/*
 	// Image stuff:
 	// impl a setImage that takes a pointer to a mat?
-
-	// ROI stuff
-	void selectROI(const size_t index);											// 1-based index, with 0 referring to unselected
 
 	// set/get all vertices
 	void setROIVertices(const size_t index, const QVector<QPoint>& Vertices);	// Set the vertices for an roi
@@ -71,7 +71,7 @@ public:
 
 	*/
 signals:
-	void roiSelected(const size_t roiind);
+	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);
 	void roiEdited(const size_t roiind, const QVector<QPoint> &Vertices); // this fires on commit?
 	void imgLoaded();
 	void imgSizeChanged(const QSize newSize);
@@ -95,4 +95,9 @@ private:
 	std::vector<roi *> rois;
 	MouseStatus mousestatus;
 	ROIVert::ROISHAPE roishape = ROIVert::RECTANGLE;
+
+	size_t selroi = 0; // Remember this is 1 indexed, 0 means no ROI
+	QColor unselectedColor = QColor(22, 94, 64);
+	QColor selectedColor = QColor(94, 22, 64);
+
 };

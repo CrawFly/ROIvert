@@ -85,6 +85,24 @@ void ImageROIViewer::pushROI()
         break;
     }
     }
+    setSelectedROI(rois.size());
+}
+
+void ImageROIViewer::setSelectedROI(size_t val) {
+    // This sets the selected roi, (1 indexed)
+    size_t prevind = selroi;
+    size_t newind = val;
+
+    if (selroi > 0) {
+        // todo: change color of previously selected roi if there was one...
+        rois[selroi - 1]->setColor(unselectedColor);
+    }
+    selroi = val;
+    if (selroi > 0) {
+        rois[selroi - 1]->setColor(selectedColor);
+    }
+    // todo: emit something (with old and new)
+    emit roiSelectionChange(prevind, newind);
 }
 
 // Mouse/resize stuff stuff:
@@ -211,3 +229,4 @@ void ImageROIViewer::setROIShape(ROIVert::ROISHAPE shp)
 {
     roishape = shp;
 }
+

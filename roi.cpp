@@ -92,7 +92,6 @@ void roi_polygon::setVertices(const QVector<QPoint> &verts)
     if (!verts.empty())
     {
         thisroi->setPolygon(QPolygonF(verts));
-        //thisroi->setVertices(verts);
         vertices = verts;
     }
 }

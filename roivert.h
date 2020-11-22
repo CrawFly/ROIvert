@@ -28,7 +28,12 @@ private:
     VideoData* viddata;
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;
+
+    QDockWidget* w_imgData;
+    QDockWidget* w_imgSettings;
+
     DisplaySettings dispSettings;
 
     void frameRateChanged(double frameRate);
+    void makeToolbar();
 };

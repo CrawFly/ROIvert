@@ -16,13 +16,14 @@ public:
 	QVector<QPoint> getVertices() { return vertices; };
 	virtual QRect getBB() = 0;
 
-	// We'll adjust this later to pick a good pen...
 	QPen getPen()
 	{
-		QPen pen(Qt::blue, 3);
+		QPen pen(QColor(0, 94, 64), 4);
 		pen.setCosmetic(true);
 		return pen;
 	}
+
+	virtual void setColor(QColor clr) = 0;
 
 protected:
 	QVector<QPoint> vertices;
@@ -35,6 +36,7 @@ public:
 	~roi_rect();
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
+	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
 
 private:
 	QGraphicsRectItem *thisroi;
@@ -46,6 +48,7 @@ public:
 	~roi_ellipse();
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
+	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
 
 private:
 	QGraphicsEllipseItem *thisroi;
@@ -57,6 +60,7 @@ public:
 	~roi_polygon();
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
+	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
 
 private:
 	QGraphicsPolygonItem *thisroi;
