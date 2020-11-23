@@ -37,13 +37,14 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     dialSpeed->setFixedWidth(60);
     dialSpeed->setToolTip(tr("Adjust playback speed"));
 
-    QDoubleValidator val;
-    val.setBottom(.01);
-    val.setTop(100);
+    QDoubleValidator* val = new QDoubleValidator;
+    val->setBottom(.01);
+    val->setTop(100);
     txtSpeed->setFixedWidth(40);
     txtSpeed->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
     txtSpeed->setText("1");
     txtSpeed->setToolTip(tr("Set playback speed multiplier"));
+    txtSpeed->setValidator(val);
 
     cmdDff->setText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
     QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");

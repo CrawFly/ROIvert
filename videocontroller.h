@@ -5,11 +5,11 @@
 #include <QSlider>
 #include <QLineEdit>
 #include <QLabel>
-#include <QIntValidator>
 #include <QTimer>
 #include <QTime>
 #include <QDial>
 #include <QCheckBox>
+
 
 class VideoController : public QWidget
 {
