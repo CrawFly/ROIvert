@@ -46,6 +46,9 @@ Roivert::Roivert(QWidget *parent)
     imview = new ImageROIViewer(rightLayoutWidget);
     rightLayout->addWidget(imview);
 
+    Graphics_view_zoom* z = new Graphics_view_zoom(imview);
+    z->set_modifiers(Qt::ControlModifier);
+
     // Contols:
     vidctrl = new VideoController(rightLayoutWidget);
     rightLayout->addWidget(vidctrl);
