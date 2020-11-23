@@ -28,7 +28,7 @@ public:
         ch = chart;
         ch = chart;
         setCursor(Qt::SizeHorCursor);
-        QPen pen(QColor(0, 100, 0, 66), 3);
+        QPen pen(QColor("#2274A5"), 3);
         pen.setCosmetic(true);
         setPen(pen);
     };
@@ -82,7 +82,7 @@ public:
     GammaLine(QChart* chart) {
         ch = chart;
         setCursor(Qt::SizeVerCursor);
-        QPen pen(QColor(0, 100, 0, 66), 3);
+        QPen pen(QColor("#2274A5"), 3);
         pen.setCosmetic(true);
         setPen(pen);
         setBrush(QBrush(Qt::transparent));
@@ -187,10 +187,11 @@ public:
         chart->addSeries(outLineSeries);
         chart->addSeries(inLineSeries);
 
-        QPen inpen(Qt::GlobalColor::darkGray, 3);
+        
+        QPen inpen(QColor("#F75C03"), 3);
         inpen.setCosmetic(true);
         inLineSeries->setPen(inpen);
-        QPen outpen(Qt::GlobalColor::lightGray, 1);
+        QPen outpen(QColor("#F75C03"), 1);
         outpen.setCosmetic(true);
         outLineSeries->setPen(outpen);
 

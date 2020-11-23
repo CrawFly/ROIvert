@@ -2,6 +2,7 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <qdebug.h>
+#include "opencv2/opencv.hpp"
 
 // try to refactor this to use legit inheritence:
 //		That means that thisroi has to live on the base
@@ -15,6 +16,8 @@ public:
 	virtual void setVertices(const QVector<QPoint> &) = 0;
 	QVector<QPoint> getVertices() { return vertices; };
 	virtual QRect getBB() = 0;
+	virtual cv::Mat getMask() = 0;
+	virtual void setColor(QColor clr) = 0;
 
 	QPen getPen()
 	{
@@ -23,7 +26,6 @@ public:
 		return pen;
 	}
 
-	virtual void setColor(QColor clr) = 0;
 
 protected:
 	QVector<QPoint> vertices;
@@ -37,6 +39,7 @@ public:
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
 	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
+	cv::Mat getMask();
 
 private:
 	QGraphicsRectItem *thisroi;
@@ -48,6 +51,7 @@ public:
 	~roi_ellipse();
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
+	cv::Mat getMask();
 	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
 
 private:
@@ -60,6 +64,7 @@ public:
 	~roi_polygon();
 	virtual void setVertices(const QVector<QPoint> &);
 	virtual QRect getBB();
+	cv::Mat getMask();
 	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
 
 private:

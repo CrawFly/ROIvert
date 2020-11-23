@@ -3,6 +3,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPixmapItem>
 #include "roi.h"
+#include "opencv2/opencv.hpp"
 
 namespace ROIVert
 {
@@ -97,7 +98,10 @@ private:
 	ROIVert::ROISHAPE roishape = ROIVert::RECTANGLE;
 
 	size_t selroi = 0; // Remember this is 1 indexed, 0 means no ROI
-	QColor unselectedColor = QColor(22, 94, 64);
-	QColor selectedColor = QColor(94, 22, 64);
-
+	QColor unselectedColor = QColor("#D90368");
+	QColor selectedColor = QColor("#00CC66");
+	
+	cv::Mat roimap;
+	void createROIMap();
+	void updateROIMap(size_t ROIInd);
 };

@@ -53,6 +53,7 @@ void ImageROIViewer::setImage(const QImage image)
         scene->setSceneRect(pixitem->boundingRect());
         fitInView(pixitem, Qt::KeepAspectRatio);
         emit imgSizeChanged(newSize);
+        createROIMap();
     }
 }
 QImage ImageROIViewer::getImage()
@@ -105,6 +106,27 @@ void ImageROIViewer::setSelectedROI(size_t val) {
     emit roiSelectionChange(prevind, newind);
 }
 
+void ImageROIViewer::createROIMap()
+{
+    roimap = cv::Mat(img.size().height(), img.size().width(), CV_16U);
+    roimap = 0;
+
+    for (size_t i = 0; i < rois.size(); i++) {
+        updateROIMap(i + 1);
+    }
+}
+void ImageROIViewer::updateROIMap(size_t roiind)
+{
+    if (roiind > 0)
+    {
+        QRect bb(rois[roiind - 1]->getBB());
+        cv::Rect cvbb((size_t)bb.x(), size_t(bb.y()), (size_t)bb.width(), (size_t)bb.height());
+        cv::Mat boundedROIImage = roimap(cvbb);
+        cv::Mat mask(rois[roiind - 1]->getMask());
+        boundedROIImage.setTo(roiind, mask);
+    }
+}
+
 // Mouse/resize stuff stuff:
 void ImageROIViewer::resizeEvent(QResizeEvent *event)
 {
@@ -144,6 +166,9 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
             rois[mousestatus.ActiveROI - 1]->setVertices(pt);
         }
     }
+    else if (mousestatus.mode == ROIVert::SELROI) {
+        setSelectedROI(roimap.at<unsigned short int>((int)clickpos.y(), (int)clickpos.x()));
+    }
 }
 void ImageROIViewer::mouseMoveEvent(QMouseEvent *event)
 {
@@ -169,10 +194,15 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
     {
         return;
     };
-    if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON)
+    if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
     {
+        // emit a commit here
+        updateROIMap(mousestatus.ActiveROI);
+
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
+
+        
     }
 }
 void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
@@ -190,6 +220,7 @@ void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
         QVector<QPoint> pt = rois[mousestatus.ActiveROI - 1]->getVertices();
         pt.pop_back();
         rois[mousestatus.ActiveROI - 1]->setVertices(pt);
+        updateROIMap(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
     }
@@ -201,6 +232,7 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
     if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && mousestatus.mode == ROIVert::ADDROI && mousestatus.ActiveROI > 0 && mousestatus.ActiveVert > 0)
     {
         // Special case for polygons, we finish it with an enter:
+        updateROIMap(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
     }
@@ -229,4 +261,5 @@ void ImageROIViewer::setROIShape(ROIVert::ROISHAPE shp)
 {
     roishape = shp;
 }
+
 

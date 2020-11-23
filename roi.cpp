@@ -36,6 +36,18 @@ QRect roi_rect::getBB()
     return thisroi->rect().toRect();
 }
 
+cv::Mat roi_rect::getMask() {
+    QRect bb = getBB();
+
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 255;
+    return mask;
+}
+
+
 // roi ellipse
 roi_ellipse::roi_ellipse(QGraphicsScene *scene)
 {
@@ -71,7 +83,17 @@ QRect roi_ellipse::getBB()
 {
     return thisroi->rect().toRect();
 }
+cv::Mat roi_ellipse::getMask() {
+    QRect bb = getBB();
 
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 0;
+    cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
+    return mask;
+}
 // roi polygon
 roi_polygon::roi_polygon(QGraphicsScene *scene)
 {
@@ -112,4 +134,30 @@ QRect roi_polygon::getBB()
         }
     }
     return out;
+}
+cv::Mat roi_polygon::getMask() {
+    QRect bb = getBB();
+
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 0;
+
+    float left = std::numeric_limits<float>::infinity();
+    float top = std::numeric_limits<float>::infinity();
+    foreach(QPoint vertex, vertices) {
+        left = std::min((float)vertex.x(), left);
+        top = std::min((float)vertex.y(), top);
+    }
+
+    // make points from qpoints?
+    std::vector<cv::Point> cVertices;
+    foreach(QPoint vertex, vertices)
+    {
+        cVertices.push_back(cv::Point(vertex.x() - left, vertex.y() - top));
+    }
+    cv::fillPoly(mask, cVertices, cv::Scalar(255));
+
+    return mask;
 }

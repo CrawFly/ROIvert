@@ -9,6 +9,15 @@
 #include "videodata.h"
 #include "displaysettings.h"
 
+// colors: (?)
+//  2274A5
+//  F75C03
+//  F1C40F
+//  D90368
+//  00CC66
+
+
+
 class Roivert : public QMainWindow
 {
     Q_OBJECT
