@@ -35,6 +35,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) {
 
         layV->addLayout(layH);
         setLayout(layV);
+        layV->setAlignment(Qt::AlignTop);
 
         connect(contChart, &ContrastHistogramChart::minChanged, this, [=](double val) {spinMin->setValue(val); });
         connect(contChart, &ContrastHistogramChart::maxChanged, this, [=](double val) {spinMax->setValue(val); });
