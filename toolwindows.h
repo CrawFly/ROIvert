@@ -25,7 +25,7 @@
 #include <QSpinBox>
 #include <QProgressBar>
 #include <QLabel>
-
+#include <QButtonGroup>
 #include "contrastwidget.h"
 
 
@@ -77,8 +77,11 @@ namespace tool
 
     signals:
         void contrastChanged(double min, double max, double gamma);
+        void projectionChanged(int id);
 
     private:
         ContrastWidget* contrast;
+        QButtonGroup* projection;
+        
     };
 } // namespace tool

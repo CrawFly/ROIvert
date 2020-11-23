@@ -24,6 +24,11 @@ public:
     cv::Mat getFrameRaw(size_t frameindex);
     cv::Mat getFrameDff(size_t frameindex);
     cv::Mat getProjection(VideoData::projection proj);
+    cv::Mat getProjectionDff(VideoData::projection proj);
+
+    // this is maybe temporary until i refactor into a nice clean array
+    cv::Mat get(bool isDff, int projmode, size_t framenum);
+    
 
     void setStoreDff(bool enabled);
     bool getStoreDff();
@@ -53,7 +58,10 @@ private:
 
     // Projections:
     cv::Mat proj[4];  // index using enum
-    cv::Mat projd[4]; 
+    cv::Mat projd[4];
+
+    cv::Mat dffproj[4];  // index using enum
+    cv::Mat dffprojd[4];
 
     // Meta data:
     int dsTime = 1, dsSpace = 1, bitdepth = 0; 
@@ -78,6 +86,4 @@ private:
     // Actual storage:
     std::vector<cv::Mat>* data = new std::vector<cv::Mat>;
     std::vector<cv::Mat>* dataDff = new std::vector<cv::Mat>;
-
-    
 };

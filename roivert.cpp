@@ -13,15 +13,15 @@
 #include "qactiongroup.h"
 
 
-Roivert::Roivert(QWidget *parent)
+Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
     viddata = new VideoData(this);
 
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
-    
-    QGridLayout *gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
+
+    QGridLayout* gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
     t_imgData = new tool::imgData(this);
@@ -36,10 +36,10 @@ Roivert::Roivert(QWidget *parent)
     w_imgSettings->setWindowTitle("Image Settings");
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
 
-    
+
     // Right Side:
-    QWidget *rightLayoutWidget = new QWidget(ui.centralWidget);
-    QVBoxLayout *rightLayout = new QVBoxLayout(rightLayoutWidget);
+    QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
+    QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
     rightLayout->setContentsMargins(0, 0, 0, 0);
 
     // Image Viewer:
@@ -58,10 +58,10 @@ Roivert::Roivert(QWidget *parent)
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
-    
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
-    
     connect(t_imgSettings, &tool::imgSettings::contrastChanged, this, &Roivert::contrastChange);
+    connect(t_imgSettings, &tool::imgSettings::projectionChanged, this, &Roivert::projectionChange);
+    
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -103,12 +103,16 @@ void Roivert::changeFrame(const qint32 frame)
         cv::Mat thisframe;
 
         // note that we should only be cloning if we have to (i.e. if there's some processing)...
+        /*
         if (vidctrl->dff()) {
             thisframe = viddata->getFrameDff(f - 1).clone();
         }
         else {
             thisframe = viddata->getFrameRaw(f - 1).clone();
         }
+        */
+        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f).clone();
+
 
         if (dispSettings.hasContrast(vidctrl->dff())) {
             cv::LUT(thisframe, dispSettings.getLut(vidctrl->dff()), thisframe);
@@ -197,4 +201,22 @@ void Roivert::updateContrastWidget(bool isDff) {
     std::vector<float> hist; 
     isDff ? viddata->getHistogramDff(hist) : viddata->getHistogramRaw(hist);
     t_imgSettings->setHistogram(hist);
+}
+
+void Roivert::projectionChange(int projmode) {
+    dispSettings.setProjectionMode(projmode);
+    if (projmode > 0) {
+        // non-video projection, stop video and turn off controls
+        vidctrl->setStop();
+        vidctrl->setEnabled(false);
+    }
+    else {
+        vidctrl->setEnabled(true);
+    }
+
+    vidctrl->forceUpdate();
+    // turn off video if projmode is bigger than 0
+    // turn off controls if projmode is bigger than 0
+    // turn on controls if projmode is <0
+
 }

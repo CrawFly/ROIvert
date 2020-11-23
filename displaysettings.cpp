@@ -34,3 +34,9 @@ void DisplaySettings::updateLut(bool isDff) {
 bool DisplaySettings::hasContrast(bool isDff) {
     return contrast[isDff][0] != 0. || contrast[isDff][1] != 1. || contrast[isDff][2] != 1;
 }
+void DisplaySettings::setProjectionMode(int projmode) {
+    ProjectionMode = projmode;
+}
+int DisplaySettings::getProjectionMode() {
+    return ProjectionMode;
+}

@@ -1,6 +1,6 @@
 #include "contrastwidget.h"
 #include "qdebug.h"
-
+#include <QLabel>
 
 
 ContrastWidget::ContrastWidget(QWidget* parent) {
@@ -13,6 +13,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) {
         spinMin->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         spinGamma->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
         spinMax->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Fixed);
+
         layH->addWidget(spinMin, 0, Qt::AlignLeft);
         layH->addWidget(spinGamma, 0, Qt::AlignHCenter);
         layH->addWidget(spinMax, 0, Qt::AlignRight);

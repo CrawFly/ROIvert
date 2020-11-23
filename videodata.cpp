@@ -45,16 +45,22 @@ void VideoData::load(QStringList filelist, int dst, int dss){
         for (size_t i = 0; i < data->size(); i++) {
             dataDff->push_back(calcDffNative(data->at(i)));
             calcHist(&dataDff->at(i), dffhistogram, true);
+
+            // This should really be in accum...but I'm not sure if i want to continue with an accumDff or just refactor so that everything is [0] (raw) or [1] (dff)
+            dffproj[(size_t)VideoData::projection::MIN] = cv::min(dffproj[(size_t)VideoData::projection::MIN], dataDff->at(i));
+            dffproj[(size_t)VideoData::projection::MAX] = cv::max(dffproj[(size_t)VideoData::projection::MAX], dataDff->at(i));
+            // mean is meaningless for df/f...
             emit loadProgress(50 + 50 * (float)i / data->size());
         }
+
     }
 }
 
 void VideoData::init() {
-    if (files.empty()) { return; };
-
     data->clear();
     data->reserve(files.size());
+
+    if (files.empty()) { return; }; // consider calling init at construction and setting first to empty mat if called with no files?
 
     // Read first frame for info
     cv::Mat first = cv::imread(files[0].toLocal8Bit().constData(), cv::IMREAD_GRAYSCALE);
@@ -77,8 +83,10 @@ void VideoData::init() {
     for (int i = 0; i < 4; i++) {
         proj[i] = first.clone();
         first.convertTo(projd[i], CV_64FC1);
+        dffproj[i] = first.clone();
+        first.convertTo(dffprojd[i], CV_64FC1);
     }
-
+    dffproj[2] = 0;
     // initialize histograms
     rawhistogram = cv::Mat(1, 256, CV_32F); rawhistogram = 0;
     dffhistogram = cv::Mat(1, 256, CV_32F); dffhistogram = 0;
@@ -116,7 +124,7 @@ void VideoData::complete() {
     // Compute mean:
     projd[(size_t)VideoData::projection::MEAN] = projd[(size_t)VideoData::projection::SUM] / getNFrames();
 
-    // (simple) Cast mean to nativy type, and min/max to doubles
+    // (simple) Cast mean to native type, and min/max to doubles
     projd[(size_t)VideoData::projection::MEAN].assignTo(proj[(size_t)VideoData::projection::MEAN], type);
     proj[(size_t)VideoData::projection::MIN].assignTo(projd[(size_t)VideoData::projection::MIN], CV_64FC1);
     proj[(size_t)VideoData::projection::MAX].assignTo(projd[(size_t)VideoData::projection::MAX], CV_64FC1);
@@ -177,7 +185,8 @@ cv::Mat VideoData::getFrameDff(size_t frameindex) {
     }
 }
 
-cv::Mat VideoData::getProjection(VideoData::projection projtype) {return proj[(size_t)projtype];}
+cv::Mat VideoData::getProjection(VideoData::projection projtype) { return proj[(size_t)projtype]; }
+cv::Mat VideoData::getProjectionDff(VideoData::projection projtype) { return dffproj[(size_t)projtype]; }
 void VideoData::setStoreDff(bool enabled) { storeDff = enabled; }
 bool VideoData::getStoreDff() { return storeDff; }
 int VideoData::getWidth() { return width; }
@@ -218,4 +227,15 @@ void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     const float* histRange = { range };
 
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
+}
+
+cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
+    if (isDff) {
+        if (projmode == 0) { return getFrameDff(framenum); }
+        else { return getProjectionDff((VideoData::projection)(projmode - 1)); }
+    }
+    else {
+        if (projmode == 0) { return getFrameRaw(framenum); }
+        else { return getProjection((VideoData::projection)(projmode - 1)); }
+    }
 }

@@ -24,7 +24,6 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
     scene = new QGraphicsScene(parent);
     pixitem = new QGraphicsPixmapItem();
     pixitem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
-    pixitem->setTransformationMode(Qt::SmoothTransformation);
     scene->addItem(pixitem);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
 

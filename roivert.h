@@ -46,4 +46,5 @@ private:
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
+    void projectionChange(int projmode);
 };

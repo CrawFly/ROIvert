@@ -184,11 +184,48 @@ void imgData::setProgBar(int val) {
 
 
 imgSettings::imgSettings(QWidget* parent) {
-    QGridLayout* topLay = new QGridLayout(this);
-    contrast = new ContrastWidget;
-    topLay->addWidget(contrast,0,0);
 
+    QVBoxLayout* topLay = new QVBoxLayout(this);
+    { // Contrast
+        topLay->addWidget(new QLabel(tr("Contrast:")));
+        contrast = new ContrastWidget;
+        topLay->addWidget(contrast);
+    }
+    
+    QFrame* line = new QFrame;
+    line->setFrameStyle(QFrame::HLine);
+    topLay->addWidget(line);
+    
+    {// Projection
+        topLay->addWidget(new QLabel(tr("Projection:")));
+        QGridLayout* projLay = new QGridLayout;
+
+        projection = new QButtonGroup;
+        QPushButton* butNone = new QPushButton("None");
+        butNone->setCheckable(true);
+        butNone->setChecked(true);
+        QPushButton* butMean = new QPushButton("Mean");
+        butMean->setCheckable(true);
+        QPushButton* butMin = new QPushButton("Min");
+        butMin->setCheckable(true);
+        QPushButton* butMax = new QPushButton("Max");
+        butMax->setCheckable(true);
+        projection->addButton(butNone, 0);
+        projection->addButton(butMean, 3); 
+        projection->addButton(butMin, 1);
+        projection->addButton(butMax, 2);
+        
+        projLay->addWidget(butNone, 0, 0);
+        projLay->addWidget(butMean, 0, 1);
+        projLay->addWidget(butMin, 1, 0);
+        projLay->addWidget(butMax, 1, 1);
+        
+        projLay->setSpacing(0);
+        topLay->addLayout(projLay);
+    }
+    
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
+    connect(projection, SIGNAL(buttonClicked(int)), this, SIGNAL(projectionChanged(int)));
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
