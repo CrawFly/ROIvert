@@ -58,7 +58,9 @@ Roivert::Roivert(QWidget *parent)
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
-    connect(vidctrl, &VideoController::dffToggle, t_imgSettings, &tool::imgSettings::setDffVisible);
+    
+    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
+    
     connect(t_imgSettings, &tool::imgSettings::contrastChanged, this, &Roivert::contrastChange);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
@@ -89,12 +91,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     vidctrl->setEnabled(true);
     t_imgSettings->setEnabled(true);
     imview->setEnabled(true);
-
-    std::vector<float> rawhist;viddata->getHistogramRaw(rawhist);
-    std::vector<float> dffhist; viddata->getHistogramDff(dffhist);
-
-    t_imgSettings->setRawHistogram(rawhist);
-    t_imgSettings->setDffHistogram(dffhist);
+        
+    updateContrastWidget(vidctrl->dff());
 }
 
 void Roivert::changeFrame(const qint32 frame)
@@ -189,3 +187,14 @@ void Roivert::makeToolbar() {
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
 }
 
+void Roivert::updateContrastWidget(bool isDff) {
+    // this sets histogram and contrast on the widget:
+    float c[3];
+    dispSettings.getRawContrast(isDff, &c[0]);
+    t_imgSettings->setContrast(c[0],c[1],c[2]);
+
+    // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
+    std::vector<float> hist; 
+    isDff ? viddata->getHistogramDff(hist) : viddata->getHistogramRaw(hist);
+    t_imgSettings->setHistogram(hist);
+}

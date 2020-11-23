@@ -45,4 +45,5 @@ private:
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
+    void updateContrastWidget(bool isDff);
 };

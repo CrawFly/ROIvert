@@ -11,8 +11,10 @@ void DisplaySettings::setContrast(bool isDff, float min, float max, float gamma)
     contrast[isDff][2] = gamma;
     updateLut(isDff);
 }
-void DisplaySettings::getRawContrast(bool isDff, float* c) {
-    c = contrast[isDff];
+void DisplaySettings::getRawContrast(bool isDff, float *c) {
+    c[0] = contrast[isDff][0];
+    c[1] = contrast[isDff][1];
+    c[2] = contrast[isDff][2];
 }
 cv::Mat DisplaySettings::getLut(bool isDff) {
     return lut[isDff];

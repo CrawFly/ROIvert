@@ -72,16 +72,13 @@ namespace tool
     public:
         imgSettings(QWidget* parent);
         ~imgSettings();
-        void setRawHistogram(std::vector<float> &data);
-        void setDffHistogram(std::vector<float> &data);
-        void setDffVisible(bool vis = true);
+        void setHistogram(std::vector<float> &data);
+        void setContrast(float min, float max, float gamma);
 
-    
     signals:
         void contrastChanged(double min, double max, double gamma);
 
     private:
-        ContrastWidget* rawContrast;
-        ContrastWidget* dffContrast;
+        ContrastWidget* contrast;
     };
 } // namespace tool

@@ -58,3 +58,8 @@ double ContrastWidget::getMax() { return spinMax->value(); }
 double ContrastWidget::getGamma() { return spinGamma->value(); }
 void ContrastWidget::setHist(std::vector<float> histval) {contChart->setData(histval);}
 
+void ContrastWidget::setContrast(float min, float max, float gamma) {
+    spinMin->setValue(min);
+    spinMax->setValue(max);
+    spinGamma->setValue(gamma);
+}

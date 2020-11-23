@@ -313,6 +313,7 @@ public:
     double getGamma();
 
     void setHist(std::vector<float> histval);
+    void setContrast(float min, float max, float gamma);
 
 signals:
     void contrastChanged(double min, double max, double gamma);

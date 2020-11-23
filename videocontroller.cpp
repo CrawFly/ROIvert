@@ -51,7 +51,6 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     cmdDff->setFixedWidth(ctextSize.width());
     cmdDff->setCheckable(true);
     
-
     QVBoxLayout *layTop = new QVBoxLayout;
     QGridLayout *layUnder = new QGridLayout;
     QHBoxLayout *layButtons = new QHBoxLayout;
@@ -144,8 +143,6 @@ void VideoController::PushPlay(const bool &down)
 }
 void VideoController::clockStep()
 {
-    //int ellapsed = lastframetime.elapsed(); // ms
-    //int inc = floor((framerate * ellapsed * speedmult()) / 1000);
     int inc = 1;
     qint32 frame = currframe + inc;
     if (frame > nframes())

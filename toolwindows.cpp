@@ -185,26 +185,17 @@ void imgData::setProgBar(int val) {
 
 imgSettings::imgSettings(QWidget* parent) {
     QGridLayout* topLay = new QGridLayout(this);
-    rawContrast = new ContrastWidget;
-    dffContrast = new ContrastWidget;
-    topLay->addWidget(rawContrast,0,0);
-    topLay->addWidget(dffContrast,0,0);
-    dffContrast->setVisible(false);
+    contrast = new ContrastWidget;
+    topLay->addWidget(contrast,0,0);
 
-    connect(rawContrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
-    connect(dffContrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
+    connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
 
-void imgSettings::setRawHistogram(std::vector<float> &data){
-    rawContrast->setHist(data);
+void imgSettings::setHistogram(std::vector<float> &data){
+    contrast->setHist(data);
 }
-void imgSettings::setDffHistogram(std::vector<float> &data){
-    dffContrast->setHist(data);
-}
-
-void imgSettings::setDffVisible(bool vis) {
-    rawContrast->setVisible(!vis);
-    dffContrast->setVisible(vis);
+void imgSettings::setContrast(float min, float max, float gamma){
+    contrast->setContrast(min, max, gamma);
 }
