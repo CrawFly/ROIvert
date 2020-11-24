@@ -51,20 +51,52 @@ void DisplaySettings::setColormap(int cmapint) {
     }
 }
 
-cv::ColormapTypes DisplaySettings::getColormap() { return colormap; }
 bool DisplaySettings::useCmap() { return useColormap; }
 
 cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
     cv::Mat proc(raw.clone());
+    int oddsz = smoothsize + (!(bool)(smoothsize % 2));
+
+    if (smoothsize > 0) {
+        switch (smoothing)
+        {
+        case smoothingtype::NONE:
+            break;
+        case smoothingtype::BOX:
+            cv::blur(proc, proc, cv::Size(smoothsize, smoothsize));
+            break;
+        case smoothingtype::MEDIAN:
+            cv::medianBlur(proc, proc, oddsz);
+            break;
+        case smoothingtype::GAUSSIAN:
+            cv::GaussianBlur(proc, proc, cv::Size(oddsz, oddsz), smoothsigma, smoothsigma);
+            break;
+        case smoothingtype::BILATERAL:
+        {
+            cv::Mat bilat(raw.size(), raw.type());
+            cv::bilateralFilter(proc, bilat, smoothsize, smoothsigmaI, smoothsigma);
+            proc = bilat.clone();
+        }
+        break;
+        default:
+            break;
+        }
+    }
 
     if (hasContrast(isDff)){cv::LUT(proc, getLut(isDff), proc);}
     
     if (useCmap()) {
         cv::Mat res = cv::Mat(proc.size(), CV_8UC3);
-        cv::applyColorMap(proc, res, getColormap());
+        cv::applyColorMap(proc, res, colormap);
         return res;
     }
     else {
         return proc;
     }
+}
+void DisplaySettings::setSmoothing(int type, int sz, double sig, double sig_i) {
+    smoothing = (smoothingtype)type;
+    smoothsize = sz;
+    smoothsigma = sig;
+    smoothsigmaI = sig_i;
 }

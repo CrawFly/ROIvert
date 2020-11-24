@@ -16,14 +16,14 @@ public:
     void setContrast(bool isDff, float min, float max, float gamma);
     void getRawContrast(bool isDff, float *c);
 
-    // all bunch of these could move to private now?
     void setProjectionMode(int projmode);
     int getProjectionMode();
-    void setColormap(int cmapint);
-    cv::ColormapTypes getColormap();
-    // ^^
 
+    void setColormap(int cmapint);
     bool useCmap();
+
+    void setSmoothing(int smoothType, int smoothSize, double smoothSigma, double smoothSigmaI);
+
     cv::Mat getImage(cv::Mat raw, bool isDff);
 
 private:
