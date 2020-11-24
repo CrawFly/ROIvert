@@ -216,7 +216,7 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
     };
     if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
     {
-        // emit a commit here
+        emit roiEdited(mousestatus.ActiveROI);
         updateROIMap(mousestatus.ActiveROI);
 
         mousestatus.ActiveROI = 0;
@@ -238,6 +238,7 @@ void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
         QVector<QPoint> pt = rois[mousestatus.ActiveROI - 1]->getVertices();
         pt.pop_back();
         rois[mousestatus.ActiveROI - 1]->setVertices(pt);
+        emit roiEdited(mousestatus.ActiveROI);
         updateROIMap(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;

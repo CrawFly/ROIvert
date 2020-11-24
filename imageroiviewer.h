@@ -48,7 +48,7 @@ public:
 
 	size_t selectedROI();
 	void setSelectedROI(size_t ind);
-
+	roi* getRoi(size_t ind) { return rois[ind]; };
 
 	/*
 	// Image stuff:
@@ -76,7 +76,7 @@ public:
 	*/
 signals:
 	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);
-	void roiEdited(const size_t roiind, const QVector<QPoint> &Vertices); // this fires on commit?
+	void roiEdited(const size_t roiind); 
 	void imgLoaded();
 	void imgSizeChanged(const QSize newSize);
 

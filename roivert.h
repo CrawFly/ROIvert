@@ -9,6 +9,8 @@
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
+#include "tracecomputer.h"
+#include "qthread.h"
 
 // colors: (?)
 //  2274A5
@@ -25,11 +27,18 @@ class Roivert : public QMainWindow
 
 public:
     Roivert(QWidget *parent = Q_NULLPTR);
+    ~Roivert() {
+        traceThread.quit();
+        traceThread.wait();
+    }
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const qint32 frame);
     void imgSettingsChanged(imgsettings settings);
+
+signals:
+    void MupdateTrace(ImageROIViewer*, VideoData*, const int);
 
 private:
     Ui::RoivertClass ui;
@@ -41,10 +50,16 @@ private:
 
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
+    
+    TraceComputer* tcompute;
 
     DisplaySettings dispSettings;
+    
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
+    void updateTrace(int roiid);
+
+    QThread traceThread;
 };

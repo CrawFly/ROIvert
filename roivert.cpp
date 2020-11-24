@@ -54,12 +54,19 @@ Roivert::Roivert(QWidget* parent)
     rightLayout->addWidget(vidctrl);
     gridLayout->addWidget(rightLayoutWidget);
 
+    // Trace Computer:
+    tcompute = new TraceComputer;
+    tcompute->moveToThread(&traceThread);
+    traceThread.start();
+
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
+    connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
+    connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -68,8 +75,6 @@ Roivert::Roivert(QWidget* parent)
     imview->setROIShape(ROIVert::RECTANGLE);
 
     makeToolbar();
-
-
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 550);
@@ -81,7 +86,6 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t.start();
     viddata->load(fileList, dsTime, dsSpace);
     t_imgData->setProgBar(-1);
-    qDebug() << "load time: " << t.elapsed()/1000. << "seconds";
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
     t_imgData->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
@@ -191,4 +195,12 @@ void Roivert::imgSettingsChanged(imgsettings settings) {
     dispSettings.setSmoothing(settings.smoothType, settings.smoothSize, settings.smoothSigma, settings.smoothSimgaI);
     
     vidctrl->forceUpdate();
+}
+
+void Roivert::updateTrace(int roiid)
+{
+    // turn 1-indexed roiid into 0 indexed ind before calling
+    if (roiid < 1) { return; }
+    int ind = roiid - 1;
+    emit MupdateTrace(imview, viddata, ind);
 }
