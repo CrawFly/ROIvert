@@ -8,6 +8,7 @@
 #include "toolwindows.h"
 #include "videodata.h"
 #include "displaysettings.h"
+#include "roivertcore.h"
 
 // colors: (?)
 //  2274A5
@@ -28,7 +29,7 @@ public:
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const qint32 frame);
-    void contrastChange(double min, double max, double gamma);
+    void imgSettingsChanged(imgsettings settings);
 
 private:
     Ui::RoivertClass ui;
@@ -46,5 +47,4 @@ private:
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
-    void projectionChange(int projmode);
 };

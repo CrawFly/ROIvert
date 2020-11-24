@@ -224,7 +224,7 @@ imgSettings::imgSettings(QWidget* parent) {
         line->setFrameStyle(QFrame::HLine);
         topLay->addWidget(line);
     }
-    
+
     {// Projection
         topLay->addWidget(new QLabel(tr("Projection:")));
         QGridLayout* projLay = new QGridLayout;
@@ -240,15 +240,15 @@ imgSettings::imgSettings(QWidget* parent) {
         QPushButton* butMax = new QPushButton("Max");
         butMax->setCheckable(true);
         projection->addButton(butNone, 0);
-        projection->addButton(butMean, 3); 
+        projection->addButton(butMean, 3);
         projection->addButton(butMin, 1);
         projection->addButton(butMax, 2);
-        
+
         projLay->addWidget(butNone, 0, 0);
         projLay->addWidget(butMean, 0, 1);
         projLay->addWidget(butMin, 1, 0);
         projLay->addWidget(butMax, 1, 1);
-        
+
         projLay->setSpacing(0);
         topLay->addLayout(projLay);
     }
@@ -259,10 +259,9 @@ imgSettings::imgSettings(QWidget* parent) {
     }
 
     {// Colormap
-        //glay = 
         QFormLayout* flay = new QFormLayout;
-        QComboBox* cmbColormap = new QComboBox;
-        
+        cmbColormap = new QComboBox;
+
         std::vector<QPixmap> c = getColormapPixmaps(cmaps);
         for (int i = 0; i < c.size(); i++) {
             cmbColormap->addItem("");
@@ -277,17 +276,94 @@ imgSettings::imgSettings(QWidget* parent) {
 
         cmbColormap->setMaximumWidth(175);
         flay->addRow(tr("Colormap:"), cmbColormap);
-
-        connect(cmbColormap, QOverload<int>::of(&QComboBox::activated),
-            [=](int index) { 
-                            if (index == 0) { emit colormap(-1); }
-                            else { emit colormap((int)cmaps[index - 1]); }
-                            });
         topLay->addLayout(flay);
     }
+    {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        topLay->addWidget(line);
+    }
+    {// Smoothing
+        // We'll do box, gaussian, median, bilateral
+        // each one has a size
+        // gaussian and bilateral have a sigma
+        topLay->addWidget(new QLabel(tr("Smoothing:")));
+        QVBoxLayout* blurLay = new QVBoxLayout;
+        cmbBlur = new QComboBox;
+        cmbBlur->addItem("None");
+        cmbBlur->addItem("Box");
+        cmbBlur->addItem("Median");
+        cmbBlur->addItem("Gaussian");
+        cmbBlur->addItem("Bilateral");
+        
+        spinBlurSigma = new QDoubleSpinBox;
+        spinBlurSigma->setMinimum(0.);
+        spinBlurSigma->setMaximum(100.);
+        spinBlurSigma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
 
+        spinBlurSigmaI = new QDoubleSpinBox;
+        spinBlurSigmaI->setMinimum(0.);
+        spinBlurSigmaI->setMaximum(100.);
+        spinBlurSigmaI->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+        spinBlurSize = new QSpinBox;
+        spinBlurSize->setMinimum(0);
+        spinBlurSize->setMaximum(50);
+        spinBlurSize->setValue(5);
+        spinBlurSize->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+        spinBlurSigma->setMaximumWidth(50);
+        spinBlurSigmaI->setMaximumWidth(50);
+        spinBlurSize->setMaximumWidth(50);
+
+        QHBoxLayout* paramsLay = new QHBoxLayout;
+        lblSigma = new QLabel(QString::fromWCharArray(L"\x03C3S:"));
+        lblSigmaI = new QLabel(QString::fromWCharArray(L"\x03C3I:"));
+        
+        paramsLay->addWidget(new QLabel(tr("Size:")), 0, Qt::AlignLeft);
+        paramsLay->addWidget(spinBlurSize, 0, Qt::AlignLeft);
+        paramsLay->addWidget(lblSigma, 0, Qt::AlignLeft);
+        paramsLay->addWidget(spinBlurSigma,0,Qt::AlignLeft);
+        paramsLay->addWidget(lblSigmaI, 0, Qt::AlignLeft);
+        paramsLay->addWidget(spinBlurSigmaI, 0, Qt::AlignLeft);
+        paramsLay->addWidget(new QWidget, 1);
+
+        paramsWidg = new QWidget;
+        paramsWidg->setLayout(paramsLay);
+
+
+        blurLay->addWidget(cmbBlur);
+        blurLay->addWidget(paramsWidg);
+        blurLay->setSpacing(0);
+        paramsWidg->setVisible(false);
+        topLay->addLayout(blurLay);
+
+        connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
+            [=](int type) {
+            paramsWidg->setVisible(type > 0);
+            lblSigma->setVisible(type > 2);
+            spinBlurSigma->setVisible(type > 2);
+            lblSigmaI->setVisible(type > 3);
+            spinBlurSigmaI->setVisible(type > 3);
+        }
+        );
+
+    }
+
+    connect(cmbColormap, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
+    connect(cmbBlur, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
+    connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
+    connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &imgSettings::updateSettings);
+
+    /*
+    connect(cmbColormap, QOverload<int>::of(&QComboBox::activated),
+        [=](int index) {
+        if (index == 0) { emit colormap(-1); }
+        else { emit colormap((int)cmaps[index - 1]); }
+    });
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
     connect(projection, SIGNAL(buttonClicked(int)), this, SIGNAL(projectionChanged(int)));
+    */
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
@@ -299,3 +375,23 @@ void imgSettings::setContrast(float min, float max, float gamma){
     contrast->setContrast(min, max, gamma);
 }
 
+void imgSettings::updateSettings() {
+    // this is a centralized location for updating settings and emitting a signal with the whole payload:
+    imgsettings pay;
+    
+    pay.contrastMin = contrast->getMin();
+    pay.contrastMax = contrast->getMax();
+    pay.contrastGamma = contrast->getGamma();
+    pay.projectionType = projection->checkedId();
+    
+    int cmapIndex = cmbColormap->currentIndex();
+    if (cmapIndex == 0) { pay.cmap = -1;}
+    else { pay.cmap = cmaps[cmapIndex - 1]; }
+
+    pay.smoothType = cmbBlur->currentIndex();
+    pay.smoothSize = spinBlurSize->value();
+    pay.smoothSigma = spinBlurSigma->value();
+    pay.smoothSimgaI = spinBlurSigmaI->value();
+
+    emit imgSettingsChanged(pay);
+}

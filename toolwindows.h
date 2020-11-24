@@ -27,6 +27,7 @@
 #include <QLabel>
 #include <QButtonGroup>
 #include "contrastwidget.h"
+#include "roivertcore.h"
 
 
 namespace tool
@@ -76,13 +77,24 @@ namespace tool
         void setContrast(float min, float max, float gamma);
 
     signals:
-        void contrastChanged(double min, double max, double gamma);
-        void projectionChanged(int id);
-        void colormap(int cmap);
+        void imgSettingsChanged(imgsettings newsettings);
+        //void contrastChanged(double min, double max, double gamma);
+        //void projectionChanged(int id);
+        //void colormap(int cmap);
 
     private:
         ContrastWidget* contrast;
         QButtonGroup* projection;
         const cv::ColormapTypes cmaps[5] = { cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE};
+        QComboBox* cmbColormap;
+        QComboBox* cmbBlur;
+        QSpinBox* spinBlurSize;
+        QDoubleSpinBox* spinBlurSigma;
+        QDoubleSpinBox* spinBlurSigmaI;
+        QLabel* lblSigma;
+        QLabel* lblSigmaI;
+        QWidget* paramsWidg;
+        
+        void updateSettings();
     };
 } // namespace tool

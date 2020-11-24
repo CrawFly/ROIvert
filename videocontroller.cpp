@@ -150,6 +150,8 @@ void VideoController::clockStep()
         if (cmdLoop->isChecked())
         {
             frame = frame % nframes() + 1;
+            qDebug() << timechecker.elapsed();
+            timechecker.start();
         }
         else
         {

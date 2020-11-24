@@ -59,11 +59,7 @@ Roivert::Roivert(QWidget* parent)
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
-    connect(t_imgSettings, &tool::imgSettings::contrastChanged, this, &Roivert::contrastChange);
-    connect(t_imgSettings, &tool::imgSettings::projectionChanged, this, &Roivert::projectionChange);
-    connect(t_imgSettings, &tool::imgSettings::colormap, this, [=](int cmap) {dispSettings.setColormap(cmap); vidctrl->forceUpdate(); });
-    // todo: make colormap set the roi selected and unselected colors if they haven't already been set
-
+    connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -103,43 +99,16 @@ void Roivert::changeFrame(const qint32 frame)
     { // frame is 1 indexed
         size_t f = frame;
         cv::Mat thisframe;
-        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f-1).clone();
-
-        if (dispSettings.hasContrast(vidctrl->dff())) {
-            cv::LUT(thisframe, dispSettings.getLut(vidctrl->dff()), thisframe);
-        }
-
-        QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_Grayscale8 : QImage::Format_BGR888;
-        if (dispSettings.useCmap()) {
-            cv::Mat cmapframe = cv::Mat(thisframe.size(), CV_8UC3);
-            cv::applyColorMap(thisframe, cmapframe, dispSettings.getColormap());
-
-            QImage qimg(cmapframe.data,
-                cmapframe.cols,
-                cmapframe.rows,
-                cmapframe.step,
-                QImage::Format_BGR888);
-            imview->setImage(qimg);
-        }
-        else {
-            QImage qimg(thisframe.data,
-                thisframe.cols,
-                thisframe.rows,
-                thisframe.step,
-                QImage::Format_Grayscale8);
-            imview->setImage(qimg);
-        }
-
+        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f-1);
+        cv::Mat proc = dispSettings.getImage(thisframe, vidctrl->dff());
+        QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
+        QImage qimg(proc.data,proc.cols,proc.rows,proc.step,fmt);
+        imview->setImage(qimg);
     }
  
 }
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
-}
-
-void Roivert::contrastChange(double min, double max, double gamma) {
-    dispSettings.setContrast(vidctrl->dff(), min, max, gamma);
-    vidctrl->forceUpdate();
 }
 
 void Roivert::makeToolbar() {
@@ -210,17 +179,16 @@ void Roivert::updateContrastWidget(bool isDff) {
     t_imgSettings->setHistogram(hist);
 }
 
-void Roivert::projectionChange(int projmode) {
-    dispSettings.setProjectionMode(projmode);
-    if (projmode > 0) {
-        // non-video projection, stop video and turn off controls
-        vidctrl->setStop();
-        vidctrl->setEnabled(false);
-    }
-    else {
-        vidctrl->setEnabled(true);
-    }
+
+void Roivert::imgSettingsChanged(imgsettings settings) {
+    dispSettings.setContrast(vidctrl->dff(), settings.contrastMin, settings.contrastMax, settings.contrastGamma);
+    
+    dispSettings.setProjectionMode(settings.projectionType);
+    if (settings.projectionType > 0) { vidctrl->setStop(); }
+    vidctrl->setEnabled(settings.projectionType == 0);
+
+    dispSettings.setColormap(settings.cmap);
+
 
     vidctrl->forceUpdate();
-
 }

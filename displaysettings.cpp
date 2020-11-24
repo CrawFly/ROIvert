@@ -53,3 +53,18 @@ void DisplaySettings::setColormap(int cmapint) {
 
 cv::ColormapTypes DisplaySettings::getColormap() { return colormap; }
 bool DisplaySettings::useCmap() { return useColormap; }
+
+cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
+    cv::Mat proc(raw.clone());
+
+    if (hasContrast(isDff)){cv::LUT(proc, getLut(isDff), proc);}
+    
+    if (useCmap()) {
+        cv::Mat res = cv::Mat(proc.size(), CV_8UC3);
+        cv::applyColorMap(proc, res, getColormap());
+        return res;
+    }
+    else {
+        return proc;
+    }
+}
