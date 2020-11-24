@@ -40,3 +40,16 @@ void DisplaySettings::setProjectionMode(int projmode) {
 int DisplaySettings::getProjectionMode() {
     return ProjectionMode;
 }
+
+void DisplaySettings::setColormap(int cmapint) {
+    if (cmapint < 0){
+        useColormap = false;
+    }
+    else {
+        useColormap = true;
+        colormap = (cv::ColormapTypes)cmapint;
+    }
+}
+
+cv::ColormapTypes DisplaySettings::getColormap() { return colormap; }
+bool DisplaySettings::useCmap() { return useColormap; }

@@ -8,9 +8,12 @@
 #include <qfilesystemmodel.h>
 #include <QtCharts/qvalueaxis.h>
 #include <QtCharts/qareaseries.h>
+#include <qcombobox.h>
+#include <opencv2/opencv.hpp>
 
 using namespace tool;
 using namespace QtCharts;
+
 
 imgData::imgData(QWidget *parent)
 {
@@ -181,20 +184,46 @@ void imgData::setProgBar(int val) {
     }
     progBar->setVisible(false);
 }
+namespace {
+    std::vector<QPixmap> getColormapPixmaps(const cv::ColormapTypes maps[5]) {
+        unsigned char data[20][128];
+        for (int i = 0; i < 128; i++) {
+            for (int j = 0; j < 20; j++) {
+                data[j][i] = i*2;
+            }
+        }
+        cv::Mat cv_cmap(10, 128, CV_8U, data);
+        
+        // first map is always b/w
+        std::vector<QPixmap> res;
+        res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));
+
+        for (int i = 0; i < 5; i++) {
+            cv::applyColorMap(cv_cmap, cv_cmap, maps[i]);
+            res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_BGR888)));
+        }
+        return res;
+    }
+
+}
 
 
 imgSettings::imgSettings(QWidget* parent) {
 
     QVBoxLayout* topLay = new QVBoxLayout(this);
+    topLay->setAlignment(Qt::AlignTop);
+
     { // Contrast
         topLay->addWidget(new QLabel(tr("Contrast:")));
         contrast = new ContrastWidget;
         topLay->addWidget(contrast);
+        contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     }
-    
-    QFrame* line = new QFrame;
-    line->setFrameStyle(QFrame::HLine);
-    topLay->addWidget(line);
+    {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        topLay->addWidget(line);
+    }
     
     {// Projection
         topLay->addWidget(new QLabel(tr("Projection:")));
@@ -223,7 +252,40 @@ imgSettings::imgSettings(QWidget* parent) {
         projLay->setSpacing(0);
         topLay->addLayout(projLay);
     }
-    
+    {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        topLay->addWidget(line);
+    }
+
+    {// Colormap
+        //glay = 
+        QFormLayout* flay = new QFormLayout;
+        QComboBox* cmbColormap = new QComboBox;
+        
+        std::vector<QPixmap> c = getColormapPixmaps(cmaps);
+        for (int i = 0; i < c.size(); i++) {
+            cmbColormap->addItem("");
+            cmbColormap->setItemData(i, c[i], Qt::DecorationRole);
+        }
+        topLay->addWidget(cmbColormap);
+
+        QSize sz;
+        sz.setWidth(127);
+        sz.setHeight(20);
+        cmbColormap->setIconSize(sz);
+
+        cmbColormap->setMaximumWidth(175);
+        flay->addRow(tr("Colormap:"), cmbColormap);
+
+        connect(cmbColormap, QOverload<int>::of(&QComboBox::activated),
+            [=](int index) { 
+                            if (index == 0) { emit colormap(-1); }
+                            else { emit colormap((int)cmaps[index - 1]); }
+                            });
+        topLay->addLayout(flay);
+    }
+
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
     connect(projection, SIGNAL(buttonClicked(int)), this, SIGNAL(projectionChanged(int)));
     setEnabled(false);
@@ -236,3 +298,4 @@ void imgSettings::setHistogram(std::vector<float> &data){
 void imgSettings::setContrast(float min, float max, float gamma){
     contrast->setContrast(min, max, gamma);
 }
+

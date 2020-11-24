@@ -61,7 +61,9 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::contrastChanged, this, &Roivert::contrastChange);
     connect(t_imgSettings, &tool::imgSettings::projectionChanged, this, &Roivert::projectionChange);
-    
+    connect(t_imgSettings, &tool::imgSettings::colormap, this, [=](int cmap) {dispSettings.setColormap(cmap); vidctrl->forceUpdate(); });
+    // todo: make colormap set the roi selected and unselected colors if they haven't already been set
+
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -101,28 +103,33 @@ void Roivert::changeFrame(const qint32 frame)
     { // frame is 1 indexed
         size_t f = frame;
         cv::Mat thisframe;
-
-        // note that we should only be cloning if we have to (i.e. if there's some processing)...
-        /*
-        if (vidctrl->dff()) {
-            thisframe = viddata->getFrameDff(f - 1).clone();
-        }
-        else {
-            thisframe = viddata->getFrameRaw(f - 1).clone();
-        }
-        */
-        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f).clone();
-
+        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f-1).clone();
 
         if (dispSettings.hasContrast(vidctrl->dff())) {
             cv::LUT(thisframe, dispSettings.getLut(vidctrl->dff()), thisframe);
         }
-        QImage qimg(thisframe.data,
-                    thisframe.cols,
-                    thisframe.rows,
-                    thisframe.step,
-                    QImage::Format_Grayscale8);
-        imview->setImage(qimg);
+
+        QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_Grayscale8 : QImage::Format_BGR888;
+        if (dispSettings.useCmap()) {
+            cv::Mat cmapframe = cv::Mat(thisframe.size(), CV_8UC3);
+            cv::applyColorMap(thisframe, cmapframe, dispSettings.getColormap());
+
+            QImage qimg(cmapframe.data,
+                cmapframe.cols,
+                cmapframe.rows,
+                cmapframe.step,
+                QImage::Format_BGR888);
+            imview->setImage(qimg);
+        }
+        else {
+            QImage qimg(thisframe.data,
+                thisframe.cols,
+                thisframe.rows,
+                thisframe.step,
+                QImage::Format_Grayscale8);
+            imview->setImage(qimg);
+        }
+
     }
  
 }
@@ -215,8 +222,5 @@ void Roivert::projectionChange(int projmode) {
     }
 
     vidctrl->forceUpdate();
-    // turn off video if projmode is bigger than 0
-    // turn off controls if projmode is bigger than 0
-    // turn on controls if projmode is <0
 
 }

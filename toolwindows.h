@@ -78,10 +78,11 @@ namespace tool
     signals:
         void contrastChanged(double min, double max, double gamma);
         void projectionChanged(int id);
+        void colormap(int cmap);
 
     private:
         ContrastWidget* contrast;
         QButtonGroup* projection;
-        
+        const cv::ColormapTypes cmaps[5] = { cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE};
     };
 } // namespace tool

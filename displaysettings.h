@@ -11,6 +11,9 @@ public:
     bool hasContrast(bool isDff);
     void setProjectionMode(int projmode);
     int getProjectionMode();
+    void setColormap(int cmapint);
+    cv::ColormapTypes getColormap();
+    bool useCmap();
 
 
 private:
@@ -18,4 +21,7 @@ private:
     float contrast[2][3] = { {0,1,1},{0,1,1} }; // [raw,dff][min, max, gamma]
     cv::Mat lut[2];
     int ProjectionMode = 0; // 0 means no projection
+
+    bool useColormap = false;
+    cv::ColormapTypes colormap;
 };

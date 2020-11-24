@@ -43,6 +43,9 @@ ImageROIViewer::~ImageROIViewer()
 // Image Stuff
 void ImageROIViewer::setImage(const QImage image)
 {
+    if (image.size().isEmpty()) {
+        return;
+    }
     pixitem->setPixmap(QPixmap::fromImage(image));
     QSize oldSize = img.size();
     QSize newSize = image.size();
@@ -115,12 +118,15 @@ void ImageROIViewer::createROIMap()
     roimap = cv::Mat(img.size().height(), img.size().width(), CV_16U);
     roimap = 0;
 
+    qDebug() << "createROIMap";
     for (size_t i = 0; i < rois.size(); i++) {
         updateROIMap(i + 1);
     }
 }
 void ImageROIViewer::updateROIMap(size_t roiind)
 {
+    qDebug() << "updateROIMap";
+
     if (roiind > 0)
     {
         QRect bb(rois[roiind - 1]->getBB());

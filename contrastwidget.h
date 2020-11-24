@@ -250,7 +250,7 @@ public slots:
 
 protected:
     void resizeEvent(QResizeEvent* event) {
-        this->setMaximumHeight(this->width() / 2.);
+        this->setMaximumHeight(this->width() );
         if (scene()) {
             chart->resize(event->size());
             scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
