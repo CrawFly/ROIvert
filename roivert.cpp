@@ -73,8 +73,8 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [=](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
+    connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
 
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
     //connect(this, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);

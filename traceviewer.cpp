@@ -108,7 +108,7 @@ void TraceViewer::push_chart(int roiid) {
     x->setGridLineColor(QColor(Qt::darkGray));
     y->setGridLineColor(QColor(Qt::darkGray));
 
-    QPen seriespen(QColor("#D90368"), 3);
+    QPen seriespen(selclr, 3);
     series->setPen(seriespen);
     chart->setBackgroundBrush(QBrush("#222222"));
 
@@ -121,4 +121,16 @@ void TraceViewer::push_chart(int roiid) {
     charts.push_back(chart);
     chartviews.push_back(chartView);
     lay->addWidget(chartView);
+}
+
+void TraceViewer::setSelectedTrace(int oldind, int newind) {
+    if (oldind > 0 && oldind-1 < charts.size()) {
+        QLineSeries* series = qobject_cast<QLineSeries*>(charts[oldind-1]->series()[0]);
+        series->setColor(unselclr);
+    }
+    if (newind > 0 && newind-1 < charts.size()) {
+        QLineSeries* series = qobject_cast<QLineSeries*>(charts[newind-1]->series()[0]);
+        series->setColor(selclr);
+        scrollArea->verticalScrollBar()->setValue(chartviews[newind - 1]->y());
+    }
 }

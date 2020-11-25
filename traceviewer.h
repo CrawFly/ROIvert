@@ -20,6 +20,7 @@ public:
     TraceViewer(QWidget *parent);
     ~TraceViewer();
     void setTrace(const int roiid, const std::vector<double> trace);
+    void setSelectedTrace(int oldind, int newind);
 
 public slots:
     void setmaxtime(double t_msecs);
@@ -30,8 +31,9 @@ private:
     double maxtime = 1;
 
     void push_chart(int roiid);
-
-
+    QColor selclr = QColor("#00CC66");
+    QColor unselclr = QColor("#D90368");
+    
     QVBoxLayout* lay;
     QScrollArea* scrollArea;
 };
