@@ -73,6 +73,9 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
+
+    connect(t_imgData, &tool::imgData::frameRateChanged, this, [=](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
+
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
     //connect(this, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);
 
@@ -102,6 +105,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t_imgSettings->setEnabled(true);
     imview->setEnabled(true);
         
+    //viddata->getNFrames() / frameRate;
+    tviewer->setmaxtime(viddata->getNFrames() / frameRate);
     updateContrastWidget(vidctrl->dff());
 }
 
@@ -210,7 +215,7 @@ void Roivert::imgSettingsChanged(imgsettings settings) {
 void Roivert::updateTrace(int roiid)
 {
     if (roiid < 1) { return; }
-    int ind = roiid - 1;
+    size_t ind = (size_t)roiid - 1;
 
     roi *thisroi = imview->getRoi(ind);
     cv::Mat mask = thisroi->getMask();

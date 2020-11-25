@@ -22,11 +22,15 @@ public:
     void setTrace(const int roiid, const std::vector<double> trace);
 
 public slots:
-    void setmaxtime(float t_msecs);
+    void setmaxtime(double t_msecs);
 
 private:
     std::vector<QChart*> charts;
     std::vector<QChartView*> chartviews;
+    double maxtime = 1;
+
+    void push_chart(int roiid);
+
 
     QVBoxLayout* lay;
     QScrollArea* scrollArea;
