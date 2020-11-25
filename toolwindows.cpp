@@ -336,7 +336,7 @@ imgSettings::imgSettings(QWidget* parent) {
         blurLay->addWidget(paramsWidg);
         blurLay->setSpacing(0);
         paramsWidg->setVisible(false);
-        topLay->addLayout(blurLay);
+        topLay->addLayout(blurLay,1);
 
         connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
             [=](int type) {

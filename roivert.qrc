@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/GreenCrown.png</file>
+        <file>icons/vid_back.png</file>
+        <file>icons/vid_play.png</file>
+        <file>icons/vid_repeat.png</file>
+        <file>icons/vid_stop.png</file>
+        <file>icons/vid_forward.png</file>
+        <file>icons/ROIEllipse.png</file>
+        <file>icons/ROIPoly.png</file>
+        <file>icons/ROIRect.png</file>
+        <file>icons/ROISelect.png</file>
+        <file>icons/t_ImgData.png</file>
+        <file>icons/t_ImgSettings.png</file>
+        <file>icons/t_Charts.png</file>
+    </qresource>
+</RCC>

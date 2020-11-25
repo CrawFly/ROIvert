@@ -239,3 +239,10 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
         else { return getProjection((VideoData::projection)(projmode - 1)); }
     }
 }
+
+void VideoData::dffNativeToOrig(double& val) {
+    // This helper takes my scaled dff values and translates them back into what they would be in original double space:
+    void dffNativeToOrig(float& val);
+    double maxval = pow(2, bitdepth); // intmax for this depth
+    val = dffminval + dffrng * val / maxval;
+}

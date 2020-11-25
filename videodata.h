@@ -45,6 +45,7 @@ public:
     int getdsTime();
     int getdsSpace();
 
+    void dffNativeToOrig(double &val);
 
 signals:
     void loadProgress(int progress);          // progress goes 0-100

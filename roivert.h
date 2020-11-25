@@ -11,7 +11,7 @@
 #include "roivertcore.h"
 #include "tracecomputer.h"
 #include "qthread.h"
-
+#include "traceviewer.h"
 // colors: (?)
 //  2274A5
 //  F75C03
@@ -50,11 +50,11 @@ private:
 
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
-    
+    QDockWidget* w_charts;
     TraceComputer* tcompute;
-
     DisplaySettings dispSettings;
-    
+    TraceViewer* tviewer;
+
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
@@ -62,4 +62,6 @@ private:
     void updateTrace(int roiid);
 
     QThread traceThread;
+
+
 };

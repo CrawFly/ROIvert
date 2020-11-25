@@ -59,6 +59,13 @@ Roivert::Roivert(QWidget* parent)
     tcompute->moveToThread(&traceThread);
     traceThread.start();
 
+    // Trace Viewer
+    w_charts = new QDockWidget;
+    tviewer = new TraceViewer(this);
+    w_charts->setWidget(tviewer);
+    addDockWidget(Qt::BottomDockWidgetArea, w_charts);
+
+
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
@@ -67,6 +74,7 @@ Roivert::Roivert(QWidget* parent)
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
     connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
+    connect(tcompute, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -165,7 +173,9 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addAction(w_imgData->toggleViewAction());
     w_imgSettings->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgSettings.png"));
     ui.mainToolBar->addAction(w_imgSettings->toggleViewAction());
-    
+    w_charts->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Charts.png"));
+    ui.mainToolBar->addAction(w_charts->toggleViewAction());
+
 
 
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
