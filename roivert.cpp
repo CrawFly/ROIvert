@@ -75,6 +75,9 @@ Roivert::Roivert(QWidget* parent)
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [=](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
     connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
+    connect(tviewer, &TraceViewer::chartClicked, imview, &ImageROIViewer::setSelectedROI);
+    
+
 
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
     //connect(this, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);

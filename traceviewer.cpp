@@ -24,8 +24,7 @@ TraceViewer::TraceViewer(QWidget* parent)
     lay->setAlignment(Qt::AlignTop);
     lay->setContentsMargins(0, 0, 0, 0);
     scrollArea->setMinimumHeight(302);
-
-
+    
     glay->addWidget(scrollArea);
 }
 
@@ -86,7 +85,9 @@ void TraceViewer::push_chart(int roiid) {
 
     QChart* chart = new QChart;
     QLineSeries* series = new QLineSeries;
-    QChartView* chartView = new QChartView(chart, this);
+    ChartViewClick* chartView = new ChartViewClick;
+    chartView->setChart(chart);
+    chartView->setParent(this);
 
     chart->legend()->hide();
     QString title = "ROI " + QString::number(roiid);
@@ -121,6 +122,8 @@ void TraceViewer::push_chart(int roiid) {
     charts.push_back(chart);
     chartviews.push_back(chartView);
     lay->addWidget(chartView);
+
+    connect(chartView, &ChartViewClick::clicked, this, [=]() {emit chartClicked(roiid); });
 }
 
 void TraceViewer::setSelectedTrace(int oldind, int newind) {
