@@ -46,7 +46,7 @@ public:
     int getdsSpace();
 
     void dffNativeToOrig(double &val);
-
+    std::vector<double> calcTrace(cv::Rect cvbb, cv::Mat mask);
 signals:
     void loadProgress(int progress);          // progress goes 0-100
 
@@ -87,4 +87,6 @@ private:
     // Actual storage:
     std::vector<cv::Mat>* data = new std::vector<cv::Mat>;
     std::vector<cv::Mat>* dataDff = new std::vector<cv::Mat>;
+
+    
 };

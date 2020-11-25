@@ -1,5 +1,6 @@
 #include "videodata.h"
 #include "qdebug.h"
+#include <QTime>
 
 VideoData::VideoData(QObject* parent) : QObject(parent) {
     setParent(parent);
@@ -19,7 +20,6 @@ VideoData::~VideoData() {
     delete dataDff;
     */
 }
-
 void VideoData::load(QStringList filelist, int dst, int dss){
     
     if (filelist.empty()) { return; } // should clear?
@@ -55,7 +55,6 @@ void VideoData::load(QStringList filelist, int dst, int dss){
 
     }
 }
-
 void VideoData::init() {
     data->clear();
     data->reserve(files.size());
@@ -93,7 +92,6 @@ void VideoData::init() {
     
     data->push_back(first.clone());
 }
-
 bool VideoData::readframe(size_t filenum) {
     std::string filename = files[filenum].toLocal8Bit().constData();
     cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
@@ -110,14 +108,12 @@ bool VideoData::readframe(size_t filenum) {
     data->push_back(image.clone());
     return true;
 }
-
 void VideoData::accum(const cv::Mat &frame) {
     proj[(size_t)VideoData::projection::MIN] = cv::min(proj[(size_t)VideoData::projection::MIN], frame);
     proj[(size_t)VideoData::projection::MAX] = cv::max(proj[(size_t)VideoData::projection::MAX], frame);
     cv::accumulate(frame, projd[(size_t)VideoData::projection::SUM]);
     calcHist(&frame, rawhistogram, true);
 }
-
 void VideoData::complete() {
     int type = data->at(0).type();
     
@@ -142,7 +138,6 @@ void VideoData::complete() {
     width = data->at(0).size().width;
     height = data->at(0).size().height;
 }
-
 cv::Mat VideoData::calcDffDouble(const cv::Mat& frame) {
     // This calculates the df/f as a double
     cv::Mat ret(frame.size(), CV_64FC1);
@@ -151,7 +146,6 @@ cv::Mat VideoData::calcDffDouble(const cv::Mat& frame) {
     cv::divide(ret, projd[(size_t)VideoData::projection::MEAN], ret);
     return ret;
 }
-
 cv::Mat VideoData::calcDffNative(const cv::Mat& frame) {
 
     // get the double df/f
@@ -184,7 +178,6 @@ cv::Mat VideoData::getFrameDff(size_t frameindex) {
         return calcDffNative(data->at(frameindex));
     }
 }
-
 cv::Mat VideoData::getProjection(VideoData::projection projtype) { return proj[(size_t)projtype]; }
 cv::Mat VideoData::getProjectionDff(VideoData::projection projtype) { return dffproj[(size_t)projtype]; }
 void VideoData::setStoreDff(bool enabled) { storeDff = enabled; }
@@ -194,8 +187,6 @@ int VideoData::getHeight() { return height; }
 size_t VideoData::getNFrames() { return data->size(); }
 int VideoData::getdsTime() { return dsTime; }
 int VideoData::getdsSpace() { return dsSpace; }
-
-
 void VideoData::getHistogramRaw(std::vector<float>& h) {
     // this will handle expansion just fine
     rawhistogram.copyTo(h);
@@ -218,7 +209,6 @@ void VideoData::getHistogramDff(std::vector<float>& histogram, size_t framenum) 
         hist.copyTo(histogram);
     }
 }
-
 void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     // thin wrapper on opencv calchist
     const int chnl = 0;
@@ -228,7 +218,6 @@ void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
 
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
-
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
     if (isDff) {
         if (projmode == 0) { return getFrameDff(framenum); }
@@ -239,10 +228,22 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
         else { return getProjection((VideoData::projection)(projmode - 1)); }
     }
 }
-
 void VideoData::dffNativeToOrig(double& val) {
     // This helper takes my scaled dff values and translates them back into what they would be in original double space:
     void dffNativeToOrig(float& val);
     double maxval = pow(2, bitdepth); // intmax for this depth
     val = dffminval + dffrng * val / maxval;
+}
+
+std::vector<double> VideoData::calcTrace(cv::Rect cvbb, cv::Mat mask) {
+    std::vector<double> trace;
+    trace.reserve(data->size());
+    QTime t;
+    t.start();
+    for (size_t i = 0; i < data->size(); i++) {
+        cv::Mat boundedimage = data->at(i)(cvbb);
+        double mu = cv::mean(boundedimage, mask)[0];
+        trace.push_back(mu);
+    }
+    return trace;
 }

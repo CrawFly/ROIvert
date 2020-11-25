@@ -55,9 +55,9 @@ Roivert::Roivert(QWidget* parent)
     gridLayout->addWidget(rightLayoutWidget);
 
     // Trace Computer:
-    tcompute = new TraceComputer;
-    tcompute->moveToThread(&traceThread);
-    traceThread.start();
+    //tcompute = new TraceComputer;
+    //tcompute->moveToThread(&traceThread);
+    //traceThread.start();
 
     // Trace Viewer
     w_charts = new QDockWidget;
@@ -73,8 +73,8 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-    connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
-    connect(tcompute, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);
+    //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
+    //connect(this, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
@@ -209,8 +209,16 @@ void Roivert::imgSettingsChanged(imgsettings settings) {
 
 void Roivert::updateTrace(int roiid)
 {
-    // turn 1-indexed roiid into 0 indexed ind before calling
     if (roiid < 1) { return; }
     int ind = roiid - 1;
-    emit MupdateTrace(imview, viddata, ind);
+
+    roi *thisroi = imview->getRoi(ind);
+    cv::Mat mask = thisroi->getMask();
+    QRect r = thisroi->getBB();
+    cv::Rect cvbb((size_t)r.x(), size_t(r.y()), (size_t)r.width(), (size_t)r.height());;
+
+    std::vector<double> t;
+    t=viddata->calcTrace(cvbb, mask);
+
+    tviewer->setTrace(roiid, t);
 }

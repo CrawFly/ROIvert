@@ -2,17 +2,19 @@
 #include "qvalueaxis.h"
 #include "qpoint.h"
 #include "qgridlayout.h"
-
+#include "qapplication.h"
+#include "qscrollbar.h"
+#include "qdebug.h"
 using QtCharts::QValueAxis;
 
-TraceViewer::TraceViewer(QWidget *parent)
+TraceViewer::TraceViewer(QWidget* parent)
     : QWidget(parent)
 {
-    QGridLayout *glay = new QGridLayout;
+    QGridLayout* glay = new QGridLayout;
     this->setLayout(glay);
 
     lay = new QVBoxLayout(this);
-    QScrollArea *scrollArea = new QScrollArea(this);
+    scrollArea = new QScrollArea(this);
     QWidget* scrollAreaContent = new QWidget;
     scrollAreaContent->setLayout(lay);
     scrollArea->setWidget(scrollAreaContent);
@@ -22,14 +24,14 @@ TraceViewer::TraceViewer(QWidget *parent)
     scrollArea->setMinimumHeight(300);
 
 
-    glay->addWidget(scrollArea); 
+    glay->addWidget(scrollArea);
 }
 
 TraceViewer::~TraceViewer()
 {
 }
-void TraceViewer::tracecomputed(const int roiid, const std::vector<double> trace) {
-    if (roiid < 1 || roiid > charts.size()+1){
+void TraceViewer::setTrace(const int roiid, const std::vector<double> trace) {
+    if (roiid < 1 || roiid > charts.size() + 1) {
         return;
     }
 
@@ -69,6 +71,10 @@ void TraceViewer::tracecomputed(const int roiid, const std::vector<double> trace
     charts[ind]->removeAllSeries();
     charts[ind]->addSeries(series);
     charts[ind]->createDefaultAxes();
+
+    // off by 1 still..(again)
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    scrollArea->verticalScrollBar()->setValue(chartviews[ind]->y() + chartviews[ind]->height());
 }
 void TraceViewer::setmaxtime(float t_msecs) {
 

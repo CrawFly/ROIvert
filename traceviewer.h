@@ -19,15 +19,15 @@ class TraceViewer : public QWidget
 public:
     TraceViewer(QWidget *parent);
     ~TraceViewer();
+    void setTrace(const int roiid, const std::vector<double> trace);
 
 public slots:
-    void tracecomputed(const int roiid, const std::vector<double> trace);
     void setmaxtime(float t_msecs);
 
 private:
     std::vector<QChart*> charts;
     std::vector<QChartView*> chartviews;
-    //std::vector<QLineSeries*> serieses;
 
     QVBoxLayout* lay;
+    QScrollArea* scrollArea;
 };

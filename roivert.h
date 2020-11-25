@@ -9,7 +9,7 @@
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
-#include "tracecomputer.h"
+//#include "tracecomputer.h"
 #include "qthread.h"
 #include "traceviewer.h"
 // colors: (?)
@@ -28,8 +28,8 @@ class Roivert : public QMainWindow
 public:
     Roivert(QWidget *parent = Q_NULLPTR);
     ~Roivert() {
-        traceThread.quit();
-        traceThread.wait();
+        //traceThread.quit();
+        //traceThread.wait();
     }
 
 public slots:
@@ -51,7 +51,7 @@ private:
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
     QDockWidget* w_charts;
-    TraceComputer* tcompute;
+    //TraceComputer* tcompute;
     DisplaySettings dispSettings;
     TraceViewer* tviewer;
 
