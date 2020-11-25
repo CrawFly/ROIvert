@@ -217,8 +217,9 @@ void Roivert::updateTrace(int roiid)
     QRect r = thisroi->getBB();
     cv::Rect cvbb((size_t)r.x(), size_t(r.y()), (size_t)r.width(), (size_t)r.height());;
 
-    std::vector<double> t;
-    t=viddata->calcTrace(cvbb, mask);
-
-    tviewer->setTrace(roiid, t);
+    if (ind >= traces.size() ) {
+        traces.resize(ind + 1);
+    }
+    traces[ind] = viddata->calcTrace(cvbb, mask);
+    tviewer->setTrace(roiid, traces[ind]);
 }

@@ -51,7 +51,6 @@ private:
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
     QDockWidget* w_charts;
-    //TraceComputer* tcompute;
     DisplaySettings dispSettings;
     TraceViewer* tviewer;
 
@@ -63,5 +62,5 @@ private:
 
     QThread traceThread;
 
-
+    std::vector<std::vector<double>> traces;
 };

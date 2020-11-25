@@ -237,12 +237,13 @@ void VideoData::dffNativeToOrig(double& val) {
 
 std::vector<double> VideoData::calcTrace(cv::Rect cvbb, cv::Mat mask) {
     std::vector<double> trace;
-    trace.reserve(data->size());
+    trace.reserve(dataDff->size());
     QTime t;
     t.start();
-    for (size_t i = 0; i < data->size(); i++) {
-        cv::Mat boundedimage = data->at(i)(cvbb);
+    for (size_t i = 0; i < dataDff->size(); i++) {
+        cv::Mat boundedimage = dataDff->at(i)(cvbb);
         double mu = cv::mean(boundedimage, mask)[0];
+        dffNativeToOrig(mu);
         trace.push_back(mu);
     }
     return trace;
