@@ -143,15 +143,12 @@ void ImageROIViewer::createROIMap()
     roimap = cv::Mat(img.size().height(), img.size().width(), CV_16U);
     roimap = 0;
 
-    qDebug() << "createROIMap";
     for (size_t i = 0; i < rois.size(); i++) {
         updateROIMap(i + 1);
     }
 }
 void ImageROIViewer::updateROIMap(size_t roiind)
 {
-    qDebug() << "updateROIMap";
-
     if (roiind > 0)
     {
         QRect bb(rois[roiind - 1]->getBB());
@@ -271,8 +268,6 @@ void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
 }
 void ImageROIViewer::keyPressEvent(QKeyEvent *event)
 {
-    qDebug() << "Key Press";
-    qDebug() << event->key();
     if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && mousestatus.mode == ROIVert::ADDROI && mousestatus.ActiveROI > 0 && mousestatus.ActiveVert > 0)
     {
         // Special case for polygons, we finish it with an enter:
