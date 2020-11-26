@@ -38,7 +38,6 @@ class ImageROIViewer : public QGraphicsView
 
 public:
 	explicit ImageROIViewer(QWidget *parent = nullptr);
-	virtual ~ImageROIViewer();
 	void setImage(const QImage image);
 	QImage getImage();
 	QSize getImageSize();

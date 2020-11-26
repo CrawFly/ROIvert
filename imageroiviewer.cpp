@@ -36,9 +36,6 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
-ImageROIViewer::~ImageROIViewer()
-{
-}
 
 // Image Stuff
 void ImageROIViewer::setImage(const QImage image)
@@ -63,6 +60,7 @@ void ImageROIViewer::setImage(const QImage image)
         createROIMap();
     }
 }
+
 QImage ImageROIViewer::getImage()
 {
     return img;
@@ -96,7 +94,6 @@ void ImageROIViewer::pushROI()
     setSelectedROI(rois.size());
 }
 void ImageROIViewer::deleteROI(size_t roiind) {
-
     if (roiind > 0) {
         // delete the roi:
         roi_rect *a = dynamic_cast<roi_rect*>(rois[roiind - 1]);
@@ -111,14 +108,17 @@ void ImageROIViewer::deleteROI(size_t roiind) {
         if (c) {
             delete(c);
         }
+
         // set selroi to 0, but don't call setSelectedROI
         selroi = 0;
+
+        // remove from vector
         rois.erase(rois.begin() + roiind - 1);
 
         // This emit will update the traceviewer
         emit roiDeleted(roiind);
 
-        // Also need to update the map
+        // Update the selection map
         createROIMap();
     }
 }
@@ -168,11 +168,13 @@ void ImageROIViewer::resizeEvent(QResizeEvent *event)
 }
 void ImageROIViewer::mousePressEvent(QMouseEvent *event)
 {
+    // filter out right clicks:
     if (event->button() != Qt::LeftButton)
     {
         return; // skip right clicks for now
     }
 
+    // pass ctrl+ clicks through to pan/zoom
     if (event->modifiers().testFlag(Qt::ControlModifier)) {
         setDragMode(QGraphicsView::ScrollHandDrag);
         QGraphicsView::mousePressEvent(event);
@@ -180,14 +182,17 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
     }
 
     QPointF clickpos = mapToScene(event->pos());
+
+    // filter out clicks that are out of bounds
     if (clickOutOfBounds(clickpos, getImageSize()))
     {
         return;
     }
 
+
+    // ROI add mode:
     if (mousestatus.mode == ROIVert::ADDROI)
     {
-
         if (mousestatus.ActiveROI == 0)
         {
             // Add mode with no active ROI, push one and set it
@@ -199,7 +204,7 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
         }
         else if (roishape == ROIVert::POLYGON && mousestatus.ActiveVert > 0)
         {
-            // this should be the only other way i get here?
+            // Polygon in progress
             QVector<QPoint> pt = rois[mousestatus.ActiveROI - 1]->getVertices();
             pt.push_back(clickpos.toPoint());
             mousestatus.ActiveVert++;
@@ -212,54 +217,56 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
 }
 void ImageROIViewer::mouseMoveEvent(QMouseEvent *event)
 {
-    // watch out need a check here that we started a vertex move, because we don't get a button here...
+    // Look for mouse moves where we're in progress adding a new ROI
     if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0)
     {
         QGraphicsView::mouseMoveEvent(event);
         return;
     };
 
+    // clamp mouse location to bounds
     QPointF clickpos = mapToScene(event->pos());
     clickToBounds(clickpos, getImageSize());
 
     size_t ROIind = mousestatus.ActiveROI - 1;
     size_t VERTind = mousestatus.ActiveVert - 1;
 
+    // Set vertex
     QVector<QPoint> verts = rois[ROIind]->getVertices();
     verts[VERTind] = clickpos.toPoint();
     rois[ROIind]->setVertices(verts);
+    QGraphicsView::mouseMoveEvent(event);
 }
 void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
 {
+    // Disable drag on release
     setDragMode(QGraphicsView::NoDrag);
-    if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0)
-    {
-        return;
-    };
+    if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0){return;};
+
+    // if we were adding a square or ellipse, complete it
     if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
     {
         emit roiEdited(mousestatus.ActiveROI);
         updateROIMap(mousestatus.ActiveROI);
-
         mousestatus.ActiveROI = 0;
-        mousestatus.ActiveVert = 0;        
+        mousestatus.ActiveVert = 0;
     }
 }
 void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
 {
+    // Filter out right clicks
+    if (event->button() != Qt::LeftButton){return; }
 
-    if (event->button() != Qt::LeftButton)
-    {
-        return; // skip right clicks for now
-    }
-
+    // if we were adding a polygon, complete it...
     if (mousestatus.mode == ROIVert::ADDROI && mousestatus.ActiveROI > 0 && mousestatus.ActiveVert > 0 && roishape == ROIVert::POLYGON)
     {
         // Special case for polygons, we finish it with a double click.
         // That means popping off the last added vertex (from the first click of the double):
         QVector<QPoint> pt = rois[mousestatus.ActiveROI - 1]->getVertices();
         pt.pop_back();
+        pt.pop_back();
         rois[mousestatus.ActiveROI - 1]->setVertices(pt);
+
         emit roiEdited(mousestatus.ActiveROI);
         updateROIMap(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
@@ -271,6 +278,10 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
     if ((event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) && mousestatus.mode == ROIVert::ADDROI && mousestatus.ActiveROI > 0 && mousestatus.ActiveVert > 0)
     {
         // Special case for polygons, we finish it with an enter:
+        QVector<QPoint> pt = rois[mousestatus.ActiveROI - 1]->getVertices();
+        pt.pop_back();
+        rois[mousestatus.ActiveROI - 1]->setVertices(pt);
+
         updateROIMap(mousestatus.ActiveROI);
         emit roiEdited(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
@@ -282,7 +293,6 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
     else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_7) {
         emit toolfromkey(event->key()-1);//-1 for seperator
     }
-
     else if (event->key() == Qt::Key_Delete) {
         deleteROI(selroi);
     }
