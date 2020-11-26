@@ -103,10 +103,10 @@ void TraceViewer::push_chart(int roiid) {
     chart->createDefaultAxes();
     QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
     QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
-
-    x->setTitleText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
-    y->setTitleText("Time (s)");
+    
+    x->setTitleText("Time (s)");
     x->setGridLineColor(QColor(Qt::darkGray));
+    y->setTitleText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
     y->setGridLineColor(QColor(Qt::darkGray));
 
     QPen seriespen(selclr, 3);
@@ -124,6 +124,11 @@ void TraceViewer::push_chart(int roiid) {
     lay->addWidget(chartView);
 
     connect(chartView, &ChartViewClick::clicked, this, [=]() {emit chartClicked(roiid); });
+    connect(chartView, &ChartViewClick::keypressed, this, [=](size_t key) {
+        if (key == Qt::Key_Delete) {
+            emit(deleteroi(roiid));
+        }
+    });
 }
 
 void TraceViewer::setSelectedTrace(int oldind, int newind) {
@@ -134,6 +139,39 @@ void TraceViewer::setSelectedTrace(int oldind, int newind) {
     if (newind > 0 && newind-1 < charts.size()) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[newind-1]->series()[0]);
         series->setColor(selclr);
-        scrollArea->verticalScrollBar()->setValue(chartviews[newind - 1]->y());
+
+        // ensure bottom is visible, then ensure top is visible, 
+        int top = chartviews[newind - 1]->y();
+        int bottom = top + chartviews[newind - 1]->height();
+        scrollArea->ensureVisible(0, bottom, 0, 0);
+        scrollArea->ensureVisible(0, top, 0, 0);
+
+        //scrollArea->ensureVisible(+ chartviews[newind - 1]->height());
+        //scrollArea->ensureWidgetVisible(chartviews[newind - 1],0,chartviews[newind-1]->height());
+    }
+}
+
+void TraceViewer::roideleted(size_t roiind) {
+    if (roiind > 0 && roiind - 1 < charts.size()) {
+        delete(charts[roiind - 1]);
+        delete(chartviews[roiind - 1]);
+
+        charts.erase(charts.begin() + roiind - 1);
+        chartviews.erase(chartviews.begin() + roiind - 1);
+
+        // need to retitle and reconnect all the charts and chartviews
+        // This is cheap enough, just go through everything:
+        for (int i = 0; i < charts.size(); i++) {
+            QString title = "ROI " + QString::number(i+1);
+            charts[i]->setTitle(title);
+            
+            chartviews[i]->disconnect();
+            connect(chartviews[i], &ChartViewClick::clicked, this, [=]() {emit chartClicked(i + 1); });
+            connect(chartviews[i], &ChartViewClick::keypressed, this, [=](size_t key) {
+                if (key == Qt::Key_Delete) {
+                    emit(deleteroi(i + 1));
+                }
+            });
+        }
     }
 }

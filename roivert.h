@@ -36,7 +36,7 @@ public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const qint32 frame);
     void imgSettingsChanged(imgsettings settings);
-
+    
 signals:
     void MupdateTrace(ImageROIViewer*, VideoData*, const int);
 
@@ -63,4 +63,5 @@ private:
     QThread traceThread;
 
     std::vector<std::vector<double>> traces;
+    void selecttoolfromkey(int key);
 };

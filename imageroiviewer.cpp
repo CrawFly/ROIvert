@@ -95,14 +95,39 @@ void ImageROIViewer::pushROI()
     }
     setSelectedROI(rois.size());
 }
+void ImageROIViewer::deleteROI(size_t roiind) {
 
+    if (roiind > 0) {
+        // delete the roi:
+        roi_rect *a = dynamic_cast<roi_rect*>(rois[roiind - 1]);
+        roi_ellipse *b = dynamic_cast<roi_ellipse*>(rois[roiind - 1]);
+        roi_polygon *c = dynamic_cast<roi_polygon*>(rois[roiind - 1]);
+        if (a) {
+            delete(a);
+        }
+        if (b) {
+            delete(b);
+        }
+        if (c) {
+            delete(c);
+        }
+        // set selroi to 0, but don't call setSelectedROI
+        selroi = 0;
+        rois.erase(rois.begin() + roiind - 1);
+
+        // This emit will update the traceviewer
+        emit roiDeleted(roiind);
+
+        // Also need to update the map
+        createROIMap();
+    }
+}
 void ImageROIViewer::setSelectedROI(size_t val) {
     // This sets the selected roi, (1 indexed)
     size_t prevind = selroi;
     size_t newind = val;
 
     if (selroi > 0) {
-        // todo: change color of previously selected roi if there was one...
         rois[selroi - 1]->setColor(unselectedColor);
     }
     selroi = val;
@@ -252,8 +277,19 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
     {
         // Special case for polygons, we finish it with an enter:
         updateROIMap(mousestatus.ActiveROI);
+        emit roiEdited(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
+    }
+    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4) {
+        emit toolfromkey(event->key());
+    }
+    else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_7) {
+        emit toolfromkey(event->key()-1);//-1 for seperator
+    }
+
+    else if (event->key() == Qt::Key_Delete) {
+        deleteROI(selroi);
     }
 }
 void ImageROIViewer::wheelEvent(QWheelEvent *event)
@@ -285,7 +321,7 @@ Graphics_view_zoom::Graphics_view_zoom(QGraphicsView* view)
 }
 
 void Graphics_view_zoom::gentle_zoom(double factor) {
-    if (!(_view->horizontalScrollBar()->isVisible() || _view->horizontalScrollBar()->isVisible()) && factor < 1) {
+    if (!(_view->horizontalScrollBar()->isVisible() || _view->verticalScrollBar()->isVisible()) && factor < 1) {
         return;
     }
     
@@ -330,3 +366,4 @@ bool Graphics_view_zoom::eventFilter(QObject* object, QEvent* event) {
     Q_UNUSED(object)
         return false;
 }
+

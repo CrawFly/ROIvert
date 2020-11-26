@@ -76,7 +76,9 @@ Roivert::Roivert(QWidget* parent)
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [=](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
     connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
     connect(tviewer, &TraceViewer::chartClicked, imview, &ImageROIViewer::setSelectedROI);
-    
+    connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
+    connect(imview, &ImageROIViewer::roiDeleted, tviewer, &TraceViewer::roideleted);
+    connect(tviewer, &TraceViewer::deleteroi, imview, &ImageROIViewer::deleteROI);
 
 
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
@@ -230,4 +232,13 @@ void Roivert::updateTrace(int roiid)
     }
     traces[ind] = viddata->calcTrace(cvbb, mask);
     tviewer->setTrace(roiid, traces[ind]);
+}
+
+void Roivert::selecttoolfromkey(int key) {
+    int item = key - 49;
+    if (item >= 0 && item < ui.mainToolBar->actions().size()) {
+        QAction* act = ui.mainToolBar->actions()[item];
+        //act->setChecked( ~act->isChecked());
+        act->activate(QAction::Trigger);
+    }
 }

@@ -18,6 +18,7 @@ class ChartViewClick : public QChartView
 
 signals:
     void clicked();
+    void keypressed(int key);
 
 protected:
     void mousePressEvent(QMouseEvent* event) {
@@ -27,6 +28,9 @@ protected:
         }
         */
         emit(clicked());
+    }
+    void keyPressEvent(QKeyEvent* event) {
+        emit keypressed(event->key());
     }
 };
 
@@ -41,9 +45,11 @@ public:
     void setSelectedTrace(int oldind, int newind);
 signals:
     void chartClicked(int roiid);
+    void deleteroi(int roiid);
 
 public slots:
     void setmaxtime(double t_msecs);
+    void roideleted(size_t roiind);
 
 private:
     std::vector<QChart*> charts;

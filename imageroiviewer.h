@@ -50,35 +50,15 @@ public:
 	void setSelectedROI(size_t ind);
 	roi* getRoi(size_t ind) { return rois[ind]; };
 
-	/*
-	// Image stuff:
-	// impl a setImage that takes a pointer to a mat?
+	void deleteROI(size_t roiind); // called internally from click and externally from traceviewer
 
-	// set/get all vertices
-	void setROIVertices(const size_t index, const QVector<QPoint>& Vertices);	// Set the vertices for an roi
-	QVector<QPoint> getROIVertices(const size_t index);							// Get the vertices
-	
-	// set/get a specific vertex
-	void setROIVertex(const size_t roiIndex, const size_t vertexIndex, const QPoint& vertex);
-	QPoint getROIVertex(const size_t roiIndex, const size_t vertexIndex);
-
-	// set/get last vertex
-	void setROILastVertex(const size_t roiIndex, const QPoint& vertex);
-	QPoint getROILastVertex(const size_t roiIndex, const size_t vertexIndex);
-
-	// Mask Stuff
-	// void getMap(); // Map has a map of which pixels belong to which ROIs, notably with conflict resolved as the last roi added
-	// QRect getBoundingBox(const size_t index);
-	// cv::Mat getMask(const size_t index);			  // unbounded
-	// cv::Mat getMask(const size_t index, QRect bb); // bounded
-	// traces...
-
-	*/
 signals:
 	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);
 	void roiEdited(const size_t roiind); 
 	void imgLoaded();
 	void imgSizeChanged(const QSize newSize);
+	void toolfromkey(int key);
+	void roiDeleted(size_t roiind);
 
 protected:
 	void resizeEvent(QResizeEvent *event);
@@ -106,7 +86,7 @@ private:
 	
 	cv::Mat roimap;
 	void createROIMap();
-	void updateROIMap(size_t ROIInd);
+	void updateROIMap(size_t roiind);
 };
 
 
