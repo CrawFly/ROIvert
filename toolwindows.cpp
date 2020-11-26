@@ -114,8 +114,20 @@ imgData::imgData(QWidget *parent)
 imgData::~imgData() {}
 void imgData::browse()
 {
+    // check if current path in textbox is valid::
+    QString initpath = QDir::currentPath();
+
+    QString currpath_s = txtFilePath->text();
+    if (!currpath_s.isEmpty()) {
+        QDir currpath_d = QDir(currpath_s);
+        QFileInfo currpath_f = QFileInfo(currpath_d.path());
+        if (currpath_f.isDir()) {
+            initpath = currpath_s;
+        }
+    }
+    
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("Select a Tiff File in the Dataset"), QDir::currentPath(), tr("Tiff Files (*.tif *.tiff)"));
+                                                    tr("Select a Tiff File in the Dataset"), initpath, tr("Tiff Files (*.tif *.tiff)"));
 
     if (!fileName.isEmpty())
     {
