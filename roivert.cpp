@@ -389,6 +389,23 @@ void Roivert::exportCharts(QString filename) {
     ch->layout()->setContentsMargins(0, 0, 0, 0);
     ch->legend()->hide();
     
+    QPen pen(series->pen());
+    pen.setWidth(3);
+    series->setPen(pen);
+
+    QFont font(ch->titleFont());
+    font.setPointSize(18);
+    ch->setTitleFont(font);
+    
+    font.setPointSize(16);
+    xax->setTitleFont(font);
+    yax->setTitleFont(font);
+
+    font.setBold(false);
+    font.setPointSize(14);
+    xax->setLabelsFont(font);
+    yax->setLabelsFont(font);
+
 
     for (size_t traces = 0; traces < y.size(); traces++) { // for each trace
         // make a series:
@@ -407,7 +424,7 @@ void Roivert::exportCharts(QString filename) {
         xax->setMax(xmax);
         ch->setTitle("ROI" + QString::number(traces + 1));
 
-        cv->resize(1600, 1200);
+        cv->resize(1600, 600);
         cv->grab().toImage().save(basename + "_" + QString::number(traces + 1) + ".png");
     }
     delete(cv);// this should delete cv and series
