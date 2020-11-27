@@ -47,8 +47,7 @@ Roivert::Roivert(QWidget* parent)
     w_io->setWindowTitle("Import/Export");
     addDockWidget(Qt::RightDockWidgetArea, w_io);
     t_io->setEnabled(false);
-    //w_io->setVisible(false);
-
+    w_io->setVisible(false);
 
     // Right Side:
     QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
@@ -74,6 +73,7 @@ Roivert::Roivert(QWidget* parent)
 
     // Trace Viewer
     w_charts = new QDockWidget;
+    w_charts->setWindowTitle("Charts");
     tviewer = new TraceViewer(this);
     w_charts->setWidget(tviewer);
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
@@ -110,7 +110,7 @@ Roivert::Roivert(QWidget* parent)
     makeToolbar();
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-    resize(800, 550);
+    resize(800, 900);
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
@@ -236,7 +236,6 @@ void Roivert::updateContrastWidget(bool isDff) {
     isDff ? viddata->getHistogramDff(hist) : viddata->getHistogramRaw(hist);
     t_imgSettings->setHistogram(hist);
 }
-
 
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     dispSettings.setContrast(vidctrl->dff(), settings.contrastMin, settings.contrastMax, settings.contrastGamma);
@@ -385,7 +384,6 @@ void Roivert::exportROIs(QString filename) {
         msg.exec();
     }
 }
-
 
 void Roivert::importROIs(QString filename) {
     QMessageBox msg;
