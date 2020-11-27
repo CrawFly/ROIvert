@@ -7,6 +7,8 @@
 #include "qdebug.h"
 #include "qabstractseries.h"
 #include "qgraphicslayout.h"
+#include "roivertcore.h"
+
 using QtCharts::QValueAxis;
 
 TraceViewer::TraceViewer(QWidget* parent)
@@ -106,7 +108,7 @@ void TraceViewer::push_chart(int roiid) {
     
     x->setTitleText("Time (s)");
     x->setGridLineColor(QColor(Qt::darkGray));
-    y->setTitleText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    y->setTitleText(ROIVert::dffstring);
     y->setGridLineColor(QColor(Qt::darkGray));
 
     QPen seriespen(selclr, 3);

@@ -39,7 +39,6 @@ Roivert::Roivert(QWidget* parent)
     w_imgSettings->setWidget(t_imgSettings);
     w_imgSettings->setWindowTitle("Image Settings");
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
-
     w_imgSettings->setVisible(false);
 
     t_io = new tool::fileIO(this);
@@ -47,6 +46,8 @@ Roivert::Roivert(QWidget* parent)
     w_io->setWidget(t_io);
     w_io->setWindowTitle("Import/Export");
     addDockWidget(Qt::RightDockWidgetArea, w_io);
+    t_io->setEnabled(false);
+    //w_io->setVisible(false);
 
 
     // Right Side:
@@ -124,6 +125,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     vidctrl->setEnabled(true);
     t_imgSettings->setEnabled(true);
     imview->setEnabled(true);
+    t_io->setEnabled(true);
         
     //viddata->getNFrames() / frameRate;
     tviewer->setmaxtime(viddata->getNFrames() / frameRate);
@@ -200,7 +202,8 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addAction(w_imgSettings->toggleViewAction());
     w_charts->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Charts.png"));
     ui.mainToolBar->addAction(w_charts->toggleViewAction());
-
+    w_io->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
+    ui.mainToolBar->addAction(w_io->toggleViewAction());
 
 
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
@@ -219,7 +222,7 @@ void Roivert::updateContrastWidget(bool isDff) {
 }
 
 
-void Roivert::imgSettingsChanged(imgsettings settings) {
+void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     dispSettings.setContrast(vidctrl->dff(), settings.contrastMin, settings.contrastMax, settings.contrastGamma);
     
     dispSettings.setProjectionMode(settings.projectionType);
@@ -258,7 +261,7 @@ void Roivert::selecttoolfromkey(int key) {
     }
 }
 
-void Roivert::exportTraces(QString filename) {
+void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
     // all I need to do is overwrite the file and stuff it
     
     std::vector<float> t = tviewer->getTVec();
@@ -276,9 +279,24 @@ void Roivert::exportTraces(QString filename) {
     QFile file(filename);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
         QTextStream out(&file);    
+
+        if (doHeader) {
+            if (doTimeCol) {
+                out << "\"Time\",";
+            }
+            for (size_t j = 0; j < y.size() - 1; j++) {
+                out << "\"ROI " + QString::number(j+1) + "\",";
+            }
+            out << "\"ROI " + QString::number(y.size()) + "\"";
+            out << Qt::endl;
+        }
+
         
         for (size_t i = 0; i < t.size(); i++) { // for each time
-            out << t[i] << ",";
+            if (doTimeCol) {
+                out << t[i] << ",";
+            }
+            
             for (size_t j = 0; j < y.size()-1; j++) { // for each trace
                 out << y[j][i] << ",";
             }
@@ -323,6 +341,8 @@ void Roivert::exportROIs(QString filename) {
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::ELLIPSE, "ellipse"));
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::POLYGON, "polygon"));
 
+        int ds = viddata->getdsSpace();
+
         for each (QPair<ROIVert::ROISHAPE, QVector<QPoint>> roi in r)
         {
             xml.writeStartElement("ROI");
@@ -330,8 +350,8 @@ void Roivert::exportROIs(QString filename) {
             for each (QPoint pt in roi.second)
             {
                 xml.writeStartElement("Vertex");
-                xml.writeAttribute("X", QString::number(pt.x()));
-                xml.writeAttribute("Y", QString::number(pt.y()));
+                xml.writeAttribute("X", QString::number(pt.x()*ds));
+                xml.writeAttribute("Y", QString::number(pt.y()*ds));
                 xml.writeEndElement();
             }
             xml.writeEndElement();
@@ -350,7 +370,7 @@ void Roivert::exportROIs(QString filename) {
 }
 
 
-void Roivert::exportCharts(QString filename) {
+void Roivert::exportCharts(QString filename, bool doTitle, int width, int height) {
     // this is the hard one...we need to get a copy of each of the chartview pointers
     // going to reuse getTVec() and getAllTraces even though it's non-optimal (just unpacking and repacking the QPointFs...
 
@@ -382,7 +402,7 @@ void Roivert::exportCharts(QString filename) {
     QValueAxis* xax = (QValueAxis*)ch->axes(Qt::Horizontal)[0];
     QValueAxis* yax = (QValueAxis*)ch->axes(Qt::Vertical)[0];
     xax->setTitleText("Time (s)");
-    yax->setTitleText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    yax->setTitleText(ROIVert::dffstring);
     double xmin = *std::min_element(t.begin(), t.end());
     double xmax = *std::max_element(t.begin(), t.end());
     cv->setContentsMargins(0, 0, 0, 0);
@@ -393,22 +413,42 @@ void Roivert::exportCharts(QString filename) {
     pen.setWidth(3);
     series->setPen(pen);
 
+    // do some smartish font sizing?
+    int maxdim = qMax(width, height);
+    int fs[3] = { maxdim / 90, maxdim / 100, maxdim / 110 };
+
     QFont font(ch->titleFont());
-    font.setPointSize(18);
+    font.setPointSize(fs[0]);
     ch->setTitleFont(font);
     
-    font.setPointSize(16);
+    font.setPointSize(fs[1]);
     xax->setTitleFont(font);
     yax->setTitleFont(font);
 
     font.setBold(false);
-    font.setPointSize(14);
+    font.setPointSize(fs[2]);
     xax->setLabelsFont(font);
     yax->setLabelsFont(font);
 
+    qDebug() << font.pixelSize();
 
-    for (size_t traces = 0; traces < y.size(); traces++) { // for each trace
-        // make a series:
+    cv->resize(width, height);
+
+    QProgressDialog* dlg = new QProgressDialog(this);
+    dlg->show();
+    dlg->setLabelText("Exporting charts");
+    dlg->setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    dlg->setMinimum(0);
+    dlg->setMaximum(y.size());
+
+    qApp->processEvents(QEventLoop::AllEvents);
+
+    bool cancelled = false;
+    for (size_t traces = 0; traces < y.size(); traces++) { 
+        if (dlg->wasCanceled()) {
+            cancelled = true;
+            break;
+        }
         QVector<QPointF> pts;
         pts.reserve(y[traces].size());
         for (size_t frames = 0; frames < y[traces].size(); frames++) {
@@ -422,11 +462,25 @@ void Roivert::exportCharts(QString filename) {
         yax->setMax(ymax);
         xax->setMin(xmin);
         xax->setMax(xmax);
-        ch->setTitle("ROI" + QString::number(traces + 1));
-
-        cv->resize(1600, 600);
+        if (doTitle) {
+            ch->setTitle("ROI " + QString::number(traces + 1));
+        }
+        // Needed to ensure title is updated, putting outside of title to ensure all chart is properly updated
+        qApp->processEvents(QEventLoop::AllEvents);
+        
         cv->grab().toImage().save(basename + "_" + QString::number(traces + 1) + ".png");
+        dlg->setValue(traces);
     }
-    delete(cv);// this should delete cv and series
 
+    QString msgtext = QString(tr("The export was aborted.")); 
+    if (!cancelled) {
+        dlg->setValue(y.size());
+        msgtext = tr("The charts have been exported.");
+    }
+
+    delete(cv);// this should delete cv and series
+    delete(dlg); 
+        
+    msg.setText(msgtext);
+    msg.exec();
 }

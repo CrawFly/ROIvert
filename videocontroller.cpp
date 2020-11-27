@@ -3,6 +3,7 @@
 #include <QGridLayout>
 #include <QDebug>
 #include <QStyleOption>
+#include "roivertcore.h"
 
 VideoController::VideoController(QWidget *parent) : QWidget(parent)
 {
@@ -46,7 +47,7 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     txtSpeed->setToolTip(tr("Set playback speed multiplier"));
     txtSpeed->setValidator(val);
 
-    cmdDff->setText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    cmdDff->setText(ROIVert::dffstring);
     QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");
     cmdDff->setFixedWidth(ctextSize.width());
     cmdDff->setCheckable(true);

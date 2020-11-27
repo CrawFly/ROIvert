@@ -77,7 +77,7 @@ namespace tool
         void setContrast(float min, float max, float gamma);
 
     signals:
-        void imgSettingsChanged(imgsettings newsettings);
+        void imgSettingsChanged(ROIVert::imgsettings newsettings);
 
     private:
         ContrastWidget* contrast;
@@ -102,9 +102,9 @@ namespace tool
         fileIO(QWidget* parent);
         
     signals:
-        void exportTraces(QString filename);
+        void exportTraces(QString filename, bool doHeader, bool doTimeCol);
         void exportROIs(QString filename);
-        void exportCharts(QString filename);
+        void exportCharts(QString filename, bool doTitle, int width, int height);
         // import ROIs
         // 
     private:

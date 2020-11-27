@@ -10,7 +10,7 @@
 #include <QtCharts/qareaseries.h>
 #include <qcombobox.h>
 #include <opencv2/opencv.hpp>
-
+#include <QRadioButton>
 using namespace tool;
 using namespace QtCharts;
 
@@ -218,8 +218,6 @@ namespace {
     }
 
 }
-
-
 imgSettings::imgSettings(QWidget* parent) {
 
     QVBoxLayout* topLay = new QVBoxLayout(this);
@@ -382,17 +380,15 @@ imgSettings::imgSettings(QWidget* parent) {
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
-
 void imgSettings::setHistogram(std::vector<float> &data){
     contrast->setHist(data);
 }
 void imgSettings::setContrast(float min, float max, float gamma){
     contrast->setContrast(min, max, gamma);
 }
-
 void imgSettings::updateSettings() {
     // this is a centralized location for updating settings and emitting a signal with the whole payload:
-    imgsettings pay;
+    ROIVert::imgsettings pay;
     
     pay.contrastMin = contrast->getMin();
     pay.contrastMax = contrast->getMax();
@@ -411,18 +407,74 @@ void imgSettings::updateSettings() {
     emit imgSettingsChanged(pay);
 }
 
-
-
 fileIO::fileIO(QWidget* parent) {
     setParent(parent);
-    
-    QHBoxLayout* lay = new QHBoxLayout;
+    QVBoxLayout* lay = new QVBoxLayout;
     this->setLayout(lay);
 
-    QPushButton* cmdExpTraces = new QPushButton("Export Traces", this);
-    QPushButton* cmdExpROIs = new QPushButton("Export ROIs", this);
-    QPushButton* cmdExpCharts = new QPushButton("Export Charts", this);
+    QCheckBox* chkHeader = new QCheckBox("Include Header");
+    chkHeader->setChecked(true);
+    QCheckBox* chkTime = new QCheckBox("Include Time Column");
+    chkTime->setChecked(true);
+    QHBoxLayout* optLay = new QHBoxLayout;
+    optLay->addStretch(1);
+    QPushButton* cmdExpTraces = new QPushButton("Export Traces");
+    cmdExpTraces->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    lay->addWidget(new QLabel("Traces"));
+    lay->addWidget(chkHeader);
+    lay->addWidget(chkTime);
+    lay->addLayout(optLay);
+    lay->addWidget(cmdExpTraces);
 
+    {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        lay->addWidget(line);
+    }
+
+
+    lay->addWidget(new QLabel("Charts"));
+    QSpinBox* spinChartWidth = new QSpinBox;
+    QSpinBox* spinChartHeight = new QSpinBox;
+    spinChartWidth->setMinimum(0);
+    spinChartHeight->setMinimum(0);
+    spinChartWidth->setMaximum(10000);
+    spinChartHeight->setMaximum(10000);
+
+    spinChartWidth->setValue(1600);
+    spinChartHeight->setValue(600);
+    spinChartWidth->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    spinChartHeight->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+    QHBoxLayout* layChartDim = new QHBoxLayout;
+    layChartDim->addWidget(new QLabel("Dimensions:"));
+    layChartDim->addWidget(spinChartWidth);
+    layChartDim->addWidget(new QLabel(" x "));
+    layChartDim->addWidget(spinChartHeight);
+    layChartDim->addStretch(1);
+    QCheckBox* chkChartTitle = new QCheckBox("Include Title");
+
+    QPushButton* cmdExpCharts = new QPushButton("Export Charts", this);
+    cmdExpCharts->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    lay->addLayout(layChartDim);
+    lay->addWidget(chkChartTitle);
+    lay->addWidget(cmdExpCharts);
+
+    {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        lay->addWidget(line);
+    }
+
+    lay->addWidget(new QLabel("ROIs"));
+    QPushButton* cmdImpROIs = new QPushButton("Import ROIs");
+    QPushButton* cmdExpROIs = new QPushButton("Export ROIs");
+    lay->addWidget(cmdImpROIs);
+    lay->addWidget(cmdExpROIs);
+    cmdImpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    cmdExpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    
+    lay->addStretch(1);
 
     connect(cmdExpTraces, &QPushButton::clicked, this, [=]()
         {
@@ -431,7 +483,8 @@ fileIO::fileIO(QWidget* parent) {
             QString filename = QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
             if (!filename.isEmpty()) {
                 cachepath = QFileInfo(filename).absolutePath();
-                emit exportTraces(filename);
+                
+                emit exportTraces(filename, chkHeader->isChecked(), chkTime->isChecked());
             }
         }
     );
@@ -456,13 +509,10 @@ fileIO::fileIO(QWidget* parent) {
         QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png)"));
         if (!filename.isEmpty()) {
             cachepath = QFileInfo(filename).absolutePath();
-            emit exportCharts(filename);
+            emit exportCharts(filename, chkChartTitle->isChecked(), spinChartWidth->value(), spinChartHeight->value());
         }
     }
     );
 
-    lay->addWidget(cmdExpTraces);
-    lay->addWidget(cmdExpROIs);
-    lay->addWidget(cmdExpCharts);
 
 }

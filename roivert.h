@@ -35,7 +35,7 @@ public:
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const qint32 frame);
-    void imgSettingsChanged(imgsettings settings);
+    void imgSettingsChanged(ROIVert::imgsettings settings);
     
 signals:
     void MupdateTrace(ImageROIViewer*, VideoData*, const int);
@@ -70,8 +70,8 @@ private:
     std::vector<std::vector<double>> traces;
     void selecttoolfromkey(int key);
 
-    void exportTraces(QString filename);
+    void exportTraces(QString filename, bool doHeader, bool doTimeCol);
     void exportROIs(QString filename);
-    void exportCharts(QString filename);
+    void exportCharts(QString filename, bool doTitle, int width, int height);
     
 };
