@@ -44,14 +44,12 @@ public:
 	void pushROI();
 	void setMouseMode(ROIVert::MODE);
 	void setROIShape(ROIVert::ROISHAPE);
-
-	size_t selectedROI();
 	void setSelectedROI(size_t ind);
 	roi* getRoi(size_t ind) { return rois[ind]; };
-
 	void deleteROI(size_t roiind); // called internally from click and externally from traceviewer
-
 	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs();
+	void importROIs(const std::vector<roi*>& rois_in);
+	size_t getNROIs();
 
 signals:
 	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);

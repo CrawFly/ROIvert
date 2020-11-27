@@ -394,3 +394,38 @@ QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs() 
     }
     return ret;
 }
+
+void ImageROIViewer::importROIs(const std::vector<roi*>& rois_in) {
+    for each (roi* r in rois_in)
+    {
+        // I think this should: figure out the type and cast, then copy (by calling new with dereference), then move the new pointer into the vector with emplace.
+        roi_rect* a = dynamic_cast<roi_rect*>(r);
+        roi_ellipse* b = dynamic_cast<roi_ellipse*>(r);
+        roi_polygon* c = dynamic_cast<roi_polygon*>(r);
+
+        if (a) {
+            rois.emplace_back(new roi_rect(*a));
+        }
+        else if (b) {
+            rois.emplace_back(new roi_ellipse(*b));
+        }
+        else if (c) {
+            rois.emplace_back(new roi_polygon(*c));
+        }
+
+        rois.back()->setScene(scene);
+
+        // update charts:
+        emit roiEdited(rois.size());
+
+        // select on the way in
+        setSelectedROI(rois.size());
+    }
+
+    // update map
+    createROIMap();
+}
+
+size_t ImageROIViewer::getNROIs() {
+    return rois.size();
+}

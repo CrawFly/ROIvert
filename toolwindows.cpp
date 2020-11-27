@@ -469,8 +469,13 @@ fileIO::fileIO(QWidget* parent) {
     lay->addWidget(new QLabel("ROIs"));
     QPushButton* cmdImpROIs = new QPushButton("Import ROIs");
     QPushButton* cmdExpROIs = new QPushButton("Export ROIs");
-    lay->addWidget(cmdImpROIs);
-    lay->addWidget(cmdExpROIs);
+    QHBoxLayout* layroi = new QHBoxLayout;
+    
+    layroi->addWidget(cmdImpROIs);
+    layroi->addWidget(cmdExpROIs);
+    layroi->addStretch(1);
+    lay->addLayout(layroi);
+
     cmdImpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     cmdExpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     
@@ -497,6 +502,19 @@ fileIO::fileIO(QWidget* parent) {
         if (!filename.isEmpty()) {
             cachepath = QFileInfo(filename).absolutePath();
             emit exportROIs(filename);
+        }
+    }
+    );
+
+    connect(cmdImpROIs, &QPushButton::clicked, this, [=]()
+    {
+        QString initpath = QDir::currentPath();
+        if (!cachepath.isEmpty()) { initpath = cachepath; }
+        //QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("Extensible Markup Language (*.xml)"));
+        QString filename = QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("Extensible Markup Language (*.xml)"));
+        if (!filename.isEmpty()) {
+            cachepath = QFileInfo(filename).absolutePath();
+            emit importROIs(filename);
         }
     }
     );

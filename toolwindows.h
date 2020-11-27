@@ -104,9 +104,9 @@ namespace tool
     signals:
         void exportTraces(QString filename, bool doHeader, bool doTimeCol);
         void exportROIs(QString filename);
+        void importROIs(QString filename);
         void exportCharts(QString filename, bool doTitle, int width, int height);
-        // import ROIs
-        // 
+        
     private:
         QString cachepath;
     };

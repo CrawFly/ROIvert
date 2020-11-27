@@ -5,7 +5,9 @@ roi_rect::roi_rect(QGraphicsScene *scene)
 {
     thisroi = new QGraphicsRectItem();
     thisroi->setPen(getPen());
-    scene->addItem(thisroi);
+    if (scene) {
+        scene->addItem(thisroi);
+    }
 }
 roi_rect::~roi_rect()
 {
@@ -47,13 +49,18 @@ cv::Mat roi_rect::getMask() {
     return mask;
 }
 
+void roi_rect::setScene(QGraphicsScene* scene) {
+    scene->addItem(thisroi);
+}
 
 // roi ellipse
 roi_ellipse::roi_ellipse(QGraphicsScene *scene)
 {
     thisroi = new QGraphicsEllipseItem();
     thisroi->setPen(getPen());
-    scene->addItem(thisroi);
+    if(scene){
+        scene->addItem(thisroi);
+    }
 }
 roi_ellipse::~roi_ellipse()
 {
@@ -94,12 +101,21 @@ cv::Mat roi_ellipse::getMask() {
     cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
     return mask;
 }
+
+
+void roi_ellipse::setScene(QGraphicsScene* scene) {
+    scene->addItem(thisroi);
+}
+
+
 // roi polygon
 roi_polygon::roi_polygon(QGraphicsScene *scene)
 {
     thisroi = new QGraphicsPolygonItem();
     thisroi->setPen(getPen());
-    scene->addItem(thisroi);
+    if (scene) {
+        scene->addItem(thisroi);
+    }
 }
 roi_polygon::~roi_polygon()
 {
@@ -160,4 +176,7 @@ cv::Mat roi_polygon::getMask() {
     cv::fillPoly(mask, cVertices, cv::Scalar(255));
 
     return mask;
+}
+void roi_polygon::setScene(QGraphicsScene* scene) {
+    scene->addItem(thisroi);
 }

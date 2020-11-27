@@ -93,8 +93,9 @@ Roivert::Roivert(QWidget* parent)
     connect(imview, &ImageROIViewer::roiDeleted, tviewer, &TraceViewer::roideleted);
     connect(tviewer, &TraceViewer::deleteroi, imview, &ImageROIViewer::deleteROI);
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
-    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs);
     connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
+    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
+    connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
 
 
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
@@ -114,8 +115,23 @@ Roivert::Roivert(QWidget* parent)
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-    QTime t;
-    t.start();
+    // confirm load if rois exist:
+    if (imview->getNROIs() > 0) {
+        // rois exist:
+        QMessageBox msg;
+        msg.setText(tr("Existing ROIs will be removed when loading a new file, continue?"));
+        msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        int ret = msg.exec();
+        if (ret == QMessageBox::Cancel) {
+            return;
+        }
+        while (imview->getNROIs() > 0) {
+            imview->deleteROI(1);
+        }
+        
+        
+    }
+
     viddata->load(fileList, dsTime, dsSpace);
     t_imgData->setProgBar(-1);
     vidctrl->setNFrames(viddata->getNFrames());
@@ -317,8 +333,6 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
 }
 
 void Roivert::exportROIs(QString filename) {
-    // all I need to do is overwrite the file and stuff it
-
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
 
@@ -343,6 +357,8 @@ void Roivert::exportROIs(QString filename) {
 
         int ds = viddata->getdsSpace();
 
+        xml.writeStartElement("ROIs");
+
         for each (QPair<ROIVert::ROISHAPE, QVector<QPoint>> roi in r)
         {
             xml.writeStartElement("ROI");
@@ -356,6 +372,7 @@ void Roivert::exportROIs(QString filename) {
             }
             xml.writeEndElement();
         }
+        xml.writeEndElement();
 
         file.flush();
         file.close();
@@ -369,6 +386,86 @@ void Roivert::exportROIs(QString filename) {
     }
 }
 
+
+void Roivert::importROIs(QString filename) {
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+
+    QFile file(filename);
+
+    std::vector<roi*> rois;
+
+    if (file.open(QFile::ReadOnly)) {
+        std::map<QString, ROIVert::ROISHAPE> shapemap;
+        shapemap.insert(std::make_pair("rectangle", ROIVert::ROISHAPE::RECTANGLE));
+        shapemap.insert(std::make_pair("ellipse", ROIVert::ROISHAPE::ELLIPSE));
+        shapemap.insert(std::make_pair("polygon", ROIVert::ROISHAPE::POLYGON));
+
+        QXmlStreamReader xml(&file);
+        int ds = viddata->getdsSpace();
+
+        ROIVert::ROISHAPE type_e;
+        QVector<QPoint> verts;
+        while (!xml.atEnd()) {
+            QXmlStreamReader::TokenType tkn =  xml.readNext();
+            if (xml.isStartElement() && xml.name()=="ROI" && xml.attributes().size()==1) {
+                QString type_s(xml.attributes()[0].value().toString());
+                type_e = shapemap[type_s];
+                switch (type_e)
+                {
+                case ROIVert::RECTANGLE:
+                    rois.emplace_back(new roi_rect);
+                    verts.clear();
+                    break;
+                case ROIVert::ELLIPSE:
+                    rois.emplace_back(new roi_ellipse);
+                    verts.clear();
+                    break;
+                case ROIVert::POLYGON:
+                    rois.emplace_back(new roi_polygon);
+                    verts.clear();
+                    break;
+                default:
+                    break;
+                }
+            }
+            if (xml.isStartElement() && xml.name() == "Vertex" && xml.attributes().size()==2) {
+                QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
+                qDebug() << thispoint;
+
+                if (thispoint.x() < 0 || thispoint.x() > viddata->getWidth() || thispoint.y() < 0 || thispoint.y() > viddata->getHeight()) {
+                    msg.setIcon(QMessageBox::Critical);
+                    msg.setText(tr("A vertex in the ROI file exceeds the boundaries of the current image."));
+                    msg.exec();
+                    return;
+                }
+                verts.push_back(thispoint);
+            }
+            if (xml.isEndElement() && xml.name()=="ROI") {
+                rois.back()->setVertices(verts);
+            }
+        }
+        if (xml.hasError()) {
+            msg.setIcon(QMessageBox::Critical);
+            msg.setText(tr("Error reading the ROI file."));
+            msg.exec();
+            return;
+        }
+    }
+    else {
+        msg.setIcon(QMessageBox::Critical);
+        msg.setText(tr("Error reading the ROI file."));
+        msg.exec();
+        return;
+    }
+    
+    // 
+    imview->importROIs(rois);
+
+    // clear rois vector to free the memory
+    rois.clear();
+
+}
 
 void Roivert::exportCharts(QString filename, bool doTitle, int width, int height) {
     // this is the hard one...we need to get a copy of each of the chartview pointers
