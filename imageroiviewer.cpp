@@ -372,3 +372,25 @@ bool Graphics_view_zoom::eventFilter(QObject* object, QEvent* event) {
         return false;
 }
 
+
+QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs() {
+    QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ret;
+    
+    ret.reserve(rois.size());
+    for (size_t i = 0; i < rois.size(); i++) {
+        QPair<ROIVert::ROISHAPE, QVector<QPoint>> thisret;
+        if (dynamic_cast<roi_rect*>(rois[i])) {
+            thisret.first = ROIVert::ROISHAPE::RECTANGLE;
+        }
+        else if (dynamic_cast<roi_ellipse*>(rois[i])) {
+            thisret.first = ROIVert::ROISHAPE::ELLIPSE;
+        }
+        else if (dynamic_cast<roi_polygon*>(rois[i])) {
+            thisret.first = ROIVert::ROISHAPE::POLYGON;
+        }
+        thisret.second = rois[i]->getVertices();
+        
+        ret.push_back(thisret);
+    }
+    return ret;
+}

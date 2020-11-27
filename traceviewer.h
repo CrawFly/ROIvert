@@ -43,6 +43,13 @@ public:
     ~TraceViewer();
     void setTrace(const int roiid, const std::vector<double> trace);
     void setSelectedTrace(int oldind, int newind);
+
+    // a method for getting all of the trace data, that will come in as a vector of vectors
+    std::vector<std::vector<float>> getAllTraces(); 
+    std::vector<float> getTVec();
+    
+
+
 signals:
     void chartClicked(int roiid);
     void deleteroi(int roiid);

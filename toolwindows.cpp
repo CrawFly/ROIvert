@@ -410,3 +410,59 @@ void imgSettings::updateSettings() {
 
     emit imgSettingsChanged(pay);
 }
+
+
+
+fileIO::fileIO(QWidget* parent) {
+    setParent(parent);
+    
+    QHBoxLayout* lay = new QHBoxLayout;
+    this->setLayout(lay);
+
+    QPushButton* cmdExpTraces = new QPushButton("Export Traces", this);
+    QPushButton* cmdExpROIs = new QPushButton("Export ROIs", this);
+    QPushButton* cmdExpCharts = new QPushButton("Export Charts", this);
+
+
+    connect(cmdExpTraces, &QPushButton::clicked, this, [=]()
+        {
+            QString initpath = QDir::currentPath();
+            if (!cachepath.isEmpty()) { initpath = cachepath; }
+            QString filename = QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
+            if (!filename.isEmpty()) {
+                cachepath = QFileInfo(filename).absolutePath();
+                emit exportTraces(filename);
+            }
+        }
+    );
+
+    connect(cmdExpROIs, &QPushButton::clicked, this, [=]()
+    {
+        QString initpath = QDir::currentPath();
+        if (!cachepath.isEmpty()) { initpath = cachepath; }
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("Extensible Markup Language (*.xml)"));
+        if (!filename.isEmpty()) {
+            cachepath = QFileInfo(filename).absolutePath();
+            emit exportROIs(filename);
+        }
+    }
+    );
+
+
+    connect(cmdExpCharts, &QPushButton::clicked, this, [=]()
+    {
+        QString initpath = QDir::currentPath();
+        if (!cachepath.isEmpty()) { initpath = cachepath; }
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png)"));
+        if (!filename.isEmpty()) {
+            cachepath = QFileInfo(filename).absolutePath();
+            emit exportCharts(filename);
+        }
+    }
+    );
+
+    lay->addWidget(cmdExpTraces);
+    lay->addWidget(cmdExpROIs);
+    lay->addWidget(cmdExpCharts);
+
+}

@@ -78,9 +78,6 @@ namespace tool
 
     signals:
         void imgSettingsChanged(imgsettings newsettings);
-        //void contrastChanged(double min, double max, double gamma);
-        //void projectionChanged(int id);
-        //void colormap(int cmap);
 
     private:
         ContrastWidget* contrast;
@@ -96,5 +93,21 @@ namespace tool
         QWidget* paramsWidg;
         
         void updateSettings();
+    };
+
+    class fileIO : public QWidget {
+        Q_OBJECT
+
+    public:
+        fileIO(QWidget* parent);
+        
+    signals:
+        void exportTraces(QString filename);
+        void exportROIs(QString filename);
+        void exportCharts(QString filename);
+        // import ROIs
+        // 
+    private:
+        QString cachepath;
     };
 } // namespace tool

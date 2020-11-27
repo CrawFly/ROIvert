@@ -51,6 +51,8 @@ public:
 
 	void deleteROI(size_t roiind); // called internally from click and externally from traceviewer
 
+	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs();
+
 signals:
 	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);
 	void roiEdited(const size_t roiind); 

@@ -47,10 +47,15 @@ private:
     VideoData* viddata;
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;
+    tool::fileIO* t_io;
+
 
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
+    QDockWidget* w_io; 
     QDockWidget* w_charts;
+    
+
     DisplaySettings dispSettings;
     TraceViewer* tviewer;
 
@@ -64,4 +69,9 @@ private:
 
     std::vector<std::vector<double>> traces;
     void selecttoolfromkey(int key);
+
+    void exportTraces(QString filename);
+    void exportROIs(QString filename);
+    void exportCharts(QString filename);
+    
 };

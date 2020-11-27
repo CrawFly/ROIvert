@@ -15,7 +15,7 @@ TraceViewer::TraceViewer(QWidget* parent)
     QGridLayout* glay = new QGridLayout;
     this->setLayout(glay);
 
-    lay = new QVBoxLayout(this);
+    lay = new QVBoxLayout();
     scrollArea = new QScrollArea(this);
     QWidget* scrollAreaContent = new QWidget;
     scrollAreaContent->setLayout(lay);
@@ -175,3 +175,35 @@ void TraceViewer::roideleted(size_t roiind) {
         }
     }
 }
+
+std::vector<std::vector<float>> TraceViewer::getAllTraces() {
+    std::vector<std::vector<float>> ret;
+    ret.reserve(charts.size());// number of traces
+
+    // for each chart
+    for each (QChart *chart in charts) {
+        QLineSeries* series = qobject_cast<QLineSeries*>(chart->series()[0]);
+        QVector<QPointF> data = series->pointsVector();
+        std::vector<float> trace;
+        trace.reserve(data.size());
+        for each (QPointF datum in data) {
+            trace.push_back(datum.y());
+        }
+        ret.push_back(trace);
+    }
+    return ret;
+}
+
+std::vector<float> TraceViewer::getTVec() {
+    std::vector<float> ret;
+    if (!charts.empty()) {
+        QLineSeries* series = qobject_cast<QLineSeries*>(charts[0]->series()[0]);
+        QVector<QPointF> data = series->pointsVector();
+        ret.reserve(data.size());
+        for each (QPointF datum in data) {
+            ret.push_back(datum.x());
+        }
+    }
+    return ret;
+}
+

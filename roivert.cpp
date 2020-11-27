@@ -9,9 +9,13 @@
 #include "qdockwidget.h"
 #include "qprogressdialog.h"
 #include "displaysettings.h"
-
+#include "qtextstream.h"
 #include "qactiongroup.h"
-
+#include "qmessagebox.h"
+#include "qxmlstream.h"
+#include "qfileinfo.h"
+#include "qdir.h"
+#include "qvalueaxis.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -35,6 +39,14 @@ Roivert::Roivert(QWidget* parent)
     w_imgSettings->setWidget(t_imgSettings);
     w_imgSettings->setWindowTitle("Image Settings");
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
+
+    w_imgSettings->setVisible(false);
+
+    t_io = new tool::fileIO(this);
+    w_io = new QDockWidget();
+    w_io->setWidget(t_io);
+    w_io->setWindowTitle("Import/Export");
+    addDockWidget(Qt::RightDockWidgetArea, w_io);
 
 
     // Right Side:
@@ -79,6 +91,9 @@ Roivert::Roivert(QWidget* parent)
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
     connect(imview, &ImageROIViewer::roiDeleted, tviewer, &TraceViewer::roideleted);
     connect(tviewer, &TraceViewer::deleteroi, imview, &ImageROIViewer::deleteROI);
+    connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
+    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs);
+    connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
 
 
     //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
@@ -241,4 +256,160 @@ void Roivert::selecttoolfromkey(int key) {
         //act->setChecked( ~act->isChecked());
         act->activate(QAction::Trigger);
     }
+}
+
+void Roivert::exportTraces(QString filename) {
+    // all I need to do is overwrite the file and stuff it
+    
+    std::vector<float> t = tviewer->getTVec();
+    std::vector<std::vector<float>> y = tviewer->getAllTraces();
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    
+    if (t.empty()) {
+        msg.setIcon(QMessageBox::Warning);
+        msg.setText(tr("No traces to export."));
+        msg.exec();
+        return;
+    }
+
+    QFile file(filename);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream out(&file);    
+        
+        for (size_t i = 0; i < t.size(); i++) { // for each time
+            out << t[i] << ",";
+            for (size_t j = 0; j < y.size()-1; j++) { // for each trace
+                out << y[j][i] << ",";
+            }
+            out << y[y.size() - 1][i];
+            out << Qt::endl;
+        }
+
+        file.flush();
+        file.close();
+        msg.setText(tr("The traces have been exported."));
+        msg.exec();
+    }
+    else {
+        msg.setIcon(QMessageBox::Warning);
+        msg.setText(tr("Could not write to this file, is it open?"));
+        msg.exec();
+    }
+}
+
+void Roivert::exportROIs(QString filename) {
+    // all I need to do is overwrite the file and stuff it
+
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+
+    QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> r = imview->getAllROIs();
+    if (r.empty()) {
+        msg.setIcon(QMessageBox::Warning);
+        msg.setText(tr("No ROIs to export."));
+        msg.exec();
+        return;
+    }
+
+    QFile file(filename);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QXmlStreamWriter xml(&file);
+        xml.setAutoFormatting(true);
+        xml.writeStartDocument();
+
+        std::map<ROIVert::ROISHAPE, QString> shapemap;
+        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::RECTANGLE, "rectangle"));
+        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::ELLIPSE, "ellipse"));
+        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::POLYGON, "polygon"));
+
+        for each (QPair<ROIVert::ROISHAPE, QVector<QPoint>> roi in r)
+        {
+            xml.writeStartElement("ROI");
+            xml.writeAttribute("shape",shapemap[roi.first]);
+            for each (QPoint pt in roi.second)
+            {
+                xml.writeStartElement("Vertex");
+                xml.writeAttribute("X", QString::number(pt.x()));
+                xml.writeAttribute("Y", QString::number(pt.y()));
+                xml.writeEndElement();
+            }
+            xml.writeEndElement();
+        }
+
+        file.flush();
+        file.close();
+        msg.setText(tr("The ROIs have been exported."));
+        msg.exec();
+    }
+    else {
+        msg.setIcon(QMessageBox::Warning);
+        msg.setText(tr("Could not write to this file, is it open?"));
+        msg.exec();
+    }
+}
+
+
+void Roivert::exportCharts(QString filename) {
+    // this is the hard one...we need to get a copy of each of the chartview pointers
+    // going to reuse getTVec() and getAllTraces even though it's non-optimal (just unpacking and repacking the QPointFs...
+
+
+    std::vector<float> t = tviewer->getTVec();
+    std::vector<std::vector<float>> y = tviewer->getAllTraces();
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+
+    if (t.empty()) {
+        msg.setIcon(QMessageBox::Warning);
+        msg.setText(tr("No traces to export."));
+        msg.exec();
+        return;
+    }
+
+    QFileInfo basefile(filename);
+    QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
+
+
+    QChartView* cv = new QChartView;
+    QChart* ch = new QChart;
+    QLineSeries* series = new QLineSeries;
+
+    ch->addSeries(series);
+    cv->setChart(ch);
+    ch->createDefaultAxes();
+
+    QValueAxis* xax = (QValueAxis*)ch->axes(Qt::Horizontal)[0];
+    QValueAxis* yax = (QValueAxis*)ch->axes(Qt::Vertical)[0];
+    xax->setTitleText("Time (s)");
+    yax->setTitleText(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    double xmin = *std::min_element(t.begin(), t.end());
+    double xmax = *std::max_element(t.begin(), t.end());
+    cv->setContentsMargins(0, 0, 0, 0);
+    ch->layout()->setContentsMargins(0, 0, 0, 0);
+    ch->legend()->hide();
+    
+
+    for (size_t traces = 0; traces < y.size(); traces++) { // for each trace
+        // make a series:
+        QVector<QPointF> pts;
+        pts.reserve(y[traces].size());
+        for (size_t frames = 0; frames < y[traces].size(); frames++) {
+            pts.push_back(QPointF(t[frames], y[traces][frames]));
+        }
+        series->replace(pts);
+
+        double ymin = *std::min_element(y[traces].begin(), y[traces].end());
+        double ymax = *std::max_element(y[traces].begin(), y[traces].end());
+        yax->setMin(ymin);
+        yax->setMax(ymax);
+        xax->setMin(xmin);
+        xax->setMax(xmax);
+        ch->setTitle("ROI" + QString::number(traces + 1));
+
+        cv->resize(1600, 1200);
+        cv->grab().toImage().save(basename + "_" + QString::number(traces + 1) + ".png");
+    }
+    delete(cv);// this should delete cv and series
+
 }
