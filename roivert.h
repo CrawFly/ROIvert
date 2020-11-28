@@ -31,6 +31,9 @@ public slots:
 signals:
     void MupdateTrace(ImageROIViewer*, VideoData*, const int);
 
+protected:
+    void closeEvent(QCloseEvent* event);
+
 private:
     Ui::RoivertClass ui;
     ImageROIViewer *imview;
@@ -67,4 +70,5 @@ private:
     void importROIs(QString filename);
     void exportCharts(QString filename, bool doTitle, int width, int height);
     
+    void restoreSettings();
 };

@@ -14,5 +14,6 @@
         <file>icons/t_ImgSettings.png</file>
         <file>icons/t_Charts.png</file>
         <file>icons/t_io.png</file>
+        <file>icons/t_Colors.png</file>
     </qresource>
 </RCC>

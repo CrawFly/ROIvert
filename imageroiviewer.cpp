@@ -290,8 +290,8 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
     else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4) {
         emit toolfromkey(event->key());
     }
-    else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_8) {
-        emit toolfromkey(event->key()-1);//-1 for seperator
+    else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_9) {
+        emit toolfromkey(event->key()+1);//+1 for seperator
     }
     else if (event->key() == Qt::Key_Delete) {
         deleteROI(selroi);

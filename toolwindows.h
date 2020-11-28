@@ -116,7 +116,9 @@ namespace tool
 
     public:
         colors(QWidget* parent);
-
+        QVector<QPair<QString,QColor>> getColors();
+        void setColors(QVector<QPair<QString, QColor>>);
+        
     signals:
         void setSelectedColor(QColor clr);
         void setUnselectedColor(QColor clr);

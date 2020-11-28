@@ -16,6 +16,7 @@
 #include "qfileinfo.h"
 #include "qdir.h"
 #include "qvalueaxis.h"
+#include "qsettings.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -32,12 +33,14 @@ Roivert::Roivert(QWidget* parent)
     w_imgData = new QDockWidget();
     w_imgData->setWidget(t_imgData);
     w_imgData->setWindowTitle("Image Data");
+    w_imgData->setObjectName("WImageData");
     addDockWidget(Qt::RightDockWidgetArea, w_imgData);
 
     t_imgSettings = new tool::imgSettings(this);
     w_imgSettings = new QDockWidget();
     w_imgSettings->setWidget(t_imgSettings);
     w_imgSettings->setWindowTitle("Image Settings");
+    w_imgSettings->setObjectName("WImageSettings");
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
     w_imgSettings->setVisible(false);
 
@@ -45,6 +48,7 @@ Roivert::Roivert(QWidget* parent)
     w_io = new QDockWidget();
     w_io->setWidget(t_io);
     w_io->setWindowTitle("Import/Export");
+    w_io->setObjectName("WImportExport");
     addDockWidget(Qt::RightDockWidgetArea, w_io);
     t_io->setEnabled(false);
     w_io->setVisible(false);
@@ -53,7 +57,9 @@ Roivert::Roivert(QWidget* parent)
     w_colors = new QDockWidget();
     w_colors->setWidget(t_clrs);
     w_colors->setWindowTitle("Colors");
+    w_colors->setObjectName("WColors");
     addDockWidget(Qt::RightDockWidgetArea, w_colors);
+    w_colors->setVisible(false);
 
 
     // Right Side:
@@ -83,6 +89,7 @@ Roivert::Roivert(QWidget* parent)
     w_charts->setWindowTitle("Charts");
     tviewer = new TraceViewer(this);
     w_charts->setWidget(tviewer);
+    w_charts->setObjectName("WCharts");
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
 
 
@@ -122,6 +129,8 @@ Roivert::Roivert(QWidget* parent)
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 900);
+
+    restoreSettings();
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
@@ -231,6 +240,8 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addAction(w_charts->toggleViewAction());
     w_io->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
     ui.mainToolBar->addAction(w_io->toggleViewAction());
+    w_colors->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
+    ui.mainToolBar->addAction(w_colors->toggleViewAction());
 
 
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
@@ -279,7 +290,7 @@ void Roivert::updateTrace(int roiid)
 }
 
 void Roivert::selecttoolfromkey(int key) {
-    int item = key - 49;
+    int item = key - Qt::Key_1;
     if (item >= 0 && item < ui.mainToolBar->actions().size()) {
         QAction* act = ui.mainToolBar->actions()[item];
         //act->setChecked( ~act->isChecked());
@@ -589,4 +600,44 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
         
     msg.setText(msgtext);
     msg.exec();
+}
+
+
+void Roivert::closeEvent(QCloseEvent* event) {
+    QSettings settings("Neuroph", "ROIVert");
+    settings.setValue("geometry", saveGeometry());
+    settings.setValue("windowState", saveState());
+
+    // restore colors
+    QVector<QPair<QString, QColor>> clrs = t_clrs->getColors();
+    qDebug() << clrs;
+
+    for each (QPair<QString,QColor> pair in clrs)
+    {
+        settings.setValue("color/" + pair.first, pair.second);
+    }
+    QMainWindow::closeEvent(event);
+}
+
+
+void Roivert::restoreSettings()
+{
+    QSettings settings("Neuroph", "ROIVert");
+    restoreGeometry(settings.value("geometry").toByteArray());
+    restoreState(settings.value("windowState").toByteArray());
+
+    QVector<QPair<QString, QColor>> clrs;
+    settings.beginGroup("color");
+    QStringList keys = settings.childKeys();
+    qDebug() << keys;
+
+    for each (QString key in keys)
+    {
+        QPair<QString, QColor> clr;
+        clr.first = key;
+        clr.second = settings.value(key).value<QColor>();
+        clrs.push_back(clr);
+    }
+
+    t_clrs->setColors(clrs);
 }
