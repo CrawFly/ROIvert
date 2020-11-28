@@ -185,8 +185,7 @@ cv::Mat VideoData::getFrameDff(size_t frameindex) {
         return calcDffNative(data->at(frameindex));
     }
 }
-cv::Mat VideoData::getProjection(VideoData::projection projtype) { return proj[0][(size_t)projtype]; }
-cv::Mat VideoData::getProjectionDff(VideoData::projection projtype) { return proj[1][(size_t)projtype]; }
+cv::Mat VideoData::getProjection(bool isDff, VideoData::projection projtype) { return proj[isDff][(size_t)projtype]; }
 void VideoData::setStoreDff(bool enabled) { storeDff = enabled; }
 bool VideoData::getStoreDff() { return storeDff; }
 int VideoData::getWidth() { return width; }
@@ -222,13 +221,15 @@ void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
+    if (projmode > 0) {
+        return getProjection(isDff, (VideoData::projection)(projmode - 1));
+    }
+
     if (isDff) {
         if (projmode == 0) { return getFrameDff(framenum); }
-        else { return getProjectionDff((VideoData::projection)(projmode - 1)); }
     }
     else {
         if (projmode == 0) { return getFrameRaw(framenum); }
-        else { return getProjection((VideoData::projection)(projmode - 1)); }
     }
 }
 void VideoData::dffNativeToOrig(double& val) {

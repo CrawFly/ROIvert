@@ -23,8 +23,7 @@ public:
     void load(QStringList filelist, int dst, int dss);
     cv::Mat getFrameRaw(size_t frameindex);
     cv::Mat getFrameDff(size_t frameindex);
-    cv::Mat getProjection(VideoData::projection proj);
-    cv::Mat getProjectionDff(VideoData::projection proj);
+    cv::Mat getProjection(bool isDff, VideoData::projection proj);
 
     // this is maybe temporary until i refactor into a nice clean array
     cv::Mat get(bool isDff, int projmode, size_t framenum);
