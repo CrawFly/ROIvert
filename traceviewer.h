@@ -44,9 +44,9 @@ public:
     void setTrace(const int roiid, const std::vector<double> trace);
     void setSelectedTrace(int oldind, int newind);
 
-    // a method for getting all of the trace data, that will come in as a vector of vectors
-    std::vector<std::vector<float>> getAllTraces(); 
-    std::vector<float> getTVec();
+    // Export interface:
+    const std::vector<std::vector<float>> getAllTraces(); 
+    const std::vector<float> getTVec();
     
     void setSelectedColor(QColor clr);
     void setUnselectedColor(QColor clr);
@@ -73,10 +73,9 @@ private:
     QColor backclr = QColor("#222222");
     QColor foreclr = QColor(Qt::lightGray);
     QColor gridclr = QColor(Qt::darkGray);
-
     
     QVBoxLayout* lay;
     QScrollArea* scrollArea;
 
-    int selectedind=0;
+    size_t selectedind=0;
 };

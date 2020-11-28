@@ -176,7 +176,7 @@ void TraceViewer::roideleted(size_t roiind) {
     }
 }
 
-std::vector<std::vector<float>> TraceViewer::getAllTraces() {
+const std::vector<std::vector<float>> TraceViewer::getAllTraces() {
     std::vector<std::vector<float>> ret;
     ret.reserve(charts.size());// number of traces
 
@@ -194,7 +194,7 @@ std::vector<std::vector<float>> TraceViewer::getAllTraces() {
     return ret;
 }
 
-std::vector<float> TraceViewer::getTVec() {
+const std::vector<float> TraceViewer::getTVec() {
     std::vector<float> ret;
     if (!charts.empty()) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[0]->series()[0]);

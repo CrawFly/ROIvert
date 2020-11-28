@@ -44,11 +44,9 @@ private:
     QTime lastframetime;
 
     void setFrame(const size_t frame);
-
     void PushPlay(const bool &flag);
     void clockStep();
     void updateTimeLabel(); 
-    
     void setSpeedDial(const int val);
     void setSpeedText();
 

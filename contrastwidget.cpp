@@ -2,7 +2,6 @@
 #include "qdebug.h"
 #include <QLabel>
 
-
 // VertLine
 VertLine::VertLine(QChart* chart) {
         ch = chart;
@@ -20,7 +19,7 @@ void VertLine::updatePos() {
     setLine(topleft.x(), topleft.y(), bottomright.x(), bottomright.y());
 }
 void VertLine::setX(qreal x) { X = x; updatePos(); emit changeVal(X); }
-qreal VertLine::getX() { return X; }
+const qreal VertLine::getX() { return X; }
 void VertLine::setMin(qreal m) { minX = m; };
 void VertLine::setMax(qreal m) { maxX = m; };
 void VertLine::mousePressEvent(QGraphicsSceneMouseEvent* event) {}
@@ -29,8 +28,8 @@ void VertLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     newx = qMin(qMax(newx, minX), maxX);
     setX(newx);
 }
-QPointF VertLine::chartToScene(QPointF chartpos) { return ch->mapToPosition(chartpos); }
-QPointF VertLine::sceneToChart(QPointF scenepos) { return ch->mapToValue(scenepos); }
+const QPointF VertLine::chartToScene(QPointF chartpos) { return ch->mapToPosition(chartpos); }
+const QPointF VertLine::sceneToChart(QPointF scenepos) { return ch->mapToValue(scenepos); }
 
 // GammaLine
 GammaLine::GammaLine(QChart* chart) {
@@ -87,10 +86,10 @@ void GammaLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     // Now update:
     setGamma(g);
 }
-QPointF GammaLine::chartToScene(QPointF chartpos) {
+const QPointF GammaLine::chartToScene(QPointF chartpos) {
     return ch->mapToPosition(chartpos);
 }
-QPointF GammaLine::sceneToChart(QPointF scenepos) {
+const QPointF GammaLine::sceneToChart(QPointF scenepos) {
     return ch->mapToValue(scenepos);
 }
 
@@ -211,9 +210,6 @@ void ContrastHistogramChart::updateInLine() {
     inLineSeries->replace(indata);
 }
 
-
-
-
 // ContrastWidget
 ContrastWidget::ContrastWidget(QWidget* parent) {
         setParent(parent);
@@ -264,9 +260,9 @@ ContrastWidget::ContrastWidget(QWidget* parent) {
 
     }
 ContrastWidget::~ContrastWidget() {};
-double ContrastWidget::getMin() { return spinMin->value(); }
-double ContrastWidget::getMax() { return spinMax->value(); }
-double ContrastWidget::getGamma() { return spinGamma->value(); }
+const double ContrastWidget::getMin() { return spinMin->value(); }
+const double ContrastWidget::getMax() { return spinMax->value(); }
+const double ContrastWidget::getGamma() { return spinGamma->value(); }
 void ContrastWidget::setHist(std::vector<float> histval) {contChart->setData(histval);}
 void ContrastWidget::setContrast(float min, float max, float gamma) {
     spinMin->setValue(min);

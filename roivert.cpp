@@ -182,6 +182,7 @@ void Roivert::changeFrame(const size_t frame)
     }
  
 }
+
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
 }
@@ -250,7 +251,7 @@ void Roivert::makeToolbar() {
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
     float c[3];
-    dispSettings.getRawContrast(isDff, &c[0]);
+    dispSettings.getContrast(isDff, &c[0]);
     t_imgSettings->setContrast(c[0],c[1],c[2]);
 
     // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
@@ -602,7 +603,6 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
     msg.exec();
 }
 
-
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
     settings.setValue("geometry", saveGeometry());
@@ -618,7 +618,6 @@ void Roivert::closeEvent(QCloseEvent* event) {
     }
     QMainWindow::closeEvent(event);
 }
-
 
 void Roivert::restoreSettings()
 {

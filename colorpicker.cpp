@@ -20,7 +20,6 @@ ColorPicker::ColorPicker(QVector<QColor> clrs, QWidget* parent) : QWidget(parent
 ColorPicker::~ColorPicker() {
     delete(layout());
 }
-
 void ColorPicker::setColors(QVector<QColor> clrs) {
     // check how many buttons we have
     colors = clrs;
@@ -73,7 +72,6 @@ void ColorPicker::setColors(QVector<QColor> clrs) {
     // Connect everything:
     connect(grp, &QButtonGroup::idClicked, this, [=](int id) {emit colorSelected(colors[id]); });
 }
-
 void ColorPicker::setCustomColor() {
     QColor clr = clrDlg->getColor(customColor);
     if (clr.isValid()) {
@@ -86,9 +84,7 @@ void ColorPicker::setCustomColor() {
         emit colorSelected(clr);
     }
 }
-
-
-QColor ColorPicker::getSelectedColor() {
+const QColor ColorPicker::getSelectedColor() {
     int id = grp->id(grp->checkedButton());
     if (id < colors.size()) {
         return colors[id];
@@ -113,8 +109,7 @@ void ColorPicker::setSelectedColor(QColor clr) {
     t->setChecked(true);
     emit colorSelected(clr);
 }
-
-QString ColorPicker::getStyleSheet(QColor clr) {
+const QString ColorPicker::getStyleSheet(QColor clr) {
     QString backclr = clr.name();
     QString bordclr = "black";
     if (clr.lightness() < 50) {

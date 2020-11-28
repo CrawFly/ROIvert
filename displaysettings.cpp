@@ -11,13 +11,10 @@ void DisplaySettings::setContrast(bool isDff, float min, float max, float gamma)
     contrast[isDff][2] = gamma;
     updateLut(isDff);
 }
-void DisplaySettings::getRawContrast(bool isDff, float *c) {
+const void DisplaySettings::getContrast(bool isDff, float *c) {
     c[0] = contrast[isDff][0];
     c[1] = contrast[isDff][1];
     c[2] = contrast[isDff][2];
-}
-cv::Mat DisplaySettings::getLut(bool isDff) {
-    return lut[isDff];
 }
 void DisplaySettings::updateLut(bool isDff) {
     uchar* ptr = lut[isDff].ptr();
@@ -37,7 +34,7 @@ bool DisplaySettings::hasContrast(bool isDff) {
 void DisplaySettings::setProjectionMode(int projmode) {
     ProjectionMode = projmode;
 }
-int DisplaySettings::getProjectionMode() {
+const int DisplaySettings::getProjectionMode() {
     return ProjectionMode;
 }
 
@@ -51,7 +48,7 @@ void DisplaySettings::setColormap(int cmapint) {
     }
 }
 
-bool DisplaySettings::useCmap() { return useColormap; }
+const bool DisplaySettings::useCmap() { return useColormap; }
 
 cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
     cv::Mat proc(raw.clone());
@@ -83,7 +80,7 @@ cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
         }
     }
 
-    if (hasContrast(isDff)){cv::LUT(proc, getLut(isDff), proc);}
+    if (hasContrast(isDff)){cv::LUT(proc, lut[isDff], proc);}
     
     if (useCmap()) {
         cv::Mat res = cv::Mat(proc.size(), CV_8UC3);

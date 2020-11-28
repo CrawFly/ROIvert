@@ -14,13 +14,13 @@ class DisplaySettings
 public:
     DisplaySettings();
     void setContrast(bool isDff, float min, float max, float gamma);
-    void getRawContrast(bool isDff, float *c);
+    const void getContrast(bool isDff, float *c);
 
     void setProjectionMode(int projmode);
-    int getProjectionMode();
+    const int getProjectionMode();
 
     void setColormap(int cmapint);
-    bool useCmap();
+    const bool useCmap();
 
     void setSmoothing(int smoothType, int smoothSize, double smoothSigma, double smoothSigmaI);
 
@@ -31,7 +31,6 @@ private:
     float contrast[2][3] = { {0,1,1},{0,1,1} }; // [raw,dff][min, max, gamma]
 
     void updateLut(bool isDff);
-    cv::Mat getLut(bool isDff);
     cv::Mat lut[2];
 
     int ProjectionMode = 0; // 0 means no projection

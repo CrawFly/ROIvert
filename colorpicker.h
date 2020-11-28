@@ -16,7 +16,7 @@ public:
     ~ColorPicker();
 
     void setColors(QVector<QColor> clrs);
-    QColor getSelectedColor();
+    const QColor getSelectedColor();
     void setSelectedColor(QColor clr);
 
 signals:
@@ -25,12 +25,11 @@ signals:
 private:
     QVector<QColor> colors;
     QColor customColor = QColor("#FFFFFF");
-    void init();
     QButtonGroup* grp = new QButtonGroup;
     int selectedind = 0;
 
     void setCustomColor();
     QColorDialog* clrDlg = new QColorDialog;
 
-    static QString getStyleSheet(QColor clr);
+    static const QString getStyleSheet(QColor clr);
 };

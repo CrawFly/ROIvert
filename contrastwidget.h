@@ -22,7 +22,7 @@ public:
 
     void updatePos();
     void setX(qreal x);
-    qreal getX();
+    const qreal getX();
     void setMin(qreal m);
     void setMax(qreal m);
 
@@ -41,8 +41,8 @@ private:
     qreal minY = 0.;
     qreal maxY = 1.;
 
-    QPointF chartToScene(QPointF chartpos);
-    QPointF sceneToChart(QPointF scenepos);
+    const QPointF chartToScene(QPointF chartpos);
+    const QPointF sceneToChart(QPointF scenepos);
 };
 
 class GammaLine : public QObject, public QGraphicsPathItem
@@ -76,8 +76,8 @@ private:
     qreal mingamma = .001;
     qreal maxgamma = 10;
 
-    QPointF chartToScene(QPointF chartpos);
-    QPointF sceneToChart(QPointF scenepos);
+    const QPointF chartToScene(QPointF chartpos);
+    const QPointF sceneToChart(QPointF scenepos);
 };
 
 class ContrastHistogramChart : public QGraphicsView {
@@ -126,9 +126,9 @@ public:
     explicit ContrastWidget(QWidget* parent = nullptr);
     ~ContrastWidget();
 
-    double getMin();
-    double getMax();
-    double getGamma();
+    const double getMin();
+    const double getMax();
+    const double getGamma();
 
     void setHist(std::vector<float> histval);
     void setContrast(float min, float max, float gamma);
