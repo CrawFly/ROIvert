@@ -101,6 +101,7 @@ void ColorPicker::setSelectedColor(QColor clr) {
             selectedind = i;
             QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(i)->widget()));
             t->setChecked(true);
+            emit colorSelected(clr);
             return;
         }
     }
@@ -110,7 +111,7 @@ void ColorPicker::setSelectedColor(QColor clr) {
     QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
     t->setStyleSheet(getStyleSheet(customColor));
     t->setChecked(true);
-
+    emit colorSelected(clr);
 }
 
 QString ColorPicker::getStyleSheet(QColor clr) {
