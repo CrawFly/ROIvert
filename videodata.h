@@ -29,7 +29,6 @@ public:
     // this is maybe temporary until i refactor into a nice clean array
     cv::Mat get(bool isDff, int projmode, size_t framenum);
     
-
     void setStoreDff(bool enabled);
     bool getStoreDff();
     
@@ -50,19 +49,14 @@ public:
 signals:
     void loadProgress(int progress);          // progress goes 0-100
 
-
 private:
-    bool storeDff = true;
-
+    bool storeDff = true; // For now many things sort of depnd on this being true, but there's some flexibility here
     QStringList files;
     int width=0, height=0, nframes=0;
 
     // Projections:
-    cv::Mat proj[4];  // index using enum
-    cv::Mat projd[4];
-
-    cv::Mat dffproj[4];  // index using enum
-    cv::Mat dffprojd[4];
+    cv::Mat proj[2][4];  // outer is raw|dff; inner is indexed by enum
+    cv::Mat projdbl[2][4];
 
     // Meta data:
     int dsTime = 1, dsSpace = 1, bitdepth = 0; 
