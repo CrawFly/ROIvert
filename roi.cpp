@@ -37,7 +37,6 @@ QRect roi_rect::getBB()
 {
     return thisroi->rect().toRect();
 }
-
 cv::Mat roi_rect::getMask() {
     QRect bb = getBB();
 
@@ -48,7 +47,6 @@ cv::Mat roi_rect::getMask() {
     mask = 255;
     return mask;
 }
-
 void roi_rect::setScene(QGraphicsScene* scene) {
     scene->addItem(thisroi);
 }
@@ -101,8 +99,6 @@ cv::Mat roi_ellipse::getMask() {
     cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
     return mask;
 }
-
-
 void roi_ellipse::setScene(QGraphicsScene* scene) {
     scene->addItem(thisroi);
 }
@@ -124,7 +120,6 @@ roi_polygon::~roi_polygon()
         delete thisroi;
     }
 }
-
 void roi_polygon::setVertices(const QVector<QPoint> &verts)
 {
     if (!verts.empty())

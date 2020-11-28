@@ -168,7 +168,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     updateContrastWidget(vidctrl->dff());
 }
 
-void Roivert::changeFrame(const qint32 frame)
+void Roivert::changeFrame(const size_t frame)
 {
     if (frame > 0 && frame <= viddata->getNFrames())
     { // frame is 1 indexed

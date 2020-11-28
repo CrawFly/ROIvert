@@ -93,11 +93,7 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     setEnabled(false);
 }
 
-VideoController::~VideoController()
-{
-}
-
-void VideoController::setFrame(const qint32 frame)
+void VideoController::setFrame(const size_t frame)
 {
     if (frame != currframe && frame >= 1 && frame <= nframes())
     {
@@ -112,7 +108,7 @@ void VideoController::setFrame(const qint32 frame)
         }
     }
 }
-void VideoController::setNFrames(const qint32 frames)
+void VideoController::setNFrames(const size_t frames)
 {
     setEnabled(frames > 0);
     sliScrub->setMaximum(frames);
@@ -132,7 +128,6 @@ void VideoController::PushPlay(const bool &down)
     if (down)
     {
         cmdPlay->setIcon(QIcon(":/icons/icons/vid_stop.png"));
-        timechecker.start();
         clock->setInterval(clockrate());
         clock->start();
     }
@@ -144,8 +139,8 @@ void VideoController::PushPlay(const bool &down)
 }
 void VideoController::clockStep()
 {
-    int inc = 1;
-    qint32 frame = currframe + inc;
+    size_t inc = 1;
+    size_t frame = currframe + inc;
     if (frame > nframes())
     {
         if (cmdLoop->isChecked())
@@ -181,12 +176,9 @@ void VideoController::updateTimeLabel()
     }
     lblTime->setText(t.toString(fmt));
 }
-qint32 VideoController::nframes()
-{
-    return sliScrub->maximum();
-}
 
-void VideoController::setSpeedDial(const qint32 val)
+
+void VideoController::setSpeedDial(const int val)
 {
     // val ranges from -100 to 100,
     float speed;
@@ -209,12 +201,11 @@ void VideoController::setSpeedText()
     clock->setInterval(clockrate());
 }
 
-float VideoController::speedmult()
-{
-    return txtSpeed->text().toFloat();
-}
 
-int VideoController::clockrate()
-{
-    return 1000 / ((float)framerate * speedmult());
-}
+void VideoController::forceUpdate() { size_t f = currframe; currframe = 0; setFrame(f); };
+
+
+const size_t VideoController::nframes() { return sliScrub->maximum(); }
+const bool VideoController::dff() { return cmdDff->isChecked(); }
+const float VideoController::speedmult() { return txtSpeed->text().toFloat(); }
+const int VideoController::clockrate() { return 1000 / ((float)framerate * speedmult()); }

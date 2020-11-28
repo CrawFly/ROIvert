@@ -25,7 +25,7 @@ public:
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
-    void changeFrame(const qint32 frame);
+    void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
     
 signals:

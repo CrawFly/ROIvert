@@ -17,19 +17,16 @@ class VideoController : public QWidget
 
 public:
     VideoController(QWidget *parent);
-    ~VideoController();
-    bool dff() { return cmdDff->isChecked(); }
-    void forceUpdate() { qint32 f = currframe; currframe = 0; setFrame(f); };
-signals:
-    void frameChanged(const qint32 &frame);
-    void dffToggle(bool isdff);
-
-public slots:
-    void setFrame(const qint32 frame);
-    void setNFrames(const qint32 frames);
+    const bool dff();
+    void forceUpdate();
+    void setNFrames(const size_t frames);
     void setFrameRate(const float framerate);
     void setStop(); // Forces a video to stop, no emit.
 
+signals:
+    void frameChanged(const size_t &frame);
+    void dffToggle(bool isdff);
+        
 private:
     QPushButton *cmdBack = new QPushButton(this);
     QPushButton *cmdPlay = new QPushButton(this);
@@ -42,19 +39,20 @@ private:
     QLineEdit *txtSpeed = new QLineEdit(this);
     QPushButton* cmdDff = new QPushButton(this);
 
-    qint32 currframe = 0;
-    qint32 framerate = 30;
+    size_t currframe = 0;
+    float framerate = 30.;
     QTime lastframetime;
+
+    void setFrame(const size_t frame);
 
     void PushPlay(const bool &flag);
     void clockStep();
-    void updateTimeLabel(); //
-    qint32 nframes();
-    float speedmult();
-    void setSpeedDial(const qint32 val);
+    void updateTimeLabel(); 
+    
+    void setSpeedDial(const int val);
     void setSpeedText();
 
-    int clockrate();
-
-    QTime timechecker;
+    const size_t nframes();
+    const float speedmult();
+    const int clockrate();
 };
