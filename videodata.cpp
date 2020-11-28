@@ -4,25 +4,17 @@
 
 VideoData::VideoData(QObject* parent) : QObject(parent) {
     setParent(parent);
-    data->clear();
-    dataDff->clear();
+    data[0]->clear();
+    data[1]->clear();
 }
 VideoData::~VideoData() {
-    // destructor should delete all the Mats?
-    // not sure why not..check if they're empty?
-    data->clear();
-    dataDff->clear();
-
-    /*
-    delete proj;
-    delete projd;
-    delete data;
-    delete dataDff;
-    */
+    // bug: destructor should be deleting all the MATs, but they're not init'd correctly. 
+    data[0]->clear();
+    data[1]->clear();
 }
 void VideoData::init() {
-    data->clear();
-    data->reserve(files.size());
+    data[0]->clear();
+    data[0]->reserve(files.size());
 
     // todo: consider calling init at construction and setting first to empty mat if called with no files?
     if (files.empty()) { return; }; 
@@ -73,28 +65,29 @@ void VideoData::load(QStringList filelist, int dst, int dss){
     dsSpace = dss;
 
     init();
-
     for (size_t i = 0; i < files.size(); i+=dsTime) {
-        if (readframe(i)) { 
-            accum(data->at(data->size() - 1));
+        if (readframe(i)) {
+            accum(data[0]->back());
         }
         emit loadProgress((100 - (storeDff * 50)) * (float)i / files.size());
     }
+    //qDebug() << t_readframe << t_accum; // 2361 + 627
+    
     complete();
 
     if (storeDff) {
         // when storeDff is on, compute dff for all frames and store it
-        dataDff->clear();
-        dataDff->reserve(data->size());
-        for (size_t i = 0; i < data->size(); i++) {
-            dataDff->push_back(calcDffNative(data->at(i)));
-            calcHist(&dataDff->at(i), histogram[1], true);
+        data[1]->clear();
+        data[1]->reserve(data[0]->size());
+        for (size_t i = 0; i < data[0]->size(); i++) {
+            data[1]->push_back(calcDffNative(data[0]->operator[](i)));
+            calcHist(&(data[1]->back()), histogram[1], true);
 
             // todo: This should really be in accum?
-            proj[1][(size_t)VideoData::projection::MIN] = cv::min(proj[1][(size_t)VideoData::projection::MIN], dataDff->at(i));
-            proj[1][(size_t)VideoData::projection::MAX] = cv::max(proj[1][(size_t)VideoData::projection::MAX], dataDff->at(i));
+            proj[1][(size_t)VideoData::projection::MIN] = cv::min(proj[1][(size_t)VideoData::projection::MIN], data[1]->at(i));
+            proj[1][(size_t)VideoData::projection::MAX] = cv::max(proj[1][(size_t)VideoData::projection::MAX], data[1]->at(i));
             // Mean has no meaning for df/f, so not accumulating sum...
-            emit loadProgress(50 + 50 * (float)i / data->size());
+            emit loadProgress(50 + 50 * (float)i / data[0]->size());
         }
 
     }
@@ -112,7 +105,8 @@ bool VideoData::readframe(size_t filenum) {
         cv::resize(image, image, cv::Size(), 1. / dsSpace, 1. / dsSpace, cv::INTER_NEAREST);
     }
 
-    data->push_back(image.clone());
+    //data[0]->push_back(image.clone());
+    data[0]->push_back(image);
     return true;
 }
 void VideoData::accum(const cv::Mat &frame) {
@@ -123,7 +117,7 @@ void VideoData::accum(const cv::Mat &frame) {
     calcHist(&frame, histogram[0], true);
 }
 void VideoData::complete() {
-    int type = data->at(0).type();
+    int type = data[0]->at(0).type();
     
     // Compute mean:
     projdbl[0][(size_t)VideoData::projection::MEAN] = projdbl[0][(size_t)VideoData::projection::SUM] / getNFrames();
@@ -143,8 +137,8 @@ void VideoData::complete() {
     dffrng = dffmaxval - dffminval;
 
     // Store the downsampled width and height:
-    width = data->at(0).size().width;
-    height = data->at(0).size().height;
+    width = data[0]->at(0).size().width;
+    height = data[0]->at(0).size().height;
 }
 cv::Mat VideoData::calcDffDouble(const cv::Mat& frame) {
     // This calculates the df/f as a double
@@ -159,7 +153,7 @@ cv::Mat VideoData::calcDffNative(const cv::Mat& frame) {
     cv::Mat dffdbl = calcDffDouble(frame);
 
     // Convert to uchar, using normalization from range
-    int type = data->at(0).type();
+    int type = data[0]->at(0).type();
     cv::Mat ret(frame.size(), type);
     double maxval = pow(2, bitdepth);
     double alpha = maxval / dffrng;
@@ -168,44 +162,48 @@ cv::Mat VideoData::calcDffNative(const cv::Mat& frame) {
     dffdbl.convertTo(ret, type, alpha, beta);
     return ret;
 }
-cv::Mat VideoData::getFrameRaw(size_t frameindex) {
-    if (frameindex >= data->size()) {
+
+cv::Mat VideoData::getFrame(bool isDff, size_t frameindex) {
+    if (frameindex >= data[isDff]->size()) {
         return cv::Mat();
     }
-    return data->at(frameindex);
+    return data[isDff]->operator[](frameindex);
+}
+/* Old getFrame Impl...will allow cacheless version?
+cv::Mat VideoData::getFrameRaw(size_t frameindex) {
+    if (frameindex >= data[0]->size()) {
+    }
+    return data[0]->at(frameindex);
 }
 cv::Mat VideoData::getFrameDff(size_t frameindex) {
-    if (frameindex >= data->size()) {
+    if (frameindex >= data[1]->size()) {
         return cv::Mat();
     }
-    if (storeDff && frameindex>=dataDff->size()) {
-        return dataDff->at(frameindex);
+    if (storeDff && frameindex>= data[1]->size()) {
+        return data[1]->at(frameindex);
     }
     else {
-        return calcDffNative(data->at(frameindex));
+        return calcDffNative(data[0]->at(frameindex));
     }
 }
+*/
+
+
 cv::Mat VideoData::getProjection(bool isDff, VideoData::projection projtype) { return proj[isDff][(size_t)projtype]; }
 void VideoData::setStoreDff(bool enabled) { storeDff = enabled; }
 bool VideoData::getStoreDff() { return storeDff; }
 int VideoData::getWidth() { return width; }
 int VideoData::getHeight() { return height; }
-size_t VideoData::getNFrames() { return data->size(); }
+size_t VideoData::getNFrames() { return data[0]->size(); }
 int VideoData::getdsTime() { return dsTime; }
 int VideoData::getdsSpace() { return dsSpace; }
 void VideoData::getHistogram(bool isDff, std::vector<float>& h) {histogram[isDff].copyTo(h);}
 
 void VideoData::getHistogram(bool isDff, std::vector<float>& histogram, size_t framenum) {
-    if (framenum < data->size()) {
+    if (framenum < getNFrames()) {
         cv::Mat hist;
         // TODO: drop if when data is collapsed
-        if (isDff) {
-            calcHist(&data->at(framenum), hist, false);
-        }
-        else {
-            calcHist(&dataDff->at(framenum), hist, false);
-        }
-        
+        calcHist(&data[isDff]->at(framenum), hist, false);
         hist.copyTo(histogram);
     }
 }
@@ -220,17 +218,11 @@ void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
+    // This is just a convenience that wraps getProjection and getFrame.
     if (projmode > 0) {
         return getProjection(isDff, (VideoData::projection)(projmode - 1));
     }
-
-    // todo: drop if when data is collapsed
-    if (isDff) {
-        return getFrameDff(framenum); 
-    }
-    else {
-        return getFrameRaw(framenum); 
-    }
+    return getFrame(isDff, framenum);
 }
 void VideoData::dffNativeToOrig(double& val) {
     // This helper takes my scaled dff values and translates them back into what they would be in original double space:
@@ -241,13 +233,12 @@ void VideoData::dffNativeToOrig(double& val) {
 
 std::vector<double> VideoData::calcTrace(cv::Rect cvbb, cv::Mat mask) {
     // todo: allow isDff bool in here so that we can calculate traces for raw data
-
     std::vector<double> trace;
-    trace.reserve(dataDff->size());
+    trace.reserve(getNFrames());
     QTime t;
     t.start();
-    for (size_t i = 0; i < dataDff->size(); i++) {
-        cv::Mat boundedimage = dataDff->at(i)(cvbb);
+    for (size_t i = 0; i < getNFrames(); i++) {
+        cv::Mat boundedimage = data[1]->at(i)(cvbb);
         double mu = cv::mean(boundedimage, mask)[0];
         dffNativeToOrig(mu);
         trace.push_back(mu);

@@ -21,8 +21,7 @@ public:
     ~VideoData();
 
     void load(QStringList filelist, int dst, int dss);
-    cv::Mat getFrameRaw(size_t frameindex);
-    cv::Mat getFrameDff(size_t frameindex);
+    cv::Mat getFrame(bool isDff, size_t frameindex);
     cv::Mat getProjection(bool isDff, VideoData::projection proj);
 
     // this is maybe temporary until i refactor into a nice clean array
@@ -75,8 +74,5 @@ private:
     cv::Mat histogram[2]; // [raw|dff]
 
     // Actual storage:
-    std::vector<cv::Mat>* data = new std::vector<cv::Mat>;
-    std::vector<cv::Mat>* dataDff = new std::vector<cv::Mat>;
-
-    
+    std::vector<cv::Mat>* data[2] = { new std::vector<cv::Mat>, new std::vector<cv::Mat> };
 };
