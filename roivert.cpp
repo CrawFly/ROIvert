@@ -49,6 +49,13 @@ Roivert::Roivert(QWidget* parent)
     t_io->setEnabled(false);
     w_io->setVisible(false);
 
+    t_clrs = new tool::colors(this);
+    w_colors = new QDockWidget();
+    w_colors->setWidget(t_clrs);
+    w_colors->setWindowTitle("Colors");
+    addDockWidget(Qt::RightDockWidgetArea, w_colors);
+
+
     // Right Side:
     QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
@@ -96,10 +103,14 @@ Roivert::Roivert(QWidget* parent)
     connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
     connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
+    connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
+    connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
+    connect(t_clrs, &tool::colors::setSelectedColor, tviewer, &TraceViewer::setSelectedColor);
+    connect(t_clrs, &tool::colors::setUnselectedColor, tviewer, &TraceViewer::setUnselectedColor);
+    connect(t_clrs, &tool::colors::setChartBackColor, tviewer, &TraceViewer::setBackgroundColor);
+    connect(t_clrs, &tool::colors::setChartForeColor, tviewer, &TraceViewer::setForegroundColor);
+    connect(t_clrs, &tool::colors::setChartGridColor, tviewer, &TraceViewer::setGridColor);
 
-
-    //connect(this, &Roivert::MupdateTrace, tcompute, &TraceComputer::update);
-    //connect(this, &TraceComputer::traceComputed, tviewer, &TraceViewer::tracecomputed);
 
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 

@@ -83,7 +83,6 @@ void TraceViewer::setmaxtime(double t_secs) {
 }
 
 void TraceViewer::push_chart(int roiid) {
-    QColor foreClr = QColor(Qt::lightGray);
 
     QChart* chart = new QChart;
     QLineSeries* series = new QLineSeries;
@@ -107,19 +106,19 @@ void TraceViewer::push_chart(int roiid) {
     QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
     
     x->setTitleText("Time (s)");
-    x->setGridLineColor(QColor(Qt::darkGray));
+    x->setGridLineColor(gridclr);
     y->setTitleText(ROIVert::dffstring);
-    y->setGridLineColor(QColor(Qt::darkGray));
+    y->setGridLineColor(gridclr);
 
     QPen seriespen(selclr, 3);
     series->setPen(seriespen);
-    chart->setBackgroundBrush(QBrush("#222222"));
+    chart->setBackgroundBrush(QBrush(backclr));
 
-    x->setLabelsColor(foreClr);
-    y->setLabelsColor(foreClr);
-    x->setTitleBrush(foreClr);
-    y->setTitleBrush(foreClr);
-    chart->setTitleBrush(foreClr);
+    x->setLabelsColor(foreclr);
+    y->setLabelsColor(foreclr);
+    x->setTitleBrush(foreclr);
+    y->setTitleBrush(foreclr);
+    chart->setTitleBrush(foreclr);
 
     charts.push_back(chart);
     chartviews.push_back(chartView);
@@ -148,9 +147,8 @@ void TraceViewer::setSelectedTrace(int oldind, int newind) {
         scrollArea->ensureVisible(0, bottom, 0, 0);
         scrollArea->ensureVisible(0, top, 0, 0);
 
-        //scrollArea->ensureVisible(+ chartviews[newind - 1]->height());
-        //scrollArea->ensureWidgetVisible(chartviews[newind - 1],0,chartviews[newind-1]->height());
     }
+    selectedind = newind;
 }
 
 void TraceViewer::roideleted(size_t roiind) {
@@ -209,3 +207,60 @@ std::vector<float> TraceViewer::getTVec() {
     return ret;
 }
 
+
+
+void TraceViewer::setSelectedColor(QColor clr){
+    selclr = clr;
+    if (selectedind > 0) {
+        QLineSeries* series = qobject_cast<QLineSeries*>(charts[selectedind - 1]->series()[0]);
+        QPen seriespen(selclr, 3);
+        series->setPen(seriespen);
+    }
+    //selectedind 
+}
+void TraceViewer::setUnselectedColor(QColor clr){
+    unselclr = clr;
+    for (int i = 0; i < charts.size(); i++) {
+        if (i + 1 != selectedind) {
+            QLineSeries* series = qobject_cast<QLineSeries*>(charts[i]->series()[0]);
+            QPen seriespen(unselclr, 3);
+            series->setPen(seriespen);
+        }
+    }
+}
+
+void TraceViewer::setBackgroundColor(QColor clr) {
+    backclr = clr;
+
+    for each (QChart* chart  in charts)
+    {
+        chart->setBackgroundBrush(QBrush(backclr));
+    }
+}
+
+void TraceViewer::setForegroundColor(QColor clr) {
+
+    foreclr = clr;
+    for each (QChart * chart  in charts)
+    {
+        QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
+        QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
+
+        x->setLabelsColor(foreclr);
+        y->setLabelsColor(foreclr);
+        x->setTitleBrush(foreclr);
+        y->setTitleBrush(foreclr);
+        chart->setTitleBrush(foreclr);
+    }
+}
+void TraceViewer::setGridColor(QColor clr) {
+    gridclr = clr;
+
+    for each (QChart * chart  in charts)
+    {
+        QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
+        QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
+        x->setGridLineColor(gridclr);
+        y->setGridLineColor(gridclr);
+    }
+}

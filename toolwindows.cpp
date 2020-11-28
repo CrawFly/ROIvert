@@ -534,3 +534,36 @@ fileIO::fileIO(QWidget* parent) {
 
 
 }
+
+
+colors::colors(QWidget* parent) {
+    setParent(parent);
+
+    QFormLayout* lay = new QFormLayout;
+    setLayout(lay);
+
+    ColorPicker* selPicker = new ColorPicker(ROIVert::colors, this);
+    ColorPicker* unselPicker = new ColorPicker(ROIVert::colors, this);
+    QVector<QColor> chartclrs = { QColor("#222222"),QColor(Qt::lightGray),QColor(Qt::darkGray), QColor(Qt::white)};
+    ColorPicker* backPicker = new ColorPicker(chartclrs, this);
+    ColorPicker* forePicker = new ColorPicker(chartclrs, this);
+    ColorPicker* gridPicker = new ColorPicker(chartclrs, this);
+
+    lay->addRow("Selected:", selPicker);
+    lay->addRow("Unselected:", unselPicker);
+    lay->addRow("Chart Back:", backPicker);
+    lay->addRow("Chart Fore:", forePicker);
+    lay->addRow("Chart Grid:", gridPicker);
+
+    selPicker->setSelectedColor(ROIVert::colors[4]);
+    unselPicker->setSelectedColor(ROIVert::colors[3]);
+    backPicker->setSelectedColor(chartclrs[0]);
+    forePicker->setSelectedColor(chartclrs[1]);
+    gridPicker->setSelectedColor(chartclrs[2]);
+
+    connect(selPicker, &ColorPicker::colorSelected, this, &colors::setSelectedColor);
+    connect(unselPicker, &ColorPicker::colorSelected, this, &colors::setUnselectedColor);
+    connect(forePicker, &ColorPicker::colorSelected, this, &colors::setChartForeColor);
+    connect(backPicker, &ColorPicker::colorSelected, this, &colors::setChartBackColor);
+    connect(gridPicker, &ColorPicker::colorSelected, this, &colors::setChartGridColor);
+}

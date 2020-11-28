@@ -429,3 +429,18 @@ void ImageROIViewer::importROIs(const std::vector<roi*>& rois_in) {
 size_t ImageROIViewer::getNROIs() {
     return rois.size();
 }
+
+void ImageROIViewer::setSelectedColor(QColor clr) {
+    selectedColor = clr;
+    if (selroi > 0) {
+        rois[selroi - 1]->setColor(clr);
+    }
+}
+void ImageROIViewer::setUnselectedColor(QColor clr) {
+    unselectedColor = clr;
+    for (int i = 0; i < rois.size(); i++) {
+        if (i != selroi - 1) {
+            rois[i]->setColor(clr);
+        }
+    }
+}

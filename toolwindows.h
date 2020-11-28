@@ -28,7 +28,7 @@
 #include <QButtonGroup>
 #include "contrastwidget.h"
 #include "roivertcore.h"
-
+#include "colorpicker.h"
 
 namespace tool
 {
@@ -109,5 +109,19 @@ namespace tool
         
     private:
         QString cachepath;
+    };
+
+    class colors : public QWidget {
+        Q_OBJECT
+
+    public:
+        colors(QWidget* parent);
+
+    signals:
+        void setSelectedColor(QColor clr);
+        void setUnselectedColor(QColor clr);
+        void setChartForeColor(QColor clr);
+        void setChartBackColor(QColor clr);
+        void setChartGridColor(QColor clr);
     };
 } // namespace tool

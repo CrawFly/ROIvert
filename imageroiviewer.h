@@ -51,6 +51,10 @@ public:
 	void importROIs(const std::vector<roi*>& rois_in);
 	size_t getNROIs();
 
+	void setSelectedColor(QColor clr);
+	void setUnselectedColor(QColor clr);
+
+
 signals:
 	void roiSelectionChange(const size_t oldroiind, const size_t newroiind);
 	void roiEdited(const size_t roiind); 

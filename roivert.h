@@ -9,17 +9,8 @@
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
-//#include "tracecomputer.h"
 #include "qthread.h"
 #include "traceviewer.h"
-// colors: (?)
-//  2274A5
-//  F75C03
-//  F1C40F
-//  D90368
-//  00CC66
-
-
 
 class Roivert : public QMainWindow
 {
@@ -48,12 +39,13 @@ private:
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;
     tool::fileIO* t_io;
-
+    tool::colors* t_clrs;
 
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
-    QDockWidget* w_io; 
+    QDockWidget* w_io;
     QDockWidget* w_charts;
+    QDockWidget* w_colors;
     
 
     DisplaySettings dispSettings;

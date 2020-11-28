@@ -48,7 +48,11 @@ public:
     std::vector<std::vector<float>> getAllTraces(); 
     std::vector<float> getTVec();
     
-
+    void setSelectedColor(QColor clr);
+    void setUnselectedColor(QColor clr);
+    void setBackgroundColor(QColor clr);
+    void setForegroundColor(QColor clr);
+    void setGridColor(QColor clr);
 
 signals:
     void chartClicked(int roiid);
@@ -66,7 +70,13 @@ private:
     void push_chart(int roiid);
     QColor selclr = QColor("#00CC66");
     QColor unselclr = QColor("#D90368");
+    QColor backclr = QColor("#222222");
+    QColor foreclr = QColor(Qt::lightGray);
+    QColor gridclr = QColor(Qt::darkGray);
+
     
     QVBoxLayout* lay;
     QScrollArea* scrollArea;
+
+    int selectedind=0;
 };

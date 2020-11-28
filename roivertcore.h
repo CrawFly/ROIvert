@@ -1,5 +1,7 @@
 #pragma once
 #include <QString>
+#include <QVector>
+#include <QColor>
 
 // misc shared data types?
 namespace ROIVert {
@@ -18,4 +20,20 @@ namespace ROIVert {
     };
 
     static const QString dffstring(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+
+    static const QVector<QColor> colors = {
+        QColor("#2264A5"),
+        QColor("#F75C03"),
+        QColor("#F1C40F"),
+        QColor("#D90368"),
+        QColor("#00CC66")
+    };
+
+
+    // colors: (?)
+    //  2274A5
+    //  F75C03
+    //  F1C40F
+    //  D90368
+    //  00CC66
 }
