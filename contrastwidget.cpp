@@ -174,7 +174,7 @@ void ContrastHistogramChart::changeMin(double newval) { minline->setX(newval); }
 void ContrastHistogramChart::changeMax(double newval) { maxline->setX(newval); }
 void ContrastHistogramChart::changeGamma(double newval) { gamline->setGamma(newval); }
 void ContrastHistogramChart::resizeEvent(QResizeEvent* event) {
-    this->setMaximumHeight(this->width());
+    //this->setMaximumHeight(this->width());
     if (scene()) {
         chart->resize(event->size());
         scene()->setSceneRect(QRect(QPoint(0, 0), event->size()));
