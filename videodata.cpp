@@ -60,8 +60,8 @@ void VideoData::init() {
     }
 
     // initialize histograms
-    rawhistogram = cv::Mat::zeros(1, 256, CV_32F); 
-    dffhistogram = cv::Mat::zeros(1, 256, CV_32F); 
+    histogram[0] = cv::Mat::zeros(1, 256, CV_32F); 
+    histogram[1] = cv::Mat::zeros(1, 256, CV_32F);
 }
 
 void VideoData::load(QStringList filelist, int dst, int dss){
@@ -88,7 +88,7 @@ void VideoData::load(QStringList filelist, int dst, int dss){
         dataDff->reserve(data->size());
         for (size_t i = 0; i < data->size(); i++) {
             dataDff->push_back(calcDffNative(data->at(i)));
-            calcHist(&dataDff->at(i), dffhistogram, true);
+            calcHist(&dataDff->at(i), histogram[1], true);
 
             // todo: This should really be in accum?
             proj[1][(size_t)VideoData::projection::MIN] = cv::min(proj[1][(size_t)VideoData::projection::MIN], dataDff->at(i));
@@ -120,7 +120,7 @@ void VideoData::accum(const cv::Mat &frame) {
     proj[0][(size_t)VideoData::projection::MIN] = cv::min(proj[0][(size_t)VideoData::projection::MIN], frame);
     proj[0][(size_t)VideoData::projection::MAX] = cv::max(proj[0][(size_t)VideoData::projection::MAX], frame);
     cv::accumulate(frame, projdbl[0][(size_t)VideoData::projection::SUM]);
-    calcHist(&frame, rawhistogram, true);
+    calcHist(&frame, histogram[0], true);
 }
 void VideoData::complete() {
     int type = data->at(0).type();
@@ -193,20 +193,19 @@ int VideoData::getHeight() { return height; }
 size_t VideoData::getNFrames() { return data->size(); }
 int VideoData::getdsTime() { return dsTime; }
 int VideoData::getdsSpace() { return dsSpace; }
-void VideoData::getHistogramRaw(std::vector<float>& h) {rawhistogram.copyTo(h);}
-void VideoData::getHistogramDff(std::vector<float>& h) {dffhistogram.copyTo(h);}
+void VideoData::getHistogram(bool isDff, std::vector<float>& h) {histogram[isDff].copyTo(h);}
 
-void VideoData::getHistogramRaw(std::vector<float>& histogram, size_t framenum) {
+void VideoData::getHistogram(bool isDff, std::vector<float>& histogram, size_t framenum) {
     if (framenum < data->size()) {
         cv::Mat hist;
-        calcHist(&data->at(framenum), hist, false);
-        hist.copyTo(histogram);
-    }
-}
-void VideoData::getHistogramDff(std::vector<float>& histogram, size_t framenum) {
-    if (framenum < dataDff->size()) {
-        cv::Mat hist;
-        calcHist(&dataDff->at(framenum), hist, false);
+        // TODO: drop if when data is collapsed
+        if (isDff) {
+            calcHist(&data->at(framenum), hist, false);
+        }
+        else {
+            calcHist(&dataDff->at(framenum), hist, false);
+        }
+        
         hist.copyTo(histogram);
     }
 }
@@ -225,11 +224,12 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
         return getProjection(isDff, (VideoData::projection)(projmode - 1));
     }
 
+    // todo: drop if when data is collapsed
     if (isDff) {
-        if (projmode == 0) { return getFrameDff(framenum); }
+        return getFrameDff(framenum); 
     }
     else {
-        if (projmode == 0) { return getFrameRaw(framenum); }
+        return getFrameRaw(framenum); 
     }
 }
 void VideoData::dffNativeToOrig(double& val) {
@@ -240,6 +240,8 @@ void VideoData::dffNativeToOrig(double& val) {
 }
 
 std::vector<double> VideoData::calcTrace(cv::Rect cvbb, cv::Mat mask) {
+    // todo: allow isDff bool in here so that we can calculate traces for raw data
+
     std::vector<double> trace;
     trace.reserve(dataDff->size());
     QTime t;

@@ -256,7 +256,7 @@ void Roivert::updateContrastWidget(bool isDff) {
 
     // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
     std::vector<float> hist; 
-    isDff ? viddata->getHistogramDff(hist) : viddata->getHistogramRaw(hist);
+    viddata->getHistogram(isDff, hist);
     t_imgSettings->setHistogram(hist);
 }
 
