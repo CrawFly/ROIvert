@@ -32,45 +32,35 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
 
     this->setParent(parent);
     setEnabled(false);
-    
+
     setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
-// Image Stuff
+// Image:
 void ImageROIViewer::setImage(const QImage image)
 {
-    if (image.size().isEmpty()) {
+    if (image.size().isEmpty())
+    {
         return;
     }
     pixitem->setPixmap(QPixmap::fromImage(image));
     QSize oldSize = img.size();
     QSize newSize = image.size();
     img = image;
-
-    hasImage = true;
-    emit imgLoaded();
-
-    
     if (oldSize != newSize)
     {
         scene->setSceneRect(pixitem->boundingRect());
         fitInView(pixitem, Qt::KeepAspectRatio);
-        emit imgSizeChanged(newSize);
         createROIMap();
     }
-}
-
-QImage ImageROIViewer::getImage()
-{
-    return img;
 }
 QSize ImageROIViewer::getImageSize()
 {
     return img.size();
 }
 
-// ROI stuff:
+// ROI:
 void ImageROIViewer::pushROI()
 {
     switch (roishape)
@@ -93,20 +83,25 @@ void ImageROIViewer::pushROI()
     }
     setSelectedROI(rois.size());
 }
-void ImageROIViewer::deleteROI(size_t roiind) {
-    if (roiind > 0) {
+void ImageROIViewer::deleteROI(size_t roiind)
+{
+    if (roiind > 0)
+    {
         // delete the roi:
-        roi_rect *a = dynamic_cast<roi_rect*>(rois[roiind - 1]);
-        roi_ellipse *b = dynamic_cast<roi_ellipse*>(rois[roiind - 1]);
-        roi_polygon *c = dynamic_cast<roi_polygon*>(rois[roiind - 1]);
-        if (a) {
-            delete(a);
+        roi_rect *a = dynamic_cast<roi_rect *>(rois[roiind - 1]);
+        roi_ellipse *b = dynamic_cast<roi_ellipse *>(rois[roiind - 1]);
+        roi_polygon *c = dynamic_cast<roi_polygon *>(rois[roiind - 1]);
+        if (a)
+        {
+            delete (a);
         }
-        if (b) {
-            delete(b);
+        if (b)
+        {
+            delete (b);
         }
-        if (c) {
-            delete(c);
+        if (c)
+        {
+            delete (c);
         }
 
         // set selroi to 0, but don't call setSelectedROI
@@ -122,28 +117,33 @@ void ImageROIViewer::deleteROI(size_t roiind) {
         createROIMap();
     }
 }
-void ImageROIViewer::setSelectedROI(size_t val) {
+void ImageROIViewer::setSelectedROI(size_t val)
+{
     // This sets the selected roi, (1 indexed)
     size_t prevind = selroi;
     size_t newind = val;
 
-    if (selroi > 0) {
+    if (selroi > 0)
+    {
         rois[selroi - 1]->setColor(unselectedColor);
     }
     selroi = val;
-    if (selroi > 0) {
+    if (selroi > 0)
+    {
         rois[selroi - 1]->setColor(selectedColor);
     }
     // todo: emit something (with old and new)
     emit roiSelectionChange(prevind, newind);
 }
 
+// ROI Map:
 void ImageROIViewer::createROIMap()
 {
     roimap = cv::Mat(img.size().height(), img.size().width(), CV_16U);
     roimap = 0;
 
-    for (size_t i = 0; i < rois.size(); i++) {
+    for (size_t i = 0; i < rois.size(); i++)
+    {
         updateROIMap(i + 1);
     }
 }
@@ -159,10 +159,11 @@ void ImageROIViewer::updateROIMap(size_t roiind)
     }
 }
 
-// Mouse/resize stuff stuff:
+// Mouse and resize:
 void ImageROIViewer::resizeEvent(QResizeEvent *event)
 {
-    if (!verticalScrollBar()->isVisible() && !horizontalScrollBar()->isVisible()) {
+    if (!verticalScrollBar()->isVisible() && !horizontalScrollBar()->isVisible())
+    {
         fitInView(pixitem, Qt::KeepAspectRatio);
     }
 }
@@ -175,7 +176,8 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
     }
 
     // pass ctrl+ clicks through to pan/zoom
-    if (event->modifiers().testFlag(Qt::ControlModifier)) {
+    if (event->modifiers().testFlag(Qt::ControlModifier))
+    {
         setDragMode(QGraphicsView::ScrollHandDrag);
         QGraphicsView::mousePressEvent(event);
         return;
@@ -188,7 +190,6 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
     {
         return;
     }
-
 
     // ROI add mode:
     if (mousestatus.mode == ROIVert::ADDROI)
@@ -211,7 +212,8 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
             rois[mousestatus.ActiveROI - 1]->setVertices(pt);
         }
     }
-    else if (mousestatus.mode == ROIVert::SELROI) {
+    else if (mousestatus.mode == ROIVert::SELROI)
+    {
         setSelectedROI(roimap.at<unsigned short int>((int)clickpos.y(), (int)clickpos.x()));
     }
 }
@@ -241,7 +243,10 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
 {
     // Disable drag on release
     setDragMode(QGraphicsView::NoDrag);
-    if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0){return;};
+    if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0)
+    {
+        return;
+    };
 
     // if we were adding a square or ellipse, complete it
     if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
@@ -255,7 +260,10 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
 void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
 {
     // Filter out right clicks
-    if (event->button() != Qt::LeftButton){return; }
+    if (event->button() != Qt::LeftButton)
+    {
+        return;
+    }
 
     // if we were adding a polygon, complete it...
     if (mousestatus.mode == ROIVert::ADDROI && mousestatus.ActiveROI > 0 && mousestatus.ActiveVert > 0 && roishape == ROIVert::POLYGON)
@@ -287,19 +295,23 @@ void ImageROIViewer::keyPressEvent(QKeyEvent *event)
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
     }
-    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4) {
+    else if (event->key() >= Qt::Key_1 && event->key() <= Qt::Key_4)
+    {
         emit toolfromkey(event->key());
     }
-    else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_9) {
-        emit toolfromkey(event->key()+1);//+1 for seperator
+    else if (event->key() >= Qt::Key_5 && event->key() <= Qt::Key_9)
+    {
+        emit toolfromkey(event->key() + 1); //+1 for seperator
     }
-    else if (event->key() == Qt::Key_Delete) {
+    else if (event->key() == Qt::Key_Delete)
+    {
         deleteROI(selroi);
     }
 }
 void ImageROIViewer::wheelEvent(QWheelEvent *event)
 {
-    if (event->modifiers().testFlag(Qt::ControlModifier)) {
+    if (event->modifiers().testFlag(Qt::ControlModifier))
+    {
         QGraphicsView::wheelEvent(event);
     }
 }
@@ -314,9 +326,95 @@ void ImageROIViewer::setROIShape(ROIVert::ROISHAPE shp)
     roishape = shp;
 }
 
+// ROI import/export
+QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
+{
+    QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ret;
+
+    ret.reserve(rois.size());
+    for (size_t i = 0; i < rois.size(); i++)
+    {
+        QPair<ROIVert::ROISHAPE, QVector<QPoint>> thisret;
+        if (dynamic_cast<roi_rect *>(rois[i]))
+        {
+            thisret.first = ROIVert::ROISHAPE::RECTANGLE;
+        }
+        else if (dynamic_cast<roi_ellipse *>(rois[i]))
+        {
+            thisret.first = ROIVert::ROISHAPE::ELLIPSE;
+        }
+        else if (dynamic_cast<roi_polygon *>(rois[i]))
+        {
+            thisret.first = ROIVert::ROISHAPE::POLYGON;
+        }
+        thisret.second = rois[i]->getVertices();
+
+        ret.push_back(thisret);
+    }
+    return ret;
+}
+void ImageROIViewer::importROIs(const std::vector<roi *> &rois_in)
+{
+    for each(roi * r in rois_in)
+        {
+            // I think this should: figure out the type and cast, then copy (by calling new with dereference), then move the new pointer into the vector with emplace.
+            roi_rect *a = dynamic_cast<roi_rect *>(r);
+            roi_ellipse *b = dynamic_cast<roi_ellipse *>(r);
+            roi_polygon *c = dynamic_cast<roi_polygon *>(r);
+
+            if (a)
+            {
+                rois.emplace_back(new roi_rect(*a));
+            }
+            else if (b)
+            {
+                rois.emplace_back(new roi_ellipse(*b));
+            }
+            else if (c)
+            {
+                rois.emplace_back(new roi_polygon(*c));
+            }
+
+            rois.back()->setScene(scene);
+
+            // update charts:
+            emit roiEdited(rois.size());
+
+            // select on the way in
+            setSelectedROI(rois.size());
+        }
+
+    // update map
+    createROIMap();
+}
+
+// Color Selection:
+void ImageROIViewer::setSelectedColor(QColor clr)
+{
+    selectedColor = clr;
+    if (selroi > 0)
+    {
+        rois[selroi - 1]->setColor(clr);
+    }
+}
+void ImageROIViewer::setUnselectedColor(QColor clr)
+{
+    unselectedColor = clr;
+    for (int i = 0; i < rois.size(); i++)
+    {
+        if (i != selroi - 1)
+        {
+            rois[i]->setColor(clr);
+        }
+    }
+}
+
+// Passthrough getters
+roi *ImageROIViewer::getRoi(size_t ind) { return rois[ind]; }
+size_t ImageROIViewer::getNROIs() { return rois.size(); }
 
 // Zoom behavior...
-Graphics_view_zoom::Graphics_view_zoom(QGraphicsView* view)
+Graphics_view_zoom::Graphics_view_zoom(QGraphicsView *view)
     : QObject(view), _view(view)
 {
     _view->viewport()->installEventFilter(this);
@@ -324,43 +422,48 @@ Graphics_view_zoom::Graphics_view_zoom(QGraphicsView* view)
     _modifiers = Qt::ControlModifier;
     _zoom_factor_base = 1.0015;
 }
-
-void Graphics_view_zoom::gentle_zoom(double factor) {
-    if (!(_view->horizontalScrollBar()->isVisible() || _view->verticalScrollBar()->isVisible()) && factor < 1) {
+void Graphics_view_zoom::gentle_zoom(double factor)
+{
+    if (!(_view->horizontalScrollBar()->isVisible() || _view->verticalScrollBar()->isVisible()) && factor < 1)
+    {
         return;
     }
-    
+
     _view->scale(factor, factor);
     _view->centerOn(target_scene_pos);
     QPointF delta_viewport_pos = target_viewport_pos - QPointF(_view->viewport()->width() / 2.0,
-        _view->viewport()->height() / 2.0);
+                                                               _view->viewport()->height() / 2.0);
     QPointF viewport_center = _view->mapFromScene(target_scene_pos) - delta_viewport_pos;
     _view->centerOn(_view->mapToScene(viewport_center.toPoint()));
     emit zoomed();
 }
-
-void Graphics_view_zoom::set_modifiers(Qt::KeyboardModifiers modifiers) {
+void Graphics_view_zoom::set_modifiers(Qt::KeyboardModifiers modifiers)
+{
     _modifiers = modifiers;
-
 }
-
-void Graphics_view_zoom::set_zoom_factor_base(double value) {
+void Graphics_view_zoom::set_zoom_factor_base(double value)
+{
     _zoom_factor_base = value;
 }
-
-bool Graphics_view_zoom::eventFilter(QObject* object, QEvent* event) {
-    if (event->type() == QEvent::MouseMove) {
-        QMouseEvent* mouse_event = static_cast<QMouseEvent*>(event);
+bool Graphics_view_zoom::eventFilter(QObject *object, QEvent *event)
+{
+    if (event->type() == QEvent::MouseMove)
+    {
+        QMouseEvent *mouse_event = static_cast<QMouseEvent *>(event);
         QPointF delta = target_viewport_pos - mouse_event->pos();
-        if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5) {
+        if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5)
+        {
             target_viewport_pos = mouse_event->pos();
             target_scene_pos = _view->mapToScene(mouse_event->pos());
         }
     }
-    else if (event->type() == QEvent::Wheel) {
-        QWheelEvent* wheel_event = static_cast<QWheelEvent*>(event);
-        if (QApplication::keyboardModifiers() == _modifiers) {
-            if (wheel_event->orientation() == Qt::Vertical) {
+    else if (event->type() == QEvent::Wheel)
+    {
+        QWheelEvent *wheel_event = static_cast<QWheelEvent *>(event);
+        if (QApplication::keyboardModifiers() == _modifiers)
+        {
+            if (wheel_event->orientation() == Qt::Vertical)
+            {
                 double angle = wheel_event->angleDelta().y();
                 double factor = qPow(_zoom_factor_base, angle);
                 gentle_zoom(factor);
@@ -369,78 +472,5 @@ bool Graphics_view_zoom::eventFilter(QObject* object, QEvent* event) {
         }
     }
     Q_UNUSED(object)
-        return false;
-}
-
-
-QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs() {
-    QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ret;
-    
-    ret.reserve(rois.size());
-    for (size_t i = 0; i < rois.size(); i++) {
-        QPair<ROIVert::ROISHAPE, QVector<QPoint>> thisret;
-        if (dynamic_cast<roi_rect*>(rois[i])) {
-            thisret.first = ROIVert::ROISHAPE::RECTANGLE;
-        }
-        else if (dynamic_cast<roi_ellipse*>(rois[i])) {
-            thisret.first = ROIVert::ROISHAPE::ELLIPSE;
-        }
-        else if (dynamic_cast<roi_polygon*>(rois[i])) {
-            thisret.first = ROIVert::ROISHAPE::POLYGON;
-        }
-        thisret.second = rois[i]->getVertices();
-        
-        ret.push_back(thisret);
-    }
-    return ret;
-}
-
-void ImageROIViewer::importROIs(const std::vector<roi*>& rois_in) {
-    for each (roi* r in rois_in)
-    {
-        // I think this should: figure out the type and cast, then copy (by calling new with dereference), then move the new pointer into the vector with emplace.
-        roi_rect* a = dynamic_cast<roi_rect*>(r);
-        roi_ellipse* b = dynamic_cast<roi_ellipse*>(r);
-        roi_polygon* c = dynamic_cast<roi_polygon*>(r);
-
-        if (a) {
-            rois.emplace_back(new roi_rect(*a));
-        }
-        else if (b) {
-            rois.emplace_back(new roi_ellipse(*b));
-        }
-        else if (c) {
-            rois.emplace_back(new roi_polygon(*c));
-        }
-
-        rois.back()->setScene(scene);
-
-        // update charts:
-        emit roiEdited(rois.size());
-
-        // select on the way in
-        setSelectedROI(rois.size());
-    }
-
-    // update map
-    createROIMap();
-}
-
-size_t ImageROIViewer::getNROIs() {
-    return rois.size();
-}
-
-void ImageROIViewer::setSelectedColor(QColor clr) {
-    selectedColor = clr;
-    if (selroi > 0) {
-        rois[selroi - 1]->setColor(clr);
-    }
-}
-void ImageROIViewer::setUnselectedColor(QColor clr) {
-    unselectedColor = clr;
-    for (int i = 0; i < rois.size(); i++) {
-        if (i != selroi - 1) {
-            rois[i]->setColor(clr);
-        }
-    }
+    return false;
 }
