@@ -118,7 +118,6 @@ Roivert::Roivert(QWidget* parent)
     connect(t_clrs, &tool::colors::setChartForeColor, tviewer, &TraceViewer::setForegroundColor);
     connect(t_clrs, &tool::colors::setChartGridColor, tviewer, &TraceViewer::setGridColor);
 
-
     QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
 
     imview->setImage(testimage);
@@ -126,6 +125,12 @@ Roivert::Roivert(QWidget* parent)
     imview->setROIShape(ROIVert::RECTANGLE);
 
     makeToolbar();
+
+    // Action that resets window state:
+    QAction* actResetLayout = new QAction(tr("Reset Layout"));
+    actResetLayout->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_R));
+    connect(actResetLayout, &QAction::triggered, this, &Roivert::resetLayout);
+    addAction(actResetLayout);
 
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 900);
@@ -244,7 +249,8 @@ void Roivert::makeToolbar() {
     w_colors->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
     ui.mainToolBar->addAction(w_colors->toggleViewAction());
 
-
+    ui.mainToolBar->setFloatable(false);
+    ui.mainToolBar->toggleViewAction()->setVisible(false);
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
 }
 
@@ -639,4 +645,34 @@ void Roivert::restoreSettings()
     }
 
     t_clrs->setColors(clrs);
+}
+void Roivert::resetLayout() {
+    // Dock all dockables in default position
+    addDockWidget(Qt::BottomDockWidgetArea, w_charts);
+    addDockWidget(Qt::RightDockWidgetArea, w_imgData);
+    addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
+    addDockWidget(Qt::RightDockWidgetArea, w_io);
+    addDockWidget(Qt::RightDockWidgetArea, w_colors);
+
+    w_charts->setFloating(false);
+    w_imgData->setFloating(false);
+    w_imgSettings->setFloating(false);
+    w_io->setFloating(false);
+    w_colors->setFloating(false);
+
+    // Set dockables to visible off (except file loader)
+    w_charts->setVisible(true);
+    w_imgData->setVisible(true);
+
+    w_imgSettings->setVisible(false);
+    w_io->setVisible(false);
+    w_colors->setVisible(false);
+
+    // Put toolbar at left
+    addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+
+    qApp->processEvents(QEventLoop::AllEvents);
+
+    // Set window size
+    resize(800, 900);
 }

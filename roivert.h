@@ -71,4 +71,5 @@ private:
     void exportCharts(QString filename, bool doTitle, int width, int height);
     
     void restoreSettings();
+    void resetLayout();
 };
