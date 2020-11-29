@@ -88,26 +88,6 @@ void ImageROIViewer::deleteROI(size_t roiind)
 {
     if (roiind > 0 && roiind <= rois.size())
     {
-        // TODO: delete the roi:
-        // if i make the base clase desrtuctor virtual, will it do virtual dispatch and delete the right thing?
-        // try this...
-        /*
-        roi_rect *a = dynamic_cast<roi_rect *>(rois[roiind - 1]);
-        roi_ellipse *b = dynamic_cast<roi_ellipse *>(rois[roiind - 1]);
-        roi_polygon *c = dynamic_cast<roi_polygon *>(rois[roiind - 1]);
-        if (a)
-        {
-            delete (a);
-        }
-        if (b)
-        {
-            delete (b);
-        }
-        if (c)
-        {
-            delete (c);
-        }
-        */
         delete(rois[roiind - 1]);
 
         // set selroi to 0, but don't call setSelectedROI
@@ -348,7 +328,7 @@ void ImageROIViewer::importROIs(const std::vector<roi *> &rois_in)
 {
     for each(roi * r in rois_in)
     {
-        // I think this should: figure out the type and cast, then copy (by calling new with dereference), then move the new pointer into the vector with emplace.
+        
         const roi_rect *a = dynamic_cast<roi_rect *>(r);
         const roi_ellipse *b = dynamic_cast<roi_ellipse *>(r);
         const roi_polygon *c = dynamic_cast<roi_polygon *>(r);
