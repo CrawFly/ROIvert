@@ -13,6 +13,7 @@
 class roi
 {
 public:
+	virtual ~roi() {};
 	virtual void setVertices(const QVector<QPoint> &) = 0;
 	QVector<QPoint> getVertices() { return vertices; };
 	virtual QRect getBB() = 0;

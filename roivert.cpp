@@ -378,7 +378,7 @@ void Roivert::exportROIs(QString filename) {
         {
             xml.writeStartElement("ROI");
             xml.writeAttribute("shape",shapemap[roi.first]);
-            for each (const QPoint pt in roi.second)
+            for each (QPoint pt in roi.second)
             {
                 xml.writeStartElement("Vertex");
                 xml.writeAttribute("X", QString::number(pt.x()*ds));

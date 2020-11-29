@@ -91,6 +91,7 @@ void ImageROIViewer::deleteROI(size_t roiind)
         // TODO: delete the roi:
         // if i make the base clase desrtuctor virtual, will it do virtual dispatch and delete the right thing?
         // try this...
+        /*
         roi_rect *a = dynamic_cast<roi_rect *>(rois[roiind - 1]);
         roi_ellipse *b = dynamic_cast<roi_ellipse *>(rois[roiind - 1]);
         roi_polygon *c = dynamic_cast<roi_polygon *>(rois[roiind - 1]);
@@ -106,6 +107,8 @@ void ImageROIViewer::deleteROI(size_t roiind)
         {
             delete (c);
         }
+        */
+        delete(rois[roiind - 1]);
 
         // set selroi to 0, but don't call setSelectedROI
         selroi = 0;
@@ -336,8 +339,8 @@ QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
         if (dynamic_cast<roi_rect*>(r)) { thisret.first = ROIVert::ROISHAPE::RECTANGLE; }
         if (dynamic_cast<roi_ellipse*>(r)) { thisret.first = ROIVert::ROISHAPE::ELLIPSE; }
         if (dynamic_cast<roi_polygon*>(r)) { thisret.first = ROIVert::ROISHAPE::POLYGON; }
-        ret.push_back(thisret);
         thisret.second = r->getVertices();
+        ret.push_back(thisret);
     }
     return ret;
 }
