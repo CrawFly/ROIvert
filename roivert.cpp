@@ -445,8 +445,6 @@ void Roivert::importROIs(QString filename) {
             }
             if (xml.isStartElement() && xml.name() == "Vertex" && xml.attributes().size()==2) {
                 const QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
-                qDebug() << thispoint;
-
                 if (thispoint.x() < 0 || thispoint.x() > viddata->getWidth() || thispoint.y() < 0 || thispoint.y() > viddata->getHeight()) {
                     msg.setIcon(QMessageBox::Critical);
                     msg.setText(tr("A vertex in the ROI file exceeds the boundaries of the current image."));
@@ -539,9 +537,6 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
     font.setPointSize(fs[2]);
     xax->setLabelsFont(font);
     yax->setLabelsFont(font);
-
-    qDebug() << font.pixelSize();
-
     cv->resize(width, height);
 
     QProgressDialog* dlg = new QProgressDialog(this);

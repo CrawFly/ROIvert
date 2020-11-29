@@ -69,10 +69,9 @@ void VideoData::load(QStringList filelist, int dst, int dss){
         if (readframe(i)) {
             accum(data[0]->back());
         }
-        emit loadProgress((100 - (storeDff * 50)) * (float)i / files.size());
+        emit loadProgress((100 - (storeDff * 50)) * static_cast<float>(i) / files.size());
     }
-    //qDebug() << t_readframe << t_accum; // 2361 + 627
-    
+   
     complete();
 
     if (storeDff) {
