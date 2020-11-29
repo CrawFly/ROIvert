@@ -23,6 +23,7 @@ imgData::imgData(QWidget *parent)
 
     topLay->addWidget(widMain);
     topLay->setAlignment(Qt::AlignTop);
+    
 
     // file path:
     {
@@ -219,6 +220,7 @@ imgSettings::imgSettings(QWidget* parent) {
         topLay->addWidget(new QLabel(tr("Contrast:")));
         contrast = new ContrastWidget;
         topLay->addWidget(contrast);
+        contrast->setMaximumHeight(300);
         contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     }
     {
@@ -349,7 +351,7 @@ imgSettings::imgSettings(QWidget* parent) {
             spinBlurSigmaI->setVisible(type > 3);
         }
         );
-
+        topLay->addStretch(1);
     }
 
     connect(cmbColormap, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
