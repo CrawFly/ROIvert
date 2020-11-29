@@ -79,11 +79,6 @@ Roivert::Roivert(QWidget* parent)
     rightLayout->addWidget(vidctrl);
     gridLayout->addWidget(rightLayoutWidget);
 
-    // Trace Computer:
-    //tcompute = new TraceComputer;
-    //tcompute->moveToThread(&traceThread);
-    //traceThread.start();
-
     // Trace Viewer
     w_charts = new QDockWidget;
     w_charts->setWindowTitle("Charts");
@@ -118,9 +113,6 @@ Roivert::Roivert(QWidget* parent)
     connect(t_clrs, &tool::colors::setChartForeColor, tviewer, &TraceViewer::setForegroundColor);
     connect(t_clrs, &tool::colors::setChartGridColor, tviewer, &TraceViewer::setGridColor);
 
-    QImage testimage("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking.png");
-
-    imview->setImage(testimage);
     imview->setMouseMode(ROIVert::ADDROI);
     imview->setROIShape(ROIVert::RECTANGLE);
 
@@ -146,15 +138,13 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         QMessageBox msg;
         msg.setText(tr("Existing ROIs will be removed when loading a new file, continue?"));
         msg.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        int ret = msg.exec();
+        const int ret = msg.exec();
         if (ret == QMessageBox::Cancel) {
             return;
         }
         while (imview->getNROIs() > 0) {
             imview->deleteROI(1);
         }
-        
-        
     }
 
     viddata->load(fileList, dsTime, dsSpace);
@@ -176,17 +166,16 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 void Roivert::changeFrame(const size_t frame)
 {
     if (frame > 0 && frame <= viddata->getNFrames())
-    { // frame is 1 indexed
-        size_t f = frame;
+    { 
         cv::Mat thisframe;
-        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),f-1);
+        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),frame-1);
         cv::Mat proc = dispSettings.getImage(thisframe, vidctrl->dff());
-        QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
+        // todo: consider moving fmt to dispSettings
+        const QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
         QImage qimg(proc.data,proc.cols,proc.rows,proc.step,fmt);
         imview->setImage(qimg);
     }
- 
-}
+ }
 
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
@@ -228,10 +217,10 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addSeparator();
     connect(ROIGroup, &QActionGroup::triggered, this, [=](QAction* act)
                 {
-                    ROIVert::MODE mode = (ROIVert::MODE)act->property("Mode").toInt();
+                    ROIVert::MODE mode = static_cast<ROIVert::MODE>(act->property("Mode").toInt());
                     imview->setMouseMode(mode);
                     if (mode == ROIVert::ADDROI) {
-                        ROIVert::ROISHAPE shape = (ROIVert::ROISHAPE)act->property("Shape").toInt();
+                        ROIVert::ROISHAPE shape = static_cast<ROIVert::ROISHAPE>(act->property("Shape").toInt());
                         imview->setROIShape(shape);
                     }
                 }
@@ -282,32 +271,30 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
 void Roivert::updateTrace(int roiid)
 {
     if (roiid < 1) { return; }
-    size_t ind = (size_t)roiid - 1;
+    const size_t ind = static_cast<size_t>(roiid - 1);
 
     roi *thisroi = imview->getRoi(ind);
-    cv::Mat mask = thisroi->getMask();
-    QRect r = thisroi->getBB();
-    cv::Rect cvbb((size_t)r.x(), size_t(r.y()), (size_t)r.width(), (size_t)r.height());;
-
-    if (ind >= traces.size() ) {
-        traces.resize(ind + 1);
+    if (thisroi) {
+        cv::Mat mask = thisroi->getMask();
+        const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
+        if (ind >= traces.size()) {
+            traces.resize(ind + 1);
+        }
+        traces[ind] = viddata->calcTrace(cvbb, mask);
+        tviewer->setTrace(roiid, traces[ind]);
     }
-    traces[ind] = viddata->calcTrace(cvbb, mask);
-    tviewer->setTrace(roiid, traces[ind]);
 }
 
 void Roivert::selecttoolfromkey(int key) {
-    int item = key - Qt::Key_1;
+    const int item = key - Qt::Key_1;
     if (item >= 0 && item < ui.mainToolBar->actions().size()) {
         QAction* act = ui.mainToolBar->actions()[item];
-        //act->setChecked( ~act->isChecked());
         act->activate(QAction::Trigger);
     }
 }
 
 void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
-    // all I need to do is overwrite the file and stuff it
-    
+    // todo:  I scraped these traces out of tviewer, but this has traces in it...why am I getting them from the viewer?
     std::vector<float> t = tviewer->getTVec();
     std::vector<std::vector<float>> y = tviewer->getAllTraces();
     QMessageBox msg;
@@ -383,7 +370,7 @@ void Roivert::exportROIs(QString filename) {
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::ELLIPSE, "ellipse"));
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::POLYGON, "polygon"));
 
-        int ds = viddata->getdsSpace();
+        const int ds = viddata->getdsSpace();
 
         xml.writeStartElement("ROIs");
 
@@ -391,7 +378,7 @@ void Roivert::exportROIs(QString filename) {
         {
             xml.writeStartElement("ROI");
             xml.writeAttribute("shape",shapemap[roi.first]);
-            for each (QPoint pt in roi.second)
+            for each (const QPoint pt in roi.second)
             {
                 xml.writeStartElement("Vertex");
                 xml.writeAttribute("X", QString::number(pt.x()*ds));
@@ -429,12 +416,12 @@ void Roivert::importROIs(QString filename) {
         shapemap.insert(std::make_pair("polygon", ROIVert::ROISHAPE::POLYGON));
 
         QXmlStreamReader xml(&file);
-        int ds = viddata->getdsSpace();
+        const int ds = viddata->getdsSpace();
 
         ROIVert::ROISHAPE type_e;
         QVector<QPoint> verts;
         while (!xml.atEnd()) {
-            QXmlStreamReader::TokenType tkn =  xml.readNext();
+            const QXmlStreamReader::TokenType tkn =  xml.readNext();
             if (xml.isStartElement() && xml.name()=="ROI" && xml.attributes().size()==1) {
                 QString type_s(xml.attributes()[0].value().toString());
                 type_e = shapemap[type_s];
@@ -457,7 +444,7 @@ void Roivert::importROIs(QString filename) {
                 }
             }
             if (xml.isStartElement() && xml.name() == "Vertex" && xml.attributes().size()==2) {
-                QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
+                const QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
                 qDebug() << thispoint;
 
                 if (thispoint.x() < 0 || thispoint.x() > viddata->getWidth() || thispoint.y() < 0 || thispoint.y() > viddata->getHeight()) {
@@ -498,7 +485,6 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
     // this is the hard one...we need to get a copy of each of the chartview pointers
     // going to reuse getTVec() and getAllTraces even though it's non-optimal (just unpacking and repacking the QPointFs...
 
-
     std::vector<float> t = tviewer->getTVec();
     std::vector<std::vector<float>> y = tviewer->getAllTraces();
     QMessageBox msg;
@@ -526,9 +512,9 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
     QValueAxis* xax = (QValueAxis*)ch->axes(Qt::Horizontal)[0];
     QValueAxis* yax = (QValueAxis*)ch->axes(Qt::Vertical)[0];
     xax->setTitleText("Time (s)");
-    yax->setTitleText(ROIVert::dffstring);
-    double xmin = *std::min_element(t.begin(), t.end());
-    double xmax = *std::max_element(t.begin(), t.end());
+    yax->setTitleText(ROIVert::dffstring());
+    const double xmin = *std::min_element(t.begin(), t.end());
+    const double xmax = *std::max_element(t.begin(), t.end());
     cv->setContentsMargins(0, 0, 0, 0);
     ch->layout()->setContentsMargins(0, 0, 0, 0);
     ch->legend()->hide();
@@ -539,7 +525,7 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
 
     // do some smartish font sizing?
     int maxdim = qMax(width, height);
-    int fs[3] = { maxdim / 90, maxdim / 100, maxdim / 110 };
+    const int fs[3] = { maxdim / 90, maxdim / 100, maxdim / 110 };
 
     QFont font(ch->titleFont());
     font.setPointSize(fs[0]);
@@ -580,8 +566,8 @@ void Roivert::exportCharts(QString filename, bool doTitle, int width, int height
         }
         series->replace(pts);
 
-        double ymin = *std::min_element(y[traces].begin(), y[traces].end());
-        double ymax = *std::max_element(y[traces].begin(), y[traces].end());
+        const double ymin = *std::min_element(y[traces].begin(), y[traces].end());
+        const double ymax = *std::max_element(y[traces].begin(), y[traces].end());
         yax->setMin(ymin);
         yax->setMax(ymax);
         xax->setMin(xmin);

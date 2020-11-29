@@ -26,7 +26,7 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     cmdLoop->setToolTip(tr("Toggle repeat mode"));
 
     lblTime->setText("00:00 (0)");
-    QSize textSize = lblTime->fontMetrics().size(Qt::TextShowMnemonic, "00:00:000 (0000/0000)");
+    const QSize textSize = lblTime->fontMetrics().size(Qt::TextShowMnemonic, "00:00:000 (0000/0000)");
     lblTime->setMinimumSize(textSize);
     lblTime->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
@@ -47,8 +47,8 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     txtSpeed->setToolTip(tr("Set playback speed multiplier"));
     txtSpeed->setValidator(val);
 
-    cmdDff->setText(ROIVert::dffstring);
-    QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");
+    cmdDff->setText(ROIVert::dffstring());
+    const QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");
     cmdDff->setFixedWidth(ctextSize.width());
     cmdDff->setCheckable(true);
     
@@ -139,7 +139,7 @@ void VideoController::PushPlay(const bool &down)
 }
 void VideoController::clockStep()
 {
-    size_t inc = 1;
+    constexpr size_t inc = 1; // todo: maybe room to increase inc if we're running much slower than expected
     size_t frame = currframe + inc;
     if (frame > nframes())
     {
@@ -161,11 +161,10 @@ void VideoController::setFrameRate(const float fr)
     clock->setInterval(clockrate());
     updateTimeLabel();
 }
-
 void VideoController::updateTimeLabel()
 {
     // qtime has to be specified as int, let's do it ms
-    int ms = 1000 * (currframe - 1) / (framerate);
+    const int ms = 1000 * (currframe - 1) / (framerate);
     QTime t(0, 0, 0, 0);
     t = t.addMSecs(ms);
 
@@ -177,11 +176,10 @@ void VideoController::updateTimeLabel()
     lblTime->setText(t.toString(fmt));
 }
 
-
 void VideoController::setSpeedDial(const int val)
 {
     // val ranges from -100 to 100,
-    float speed;
+    float speed = 0;
 
     if (val >= 0)
     {
@@ -201,9 +199,11 @@ void VideoController::setSpeedText()
     clock->setInterval(clockrate());
 }
 
-
-void VideoController::forceUpdate() { size_t f = currframe; currframe = 0; setFrame(f); };
-
+void VideoController::forceUpdate() {
+    sliScrub->setValue(currframe);
+    updateTimeLabel();
+    emit frameChanged(currframe);
+}
 
 const size_t VideoController::nframes() { return sliScrub->maximum(); }
 const bool VideoController::dff() { return cmdDff->isChecked(); }

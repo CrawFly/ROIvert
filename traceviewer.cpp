@@ -37,25 +37,27 @@ void TraceViewer::setTrace(const int roiid, const std::vector<double> trace) {
     if (roiid < 1 || roiid > charts.size() + 1) {
         return;
     }
-    size_t ind = (size_t)roiid - 1;
+    const size_t ind = static_cast<size_t>(roiid - 1);
     if (charts.size() == ind) {
         push_chart(roiid);
     }
 
     // build trace, will need time here
     QVector<QPointF> pts;
-    double coeff = maxtime/trace.size();
+    const double coeff = maxtime/trace.size();
     for (size_t i = 0; i < trace.size(); i++) {
         pts.push_back(QPointF(i*coeff, trace[i]));
     }
     
     QLineSeries* series = qobject_cast<QLineSeries*>(charts[ind]->series()[0]);
-    series->replace(pts);
+    if (series) {
+        series->replace(pts);
+    }
 
     charts[ind]->axes(Qt::Horizontal)[0]->setMax(pts.size() * coeff);
     charts[ind]->axes(Qt::Horizontal)[0]->setMin(0.);
-    double ymin = *std::min_element(trace.begin(), trace.end());
-    double ymax = *std::max_element(trace.begin(), trace.end());
+    const double ymin = *std::min_element(trace.begin(), trace.end());
+    const double ymax = *std::max_element(trace.begin(), trace.end());
     charts[ind]->axes(Qt::Vertical)[0]->setMin(ymin);
     charts[ind]->axes(Qt::Vertical)[0]->setMax(ymax);
     
@@ -71,14 +73,16 @@ void TraceViewer::setmaxtime(double t_secs) {
     for (size_t i = 0; i < charts.size(); i++) { // for each chart
         //qobject_cast<QLineSeries*>charts[i]->series()[0];
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[i]->series()[0]);
-        QVector<QPointF> data = series->pointsVector();
-
-        double coeff = maxtime / data.size();
-        for (int ii = 0; ii < data.size(); ii++) {
-            data[ii].setX(ii * coeff);
+        if (series) {
+            QVector<QPointF> data = series->pointsVector();
+            const double coeff = maxtime / data.size();
+            for (int ii = 0; ii < data.size(); ii++) {
+                data[ii].setX(ii * coeff);
+            }
+            series->replace(data);
+            charts[i]->axes(Qt::Horizontal)[0]->setMax(data.size() * coeff);
         }
-        series->replace(data);
-        charts[i]->axes(Qt::Horizontal)[0]->setMax(data.size() * coeff);
+
     }
 }
 
@@ -107,7 +111,7 @@ void TraceViewer::push_chart(int roiid) {
     
     x->setTitleText("Time (s)");
     x->setGridLineColor(gridclr);
-    y->setTitleText(ROIVert::dffstring);
+    y->setTitleText(ROIVert::dffstring());
     y->setGridLineColor(gridclr);
 
     QPen seriespen(selclr, 3);
@@ -135,18 +139,17 @@ void TraceViewer::push_chart(int roiid) {
 void TraceViewer::setSelectedTrace(int oldind, int newind) {
     if (oldind > 0 && oldind-1 < charts.size()) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[oldind-1]->series()[0]);
-        series->setColor(unselclr);
+        if (series) { series->setColor(unselclr); }
     }
     if (newind > 0 && newind-1 < charts.size()) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[newind-1]->series()[0]);
-        series->setColor(selclr);
+        if (series) { series->setColor(selclr); }
 
         // ensure bottom is visible, then ensure top is visible, 
-        int top = chartviews[newind - 1]->y();
-        int bottom = top + chartviews[newind - 1]->height();
+        const int top = chartviews[newind - 1]->y();
+        const int bottom = top + chartviews[newind - 1]->height();
         scrollArea->ensureVisible(0, bottom, 0, 0);
         scrollArea->ensureVisible(0, top, 0, 0);
-
     }
     selectedind = newind;
 }
@@ -181,15 +184,17 @@ const std::vector<std::vector<float>> TraceViewer::getAllTraces() {
     ret.reserve(charts.size());// number of traces
 
     // for each chart
-    for each (QChart *chart in charts) {
+    for each (const QChart *chart in charts) {
         QLineSeries* series = qobject_cast<QLineSeries*>(chart->series()[0]);
-        QVector<QPointF> data = series->pointsVector();
-        std::vector<float> trace;
-        trace.reserve(data.size());
-        for each (QPointF datum in data) {
-            trace.push_back(datum.y());
+        if (series) {
+            QVector<QPointF> data = series->pointsVector();
+            std::vector<float> trace;
+            trace.reserve(data.size());
+            for each (const QPointF datum in data) {
+                trace.push_back(datum.y());
+            }
+            ret.push_back(trace);
         }
-        ret.push_back(trace);
     }
     return ret;
 }
@@ -198,10 +203,12 @@ const std::vector<float> TraceViewer::getTVec() {
     std::vector<float> ret;
     if (!charts.empty()) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[0]->series()[0]);
-        QVector<QPointF> data = series->pointsVector();
-        ret.reserve(data.size());
-        for each (QPointF datum in data) {
-            ret.push_back(datum.x());
+        if (series) {
+            QVector<QPointF> data = series->pointsVector();
+            ret.reserve(data.size());
+            for each (const QPointF datum in data) {
+                ret.push_back(datum.x());
+            }
         }
     }
     return ret;
@@ -214,17 +221,20 @@ void TraceViewer::setSelectedColor(QColor clr){
     if (selectedind > 0) {
         QLineSeries* series = qobject_cast<QLineSeries*>(charts[selectedind - 1]->series()[0]);
         QPen seriespen(selclr, 3);
-        series->setPen(seriespen);
+        if (series) {
+            series->setPen(seriespen);
+        }
     }
-    //selectedind 
 }
 void TraceViewer::setUnselectedColor(QColor clr){
     unselclr = clr;
-    for (int i = 0; i < charts.size(); i++) {
+    for (size_t i = 0; i < charts.size(); i++) {
         if (i + 1 != selectedind) {
             QLineSeries* series = qobject_cast<QLineSeries*>(charts[i]->series()[0]);
             QPen seriespen(unselclr, 3);
-            series->setPen(seriespen);
+            if (series) {
+                series->setPen(seriespen);
+            }
         }
     }
 }
@@ -234,7 +244,7 @@ void TraceViewer::setBackgroundColor(QColor clr) {
 
     for each (QChart* chart  in charts)
     {
-        chart->setBackgroundBrush(QBrush(backclr));
+        if (chart) {chart->setBackgroundBrush(QBrush(backclr));}
     }
 }
 
@@ -243,24 +253,27 @@ void TraceViewer::setForegroundColor(QColor clr) {
     foreclr = clr;
     for each (QChart * chart  in charts)
     {
-        QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
-        QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
+        if (chart) {
+            QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
+            QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
 
-        x->setLabelsColor(foreclr);
-        y->setLabelsColor(foreclr);
-        x->setTitleBrush(foreclr);
-        y->setTitleBrush(foreclr);
-        chart->setTitleBrush(foreclr);
+            x->setLabelsColor(foreclr);
+            y->setLabelsColor(foreclr);
+            x->setTitleBrush(foreclr);
+            y->setTitleBrush(foreclr);
+            chart->setTitleBrush(foreclr);
+        }
     }
 }
 void TraceViewer::setGridColor(QColor clr) {
     gridclr = clr;
-
-    for each (QChart * chart  in charts)
+    for each (QChart * chart in charts)
     {
-        QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
-        QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
-        x->setGridLineColor(gridclr);
-        y->setGridLineColor(gridclr);
+        if (chart) {
+            QValueAxis* x = (QValueAxis*)chart->axes(Qt::Horizontal)[0];
+            QValueAxis* y = (QValueAxis*)chart->axes(Qt::Vertical)[0];
+            x->setGridLineColor(gridclr);
+            y->setGridLineColor(gridclr);
+        }
     }
 }

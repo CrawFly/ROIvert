@@ -24,8 +24,8 @@ void ColorPicker::setColors(QVector<QColor> clrs) {
     // check how many buttons we have
     colors = clrs;
 
-    int nbuttons = layout()->count();
-    int ncolors = clrs.size();
+    const int nbuttons = layout()->count();
+    const int ncolors = clrs.size();
 
     for (int i = nbuttons; i < ncolors + 1; i++) {
         // add buttons:
@@ -51,13 +51,15 @@ void ColorPicker::setColors(QVector<QColor> clrs) {
 
     {
         QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(ncolors)->widget()));
-        t->setCheckable(true);
-        QMenu* mnu = new QMenu;
-        mnu->addAction("Set Custom Color", this, &ColorPicker::setCustomColor);
-        t->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        t->setStyleSheet(getStyleSheet(customColor));
-        t->setMenu(mnu);
-        grp->addButton(t, ncolors);
+        if (t) {
+            t->setCheckable(true);
+            QMenu* mnu = new QMenu;
+            mnu->addAction("Set Custom Color", this, &ColorPicker::setCustomColor);
+            t->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            t->setStyleSheet(getStyleSheet(customColor));
+            t->setMenu(mnu);
+            grp->addButton(t, ncolors);
+        }
     }
 
     // Set the checked index:
@@ -73,19 +75,21 @@ void ColorPicker::setColors(QVector<QColor> clrs) {
     connect(grp, &QButtonGroup::idClicked, this, [=](int id) {emit colorSelected(colors[id]); });
 }
 void ColorPicker::setCustomColor() {
-    QColor clr = clrDlg->getColor(customColor);
+    const QColor clr = clrDlg->getColor(customColor);
     if (clr.isValid()) {
         customColor = clr;
         QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
-        t->setStyleSheet(getStyleSheet(customColor));
-        this->show();
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-        if (!t->isChecked()) { t->setChecked(true); }
-        emit colorSelected(clr);
+        if (t) {
+            t->setStyleSheet(getStyleSheet(customColor));
+            this->show();
+            qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+            if (!t->isChecked()) { t->setChecked(true); }
+            emit colorSelected(clr);
+        }
     }
 }
 const QColor ColorPicker::getSelectedColor() {
-    int id = grp->id(grp->checkedButton());
+    const int id = grp->id(grp->checkedButton());
     if (id < colors.size()) {
         return colors[id];
     }
@@ -96,8 +100,10 @@ void ColorPicker::setSelectedColor(QColor clr) {
         if (colors[i] == clr) {
             selectedind = i;
             QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(i)->widget()));
-            t->setChecked(true);
-            emit colorSelected(clr);
+            if (t) {
+                t->setChecked(true);
+                emit colorSelected(clr);
+            }
             return;
         }
     }
@@ -105,9 +111,11 @@ void ColorPicker::setSelectedColor(QColor clr) {
     selectedind = colors.size();
     customColor = clr;
     QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
-    t->setStyleSheet(getStyleSheet(customColor));
-    t->setChecked(true);
-    emit colorSelected(clr);
+    if (t) {
+        t->setStyleSheet(getStyleSheet(customColor));
+        t->setChecked(true);
+        emit colorSelected(clr);
+    }
 }
 const QString ColorPicker::getStyleSheet(QColor clr) {
     QString backclr = clr.name();

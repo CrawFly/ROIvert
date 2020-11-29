@@ -13,10 +13,10 @@ class DisplaySettings
 {
 public:
     DisplaySettings();
-    void setContrast(bool isDff, float min, float max, float gamma);
-    const void getContrast(bool isDff, float *c);
+    void setContrast(const bool isDff, const float min, const float max, const float gamma);
+    const void getContrast(const bool isDff, float *c);
 
-    void setProjectionMode(int projmode);
+    void setProjectionMode(const int projmode);
     const int getProjectionMode();
 
     void setColormap(int cmapint);
@@ -27,10 +27,10 @@ public:
     cv::Mat getImage(cv::Mat raw, bool isDff);
 
 private:
-    bool hasContrast(bool isDff);
+    bool hasContrast(const bool isDff);
     float contrast[2][3] = { {0,1,1},{0,1,1} }; // [raw,dff][min, max, gamma]
 
-    void updateLut(bool isDff);
+    void updateLut(const bool isDff);
     cv::Mat lut[2];
 
     int ProjectionMode = 0; // 0 means no projection

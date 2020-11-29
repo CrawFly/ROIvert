@@ -1,22 +1,5 @@
 #pragma once
 // toolwindows is all of the various dockables:
-//
-//
-//  1. Image Data:
-//      .. done
-//
-//  2. Image Settings:
-//       Histogram + min/max/alpha tool
-//       raw | df/f
-//       (for later) smooth?
-//       (for later) colorizing options
-//
-//  3. ROI Settings:
-//       Something to name them
-//       Something for colors etc.
-//       info about each one
-//
-//  4. (future) event detection...
 
 #include <QWidget>
 #include <QLineEdit>
@@ -39,7 +22,6 @@ namespace tool
 
     public:
         imgData(QWidget *parent);
-        ~imgData();
 
     signals:
         void fileLoadRequested(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);

@@ -37,11 +37,11 @@ class roi_rect : public roi
 public:
 	roi_rect(QGraphicsScene *scene = nullptr);
 	~roi_rect();
-	virtual void setVertices(const QVector<QPoint> &);
-	virtual QRect getBB();
-	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
-	cv::Mat getMask();
-	void setScene(QGraphicsScene* scene);
+	void setVertices(const QVector<QPoint> &) override;
+	QRect getBB() override;
+	void setColor(QColor clr) override { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); };
+	cv::Mat getMask() override;
+	void setScene(QGraphicsScene* scene) override;
 
 private:
 	QGraphicsRectItem *thisroi;
@@ -51,11 +51,11 @@ class roi_ellipse : public roi
 public:
 	roi_ellipse(QGraphicsScene *scene = nullptr);
 	~roi_ellipse();
-	virtual void setVertices(const QVector<QPoint> &);
-	virtual QRect getBB();
-	cv::Mat getMask();
-	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
-	void setScene(QGraphicsScene* scene);
+	void setVertices(const QVector<QPoint> &) override;
+	QRect getBB() override;
+	cv::Mat getMask() override;
+	void setColor(QColor clr) override { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
+	void setScene(QGraphicsScene* scene) override;
 
 private:
 	QGraphicsEllipseItem *thisroi;
@@ -65,11 +65,11 @@ class roi_polygon : public roi
 public:
 	roi_polygon(QGraphicsScene *scene = nullptr);
 	~roi_polygon();
-	virtual void setVertices(const QVector<QPoint> &);
-	virtual QRect getBB();
-	cv::Mat getMask();
-	void setColor(QColor clr) { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
-	void setScene(QGraphicsScene* scene);
+	void setVertices(const QVector<QPoint> &) override;
+	QRect getBB() override;
+	cv::Mat getMask() override;
+	void setColor(QColor clr) override { QPen pen = thisroi->pen(); pen.setColor(clr); thisroi->setPen(pen); }
+	void setScene(QGraphicsScene* scene) override;
 
 private:
 	QGraphicsPolygonItem *thisroi;

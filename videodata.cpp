@@ -8,7 +8,7 @@ VideoData::VideoData(QObject* parent) : QObject(parent) {
     data[1]->clear();
 }
 VideoData::~VideoData() {
-    // bug: destructor should be deleting all the MATs, but they're not init'd correctly. 
+    // bug: destructor should be deleting all the MATs, but they're not init'd correctly (?)
     data[0]->clear();
     data[1]->clear();
 }
@@ -84,8 +84,11 @@ void VideoData::load(QStringList filelist, int dst, int dss){
             calcHist(&(data[1]->back()), histogram[1], true);
 
             // todo: This should really be in accum?
-            proj[1][(size_t)VideoData::projection::MIN] = cv::min(proj[1][(size_t)VideoData::projection::MIN], data[1]->at(i));
-            proj[1][(size_t)VideoData::projection::MAX] = cv::max(proj[1][(size_t)VideoData::projection::MAX], data[1]->at(i));
+            proj[1][static_cast<size_t>(VideoData::projection::MIN)] = 
+                cv::min(proj[1][static_cast<size_t>(VideoData::projection::MIN)], data[1]->at(i));
+            proj[1][static_cast<size_t>(VideoData::projection::MAX)] = 
+                cv::max(proj[1][static_cast<size_t>(VideoData::projection::MAX)], data[1]->at(i));
+
             // Mean has no meaning for df/f, so not accumulating sum...
             emit loadProgress(50 + 50 * (float)i / data[0]->size());
         }
@@ -111,27 +114,27 @@ bool VideoData::readframe(size_t filenum) {
 }
 void VideoData::accum(const cv::Mat &frame) {
     // accumulate (raw) min, max, histogram
-    proj[0][(size_t)VideoData::projection::MIN] = cv::min(proj[0][(size_t)VideoData::projection::MIN], frame);
-    proj[0][(size_t)VideoData::projection::MAX] = cv::max(proj[0][(size_t)VideoData::projection::MAX], frame);
-    cv::accumulate(frame, projdbl[0][(size_t)VideoData::projection::SUM]);
+    proj[0][static_cast<size_t>(VideoData::projection::MIN)] = cv::min(proj[0][static_cast<size_t>(VideoData::projection::MIN)], frame);
+    proj[0][static_cast<size_t>(VideoData::projection::MAX)] = cv::max(proj[0][static_cast<size_t>(VideoData::projection::MAX)], frame);
+    cv::accumulate(frame, projdbl[0][static_cast<size_t>(VideoData::projection::SUM)]);
     calcHist(&frame, histogram[0], true);
 }
 void VideoData::complete() {
     int type = data[0]->at(0).type();
     
     // Compute mean:
-    projdbl[0][(size_t)VideoData::projection::MEAN] = projdbl[0][(size_t)VideoData::projection::SUM] / getNFrames();
+    projdbl[0][static_cast<size_t>(VideoData::projection::MEAN)] = projdbl[0][static_cast<size_t>(VideoData::projection::SUM)] / getNFrames();
 
     // (simple) Cast mean to native type, and min/max to doubles
-    projdbl[0][(size_t)VideoData::projection::MEAN].assignTo(proj[0][(size_t)VideoData::projection::MEAN], type);
-    proj[0][(size_t)VideoData::projection::MIN].assignTo(projdbl[0][(size_t)VideoData::projection::MIN], CV_64FC1);
-    proj[0][(size_t)VideoData::projection::MAX].assignTo(projdbl[0][(size_t)VideoData::projection::MAX], CV_64FC1);
+    projdbl[0][static_cast<size_t>(VideoData::projection::MEAN)].assignTo(proj[0][static_cast<size_t>(VideoData::projection::MEAN)], type);
+    proj[0][static_cast<size_t>(VideoData::projection::MIN)].assignTo(projdbl[0][static_cast<size_t>(VideoData::projection::MIN)], CV_64FC1);
+    proj[0][static_cast<size_t>(VideoData::projection::MAX)].assignTo(projdbl[0][static_cast<size_t>(VideoData::projection::MAX)], CV_64FC1);
 
     // Store the range that df/f can occupy so that we can reason on it as an int
     // To do this we calculate the double df/f using the min and max projections
     // then find the scalar extrema in those, and the range
-    cv::Mat mindff = calcDffDouble(projdbl[0][(size_t)VideoData::projection::MIN]);
-    cv::Mat maxdff = calcDffDouble(projdbl[0][(size_t)VideoData::projection::MAX]);
+    cv::Mat mindff = calcDffDouble(projdbl[0][static_cast<size_t>(VideoData::projection::MIN)]);
+    cv::Mat maxdff = calcDffDouble(projdbl[0][static_cast<size_t>(VideoData::projection::MAX)]);
     cv::minMaxLoc(mindff, &dffminval, NULL);
     cv::minMaxLoc(maxdff, NULL, &dffmaxval);
     dffrng = dffmaxval - dffminval;
@@ -144,8 +147,8 @@ cv::Mat VideoData::calcDffDouble(const cv::Mat& frame) {
     // This calculates the df/f as a double
     cv::Mat ret(frame.size(), CV_64FC1);
     frame.convertTo(ret, CV_64FC1); // convert frame to double
-    cv::subtract(ret, projdbl[0][(size_t)VideoData::projection::MEAN], ret);
-    cv::divide(ret, projdbl[0][(size_t)VideoData::projection::MEAN], ret);
+    cv::subtract(ret, projdbl[0][static_cast<size_t>(VideoData::projection::MEAN)], ret);
+    cv::divide(ret, projdbl[0][static_cast<size_t>(VideoData::projection::MEAN)], ret);
     return ret;
 }
 cv::Mat VideoData::calcDffNative(const cv::Mat& frame) {
@@ -153,11 +156,11 @@ cv::Mat VideoData::calcDffNative(const cv::Mat& frame) {
     cv::Mat dffdbl = calcDffDouble(frame);
 
     // Convert to uchar, using normalization from range
-    int type = data[0]->at(0).type();
+    const int type = data[0]->at(0).type();
     cv::Mat ret(frame.size(), type);
-    double maxval = pow(2, bitdepth);
-    double alpha = maxval / dffrng;
-    double beta = -1 * maxval * dffminval / dffrng;
+    const double maxval = pow(2, bitdepth);
+    const double alpha = maxval / dffrng;
+    const double beta = -1 * maxval * dffminval / dffrng;
 
     dffdbl.convertTo(ret, type, alpha, beta);
     return ret;
@@ -210,9 +213,9 @@ void VideoData::getHistogram(bool isDff, std::vector<float>& histogram, size_t f
 
 void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     // thin wrapper on opencv calchist
-    const int chnl = 0;
-    const int histsize = 256;
-    float range[] = { 0, pow(2,bitdepth) + 1 }; //the upper boundary is exclusive
+    constexpr int chnl = 0;
+    constexpr int histsize = 256;
+    const float range[] = { 0, static_cast<float>(pow(2,bitdepth)) + 1 }; //the upper boundary is exclusive
     const float* histRange = { range };
 
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
@@ -220,7 +223,7 @@ void VideoData::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
     // This is just a convenience that wraps getProjection and getFrame.
     if (projmode > 0) {
-        return getProjection(isDff, (VideoData::projection)(projmode - 1));
+        return getProjection(isDff, static_cast<VideoData::projection>(projmode - 1));
     }
     return getFrame(isDff, framenum);
 }

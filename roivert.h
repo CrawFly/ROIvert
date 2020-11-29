@@ -18,10 +18,10 @@ class Roivert : public QMainWindow
 
 public:
     Roivert(QWidget *parent = Q_NULLPTR);
-    ~Roivert() {
+    //~Roivert() {
         //traceThread.quit();
         //traceThread.wait();
-    }
+    //}
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
@@ -32,7 +32,7 @@ signals:
     void MupdateTrace(ImageROIViewer*, VideoData*, const int);
 
 protected:
-    void closeEvent(QCloseEvent* event);
+    void closeEvent(QCloseEvent* event) override;
 
 private:
     Ui::RoivertClass ui;

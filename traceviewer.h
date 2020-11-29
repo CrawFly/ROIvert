@@ -21,15 +21,10 @@ signals:
     void keypressed(int key);
 
 protected:
-    void mousePressEvent(QMouseEvent* event) {
-        /*QChart* chi = qobject_cast<QChart*>(chart());
-        if (chi) {
-            emit(clicked(chi->title()));
-        }
-        */
+    void mousePressEvent(QMouseEvent* event) override {
         emit(clicked());
     }
-    void keyPressEvent(QKeyEvent* event) {
+    void keyPressEvent(QKeyEvent* event) override {
         emit keypressed(event->key());
     }
 };

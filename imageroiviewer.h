@@ -47,7 +47,7 @@ public:
 
 	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs();
 	void importROIs(const std::vector<roi *> &rois_in);
-	size_t getNROIs();
+	const size_t getNROIs();
 
 	void setSelectedColor(QColor clr);
 	void setUnselectedColor(QColor clr);
@@ -59,7 +59,7 @@ signals:
 	void roiDeleted(size_t roiind);
 
 protected:
-	void resizeEvent(QResizeEvent *event);
+	void resizeEvent(QResizeEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
 	void mouseMoveEvent(QMouseEvent *event) override;
 	void mouseReleaseEvent(QMouseEvent *event) override;

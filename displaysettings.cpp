@@ -5,18 +5,18 @@ DisplaySettings::DisplaySettings(){
     lut[1] = cv::Mat(1, 256, CV_8U);
 }
 
-void DisplaySettings::setContrast(bool isDff, float min, float max, float gamma) {
+void DisplaySettings::setContrast(const bool isDff, const float min, const float max, const float gamma) {
     contrast[isDff][0] = min;
     contrast[isDff][1] = max;
     contrast[isDff][2] = gamma;
     updateLut(isDff);
 }
-const void DisplaySettings::getContrast(bool isDff, float *c) {
+const void DisplaySettings::getContrast(const bool isDff, float *c) {
     c[0] = contrast[isDff][0];
     c[1] = contrast[isDff][1];
     c[2] = contrast[isDff][2];
 }
-void DisplaySettings::updateLut(bool isDff) {
+void DisplaySettings::updateLut(const bool isDff) {
     uchar* ptr = lut[isDff].ptr();
     
     double m = contrast[isDff][0];
@@ -28,10 +28,10 @@ void DisplaySettings::updateLut(bool isDff) {
         ptr[i] = cv::saturate_cast<uchar>(val);
     }
 }
-bool DisplaySettings::hasContrast(bool isDff) {
+bool DisplaySettings::hasContrast(const bool isDff) {
     return contrast[isDff][0] != 0. || contrast[isDff][1] != 1. || contrast[isDff][2] != 1;
 }
-void DisplaySettings::setProjectionMode(int projmode) {
+void DisplaySettings::setProjectionMode(const int projmode) {
     ProjectionMode = projmode;
 }
 const int DisplaySettings::getProjectionMode() {
@@ -44,7 +44,7 @@ void DisplaySettings::setColormap(int cmapint) {
     }
     else {
         useColormap = true;
-        colormap = (cv::ColormapTypes)cmapint;
+        colormap = static_cast<cv::ColormapTypes>(cmapint);
     }
 }
 
@@ -52,7 +52,7 @@ const bool DisplaySettings::useCmap() { return useColormap; }
 
 cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
     cv::Mat proc(raw.clone());
-    int oddsz = smoothsize + (!(bool)(smoothsize % 2));
+    const int oddsz = smoothsize + (!static_cast<bool>(smoothsize % 2));
 
     if (smoothsize > 0) {
         switch (smoothing)
@@ -92,7 +92,7 @@ cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
     }
 }
 void DisplaySettings::setSmoothing(int type, int sz, double sig, double sig_i) {
-    smoothing = (smoothingtype)type;
+    smoothing = static_cast<smoothingtype>(type);
     smoothsize = sz;
     smoothsigma = sig;
     smoothsigmaI = sig_i;

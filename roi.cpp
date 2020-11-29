@@ -48,7 +48,9 @@ cv::Mat roi_rect::getMask() {
     return mask;
 }
 void roi_rect::setScene(QGraphicsScene* scene) {
-    scene->addItem(thisroi);
+    if(scene){
+        scene->addItem(thisroi);
+    }
 }
 
 // roi ellipse
@@ -100,7 +102,9 @@ cv::Mat roi_ellipse::getMask() {
     return mask;
 }
 void roi_ellipse::setScene(QGraphicsScene* scene) {
-    scene->addItem(thisroi);
+    if (scene) {
+        scene->addItem(thisroi);
+    }
 }
 
 
@@ -173,5 +177,7 @@ cv::Mat roi_polygon::getMask() {
     return mask;
 }
 void roi_polygon::setScene(QGraphicsScene* scene) {
-    scene->addItem(thisroi);
+    if (scene) {
+        scene->addItem(thisroi);
+    }
 }

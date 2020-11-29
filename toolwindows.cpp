@@ -45,7 +45,7 @@ imgData::imgData(QWidget *parent)
         txtFilePath->setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
 
         cmdBrowseFilePath->setText("...");
-        auto textSize = cmdBrowseFilePath->fontMetrics().size(Qt::TextShowMnemonic, cmdBrowseFilePath->text());
+        const QSize textSize = cmdBrowseFilePath->fontMetrics().size(Qt::TextShowMnemonic, cmdBrowseFilePath->text());
         QStyleOptionButton opt;
         opt.initFrom(cmdBrowseFilePath);
         opt.rect.setSize(textSize);
@@ -64,7 +64,7 @@ imgData::imgData(QWidget *parent)
         spinFrameRate->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinFrameRate->setMaximum(999);
         spinFrameRate->setMinimum(1);
-        auto textSize = cmdBrowseFilePath->fontMetrics().size(Qt::TextShowMnemonic, "999");
+        const QSize textSize = cmdBrowseFilePath->fontMetrics().size(Qt::TextShowMnemonic, "999");
         spinFrameRate->setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
         spinFrameRate->setToolTip(tr("Set the frame rate in which the data were recorded\nin frames per second (FPS)"));
     }
@@ -108,31 +108,25 @@ imgData::imgData(QWidget *parent)
     connect(txtFilePath, &QLineEdit::textChanged, this, &imgData::filePathChanged);
     connect(cmdLoad, &QPushButton::clicked, this, &imgData::load);
     connect(spinFrameRate, SIGNAL(valueChanged(double)), this, SIGNAL(frameRateChanged(double)));
-
-    txtFilePath->setText("C:\\tdeitcher\\");
 }
-imgData::~imgData() {}
+
 void imgData::browse()
 {
     // check if current path in textbox is valid::
     QString initpath = QDir::currentPath();
-
     QString currpath_s = txtFilePath->text();
     if (!currpath_s.isEmpty()) {
         QDir currpath_d = QDir(currpath_s);
         QFileInfo currpath_f = QFileInfo(currpath_d.path());
-        if (currpath_f.isDir()) {
-            initpath = currpath_s;
-        }
+        if (currpath_f.isDir()) { initpath = currpath_s; }
     }
     
     QString fileName = QFileDialog::getOpenFileName(this,
-                                                    tr("Select a Tiff File in the Dataset"), initpath, tr("Tiff Files (*.tif *.tiff)"));
+                                                    tr("Select a Tiff File in the Dataset"), 
+                                                    initpath, 
+                                                    tr("Tiff Files (*.tif *.tiff)"));
 
-    if (!fileName.isEmpty())
-    {
-        txtFilePath->setText(QFileInfo(fileName).absolutePath());
-    }
+    if (!fileName.isEmpty()) { txtFilePath->setText(QFileInfo(fileName).absolutePath()); }
 }
 void imgData::filePathChanged(const QString &filepath)
 {
@@ -151,19 +145,14 @@ void imgData::filePathChanged(const QString &filepath)
                                               QDir::Files);
     lblFileInfo->setText(filepath + tr(" contains ") + QString::number(fl.size()) + tr(" files."));
 
-    if (fl.size() > 0)
-    {
-        cmdLoad->setEnabled(true);
-    }
+    if (fl.size() > 0) { cmdLoad->setEnabled(true); }
 }
 void imgData::load()
 {
     // load just emits the load signal with all the data...
-    QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif"
-                                                                                       << "*.tiff",
-                                                                         QDir::Files);
+    QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
     QStringList filelist;
-    foreach (QFileInfo filename, fileinfolist)
+    for each (QFileInfo filename in fileinfolist)
     {
         filelist << filename.absoluteFilePath();
     }
@@ -171,6 +160,7 @@ void imgData::load()
     lblFileInfo->setText(txtFilePath->text() + tr(" contains ") + QString::number(filelist.size()) + tr(" files.\nLoading..."));
     emit fileLoadRequested(filelist, spinFrameRate->value(), spinDownTime->value(), spinDownSpace->value());
 }
+
 void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
 {
     QStringList filelist = QDir(txtFilePath->text()).entryList(QStringList() << "*.tif"
@@ -199,6 +189,8 @@ void imgData::setProgBar(int val) {
 namespace {
     std::vector<QPixmap> getColormapPixmaps(const cv::ColormapTypes maps[5]) {
         unsigned char data[20][128];
+
+        // todo: consider replacing with std::iota and vector?
         for (int i = 0; i < 128; i++) {
             for (int j = 0; j < 20; j++) {
                 data[j][i] = i*2;
@@ -367,16 +359,6 @@ imgSettings::imgSettings(QWidget* parent) {
     connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &imgSettings::updateSettings);
-
-    /*
-    connect(cmbColormap, QOverload<int>::of(&QComboBox::activated),
-        [=](int index) {
-        if (index == 0) { emit colormap(-1); }
-        else { emit colormap((int)cmaps[index - 1]); }
-    });
-    connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::contrastChanged);
-    connect(projection, SIGNAL(buttonClicked(int)), this, SIGNAL(projectionChanged(int)));
-    */
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
@@ -395,7 +377,7 @@ void imgSettings::updateSettings() {
     pay.contrastGamma = contrast->getGamma();
     pay.projectionType = projection->checkedId();
     
-    int cmapIndex = cmbColormap->currentIndex();
+    const int cmapIndex = cmbColormap->currentIndex();
     if (cmapIndex == 0) { pay.cmap = -1;}
     else { pay.cmap = cmaps[cmapIndex - 1]; }
 
@@ -531,10 +513,7 @@ fileIO::fileIO(QWidget* parent) {
         }
     }
     );
-
-
 }
-
 
 colors::colors(QWidget* parent) {
     setParent(parent);
@@ -542,8 +521,8 @@ colors::colors(QWidget* parent) {
     QFormLayout* lay = new QFormLayout;
     setLayout(lay);
 
-    ColorPicker* selPicker = new ColorPicker(ROIVert::colors, this);
-    ColorPicker* unselPicker = new ColorPicker(ROIVert::colors, this);
+    ColorPicker* selPicker = new ColorPicker(ROIVert::colors(), this);
+    ColorPicker* unselPicker = new ColorPicker(ROIVert::colors(), this);
     QVector<QColor> chartclrs = { QColor("#222222"),QColor(Qt::lightGray),QColor(Qt::darkGray), QColor(Qt::white)};
     ColorPicker* backPicker = new ColorPicker(chartclrs, this);
     ColorPicker* forePicker = new ColorPicker(chartclrs, this);
@@ -561,8 +540,8 @@ colors::colors(QWidget* parent) {
     lay->addRow("Chart Fore:", forePicker);
     lay->addRow("Chart Grid:", gridPicker);
 
-    selPicker->setSelectedColor(ROIVert::colors[4]);
-    unselPicker->setSelectedColor(ROIVert::colors[3]);
+    selPicker->setSelectedColor(ROIVert::colors()[4]);
+    unselPicker->setSelectedColor(ROIVert::colors()[3]);
     backPicker->setSelectedColor(chartclrs[0]);
     forePicker->setSelectedColor(chartclrs[1]);
     gridPicker->setSelectedColor(chartclrs[2]);
@@ -591,8 +570,6 @@ void colors::setColors(QVector<QPair<QString, QColor>> clrs){
     for each (QPair<QString, QColor> pair in clrs)
     {
         ColorPicker* obj = findChild<ColorPicker*>(pair.first);
-        if (obj) { 
-            obj->setSelectedColor(pair.second); 
-        }
+        if (obj) { obj->setSelectedColor(pair.second); }
     }
 }

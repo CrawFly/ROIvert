@@ -2,6 +2,7 @@
 #include <QString>
 #include <QVector>
 #include <QColor>
+#include "opencv2/opencv.hpp"
 
 // misc shared data types?
 namespace ROIVert {
@@ -19,21 +20,26 @@ namespace ROIVert {
         double smoothSimgaI = 0.;
     };
 
-    static const QString dffstring(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    static const QString dffstring() {
+        return(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+    }
+    
 
-    static const QVector<QColor> colors = {
+    static const QVector<QColor> colors() {
+        QVector<QColor>ret = {
         QColor("#2264A5"),
         QColor("#F75C03"),
         QColor("#F1C40F"),
         QColor("#D90368"),
         QColor("#00CC66")
-    };
+        };
+        return ret;
+    }
 
-
-    // colors: (?)
-    //  2274A5
-    //  F75C03
-    //  F1C40F
-    //  D90368
-    //  00CC66
+    static const cv::Rect QRect2CVRect(const QRect &bb) {
+        return cv::Rect(static_cast<size_t>(bb.x()),
+            static_cast<size_t>(bb.y()),
+            static_cast<size_t>(bb.width()),
+            static_cast<size_t>(bb.height()));
+    }
 }

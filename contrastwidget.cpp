@@ -13,8 +13,8 @@ VertLine::VertLine(QChart* chart) {
     };
 void VertLine::updatePos() {
     // call this on resize
-    QPointF topleft = chartToScene(QPointF(X, maxY));
-    QPointF bottomright = chartToScene(QPointF(X, minY));
+    const QPointF topleft = chartToScene(QPointF(X, maxY));
+    const QPointF bottomright = chartToScene(QPointF(X, minY));
     //setRect(QRectF(topleft, bottomright));
     setLine(topleft.x(), topleft.y(), bottomright.x(), bottomright.y());
 }
@@ -80,11 +80,8 @@ void GammaLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     // Convert the x to be the distnace between min and max
     newloc.setX((newloc.x() - minX) / (maxX - minX));
 
-    // Now Solve for gamma
-    qreal g = log(newloc.y()) / log(newloc.x());
-
-    // Now update:
-    setGamma(g);
+    // Now Solve for gamma and update:
+    setGamma(log(newloc.y()) / log(newloc.x()));
 }
 const QPointF GammaLine::chartToScene(QPointF chartpos) {
     return ch->mapToPosition(chartpos);
@@ -153,10 +150,11 @@ void ContrastHistogramChart::setData(const std::vector<float>& data) {
     QVector<QPointF> newdata(data.size());
     QVector<QPointF> newdatain(data.size());
 
-    float xmax = (float(data.size()) - 1);
+    const float xmax = static_cast<float>(data.size()) - 1;
     float ymax = -1;
-    for (size_t i = 0; i < data.size(); i++) {
-        ymax = std::max(ymax, data[i]);
+    for each (float datum in data)
+    {
+        ymax = std::max(ymax, datum);
     }
 
     for (size_t i = 0; i < data.size(); i++) {
@@ -188,14 +186,15 @@ void ContrastHistogramChart::updateMin(qreal val) {
     // called whenever the minline value changes
     maxline->setMin(val);
     gamline->setMin(val);
-    emit minChanged((double)val);
+    
+    emit minChanged(static_cast<double>(val));
     updateInLine();
 }
 void ContrastHistogramChart::updateMax(qreal val) {
     // called whenever the maxline value changes...
     minline->setMax(val);
     gamline->setMax(val);
-    emit maxChanged((double)val);
+    emit maxChanged(static_cast<double>(val));
     updateInLine();
 }
 void ContrastHistogramChart::updateInLine() {

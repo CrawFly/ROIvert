@@ -30,8 +30,8 @@ signals:
     void changeVal(qreal val); 
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     QChart* ch;
@@ -63,8 +63,8 @@ signals:
     void changeVal(qreal val);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent* event);
-    void mouseMoveEvent(QGraphicsSceneMouseEvent* event);
+    void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
+    void mouseMoveEvent(QGraphicsSceneMouseEvent* event) override;
 
 private:
     QChart* ch;
@@ -99,7 +99,7 @@ public slots:
     void changeGamma(double newval);
 
 protected:
-    void resizeEvent(QResizeEvent* event);
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     QChart* chart;
