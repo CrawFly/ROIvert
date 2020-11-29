@@ -597,7 +597,6 @@ void Roivert::closeEvent(QCloseEvent* event) {
 
     // restore colors
     QVector<QPair<QString, QColor>> clrs = t_clrs->getColors();
-    qDebug() << clrs;
 
     for each (QPair<QString,QColor> pair in clrs)
     {
@@ -615,7 +614,6 @@ void Roivert::restoreSettings()
     QVector<QPair<QString, QColor>> clrs;
     settings.beginGroup("color");
     QStringList keys = settings.childKeys();
-    qDebug() << keys;
 
     for each (QString key in keys)
     {

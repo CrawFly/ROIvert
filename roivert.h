@@ -9,7 +9,6 @@
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
-#include "qthread.h"
 #include "traceviewer.h"
 
 class Roivert : public QMainWindow
@@ -59,8 +58,6 @@ private:
     void makeToolbar();
     void updateContrastWidget(bool isDff);
     void updateTrace(int roiid);
-
-    QThread traceThread;
 
     std::vector<std::vector<double>> traces;
     void selecttoolfromkey(int key);
