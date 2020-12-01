@@ -52,7 +52,7 @@ const bool DisplaySettings::useCmap() { return useColormap; }
 
 cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
     cv::Mat proc(raw.clone());
-    const int oddsz = smoothsize + (!static_cast<bool>(smoothsize % 2));
+    const int oddsz = smoothsize + !(smoothsize % 2);
 
     if (smoothsize > 0) {
         switch (smoothing)

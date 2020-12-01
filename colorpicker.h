@@ -16,7 +16,7 @@ public:
     ~ColorPicker();
 
     void setColors(QVector<QColor> clrs);
-    const QColor getSelectedColor();
+    QColor getSelectedColor() const;
     void setSelectedColor(QColor clr);
 
 signals:

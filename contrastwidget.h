@@ -41,8 +41,8 @@ private:
     qreal minY = 0.;
     qreal maxY = 1.;
 
-    const QPointF chartToScene(QPointF chartpos);
-    const QPointF sceneToChart(QPointF scenepos);
+    QPointF chartToScene(QPointF chartpos) const;
+    QPointF sceneToChart(QPointF scenepos) const;
 };
 
 class GammaLine : public QObject, public QGraphicsPathItem
@@ -76,8 +76,8 @@ private:
     qreal mingamma = .001;
     qreal maxgamma = 10;
 
-    const QPointF chartToScene(QPointF chartpos);
-    const QPointF sceneToChart(QPointF scenepos);
+    QPointF chartToScene(QPointF chartpos) const;
+    QPointF sceneToChart(QPointF scenepos) const;
 };
 
 class ContrastHistogramChart : public QGraphicsView {

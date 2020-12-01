@@ -81,14 +81,12 @@ void ColorPicker::setCustomColor() {
         QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
         if (t) {
             t->setStyleSheet(getStyleSheet(customColor));
-            this->show();
-            qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-            if (!t->isChecked()) { t->setChecked(true); }
+            t->setChecked(true);
             emit colorSelected(clr);
         }
     }
 }
-const QColor ColorPicker::getSelectedColor() {
+QColor ColorPicker::getSelectedColor() const {
     const int id = grp->id(grp->checkedButton());
     if (id < colors.size()) {
         return colors[id];
@@ -96,28 +94,24 @@ const QColor ColorPicker::getSelectedColor() {
     return customColor;
 }
 void ColorPicker::setSelectedColor(QColor clr) {
-    for (int i = 0; i < colors.size(); i++) {
-        if (colors[i] == clr) {
-            selectedind = i;
-            QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(i)->widget()));
-            if (t) {
-                t->setChecked(true);
-                emit colorSelected(clr);
-            }
-            return;
+    const auto ind = colors.indexOf(clr);
+    if(ind>-1){
+        selectedind = ind;
+        QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(ind)->widget()));
+        if (t) { t->setChecked(true); }
+    }
+    else {
+        selectedind = colors.size(); // Custom color selected
+        customColor = clr;
+        QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
+        if (t) {
+            t->setStyleSheet(getStyleSheet(customColor));
+            t->setChecked(true);
         }
     }
-
-    selectedind = colors.size();
-    customColor = clr;
-    QPushButton* t(qobject_cast<QPushButton*>(layout()->itemAt(layout()->count() - 1)->widget()));
-    if (t) {
-        t->setStyleSheet(getStyleSheet(customColor));
-        t->setChecked(true);
-        emit colorSelected(clr);
-    }
+    emit colorSelected(clr);
 }
-const QString ColorPicker::getStyleSheet(QColor clr) {
+const QString ColorPicker::getStyleSheet(QColor clr){
     QString backclr = clr.name();
     QString bordclr = "black";
     if (clr.lightness() < 50) {

@@ -28,8 +28,8 @@ void VertLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     newx = qMin(qMax(newx, minX), maxX);
     setX(newx);
 }
-const QPointF VertLine::chartToScene(QPointF chartpos) { return ch->mapToPosition(chartpos); }
-const QPointF VertLine::sceneToChart(QPointF scenepos) { return ch->mapToValue(scenepos); }
+ QPointF VertLine::chartToScene(QPointF chartpos) const { return ch->mapToPosition(chartpos); }
+ QPointF VertLine::sceneToChart(QPointF scenepos) const { return ch->mapToValue(scenepos); }
 
 // GammaLine
 GammaLine::GammaLine(QChart* chart) {
@@ -52,12 +52,12 @@ void GammaLine::updateCurve() {
     // But I can't get the mouse to not hit the transparent area that would define the closed poly
     // So I just define points up and back down...
     QPainterPath pth(startpoint);
-    for (int i = 0; i <= 100; i++) {
+    for (int i = 0; i <= 100; ++i) {
         float x = i / 100.;  // this is x for the gamma equation
         QPointF p(x * xdelt + minX, (pow(x, gamma) - minY) / ydelt);
         pth.lineTo(chartToScene(p));
     }
-    for (int i = 100; i >= 0; i--) {
+    for (int i = 100; i >= 0; --i) {
         float x = i / 100.;
         QPointF p(x * xdelt + minX, (pow(x, gamma) - minY) / ydelt);
         pth.lineTo(chartToScene(p));
@@ -83,10 +83,10 @@ void GammaLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
     // Now Solve for gamma and update:
     setGamma(log(newloc.y()) / log(newloc.x()));
 }
-const QPointF GammaLine::chartToScene(QPointF chartpos) {
+QPointF GammaLine::chartToScene(QPointF chartpos) const {
     return ch->mapToPosition(chartpos);
 }
-const QPointF GammaLine::sceneToChart(QPointF scenepos) {
+QPointF GammaLine::sceneToChart(QPointF scenepos) const {
     return ch->mapToValue(scenepos);
 }
 
