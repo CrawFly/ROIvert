@@ -68,17 +68,19 @@ void ImageROIViewer::pushROI()
     {
     case ROIVert::RECTANGLE:
     {
-        rois.push_back(new roi_rect(scene));
+
+        //rois.push_back(std::make_unique<roi_rect>)
+        rois.push_back(std::make_unique<roi_rect>(scene));
         break;
     }
     case ROIVert::ELLIPSE:
     {
-        rois.push_back(new roi_ellipse(scene));
+        rois.push_back(std::make_unique<roi_ellipse>(scene));
         break;
     }
     case ROIVert::POLYGON:
     {
-        rois.push_back(new roi_polygon(scene));
+        rois.push_back(std::make_unique<roi_polygon>(scene));
         break;
     }
     }
@@ -88,7 +90,7 @@ void ImageROIViewer::deleteROI(size_t roiind)
 {
     if (roiind > 0 && roiind <= rois.size())
     {
-        delete(rois[roiind - 1]);
+        //delete(rois[roiind - 1]);
 
         // set selroi to 0, but don't call setSelectedROI
         selroi = 0;
@@ -135,14 +137,13 @@ void ImageROIViewer::createROIMap()
 }
 void ImageROIViewer::updateROIMap(size_t roiind)
 {
-    if (roiind > 0)
-    {
-        const QRect bb(rois[roiind - 1]->getBB());
-        const cv::Rect cvbb(ROIVert::QRect2CVRect(bb));
-        cv::Mat boundedROIImage = roimap(cvbb);
-        cv::Mat mask(rois[roiind - 1]->getMask());
-        boundedROIImage.setTo(roiind, mask);
-    }
+    if (roiind == 0 || roiind>rois.size()) { return; }
+
+    const QRect bb(rois[roiind - 1]->getBB());
+    const cv::Rect cvbb(ROIVert::QRect2CVRect(bb));
+    cv::Mat boundedROIImage = roimap(cvbb);
+    cv::Mat mask(rois[roiind - 1]->getMask());
+    boundedROIImage.setTo(roiind, mask);
 }
 
 // Mouse and resize:
@@ -313,12 +314,12 @@ QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
 
     ret.reserve(rois.size());
 
-    for each (roi* r in rois)
+    for (auto &r : rois)
     {
         QPair<ROIVert::ROISHAPE, QVector<QPoint>> thisret;
-        if (dynamic_cast<roi_rect*>(r)) { thisret.first = ROIVert::ROISHAPE::RECTANGLE; }
-        if (dynamic_cast<roi_ellipse*>(r)) { thisret.first = ROIVert::ROISHAPE::ELLIPSE; }
-        if (dynamic_cast<roi_polygon*>(r)) { thisret.first = ROIVert::ROISHAPE::POLYGON; }
+        if (dynamic_cast<roi_rect*>(r.get())) { thisret.first = ROIVert::ROISHAPE::RECTANGLE; }
+        if (dynamic_cast<roi_ellipse*>(r.get())) { thisret.first = ROIVert::ROISHAPE::ELLIPSE; }
+        if (dynamic_cast<roi_polygon*>(r.get())) { thisret.first = ROIVert::ROISHAPE::POLYGON; }
         thisret.second = r->getVertices();
         ret.push_back(thisret);
     }
@@ -326,8 +327,7 @@ QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
 }
 void ImageROIViewer::importROIs(const std::vector<roi *> &rois_in)
 {
-    for each(roi * r in rois_in)
-    {
+    for (auto r : rois_in) {
         
         const roi_rect *a = dynamic_cast<roi_rect *>(r);
         const roi_ellipse *b = dynamic_cast<roi_ellipse *>(r);
@@ -369,7 +369,7 @@ void ImageROIViewer::setUnselectedColor(QColor clr)
 }
 
 // Passthrough getters
-roi *ImageROIViewer::getRoi(size_t ind) { return rois[ind]; }
+roi *ImageROIViewer::getRoi(size_t ind) { return rois[ind].get(); }
 const size_t ImageROIViewer::getNROIs() { return rois.size(); }
 
 // Zoom behavior...

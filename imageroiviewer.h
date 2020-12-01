@@ -77,7 +77,7 @@ private:
 	ROIVert::ROISHAPE roishape = ROIVert::RECTANGLE;
 
 	void pushROI();
-	std::vector<roi *> rois;
+	std::vector<std::unique_ptr<roi>> rois;
 	size_t selroi = 0;
 
 	cv::Mat roimap;
