@@ -95,7 +95,7 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-    connect(t_imgData, &tool::imgData::frameRateChanged, this, [=](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
+    connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
     connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
     connect(tviewer, &TraceViewer::chartClicked, imview, &ImageROIViewer::setSelectedROI);
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
@@ -215,7 +215,7 @@ void Roivert::makeToolbar() {
 
     ui.mainToolBar->addActions(ROIGroup->actions());
     ui.mainToolBar->addSeparator();
-    connect(ROIGroup, &QActionGroup::triggered, this, [=](QAction* act)
+    connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
                 {
                     ROIVert::MODE mode = static_cast<ROIVert::MODE>(act->property("Mode").toInt());
                     imview->setMouseMode(mode);
@@ -369,16 +369,16 @@ void Roivert::exportROIs(QString filename) {
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::RECTANGLE, "rectangle"));
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::ELLIPSE, "ellipse"));
         shapemap.insert(std::make_pair(ROIVert::ROISHAPE::POLYGON, "polygon"));
-
+        
         const int ds = viddata->getdsSpace();
 
         xml.writeStartElement("ROIs");
 
-        for each (QPair<ROIVert::ROISHAPE, QVector<QPoint>> roi in r)
+        for (auto roi : r)
         {
             xml.writeStartElement("ROI");
             xml.writeAttribute("shape",shapemap[roi.first]);
-            for each (QPoint pt in roi.second)
+            for (auto pt : roi.second)
             {
                 xml.writeStartElement("Vertex");
                 xml.writeAttribute("X", QString::number(pt.x()*ds));
@@ -407,7 +407,8 @@ void Roivert::importROIs(QString filename) {
 
     QFile file(filename);
 
-    std::vector<roi*> rois;
+    //std::vector<roi*> rois;
+    std::vector<std::unique_ptr<roi>> rois;
 
     if (file.open(QFile::ReadOnly)) {
         std::map<QString, ROIVert::ROISHAPE> shapemap;
@@ -428,15 +429,15 @@ void Roivert::importROIs(QString filename) {
                 switch (type_e)
                 {
                 case ROIVert::RECTANGLE:
-                    rois.emplace_back(new roi_rect);
+                    rois.push_back(std::make_unique<roi_rect>());
                     verts.clear();
                     break;
                 case ROIVert::ELLIPSE:
-                    rois.emplace_back(new roi_ellipse);
+                    rois.push_back(std::make_unique<roi_ellipse>());
                     verts.clear();
                     break;
                 case ROIVert::POLYGON:
-                    rois.emplace_back(new roi_polygon);
+                    rois.push_back(std::make_unique<roi_polygon>());
                     verts.clear();
                     break;
                 default:
@@ -446,6 +447,7 @@ void Roivert::importROIs(QString filename) {
             if (xml.isStartElement() && xml.name() == "Vertex" && xml.attributes().size()==2) {
                 const QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
                 if (thispoint.x() < 0 || thispoint.x() > viddata->getWidth() || thispoint.y() < 0 || thispoint.y() > viddata->getHeight()) {
+                    // TODO: factor out exceptions and handle outside.
                     msg.setIcon(QMessageBox::Critical);
                     msg.setText(tr("A vertex in the ROI file exceeds the boundaries of the current image."));
                     msg.exec();

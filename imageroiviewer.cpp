@@ -325,24 +325,19 @@ QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
     }
     return ret;
 }
-void ImageROIViewer::importROIs(const std::vector<roi *> &rois_in)
+void ImageROIViewer::importROIs(std::vector<std::unique_ptr<roi>>&rois_in)
 {
-    for (auto r : rois_in) {
-        
-        const roi_rect *a = dynamic_cast<roi_rect *>(r);
-        const roi_ellipse *b = dynamic_cast<roi_ellipse *>(r);
-        const roi_polygon *c = dynamic_cast<roi_polygon *>(r);
+    for (auto &r : rois_in) {
+        // move to the new vector
+        rois.push_back(std::move(r));
 
-        if (a){rois.emplace_back(new roi_rect(*a));}
-        else if (b){rois.emplace_back(new roi_ellipse(*b));}
-        else if (c){rois.emplace_back(new roi_polygon(*c));}
-
+        // set the scene
         rois.back()->setScene(scene);
 
         // update charts:
         emit roiEdited(rois.size());
 
-        // select on the way in
+        // TODO: can put this at the end or drop it, but currently unselected color happens on unselect, traceviewer isn't creating with a stored unselected color...
         setSelectedROI(rois.size());
     }
 

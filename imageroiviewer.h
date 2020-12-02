@@ -46,7 +46,7 @@ public:
 	void deleteROI(size_t roiind);
 
 	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs();
-	void importROIs(const std::vector<roi *> &rois_in);
+	void importROIs(std::vector<std::unique_ptr<roi>> &rois_in);
 	const size_t getNROIs();
 
 	void setSelectedColor(QColor clr);
