@@ -1,14 +1,10 @@
-#include "colorpicker.h"
+#include "ColorPickWidget.h"
 #include "QBoxLayout"
 #include <QMenu>
 #include <QApplication>
+#include <qdebug.h>
 
-ColorPicker::ColorPicker(QWidget* parent) : QWidget(parent)
-{
-    QHBoxLayout* lay = new QHBoxLayout();
-    setLayout(lay);
-}
-ColorPicker::ColorPicker(QVector<QColor> clrs, QWidget* parent) : QWidget(parent)
+ColorPickWidget::ColorPickWidget(QVector<QColor> clrs, QWidget* parent) : QWidget(parent)
 {
     QHBoxLayout* lay = new QHBoxLayout();
     lay->setContentsMargins(0, 0, 0, 0);
@@ -17,10 +13,8 @@ ColorPicker::ColorPicker(QVector<QColor> clrs, QWidget* parent) : QWidget(parent
     setLayout(lay);
     setColors(clrs);
 }
-ColorPicker::~ColorPicker() {
-    delete(layout());
-}
-void ColorPicker::setColors(QVector<QColor> clrs) {
+
+void ColorPickWidget::setColors(QVector<QColor> clrs) {
     // check how many buttons we have
     colors = clrs;
 
@@ -54,27 +48,17 @@ void ColorPicker::setColors(QVector<QColor> clrs) {
         if (t) {
             t->setCheckable(true);
             QMenu* mnu = new QMenu;
-            mnu->addAction("Set Custom Color", this, &ColorPicker::setCustomColor);
+            mnu->addAction("Set Custom Color", this, &ColorPickWidget::setCustomColor);
             t->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             t->setStyleSheet(getStyleSheet(customColor));
             t->setMenu(mnu);
             grp->addButton(t, ncolors);
         }
     }
-
-    // Set the checked index:
-    // internal set-checked seems to lead to size growth, just avoid as a workaround for now?
-    //{
-        //if (selectedind > layout()->count()) { selectedind = 0; };
-        //QPushButton* t = qobject_cast<QPushButton*>(layout()->itemAt(selectedind)->widget());
-        //this->show();
-        //t->setChecked(true);
-    //}
-
-    // Connect everything:
     connect(grp, &QButtonGroup::idClicked, this, [=](int id) {emit colorSelected(colors[id]); });
 }
-void ColorPicker::setCustomColor() {
+void ColorPickWidget::setCustomColor() {
+    
     const QColor clr = clrDlg->getColor(customColor);
     if (clr.isValid()) {
         customColor = clr;
@@ -85,15 +69,16 @@ void ColorPicker::setCustomColor() {
             emit colorSelected(clr);
         }
     }
+
 }
-QColor ColorPicker::getSelectedColor() const {
+QColor ColorPickWidget::getSelectedColor() const {
     const int id = grp->id(grp->checkedButton());
     if (id < colors.size()) {
         return colors[id];
     }
     return customColor;
 }
-void ColorPicker::setSelectedColor(QColor clr) {
+void ColorPickWidget::setSelectedColor(QColor clr) {
     const auto ind = colors.indexOf(clr);
     if(ind>-1){
         selectedind = ind;
@@ -111,7 +96,7 @@ void ColorPicker::setSelectedColor(QColor clr) {
     }
     emit colorSelected(clr);
 }
-const QString ColorPicker::getStyleSheet(QColor clr){
+const QString ColorPickWidget::getStyleSheet(QColor clr){
     QString backclr = clr.name();
     QString bordclr = "black";
     if (clr.lightness() < 50) {

@@ -54,7 +54,7 @@
     <ClCompile Include="toolwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="colorpicker.cpp">
+    <ClCompile Include="src\widgets\ColorPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -80,7 +80,7 @@
     <QtMoc Include="traceviewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="colorpicker.h">
+    <QtMoc Include="src\widgets\ColorPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

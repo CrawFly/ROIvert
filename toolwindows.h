@@ -11,7 +11,7 @@
 #include <QButtonGroup>
 #include "contrastwidget.h"
 #include "roivertcore.h"
-#include "colorpicker.h"
+#include "src/widgets/ColorPickWidget.h"
 
 namespace tool
 {

@@ -11,6 +11,8 @@
 #include <qcombobox.h>
 #include <opencv2/opencv.hpp>
 #include <QRadioButton>
+
+
 using namespace tool;
 using namespace QtCharts;
 
@@ -524,12 +526,12 @@ colors::colors(QWidget* parent) {
     QFormLayout* lay = new QFormLayout;
     setLayout(lay);
 
-    ColorPicker* selPicker = new ColorPicker(ROIVert::colors(), this);
-    ColorPicker* unselPicker = new ColorPicker(ROIVert::colors(), this);
+    ColorPickWidget* selPicker = new ColorPickWidget(ROIVert::colors(), this);
+    ColorPickWidget* unselPicker = new ColorPickWidget(ROIVert::colors(), this);
     QVector<QColor> chartclrs = { QColor("#222222"),QColor(Qt::lightGray),QColor(Qt::darkGray), QColor(Qt::white)};
-    ColorPicker* backPicker = new ColorPicker(chartclrs, this);
-    ColorPicker* forePicker = new ColorPicker(chartclrs, this);
-    ColorPicker* gridPicker = new ColorPicker(chartclrs, this);
+    ColorPickWidget* backPicker = new ColorPickWidget(chartclrs, this);
+    ColorPickWidget* forePicker = new ColorPickWidget(chartclrs, this);
+    ColorPickWidget* gridPicker = new ColorPickWidget(chartclrs, this);
 
     selPicker->setObjectName("Selected");
     unselPicker->setObjectName("Unselected");
@@ -549,17 +551,17 @@ colors::colors(QWidget* parent) {
     forePicker->setSelectedColor(chartclrs[1]);
     gridPicker->setSelectedColor(chartclrs[2]);
 
-    connect(selPicker, &ColorPicker::colorSelected, this, &colors::setSelectedColor);
-    connect(unselPicker, &ColorPicker::colorSelected, this, &colors::setUnselectedColor);
-    connect(forePicker, &ColorPicker::colorSelected, this, &colors::setChartForeColor);
-    connect(backPicker, &ColorPicker::colorSelected, this, &colors::setChartBackColor);
-    connect(gridPicker, &ColorPicker::colorSelected, this, &colors::setChartGridColor);
+    connect(selPicker, &ColorPickWidget::colorSelected, this, &colors::setSelectedColor);
+    connect(unselPicker, &ColorPickWidget::colorSelected, this, &colors::setUnselectedColor);
+    connect(forePicker, &ColorPickWidget::colorSelected, this, &colors::setChartForeColor);
+    connect(backPicker, &ColorPickWidget::colorSelected, this, &colors::setChartBackColor);
+    connect(gridPicker, &ColorPickWidget::colorSelected, this, &colors::setChartGridColor);
 }
 QVector<QPair<QString, QColor>> colors::getColors(){
     QVector<QPair<QString, QColor>> ret;
 
     for (int i = 0; i < layout()->count(); i++) {
-        ColorPicker* obj = qobject_cast<ColorPicker*>(layout()->itemAt(i)->widget());
+        ColorPickWidget* obj = qobject_cast<ColorPickWidget*>(layout()->itemAt(i)->widget());
         if (obj) {
             QPair<QString, QColor> pair;
             pair.first = obj->objectName();
@@ -572,7 +574,7 @@ QVector<QPair<QString, QColor>> colors::getColors(){
 void colors::setColors(QVector<QPair<QString, QColor>> clrs){
     for each (QPair<QString, QColor> pair in clrs)
     {
-        ColorPicker* obj = findChild<ColorPicker*>(pair.first);
+        ColorPickWidget* obj = findChild<ColorPickWidget*>(pair.first);
         if (obj) { obj->setSelectedColor(pair.second); }
     }
 }
