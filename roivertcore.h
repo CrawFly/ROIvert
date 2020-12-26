@@ -20,12 +20,10 @@ namespace ROIVert {
         double smoothSimgaI = 0.;
     };
 
-    static const QString dffstring() {
+    static QString dffstring() {
         return(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
     }
-    
-
-    static const QVector<QColor> colors() {
+    static QVector<QColor> colors() {
         QVector<QColor>ret = {
         QColor("#2264A5"),
         QColor("#F75C03"),
@@ -35,11 +33,12 @@ namespace ROIVert {
         };
         return ret;
     }
-
-    static const cv::Rect QRect2CVRect(const QRect &bb) {
+    static cv::Rect QRect2CVRect(const QRect &bb) {
         return cv::Rect(static_cast<size_t>(bb.x()),
             static_cast<size_t>(bb.y()),
             static_cast<size_t>(bb.width()),
             static_cast<size_t>(bb.height()));
     }
+
+
 }

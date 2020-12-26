@@ -90,7 +90,7 @@ namespace tool
         void exportCharts(QString filename, bool doTitle, int width, int height);
         
     private:
-        QString cachepath;
+        QString cachepath; //TODO: replace with windowFilePath
     };
 
     class colors : public QWidget {

@@ -308,7 +308,7 @@ void ImageROIViewer::setROIShape(ROIVert::ROISHAPE shp)
 }
 
 // ROI import/export
-QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs()
+QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ImageROIViewer::getAllROIs() const
 {
     QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> ret;
 
@@ -364,8 +364,8 @@ void ImageROIViewer::setUnselectedColor(QColor clr)
 }
 
 // Passthrough getters
-roi *ImageROIViewer::getRoi(size_t ind) { return rois[ind].get(); }
-const size_t ImageROIViewer::getNROIs() { return rois.size(); }
+roi *ImageROIViewer::getRoi(size_t ind) const { return rois[ind].get(); }
+size_t ImageROIViewer::getNROIs() const { return rois.size(); }
 
 // Zoom behavior...
 Graphics_view_zoom::Graphics_view_zoom(QGraphicsView *view)

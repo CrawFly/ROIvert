@@ -5,7 +5,6 @@
 // VertLine
 VertLine::VertLine(QChart* chart) {
         ch = chart;
-        ch = chart;
         setCursor(Qt::SizeHorCursor);
         QPen pen(QColor("#2274A5"), 3);
         pen.setCosmetic(true);

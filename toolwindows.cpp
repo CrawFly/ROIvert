@@ -198,7 +198,8 @@ namespace {
             }
         }
         cv::Mat cv_cmap(10, 128, CV_8U, data);
-        
+
+
         // first map is always b/w
         std::vector<QPixmap> res;
         res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));

@@ -17,10 +17,6 @@ class Roivert : public QMainWindow
 
 public:
     Roivert(QWidget *parent = Q_NULLPTR);
-    //~Roivert() {
-        //traceThread.quit();
-        //traceThread.wait();
-    //}
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);

@@ -42,12 +42,12 @@ public:
 	void setROIShape(ROIVert::ROISHAPE);
 
 	void setSelectedROI(size_t ind);
-	roi *getRoi(size_t ind);
+	roi *getRoi(size_t ind) const;
 	void deleteROI(size_t roiind);
 
-	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs();
+	QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> getAllROIs() const;
 	void importROIs(std::vector<std::unique_ptr<roi>> &rois_in);
-	const size_t getNROIs();
+	size_t getNROIs() const;
 
 	void setSelectedColor(QColor clr);
 	void setUnselectedColor(QColor clr);
