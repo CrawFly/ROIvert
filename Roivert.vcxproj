@@ -107,7 +107,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\widgets\ColorPickWidget.cpp" />
-    <ClCompile Include="contrastwidget.cpp">
+    <ClCompile Include="src\widgets\ContrastPickWidget.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
@@ -143,7 +143,7 @@
     <QtMoc Include="src\widgets\ColorPickWidget.h" />
     <ClInclude Include="roivertcore.h" />
     <QtMoc Include="traceviewer.h" />
-    <QtMoc Include="contrastwidget.h" />
+    <QtMoc Include="src\widgets\ContrastPickWidget.h" />
     <ClInclude Include="displaysettings.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="roi.h" />

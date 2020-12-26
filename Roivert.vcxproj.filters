@@ -42,9 +42,6 @@
     <ClCompile Include="videodata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="contrastwidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="displaysettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\widgets\ColorPickWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\ContrastPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -74,13 +74,13 @@
     <QtMoc Include="videodata.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="contrastwidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="traceviewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\widgets\ColorPickWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\widgets\ContrastPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

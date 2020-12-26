@@ -1,4 +1,5 @@
 #pragma once
+
 #include <QWidget>
 #include <QDoubleSpinBox>
 #include <QGraphicsLineItem>
@@ -119,12 +120,12 @@ private:
     void updateInLine();
 };
 
-class ContrastWidget : public QWidget
+class ContrastPickWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ContrastWidget(QWidget* parent = nullptr);
-    ~ContrastWidget();
+    explicit ContrastPickWidget(QWidget* parent = nullptr);
+    ~ContrastPickWidget();
 
     const double getMin();
     const double getMax();

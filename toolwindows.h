@@ -9,7 +9,7 @@
 #include <QProgressBar>
 #include <QLabel>
 #include <QButtonGroup>
-#include "contrastwidget.h"
+#include "src/widgets/ContrastPickWidget.h"
 #include "roivertcore.h"
 #include "src/widgets/ColorPickWidget.h"
 
@@ -62,7 +62,7 @@ namespace tool
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
 
     private:
-        ContrastWidget* contrast;
+        ContrastPickWidget* contrast;
         QButtonGroup* projection;
         const cv::ColormapTypes cmaps[5] = { cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE};
         QComboBox* cmbColormap;

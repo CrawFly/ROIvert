@@ -221,7 +221,7 @@ imgSettings::imgSettings(QWidget* parent) {
 
     { // Contrast
         topLay->addWidget(new QLabel(tr("Contrast:")));
-        contrast = new ContrastWidget;
+        contrast = new ContrastPickWidget;
         topLay->addWidget(contrast);
         contrast->setMaximumHeight(300);
         contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -362,7 +362,7 @@ imgSettings::imgSettings(QWidget* parent) {
     connect(spinBlurSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(spinBlurSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
-    connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
+    connect(contrast, &ContrastPickWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &imgSettings::updateSettings);
     setEnabled(false);
 }

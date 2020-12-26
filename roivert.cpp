@@ -92,7 +92,7 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
-    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
+    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastPickWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
@@ -160,7 +160,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         
     //viddata->getNFrames() / frameRate;
     tviewer->setmaxtime(viddata->getNFrames() / frameRate);
-    updateContrastWidget(vidctrl->dff());
+    updateContrastPickWidget(vidctrl->dff());
 }
 
 void Roivert::changeFrame(const size_t frame)
@@ -243,7 +243,7 @@ void Roivert::makeToolbar() {
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
 }
 
-void Roivert::updateContrastWidget(bool isDff) {
+void Roivert::updateContrastPickWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
     float c[3];
     dispSettings.getContrast(isDff, &c[0]);

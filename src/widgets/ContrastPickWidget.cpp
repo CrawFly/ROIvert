@@ -1,4 +1,4 @@
-#include "contrastwidget.h"
+#include "ContrastPickWidget.h"
 #include "qdebug.h"
 #include <QLabel>
 
@@ -208,8 +208,8 @@ void ContrastHistogramChart::updateInLine() {
     inLineSeries->replace(indata);
 }
 
-// ContrastWidget
-ContrastWidget::ContrastWidget(QWidget* parent) {
+// ContrastPickWidget
+ContrastPickWidget::ContrastPickWidget(QWidget* parent) {
         setParent(parent);
         QVBoxLayout* layV = new QVBoxLayout;
         contChart = new ContrastHistogramChart;
@@ -257,12 +257,12 @@ ContrastWidget::ContrastWidget(QWidget* parent) {
         connect(spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [=]() { emit contrastChanged(getMin(), getMax(), getGamma());});
 
     }
-ContrastWidget::~ContrastWidget() {};
-const double ContrastWidget::getMin() { return spinMin->value(); }
-const double ContrastWidget::getMax() { return spinMax->value(); }
-const double ContrastWidget::getGamma() { return spinGamma->value(); }
-void ContrastWidget::setHist(std::vector<float> histval) {contChart->setData(histval);}
-void ContrastWidget::setContrast(float min, float max, float gamma) {
+ContrastPickWidget::~ContrastPickWidget() {};
+const double ContrastPickWidget::getMin() { return spinMin->value(); }
+const double ContrastPickWidget::getMax() { return spinMax->value(); }
+const double ContrastPickWidget::getGamma() { return spinGamma->value(); }
+void ContrastPickWidget::setHist(std::vector<float> histval) {contChart->setData(histval);}
+void ContrastPickWidget::setContrast(float min, float max, float gamma) {
     spinMin->setValue(min);
     spinMax->setValue(max);
     spinGamma->setValue(gamma);

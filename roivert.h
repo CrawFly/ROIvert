@@ -52,7 +52,7 @@ private:
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
-    void updateContrastWidget(bool isDff);
+    void updateContrastPickWidget(bool isDff);
     void updateTrace(int roiid);
 
     std::vector<std::vector<double>> traces;
