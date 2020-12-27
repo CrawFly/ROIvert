@@ -189,17 +189,13 @@ void imgData::setProgBar(int val) {
 }
 namespace {
     std::vector<QPixmap> getColormapPixmaps(const cv::ColormapTypes maps[5]) {
-        unsigned char data[20][128];
-
-        // todo: consider replacing with std::iota and vector?
-        for (int i = 0; i < 128; i++) {
-            for (int j = 0; j < 20; j++) {
-                data[j][i] = i*2;
+        
+        cv::Mat cv_cmap(10, 128, CV_8U);
+        for (int col = 0; col < cv_cmap.size().width; col++) {
+            for (int row = 0; row < cv_cmap.size().height; row++) {
+                cv_cmap.at<unsigned char>(row,col) = col*2;
             }
         }
-        cv::Mat cv_cmap(10, 128, CV_8U, data);
-
-
         // first map is always b/w
         std::vector<QPixmap> res;
         res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));
@@ -221,19 +217,21 @@ imgSettings::imgSettings(QWidget* parent) {
         contrast = new ContrastPickWidget;
         topLay->addWidget(contrast);
         contrast->setMaximumHeight(300);
+        contrast->setMaximumWidth(280);
         contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     }
     {
         QFrame* line = new QFrame;
         line->setFrameStyle(QFrame::HLine);
+        line->setMaximumWidth(280);
         topLay->addWidget(line);
     }
     { // Projection:
         topLay->addWidget(new QLabel(tr("Projection:")));
         projection = new ProjectionPickWidget;
+        projection->setMaximumWidth(280);
         topLay->addWidget(projection);
     }
-
 
     {
         QFrame* line = new QFrame;
@@ -242,25 +240,12 @@ imgSettings::imgSettings(QWidget* parent) {
     }
 
     {// Colormap
-        QFormLayout* flay = new QFormLayout;
-        cmbColormap = new QComboBox;
-
-        std::vector<QPixmap> c = getColormapPixmaps(cmaps);
-        for (int i = 0; i < c.size(); i++) {
-            cmbColormap->addItem("");
-            cmbColormap->setItemData(i, c[i], Qt::DecorationRole);
-        }
-        topLay->addWidget(cmbColormap);
-
-        QSize sz;
-        sz.setWidth(127);
-        sz.setHeight(20);
-        cmbColormap->setIconSize(sz);
-
-        cmbColormap->setMaximumWidth(175);
-        flay->addRow(tr("Colormap:"), cmbColormap);
-        topLay->addLayout(flay);
+        topLay->addWidget(new QLabel(tr("Colormap:")));
+        colormap = new ColormapPickWidget;
+        colormap->setMaximumWidth(280);
+        topLay->addWidget(colormap);
     }
+
     {
         QFrame* line = new QFrame;
         line->setFrameStyle(QFrame::HLine);
@@ -333,13 +318,16 @@ imgSettings::imgSettings(QWidget* parent) {
         topLay->addStretch(1);
     }
 
-    connect(cmbColormap, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
+    
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
     connect(spinBlurSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(spinBlurSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
+    
     connect(contrast, &ContrastPickWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
+    connect(colormap, &ColormapPickWidget::colormapChanged, this, &imgSettings::updateSettings);
+
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
@@ -357,10 +345,7 @@ void imgSettings::updateSettings() {
     pay.contrastMax = contrast->getMax();
     pay.contrastGamma = contrast->getGamma();
     pay.projectionType = projection->getProjection();
-    
-    const int cmapIndex = cmbColormap->currentIndex();
-    if (cmapIndex == 0) { pay.cmap = -1;}
-    else { pay.cmap = cmaps[cmapIndex - 1]; }
+    pay.cmap = colormap->getColormap();
 
     pay.smoothType = cmbBlur->currentIndex();
     pay.smoothSize = spinBlurSize->value();

@@ -9,9 +9,11 @@
 #include <QProgressBar>
 #include <QLabel>
 #include "roivertcore.h"
+
 #include "src/widgets/ContrastPickWidget.h"
 #include "src/widgets/ColorPickWidget.h"
 #include "src/widgets/ProjectionPickWidget.h"
+#include "src/widgets/ColormapPickWidget.h"
 
 namespace tool
 {
@@ -64,8 +66,8 @@ namespace tool
     private:
         ContrastPickWidget* contrast;
         ProjectionPickWidget* projection;
-        const cv::ColormapTypes cmaps[5] = { cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE};
-        QComboBox* cmbColormap;
+        ColormapPickWidget* colormap;
+
         QComboBox* cmbBlur;
         QSpinBox* spinBlurSize;
         QDoubleSpinBox* spinBlurSigma;
