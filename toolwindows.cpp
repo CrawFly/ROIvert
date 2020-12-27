@@ -16,7 +16,6 @@
 using namespace tool;
 using namespace QtCharts;
 
-
 imgData::imgData(QWidget *parent)
 {
     QVBoxLayout *topLay = new QVBoxLayout(this);
@@ -188,23 +187,10 @@ void imgData::setProgBar(int val) {
     progBar->setVisible(false);
 }
 namespace {
-    std::vector<QPixmap> getColormapPixmaps(const cv::ColormapTypes maps[5]) {
-        
-        cv::Mat cv_cmap(10, 128, CV_8U);
-        for (int col = 0; col < cv_cmap.size().width; col++) {
-            for (int row = 0; row < cv_cmap.size().height; row++) {
-                cv_cmap.at<unsigned char>(row,col) = col*2;
-            }
-        }
-        // first map is always b/w
-        std::vector<QPixmap> res;
-        res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));
-
-        for (int i = 0; i < 5; i++) {
-            cv::applyColorMap(cv_cmap, cv_cmap, maps[i]);
-            res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_BGR888)));
-        }
-        return res;
+    void addVSep(QVBoxLayout *lay) {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        lay->addWidget(line);
     }
 }
 imgSettings::imgSettings(QWidget* parent) {
@@ -218,14 +204,10 @@ imgSettings::imgSettings(QWidget* parent) {
         topLay->addWidget(contrast);
         contrast->setMaximumHeight(300);
         contrast->setMaximumWidth(300);
-        contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     }
-    {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        line->setMaximumWidth(280);
-        topLay->addWidget(line);
-    }
+    
+    addVSep(topLay);
+
     { // Projection:
         topLay->addWidget(new QLabel(tr("Projection:")));
         projection = new ProjectionPickWidget;
@@ -233,28 +215,15 @@ imgSettings::imgSettings(QWidget* parent) {
         topLay->addWidget(projection);
     }
 
-    {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        topLay->addWidget(line);
-    }
-
+    addVSep(topLay);
     {// Colormap
         topLay->addWidget(new QLabel(tr("Colormap:")));
         colormap = new ColormapPickWidget;
         colormap->setMaximumWidth(300);
         topLay->addWidget(colormap);
     }
-
-    {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        topLay->addWidget(line);
-    }
+    addVSep(topLay);
     {// Smoothing
-        // We'll do box, gaussian, median, bilateral
-        // each one has a size
-        // gaussian and bilateral have a sigma
         topLay->addWidget(new QLabel(tr("Smoothing:")));
         smoothing = new SmoothingPickWidget;
         smoothing->setMaximumWidth(300);
