@@ -217,7 +217,7 @@ imgSettings::imgSettings(QWidget* parent) {
         contrast = new ContrastPickWidget;
         topLay->addWidget(contrast);
         contrast->setMaximumHeight(300);
-        contrast->setMaximumWidth(280);
+        contrast->setMaximumWidth(300);
         contrast->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     }
     {
@@ -242,7 +242,7 @@ imgSettings::imgSettings(QWidget* parent) {
     {// Colormap
         topLay->addWidget(new QLabel(tr("Colormap:")));
         colormap = new ColormapPickWidget;
-        colormap->setMaximumWidth(280);
+        colormap->setMaximumWidth(300);
         topLay->addWidget(colormap);
     }
 

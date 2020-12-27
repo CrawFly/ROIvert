@@ -5,7 +5,7 @@ namespace {
     std::vector<QPixmap> getColormapPixmaps(std::vector<cv::ColormapTypes> CmapTypes) {
 
         // Generate some base colormap data
-        cv::Mat cv_cmap(10, 255, CV_8U);
+        cv::Mat cv_cmap(15, 255, CV_8U);
         for (int col = 0; col < cv_cmap.size().width; col++) {
             for (int row = 0; row < cv_cmap.size().height; row++) {
                 cv_cmap.at<unsigned char>(row, col) = col;
@@ -44,7 +44,7 @@ ColormapPickWidget::ColormapPickWidget(QWidget* parent) noexcept : QWidget(paren
     */
 
     QSize sz;
-    sz.setWidth(255);
+    sz.setWidth(220);
     sz.setHeight(20);
     cmbColormap->setIconSize(sz);
 
