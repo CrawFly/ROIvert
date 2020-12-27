@@ -57,6 +57,9 @@
     <ClCompile Include="src\widgets\ContrastPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\ProjectionPickWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="imageroiviewer.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\widgets\ContrastPickWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\widgets\ProjectionPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

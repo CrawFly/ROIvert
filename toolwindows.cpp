@@ -112,7 +112,6 @@ imgData::imgData(QWidget *parent)
     connect(cmdLoad, &QPushButton::clicked, this, &imgData::load);
     connect(spinFrameRate, SIGNAL(valueChanged(double)), this, SIGNAL(frameRateChanged(double)));
 }
-
 void imgData::browse()
 {
     // check if current path in textbox is valid::
@@ -163,7 +162,6 @@ void imgData::load()
     lblFileInfo->setText(txtFilePath->text() + tr(" contains ") + QString::number(filelist.size()) + tr(" files.\nLoading..."));
     emit fileLoadRequested(filelist, spinFrameRate->value(), spinDownTime->value(), spinDownSpace->value());
 }
-
 void imgData::fileLoadCompleted(size_t nframes, size_t height, size_t width)
 {
     QStringList filelist = QDir(txtFilePath->text()).entryList(QStringList() << "*.tif"
@@ -212,7 +210,6 @@ namespace {
         }
         return res;
     }
-
 }
 imgSettings::imgSettings(QWidget* parent) {
 
@@ -231,34 +228,13 @@ imgSettings::imgSettings(QWidget* parent) {
         line->setFrameStyle(QFrame::HLine);
         topLay->addWidget(line);
     }
-
-    {// Projection
+    { // Projection:
         topLay->addWidget(new QLabel(tr("Projection:")));
-        QGridLayout* projLay = new QGridLayout;
-
-        projection = new QButtonGroup;
-        QPushButton* butNone = new QPushButton("None");
-        butNone->setCheckable(true);
-        butNone->setChecked(true);
-        QPushButton* butMean = new QPushButton("Mean");
-        butMean->setCheckable(true);
-        QPushButton* butMin = new QPushButton("Min");
-        butMin->setCheckable(true);
-        QPushButton* butMax = new QPushButton("Max");
-        butMax->setCheckable(true);
-        projection->addButton(butNone, 0);
-        projection->addButton(butMean, 3);
-        projection->addButton(butMin, 1);
-        projection->addButton(butMax, 2);
-
-        projLay->addWidget(butNone, 0, 0);
-        projLay->addWidget(butMean, 0, 1);
-        projLay->addWidget(butMin, 1, 0);
-        projLay->addWidget(butMax, 1, 1);
-
-        projLay->setSpacing(0);
-        topLay->addLayout(projLay);
+        projection = new ProjectionPickWidget;
+        topLay->addWidget(projection);
     }
+
+
     {
         QFrame* line = new QFrame;
         line->setFrameStyle(QFrame::HLine);
@@ -363,7 +339,7 @@ imgSettings::imgSettings(QWidget* parent) {
     connect(spinBlurSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
     connect(contrast, &ContrastPickWidget::contrastChanged, this, &imgSettings::updateSettings);
-    connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &imgSettings::updateSettings);
+    connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
     setEnabled(false);
 }
 imgSettings::~imgSettings(){}
@@ -380,7 +356,7 @@ void imgSettings::updateSettings() {
     pay.contrastMin = contrast->getMin();
     pay.contrastMax = contrast->getMax();
     pay.contrastGamma = contrast->getGamma();
-    pay.projectionType = projection->checkedId();
+    pay.projectionType = projection->getProjection();
     
     const int cmapIndex = cmbColormap->currentIndex();
     if (cmapIndex == 0) { pay.cmap = -1;}
@@ -393,7 +369,6 @@ void imgSettings::updateSettings() {
 
     emit imgSettingsChanged(pay);
 }
-
 fileIO::fileIO(QWidget* parent) {
     setParent(parent);
     QVBoxLayout* lay = new QVBoxLayout;
@@ -519,7 +494,6 @@ fileIO::fileIO(QWidget* parent) {
     }
     );
 }
-
 colors::colors(QWidget* parent) {
     setParent(parent);
 
