@@ -14,6 +14,7 @@
 #include "src/widgets/ColorPickWidget.h"
 #include "src/widgets/ProjectionPickWidget.h"
 #include "src/widgets/ColormapPickWidget.h"
+#include "src/widgets/SmoothingPickWidget.h"
 
 namespace tool
 {
@@ -67,14 +68,7 @@ namespace tool
         ContrastPickWidget* contrast;
         ProjectionPickWidget* projection;
         ColormapPickWidget* colormap;
-
-        QComboBox* cmbBlur;
-        QSpinBox* spinBlurSize;
-        QDoubleSpinBox* spinBlurSigma;
-        QDoubleSpinBox* spinBlurSigmaI;
-        QLabel* lblSigma;
-        QLabel* lblSigmaI;
-        QWidget* paramsWidg;
+        SmoothingPickWidget* smoothing;
         
         void updateSettings();
     };

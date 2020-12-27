@@ -36,20 +36,12 @@ ColormapPickWidget::ColormapPickWidget(QWidget* parent) noexcept : QWidget(paren
         cmbColormap->setItemData(cmbColormap->count() - 1, mapimage, Qt::DecorationRole);
     }
 
-    /*
-    for (int i = 0; i < c.size(); i++) {
-        cmbColormap->addItem("");
-        cmbColormap->setItemData(i, c[i], Qt::DecorationRole);
-    }
-    */
-
     QSize sz;
     sz.setWidth(220);
     sz.setHeight(20);
     cmbColormap->setIconSize(sz);
 
     lay->addWidget(cmbColormap);
-    //lay->addRow(tr("Colormap:"), cmbColormap);
     setLayout(lay);
 
     connect(cmbColormap, QOverload<int>::of(&QComboBox::activated), this, &ColormapPickWidget::colormapChanged);

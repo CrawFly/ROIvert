@@ -263,7 +263,7 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     vidctrl->setEnabled(settings.projectionType == 0);
 
     dispSettings.setColormap(settings.cmap);
-    dispSettings.setSmoothing(settings.smoothType, settings.smoothSize, settings.smoothSigma, settings.smoothSimgaI);
+    dispSettings.setSmoothing(settings.smoothing);
     
     vidctrl->forceUpdate();
 }

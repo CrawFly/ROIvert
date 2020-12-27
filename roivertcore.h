@@ -14,10 +14,7 @@ namespace ROIVert {
         int projectionType = 0;
         int cmap = -1;
 
-        int smoothType = 0;
-        int smoothSize = 5;
-        double smoothSigma = 0.;
-        double smoothSimgaI = 0.;
+        std::tuple<int, int, double, double> smoothing{ 0, 5, 0., 0. };
     };
 
     static QString dffstring() {

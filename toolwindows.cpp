@@ -256,77 +256,16 @@ imgSettings::imgSettings(QWidget* parent) {
         // each one has a size
         // gaussian and bilateral have a sigma
         topLay->addWidget(new QLabel(tr("Smoothing:")));
-        QVBoxLayout* blurLay = new QVBoxLayout;
-        cmbBlur = new QComboBox;
-        cmbBlur->addItem("None");
-        cmbBlur->addItem("Box");
-        cmbBlur->addItem("Median");
-        cmbBlur->addItem("Gaussian");
-        cmbBlur->addItem("Bilateral");
-        
-        spinBlurSigma = new QDoubleSpinBox;
-        spinBlurSigma->setMinimum(0.);
-        spinBlurSigma->setMaximum(100.);
-        spinBlurSigma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-
-        spinBlurSigmaI = new QDoubleSpinBox;
-        spinBlurSigmaI->setMinimum(0.);
-        spinBlurSigmaI->setMaximum(100.);
-        spinBlurSigmaI->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-
-        spinBlurSize = new QSpinBox;
-        spinBlurSize->setMinimum(0);
-        spinBlurSize->setMaximum(50);
-        spinBlurSize->setValue(5);
-        spinBlurSize->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-
-        spinBlurSigma->setMaximumWidth(50);
-        spinBlurSigmaI->setMaximumWidth(50);
-        spinBlurSize->setMaximumWidth(50);
-
-        QHBoxLayout* paramsLay = new QHBoxLayout;
-        lblSigma = new QLabel(QString::fromWCharArray(L"\x03C3S:"));
-        lblSigmaI = new QLabel(QString::fromWCharArray(L"\x03C3I:"));
-        
-        paramsLay->addWidget(new QLabel(tr("Size:")), 0, Qt::AlignLeft);
-        paramsLay->addWidget(spinBlurSize, 0, Qt::AlignLeft);
-        paramsLay->addWidget(lblSigma, 0, Qt::AlignLeft);
-        paramsLay->addWidget(spinBlurSigma,0,Qt::AlignLeft);
-        paramsLay->addWidget(lblSigmaI, 0, Qt::AlignLeft);
-        paramsLay->addWidget(spinBlurSigmaI, 0, Qt::AlignLeft);
-        paramsLay->addWidget(new QWidget, 1);
-
-        paramsWidg = new QWidget;
-        paramsWidg->setLayout(paramsLay);
-
-
-        blurLay->addWidget(cmbBlur);
-        blurLay->addWidget(paramsWidg);
-        blurLay->setSpacing(0);
-        paramsWidg->setVisible(false);
-        topLay->addLayout(blurLay,1);
-
-        connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
-            [=](int type) {
-            paramsWidg->setVisible(type > 0);
-            lblSigma->setVisible(type > 2);
-            spinBlurSigma->setVisible(type > 2);
-            lblSigmaI->setVisible(type > 3);
-            spinBlurSigmaI->setVisible(type > 3);
-        }
-        );
+        smoothing = new SmoothingPickWidget;
+        smoothing->setMaximumWidth(300);
+        topLay->addWidget(smoothing);
         topLay->addStretch(1);
     }
 
-    
-    connect(cmbBlur, QOverload<int>::of(&QComboBox::activated), this, &imgSettings::updateSettings);
-    connect(spinBlurSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &imgSettings::updateSettings);
-    connect(spinBlurSigma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
-    connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &imgSettings::updateSettings);
-    
     connect(contrast, &ContrastPickWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
     connect(colormap, &ColormapPickWidget::colormapChanged, this, &imgSettings::updateSettings);
+    connect(smoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
 
     setEnabled(false);
 }
@@ -346,12 +285,8 @@ void imgSettings::updateSettings() {
     pay.contrastGamma = contrast->getGamma();
     pay.projectionType = projection->getProjection();
     pay.cmap = colormap->getColormap();
-
-    pay.smoothType = cmbBlur->currentIndex();
-    pay.smoothSize = spinBlurSize->value();
-    pay.smoothSigma = spinBlurSigma->value();
-    pay.smoothSimgaI = spinBlurSigmaI->value();
-
+    pay.smoothing = smoothing->getSmoothing();
+    
     emit imgSettingsChanged(pay);
 }
 fileIO::fileIO(QWidget* parent) {

@@ -91,9 +91,8 @@ cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
         return proc;
     }
 }
-void DisplaySettings::setSmoothing(int type, int sz, double sig, double sig_i) {
-    smoothing = static_cast<smoothingtype>(type);
-    smoothsize = sz;
-    smoothsigma = sig;
-    smoothsigmaI = sig_i;
+void DisplaySettings::setSmoothing(std::tuple<int,int,double,double> s) {
+    int smoothtype;
+    std::tie(smoothtype, smoothsize, smoothsigma, smoothsigmaI) = s;
+    smoothing = static_cast<smoothingtype>(smoothtype);
 }

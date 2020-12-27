@@ -22,7 +22,7 @@ public:
     void setColormap(int cmapint);
     const bool useCmap();
 
-    void setSmoothing(int smoothType, int smoothSize, double smoothSigma, double smoothSigmaI);
+    void setSmoothing(std::tuple<int, int, double, double>);
 
     cv::Mat getImage(cv::Mat raw, bool isDff);
 
