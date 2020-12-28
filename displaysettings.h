@@ -15,8 +15,8 @@ class DisplaySettings
 {
 public:
     DisplaySettings();
-    void setContrast(const bool isDff, contrast);
-    contrast getContrast(const bool isDff) const noexcept;
+    void setContrast(const bool isDff, ROIVert::contrast);
+    ROIVert::contrast getContrast(const bool isDff) const noexcept;
 
     void setProjectionMode(const int projmode);
     const int getProjectionMode();
@@ -24,13 +24,13 @@ public:
     void setColormap(int cmapint);
     const bool useCmap();
 
-    void setSmoothing(std::tuple<int, int, double, double>);
+    void setSmoothing(ROIVert::smoothing);
 
     cv::Mat getImage(cv::Mat raw, bool isDff);
 
 private:
     bool hasContrast(const bool isDff);
-    contrast Contrast[2] = { std::make_tuple(0.,1.,1.),std::make_tuple(0.,1.,1.) }; 
+    ROIVert::contrast Contrast[2] = { {0.,1.,1.}, {0.,1.,1.} };
 
     void updateLut(const bool isDff);
     cv::Mat lut[2];

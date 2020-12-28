@@ -59,7 +59,7 @@ namespace tool
         imgSettings(QWidget* parent);
         ~imgSettings();
         void setHistogram(std::vector<float> &data);
-        void setContrast(std::tuple<float,float,float> c);
+        void setContrast(ROIVert::contrast c);
 
     signals:
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
@@ -68,7 +68,7 @@ namespace tool
         ContrastWidget* contrast;
         ProjectionPickWidget* projection;
         ColormapPickWidget* colormap;
-        SmoothingPickWidget* smoothing;
+        SmoothingPickWidget* Wsmoothing;
         
         void updateSettings();
     };

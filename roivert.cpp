@@ -246,7 +246,7 @@ void Roivert::makeToolbar() {
 
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
-    contrast c = dispSettings.getContrast(isDff);
+    const ROIVert::contrast c = dispSettings.getContrast(isDff);
     t_imgSettings->setContrast(c);
 
     // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
@@ -264,7 +264,7 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     vidctrl->setEnabled(settings.projectionType == 0);
 
     dispSettings.setColormap(settings.cmap);
-    dispSettings.setSmoothing(settings.smoothing);
+    dispSettings.setSmoothing(settings.Smoothing);
     
     vidctrl->forceUpdate();
 }

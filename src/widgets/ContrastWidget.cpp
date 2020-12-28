@@ -197,7 +197,7 @@ namespace impl {
         maxline->setColor(clr, linewidth);
         gamline->setColor(clr, linewidth);
     }
-    void ContrastChart::setValues(contrast minmaxgamma) {
+    void ContrastChart::setValues(ROIVert::contrast minmaxgamma) {
         // Silent setter
         minline->setX(std::get<0>(minmaxgamma), false);
         maxline->setX(std::get<1>(minmaxgamma), false);
@@ -207,7 +207,7 @@ namespace impl {
         gamline->setMinGamma(mingamma);
         gamline->setMaxGamma(maxgamma);
     }
-    contrast ContrastChart::getValues() {
+    ROIVert::contrast ContrastChart::getValues() {
         return std::make_tuple(minline->getX(), maxline->getX(), gamline->getGamma());
     }
 }
@@ -238,8 +238,8 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
     spinGamma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     setGammaRange(.001, 10.);
 
-    auto lamSpin2Chart = [=]() {
-        auto c = std::make_tuple(spinMin->value(), spinMax->value(), spinGamma->value());
+    const auto lamSpin2Chart = [=]() {
+        ROIVert::contrast c{ spinMin->value(), spinMax->value(), spinGamma->value() };
         chart->setValues(c);
         emit contrastChanged(c); };
 
@@ -247,7 +247,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
     connect(spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), lamSpin2Chart);
     connect(spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), lamSpin2Chart);
 
-    auto lamChart2Spin = [=](contrast c) {
+    const auto lamChart2Spin = [=](ROIVert::contrast c) {
         spinMin->setValue(std::get<0>(c));
         spinMax->setValue(std::get<1>(c));
         spinGamma->setValue(std::get<2>(c)); };

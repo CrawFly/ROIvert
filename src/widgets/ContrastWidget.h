@@ -5,7 +5,7 @@
 #include <QDoubleSpinBox>
 #include <QWidget>
 
-typedef std::tuple<float, float, float> contrast;
+#include "roivertcore.h"
 
 namespace impl {
     class VertLine : public QObject, public QGraphicsLineItem
@@ -67,12 +67,12 @@ namespace impl {
         void setHistogramColor(QColor clr, qreal linewidth = 2, bool dogradfill = true);
         void setLineColor(QColor clr, qreal linewidth = 3);
 
-        void setValues(contrast minmaxgamma);
-        contrast getValues();
+        void setValues(ROIVert::contrast minmaxgamma);
+        ROIVert::contrast getValues();
 
         void setGammaRange(qreal mingamma, qreal maxgamma);
     signals:
-        void contrastChanged(contrast minmaxgamma);
+        void contrastChanged(ROIVert::contrast minmaxgamma);
 
     protected:
         void resizeEvent(QResizeEvent* event) override;
@@ -90,14 +90,14 @@ public:
     explicit ContrastWidget(QWidget* parent = nullptr);
 
     // These are all passthru to chart
-    void setContrast(contrast c) { chart->setValues(c); }
-    contrast getContrast() { return chart->getValues(); }
+    void setContrast(ROIVert::contrast c) { chart->setValues(c); }
+    ROIVert::contrast getContrast() { return chart->getValues(); }
     void setHistogram(QVector<float> y) { chart->setHistogram(y); }
     void setHistogramColor(QColor c) { chart->setHistogramColor(c); }
     void setLineColor(QColor c) { chart->setLineColor(c); }
     void setGammaRange(qreal mingamma, qreal maxgamma) { chart->setGammaRange(mingamma, maxgamma); };
 signals:
-    void contrastChanged(contrast minmaxgamma);
+    void contrastChanged(ROIVert::contrast minmaxgamma);
 
 private:
     impl::ContrastChart* chart = new impl::ContrastChart;

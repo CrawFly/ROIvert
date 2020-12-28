@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLabel>
+#include "roivertcore.h"
 
 
 class SmoothingPickWidget : public QWidget
@@ -18,8 +19,8 @@ class SmoothingPickWidget : public QWidget
     Q_OBJECT
 public:
     explicit SmoothingPickWidget(QWidget* parent = nullptr);
-    std::tuple<int,int,double,double> getSmoothing();
-    void setSmoothing(std::tuple<int,int,double,double> s);
+    ROIVert::smoothing getSmoothing();
+    void setSmoothing(ROIVert::smoothing s);
 
 signals:
     void smoothingChanged();

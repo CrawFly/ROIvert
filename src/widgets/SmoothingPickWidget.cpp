@@ -1,7 +1,6 @@
 #include "SmoothingPickWidget.h"
 #include <QBoxLayout>
 
-
 SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent) {
 
     // We'll do box, gaussian, median, bilateral
@@ -75,14 +74,14 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent) {
     connect(spinBlurSigmaI, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SmoothingPickWidget::smoothingChanged);
 }
 
-std::tuple<int, int, double, double> SmoothingPickWidget::getSmoothing() {
+ROIVert::smoothing SmoothingPickWidget::getSmoothing() {
     return std::make_tuple(cmbBlur->currentIndex(),
         spinBlurSize->value(),
         spinBlurSigma->value(),
         spinBlurSigmaI->value());
 }
 
-void SmoothingPickWidget::setSmoothing(std::tuple<int, int, double, double> s) {
+void SmoothingPickWidget::setSmoothing(ROIVert::smoothing s) {
     cmbBlur->setCurrentIndex(std::get<0>(s));
     spinBlurSize->setValue(std::get<1>(s));
     spinBlurSigma->setValue(std::get<2>(s));

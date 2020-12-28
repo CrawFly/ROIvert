@@ -7,11 +7,11 @@ DisplaySettings::DisplaySettings(){
     updateLut(true);
 }
 
-void DisplaySettings::setContrast(const bool isDff, contrast c) {
+void DisplaySettings::setContrast(const bool isDff, ROIVert::contrast c) {
     Contrast[isDff] = c;
     updateLut(isDff);
 }
-contrast DisplaySettings::getContrast(const bool isDff) const noexcept {
+ROIVert::contrast DisplaySettings::getContrast(const bool isDff) const noexcept {
     return Contrast[isDff];
 }
 
@@ -94,7 +94,7 @@ cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
         return proc;
     }
 }
-void DisplaySettings::setSmoothing(std::tuple<int,int,double,double> s) {
+void DisplaySettings::setSmoothing(ROIVert::smoothing s) {
     int smoothtype;
     std::tie(smoothtype, smoothsize, smoothsigma, smoothsigmaI) = s;
     smoothing = static_cast<smoothingtype>(smoothtype);

@@ -146,7 +146,6 @@ void imgData::filePathChanged(const QString &filepath)
 }
 void imgData::load()
 {
-    // load just emits the load signal with all the data...
     QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
     QStringList filelist;
     for each (QFileInfo filename in fileinfolist)
@@ -221,16 +220,16 @@ imgSettings::imgSettings(QWidget* parent) {
     addVSep(topLay);
     {// Smoothing
         topLay->addWidget(new QLabel(tr("Smoothing:")));
-        smoothing = new SmoothingPickWidget;
-        smoothing->setMaximumWidth(300);
-        topLay->addWidget(smoothing);
+        Wsmoothing = new SmoothingPickWidget;
+        Wsmoothing->setMaximumWidth(300);
+        topLay->addWidget(Wsmoothing);
         topLay->addStretch(1);
     }
 
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
     connect(colormap, &ColormapPickWidget::colormapChanged, this, &imgSettings::updateSettings);
-    connect(smoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
+    connect(Wsmoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
 
     setEnabled(false);
 }
@@ -239,7 +238,7 @@ void imgSettings::setHistogram(std::vector<float> &data){
     // shim: convert to qvector...(should this come in as qvector? should contrast use std vector?)
     contrast->setHistogram(QVector<float>::fromStdVector(data));
 }
-void imgSettings::setContrast(std::tuple<float, float, float> c){
+void imgSettings::setContrast(ROIVert::contrast c){
     contrast->setContrast(c);
 }
 void imgSettings::updateSettings() {
@@ -249,7 +248,7 @@ void imgSettings::updateSettings() {
     pay.Contrast = contrast->getContrast();
     pay.projectionType = projection->getProjection();
     pay.cmap = colormap->getColormap();
-    pay.smoothing = smoothing->getSmoothing();
+    pay.Smoothing = Wsmoothing->getSmoothing();
     
     emit imgSettingsChanged(pay);
 }
