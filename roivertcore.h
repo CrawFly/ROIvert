@@ -2,18 +2,17 @@
 #include <QString>
 #include <QVector>
 #include <QColor>
+#include <QRect>
 #include "opencv2/opencv.hpp"
+
+typedef std::tuple<float, float, float> contrast;
 
 // misc shared data types?
 namespace ROIVert {
     struct imgsettings {
-        double contrastMin = 0.;
-        double contrastMax = 1.;
-        double contrastGamma = 1.;
-
+        contrast Contrast = std::make_tuple(0., 1., 1.);
         int projectionType = 0;
         int cmap = -1;
-
         std::tuple<int, int, double, double> smoothing{ 0, 5, 0., 0. };
     };
 
@@ -30,7 +29,9 @@ namespace ROIVert {
         };
         return ret;
     }
+
     static cv::Rect QRect2CVRect(const QRect &bb) {
+
         return cv::Rect(static_cast<size_t>(bb.x()),
             static_cast<size_t>(bb.y()),
             static_cast<size_t>(bb.width()),

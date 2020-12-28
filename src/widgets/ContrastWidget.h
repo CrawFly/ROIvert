@@ -5,7 +5,7 @@
 #include <QDoubleSpinBox>
 #include <QWidget>
 
-typedef std::tuple<qreal, qreal, qreal> contrast;
+typedef std::tuple<float, float, float> contrast;
 
 namespace impl {
     class VertLine : public QObject, public QGraphicsLineItem

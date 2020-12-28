@@ -93,7 +93,7 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
-    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastPickWidget);
+    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
@@ -161,7 +161,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         
     //viddata->getNFrames() / frameRate;
     tviewer->setmaxtime(viddata->getNFrames() / frameRate);
-    updateContrastPickWidget(vidctrl->dff());
+    updateContrastWidget(vidctrl->dff());
 }
 
 void Roivert::changeFrame(const size_t frame)
@@ -244,11 +244,10 @@ void Roivert::makeToolbar() {
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
 }
 
-void Roivert::updateContrastPickWidget(bool isDff) {
+void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
-    float c[3];
-    dispSettings.getContrast(isDff, &c[0]);
-    t_imgSettings->setContrast(c[0],c[1],c[2]);
+    contrast c = dispSettings.getContrast(isDff);
+    t_imgSettings->setContrast(c);
 
     // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
     std::vector<float> hist; 
@@ -257,7 +256,8 @@ void Roivert::updateContrastPickWidget(bool isDff) {
 }
 
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
-    dispSettings.setContrast(vidctrl->dff(), settings.contrastMin, settings.contrastMax, settings.contrastGamma);
+    
+    dispSettings.setContrast(vidctrl->dff(), settings.Contrast);
     
     dispSettings.setProjectionMode(settings.projectionType);
     if (settings.projectionType > 0) { vidctrl->setStop(); }

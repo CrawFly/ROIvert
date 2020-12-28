@@ -1,5 +1,6 @@
 #pragma once
 #include "opencv2/opencv.hpp"
+#include "roivertcore.h"
 
 enum class smoothingtype {
     NONE,
@@ -9,12 +10,13 @@ enum class smoothingtype {
     BILATERAL
 };
 
+
 class DisplaySettings
 {
 public:
     DisplaySettings();
-    void setContrast(const bool isDff, const float min, const float max, const float gamma);
-    const void getContrast(const bool isDff, float *c);
+    void setContrast(const bool isDff, contrast);
+    contrast getContrast(const bool isDff) const noexcept;
 
     void setProjectionMode(const int projmode);
     const int getProjectionMode();
@@ -28,7 +30,7 @@ public:
 
 private:
     bool hasContrast(const bool isDff);
-    float contrast[2][3] = { {0,1,1},{0,1,1} }; // [raw,dff][min, max, gamma]
+    contrast Contrast[2] = { std::make_tuple(0.,1.,1.),std::make_tuple(0.,1.,1.) }; 
 
     void updateLut(const bool isDff);
     cv::Mat lut[2];

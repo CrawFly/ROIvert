@@ -3,25 +3,24 @@
 DisplaySettings::DisplaySettings(){
     lut[0] = cv::Mat(1, 256, CV_8U);
     lut[1] = cv::Mat(1, 256, CV_8U);
+    updateLut(false);
+    updateLut(true);
 }
 
-void DisplaySettings::setContrast(const bool isDff, const float min, const float max, const float gamma) {
-    contrast[isDff][0] = min;
-    contrast[isDff][1] = max;
-    contrast[isDff][2] = gamma;
+void DisplaySettings::setContrast(const bool isDff, contrast c) {
+    Contrast[isDff] = c;
     updateLut(isDff);
 }
-const void DisplaySettings::getContrast(const bool isDff, float *c) {
-    c[0] = contrast[isDff][0];
-    c[1] = contrast[isDff][1];
-    c[2] = contrast[isDff][2];
+contrast DisplaySettings::getContrast(const bool isDff) const noexcept {
+    return Contrast[isDff];
 }
+
 void DisplaySettings::updateLut(const bool isDff) {
     uchar* ptr = lut[isDff].ptr();
     
-    double m = contrast[isDff][0];
-    double rng = contrast[isDff][1] - m;
-    double g = contrast[isDff][2];
+    double m = std::get<0>(Contrast[isDff]);
+    double rng = std::get<1>(Contrast[isDff]) - m;
+    double g = std::get<2>(Contrast[isDff]);
 
     for (int i = 0; i < 256; ++i) {
         double val = pow((i / 255. - m) / rng, g) * 255.;
@@ -29,7 +28,9 @@ void DisplaySettings::updateLut(const bool isDff) {
     }
 }
 bool DisplaySettings::hasContrast(const bool isDff) {
-    return contrast[isDff][0] != 0. || contrast[isDff][1] != 1. || contrast[isDff][2] != 1;
+    return !(std::get<0>(Contrast[isDff]) == 0. &&
+        std::get<1>(Contrast[isDff]) == 1. &&
+        std::get<2>(Contrast[isDff]) == 1.);
 }
 void DisplaySettings::setProjectionMode(const int projmode) {
     ProjectionMode = projmode;
@@ -80,7 +81,9 @@ cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff){
         }
     }
 
-    if (hasContrast(isDff)){cv::LUT(proc, lut[isDff], proc);}
+    if (hasContrast(isDff)){
+        cv::LUT(proc, lut[isDff], proc);
+    }
     
     if (useCmap()) {
         cv::Mat res = cv::Mat(proc.size(), CV_8UC3);

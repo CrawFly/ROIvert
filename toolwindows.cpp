@@ -239,14 +239,14 @@ void imgSettings::setHistogram(std::vector<float> &data){
     // shim: convert to qvector...(should this come in as qvector? should contrast use std vector?)
     contrast->setHistogram(QVector<float>::fromStdVector(data));
 }
-void imgSettings::setContrast(float min, float max, float gamma){
-    contrast->setContrast(std::make_tuple(min, max, gamma));
+void imgSettings::setContrast(std::tuple<float, float, float> c){
+    contrast->setContrast(c);
 }
 void imgSettings::updateSettings() {
     // this is a centralized location for updating settings and emitting a signal with the whole payload:
     ROIVert::imgsettings pay;
     
-    std::tie(pay.contrastMin, pay.contrastMax, pay.contrastGamma) = contrast->getContrast();
+    pay.Contrast = contrast->getContrast();
     pay.projectionType = projection->getProjection();
     pay.cmap = colormap->getColormap();
     pay.smoothing = smoothing->getSmoothing();

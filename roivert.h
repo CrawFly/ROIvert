@@ -13,9 +13,6 @@
 #include <QtCharts/qvalueaxis.h>
 using namespace QtCharts;
 
-
-
-
 class Roivert : public QMainWindow
 {
     Q_OBJECT
@@ -28,9 +25,6 @@ public slots:
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
     
-signals:
-    void MupdateTrace(ImageROIViewer*, VideoData*, const int);
-
 protected:
     void closeEvent(QCloseEvent* event) override;
 
@@ -57,7 +51,7 @@ private:
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
-    void updateContrastPickWidget(bool isDff);
+    void updateContrastWidget(bool isDff);
     void updateTrace(int roiid);
 
     std::vector<std::vector<double>> traces;

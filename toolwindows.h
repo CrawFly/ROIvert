@@ -59,7 +59,7 @@ namespace tool
         imgSettings(QWidget* parent);
         ~imgSettings();
         void setHistogram(std::vector<float> &data);
-        void setContrast(float min, float max, float gamma);
+        void setContrast(std::tuple<float,float,float> c);
 
     signals:
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
