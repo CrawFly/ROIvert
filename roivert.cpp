@@ -17,6 +17,7 @@
 #include "qdir.h"
 #include "qvalueaxis.h"
 #include "qsettings.h"
+#include <QGraphicsLayout>
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)

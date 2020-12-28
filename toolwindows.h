@@ -10,7 +10,7 @@
 #include <QLabel>
 #include "roivertcore.h"
 
-#include "src/widgets/ContrastPickWidget.h"
+#include "src/widgets/ContrastWidget.h"
 #include "src/widgets/ColorPickWidget.h"
 #include "src/widgets/ProjectionPickWidget.h"
 #include "src/widgets/ColormapPickWidget.h"
@@ -65,7 +65,7 @@ namespace tool
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
 
     private:
-        ContrastPickWidget* contrast;
+        ContrastWidget* contrast;
         ProjectionPickWidget* projection;
         ColormapPickWidget* colormap;
         SmoothingPickWidget* smoothing;

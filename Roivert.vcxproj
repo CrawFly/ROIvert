@@ -106,6 +106,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\widgets\ContrastWidget.cpp" />
     <ClCompile Include="src\widgets\SmoothingPickWidget.cpp" />
     <ClCompile Include="src\widgets\ColormapPickWidget.cpp" />
     <ClCompile Include="src\widgets\ProjectionPickWidget.cpp" />
@@ -147,6 +148,7 @@
     <QtMoc Include="src\widgets\ColorPickWidget.h" />
     <QtMoc Include="src\widgets\ProjectionPickWidget.h" />
     <QtMoc Include="src\widgets\ColormapPickWidget.h" />
+    <QtMoc Include="src\widgets\ContrastWidget.h" />
     <ClInclude Include="roivertcore.h" />
     <QtMoc Include="traceviewer.h" />
     <QtMoc Include="src\widgets\ContrastPickWidget.h" />

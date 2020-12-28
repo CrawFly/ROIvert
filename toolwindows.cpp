@@ -6,15 +6,11 @@
 #include <QFileDialog>
 #include <qcompleter.h>
 #include <qfilesystemmodel.h>
-#include <QtCharts/qvalueaxis.h>
-#include <QtCharts/qareaseries.h>
 #include <qcombobox.h>
-#include <opencv2/opencv.hpp>
 #include <QRadioButton>
 
 
 using namespace tool;
-using namespace QtCharts;
 
 imgData::imgData(QWidget *parent)
 {
@@ -200,7 +196,7 @@ imgSettings::imgSettings(QWidget* parent) {
 
     { // Contrast
         topLay->addWidget(new QLabel(tr("Contrast:")));
-        contrast = new ContrastPickWidget;
+        contrast = new ContrastWidget;
         topLay->addWidget(contrast);
         contrast->setMaximumHeight(300);
         contrast->setMaximumWidth(300);
@@ -231,7 +227,7 @@ imgSettings::imgSettings(QWidget* parent) {
         topLay->addStretch(1);
     }
 
-    connect(contrast, &ContrastPickWidget::contrastChanged, this, &imgSettings::updateSettings);
+    connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
     connect(colormap, &ColormapPickWidget::colormapChanged, this, &imgSettings::updateSettings);
     connect(smoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
@@ -240,18 +236,17 @@ imgSettings::imgSettings(QWidget* parent) {
 }
 imgSettings::~imgSettings(){}
 void imgSettings::setHistogram(std::vector<float> &data){
-    contrast->setHist(data);
+    // shim: convert to qvector...(should this come in as qvector? should contrast use std vector?)
+    contrast->setHistogram(QVector<float>::fromStdVector(data));
 }
 void imgSettings::setContrast(float min, float max, float gamma){
-    contrast->setContrast(min, max, gamma);
+    contrast->setContrast(std::make_tuple(min, max, gamma));
 }
 void imgSettings::updateSettings() {
     // this is a centralized location for updating settings and emitting a signal with the whole payload:
     ROIVert::imgsettings pay;
     
-    pay.contrastMin = contrast->getMin();
-    pay.contrastMax = contrast->getMax();
-    pay.contrastGamma = contrast->getGamma();
+    std::tie(pay.contrastMin, pay.contrastMax, pay.contrastGamma) = contrast->getContrast();
     pay.projectionType = projection->getProjection();
     pay.cmap = colormap->getColormap();
     pay.smoothing = smoothing->getSmoothing();

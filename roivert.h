@@ -10,6 +10,11 @@
 #include "displaysettings.h"
 #include "roivertcore.h"
 #include "traceviewer.h"
+#include <QtCharts/qvalueaxis.h>
+using namespace QtCharts;
+
+
+
 
 class Roivert : public QMainWindow
 {
