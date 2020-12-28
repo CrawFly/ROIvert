@@ -111,12 +111,6 @@
     <ClCompile Include="src\widgets\ColormapPickWidget.cpp" />
     <ClCompile Include="src\widgets\ProjectionPickWidget.cpp" />
     <ClCompile Include="src\widgets\ColorPickWidget.cpp" />
-    <ClCompile Include="src\widgets\ContrastPickWidget.cpp">
-      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
-      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
-      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
-      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
-    </ClCompile>
     <ClCompile Include="displaysettings.cpp" />
     <ClCompile Include="toolwindows.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
@@ -151,7 +145,6 @@
     <QtMoc Include="src\widgets\ContrastWidget.h" />
     <ClInclude Include="roivertcore.h" />
     <QtMoc Include="traceviewer.h" />
-    <QtMoc Include="src\widgets\ContrastPickWidget.h" />
     <ClInclude Include="displaysettings.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="roi.h" />
