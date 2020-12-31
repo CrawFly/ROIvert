@@ -1,11 +1,16 @@
 #include "ColorPickWidget.h"
-#include "QBoxLayout"
+#include <QBoxLayout>
 #include <QMenu>
-#include <QApplication>
+#include <QPushButton>
+#include <QButtonGroup>
+#include <QColorDialog>
+
 #include <qdebug.h>
 
 ColorPickWidget::ColorPickWidget(QVector<QColor> clrs, QWidget* parent) : QWidget(parent)
 {
+    grp = new QButtonGroup;
+    clrDlg = new QColorDialog;
     QHBoxLayout* lay = new QHBoxLayout();
     lay->setContentsMargins(0, 0, 0, 0);
     lay->setSizeConstraint(QLayout::SetFixedSize);

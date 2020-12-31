@@ -6,15 +6,15 @@
  * \author neuroph
 */
 #pragma once
-
 #include <QWidget>
-#include <QButtonGroup>
+
+class QButtonGroup;
 
 class ProjectionPickWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ProjectionPickWidget(QWidget* parent = nullptr) noexcept;
+    explicit ProjectionPickWidget(QWidget* parent = nullptr);
     int getProjection();
     void setProjection(int projid);
 
@@ -22,6 +22,6 @@ signals:
     void projectionChanged();
 
 private:
-    QButtonGroup* projection = new QButtonGroup;
+    QButtonGroup* projection;
 };
 

@@ -8,11 +8,9 @@
 #pragma once
 
 #include <QWidget>
-#include <QPushButton>
-#include <QVector>
-#include <QColor>
-#include <QButtonGroup>
-#include <QColorDialog>
+
+class QColorDialog;
+class QButtonGroup;
 
 class ColorPickWidget : public QWidget
 {
@@ -46,11 +44,11 @@ private:
     void setColors(QVector<QColor> clrs);
     QVector<QColor> colors;
     QColor customColor = QColor("#FFFFFF");
-    QButtonGroup* grp = new QButtonGroup;
+    QButtonGroup* grp;
     int selectedind = 0;
 
     void setCustomColor();
-    QColorDialog* clrDlg = new QColorDialog;
+    QColorDialog* clrDlg;
 
     static const QString getStyleSheet(QColor clr);
 };

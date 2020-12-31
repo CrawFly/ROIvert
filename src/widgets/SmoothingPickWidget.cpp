@@ -1,7 +1,18 @@
 #include "SmoothingPickWidget.h"
 #include <QBoxLayout>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QLabel>
 
 SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent) {
+
+    cmbBlur = new QComboBox;
+    spinBlurSize = new QSpinBox;
+    spinBlurSigma = new QDoubleSpinBox;
+    spinBlurSigmaI = new QDoubleSpinBox;
+    lblSigma = new QLabel;
+    lblSigmaI = new QLabel;
+    widgParams = new QWidget;
 
     // We'll do box, gaussian, median, bilateral
     // each one has a size
@@ -15,16 +26,23 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent) {
     cmbBlur->addItem("Median");
     cmbBlur->addItem("Gaussian");
     cmbBlur->addItem("Bilateral");
+    cmbBlur->setToolTip(tr("Choose a smoothing method: "
+        "\n  Box: Take the mean in a moving rectangle."
+        "\n  Median: Take the median in a moving rectangle."
+        "\n  Gaussian: Use a Gaussian kernel to wait the moving average."
+        "\n  Bilateral: A Gaussian filter applied spatially with a second Gaussian applied to pixel intensity difference."));
 
     // Set params for sigma and sigma_i spinners:
     spinBlurSigma->setMinimum(0.);
     spinBlurSigma->setMaximum(100.);
     spinBlurSigma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSigma->setMaximumWidth(50);
+    spinBlurSigma->setToolTip(tr("Spatial Gaussian sigma, specify 0 to have it automatically selected."));
     spinBlurSigmaI->setMinimum(0.);
     spinBlurSigmaI->setMaximum(100.);
     spinBlurSigmaI->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSigmaI->setMaximumWidth(50);
+    spinBlurSigmaI->setToolTip(tr("Intensity Gaussian sigma, specify 0 to have it automatically selected."));
 
     // Set size spinner params
     spinBlurSize->setMinimum(0);
@@ -32,6 +50,8 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent) {
     spinBlurSize->setValue(5);
     spinBlurSize->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSize->setMaximumWidth(50);
+    spinBlurSize->setToolTip(tr("The size of the filter. Some filters use only odd values and will take the next greater odd value."));
+
 
     // ParamsLay holds the parameters for smoothing
     QHBoxLayout* paramsLay = new QHBoxLayout;

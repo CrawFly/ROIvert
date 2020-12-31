@@ -8,9 +8,7 @@
 #pragma once
 
 #include <QWidget>
-#include <QComboBox>
-#include "opencv2/opencv.hpp"
-
+class QComboBox;
 
 class ColormapPickWidget : public QWidget
 {
@@ -34,7 +32,6 @@ signals:
 
 private:
     // consider whether these go in core?
-    const std::vector<cv::ColormapTypes> cmaps{ cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE };
-    QComboBox* cmbColormap = new QComboBox;
+    QComboBox* cmbColormap;
 };
 

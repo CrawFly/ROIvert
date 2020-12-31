@@ -1,10 +1,11 @@
 #include "ContrastWidget.h"
 #include <QGraphicsScene>
 #include <QPainterPath>
-#include <QDebug>
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QBoxLayout>
+
+#include <QDebug>
 
 
 namespace impl {
@@ -215,6 +216,7 @@ namespace impl {
 ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
     auto lay = new QVBoxLayout(this);
     lay->addWidget(chart);
+    chart->setToolTip(tr("A histogram of image data is shown. Slide the minimum/maximum/gamma lines to adjust contrast or set values in the boxes below."));
 
     auto layEdit = new QHBoxLayout();
     layEdit->addWidget(spinMin);
@@ -228,14 +230,18 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
     spinMin->setSingleStep(.05);
     spinMax->setValue(0.);
     spinMin->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    spinMin->setToolTip(tr("Minimum: pixels less than this proportion of the pixel range will be shown as black."));
 
     spinMax->setSingleStep(.05);
     spinMax->setValue(1.);
     spinMax->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    spinMax->setToolTip(tr("Maximum value: pixels greater than this proportion of the pixel range will be shown as white."));
 
     spinGamma->setValue(1.);
     spinGamma->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
     spinGamma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    spinGamma->setToolTip(tr("Gamma correction: power-law nonlinearity applied to pixel brightness."));
+
     setGammaRange(.001, 10.);
 
     const auto lamSpin2Chart = [=]() {
