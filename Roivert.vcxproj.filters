@@ -69,6 +69,15 @@
     <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartImpl\Axis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartImpl\Series.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="imageroiviewer.h">
@@ -89,22 +98,25 @@
     <QtMoc Include="traceviewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ColorPickWidget.h">
+    <QtMoc Include="include\widgets\ColormapPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ProjectionPickWidget.h">
+    <QtMoc Include="include\widgets\ColorPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ColormapPickWidget.h">
+    <QtMoc Include="include\widgets\ContrastWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\SmoothingPickWidget.h">
+    <QtMoc Include="include\widgets\ContrastWidgetImpl.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ContrastWidget.h">
+    <QtMoc Include="include\widgets\ProjectionPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ContrastWidgetImpl.h">
+    <QtMoc Include="include\widgets\SmoothingPickWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\TraceChartWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -119,6 +131,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="roivertcore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\widgets\TraceChartImpl\Axis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\widgets\TraceChartImpl\Core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\widgets\TraceChartImpl\Series.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
