@@ -66,6 +66,9 @@
     <ClCompile Include="src\widgets\ContrastWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="imageroiviewer.h">
@@ -99,6 +102,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="src\widgets\ContrastWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="src\widgets\ContrastWidgetImpl.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

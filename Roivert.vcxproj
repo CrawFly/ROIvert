@@ -51,6 +51,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\dbulk\OneDrive\Documents\qtprojects\Roivert\src\RVWidgets;D:\opencv\build\include;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>ROIVERTDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\opencv\builds\vs2019_static_64bit\3rdparty\lib\Release;D:\opencv\builds\vs2019_static_64bit\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -60,10 +61,11 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\dbulk\OneDrive\Documents\qtprojects\Roivert\src\RVWidgets;D:\opencv\build\include;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>D:\opencv\builds\vs2019_static_64bit\3rdparty\lib\Release;D:\opencv\builds\vs2019_static_64bit\lib\Release;C:\Users\dbulk\OneDrive\Documents\qtprojects\Roivert\x64\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>RVWidgets.lib;opencv_calib3d440.lib;opencv_core440.lib;opencv_dnn440.lib;opencv_features2d440.lib;opencv_flann440.lib;opencv_gapi440.lib;opencv_highgui440.lib;opencv_imgcodecs440.lib;opencv_imgproc440.lib;opencv_ml440.lib;opencv_objdetect440.lib;opencv_photo440.lib;opencv_stitching440.lib;opencv_ts440.lib;opencv_video440.lib;opencv_videoio440.lib;IlmImf.lib;ittnotify.lib;libjasper.lib;libjpeg-turbo.lib;libpng.lib;libprotobuf.lib;libtiff.lib;libwebp.lib;quirc.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_calib3d440.lib;opencv_core440.lib;opencv_dnn440.lib;opencv_features2d440.lib;opencv_flann440.lib;opencv_gapi440.lib;opencv_highgui440.lib;opencv_imgcodecs440.lib;opencv_imgproc440.lib;opencv_ml440.lib;opencv_objdetect440.lib;opencv_photo440.lib;opencv_stitching440.lib;opencv_ts440.lib;opencv_video440.lib;opencv_videoio440.lib;IlmImf.lib;ittnotify.lib;libjasper.lib;libjpeg-turbo.lib;libpng.lib;libprotobuf.lib;libtiff.lib;libwebp.lib;quirc.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
@@ -112,6 +114,7 @@
     <ClCompile Include="src\widgets\ProjectionPickWidget.cpp" />
     <ClCompile Include="src\widgets\ColorPickWidget.cpp" />
     <ClCompile Include="displaysettings.cpp" />
+    <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp" />
     <ClCompile Include="toolwindows.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -138,6 +141,7 @@
     <QtMoc Include="imageroiviewer.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="src\widgets\ContrastWidgetImpl.h" />
     <QtMoc Include="src\widgets\SmoothingPickWidget.h" />
     <QtMoc Include="src\widgets\ColorPickWidget.h" />
     <QtMoc Include="src\widgets\ProjectionPickWidget.h" />
