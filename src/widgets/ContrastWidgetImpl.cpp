@@ -118,12 +118,12 @@ namespace ContrastWidgetImpl {
 
         // Overlays to mark out of min/max
         QGraphicsRectItem* leftOverlayRect = new QGraphicsRectItem;
-        leftOverlayRect->setRect(0, 0, 0, 1);
-        leftOverlayRect->setPen(QPen(Qt::NoPen));
+        leftOverlayRect->setRect(0, -1, 0, 3);
+        leftOverlayRect->setPen(Qt::NoPen);
         leftOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
         scene->addItem(leftOverlayRect);
         QGraphicsRectItem* rightOverlayRect = new QGraphicsRectItem;
-        rightOverlayRect->setRect(1, 0, 0, 1);
+        rightOverlayRect->setRect(1, -1, 0, 3);
         rightOverlayRect->setPen(QPen(Qt::NoPen));
         rightOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
         scene->addItem(rightOverlayRect);
@@ -148,8 +148,8 @@ namespace ContrastWidgetImpl {
         connect(maxline, &VertLine::changeVal, gamline, &GammaLine::setMax);
 
         // connect overlays to accompanying lines
-        connect(minline, &VertLine::changeVal, this, [leftOverlayRect](qreal val) {leftOverlayRect->setRect(0, 0, val, 1); });
-        connect(maxline, &VertLine::changeVal, this, [rightOverlayRect](qreal val) {rightOverlayRect->setRect(val, 0, 1. - val, 1); });
+        connect(minline, &VertLine::changeVal, this, [leftOverlayRect](qreal val) {leftOverlayRect->setRect(-1, -1, 1+val, 3); });
+        connect(maxline, &VertLine::changeVal, this, [rightOverlayRect](qreal val) {rightOverlayRect->setRect(val, -1, 2. - val, 3); });
 
         // connect outbound signal:
         auto lam = [this] {emit contrastChanged(getValues()); };    //connect(minline,&VertLine::changeVal,this,[]
