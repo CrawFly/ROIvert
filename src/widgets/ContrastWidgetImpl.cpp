@@ -1,4 +1,4 @@
-#include "ContrastWidgetImpl.h"
+#include "widgets/ContrastWidgetImpl.h"
 #include <QGraphicsSceneMouseEvent>
 
 VertLine::VertLine(QGraphicsScene* scene) {

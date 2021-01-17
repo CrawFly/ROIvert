@@ -1,4 +1,4 @@
-#include "ProjectionPickWidget.h"
+#include "widgets/ProjectionPickWidget.h"
 #include <QGridLayout>
 #include <QPushButton>
 #include <QButtonGroup>

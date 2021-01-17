@@ -1,10 +1,10 @@
-#include "ContrastWidget.h"
+#include "widgets/ContrastWidget.h"
 #include <QGraphicsScene>
 #include <QPainterPath>
 #include <QApplication>
 #include <QGraphicsSceneMouseEvent>
 #include <QBoxLayout>
-#include "ContrastWidgetImpl.h"
+#include "widgets/ContrastWidgetImpl.h"
 #include <QDoubleSpinBox>
 
 #include <QDebug>

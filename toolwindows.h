@@ -10,11 +10,11 @@
 #include <QLabel>
 #include "roivertcore.h"
 
-#include "src/widgets/ContrastWidget.h"
-#include "src/widgets/ColorPickWidget.h"
-#include "src/widgets/ProjectionPickWidget.h"
-#include "src/widgets/ColormapPickWidget.h"
-#include "src/widgets/SmoothingPickWidget.h"
+#include "widgets/ContrastWidget.h"
+#include "widgets/ColorPickWidget.h"
+#include "widgets/ProjectionPickWidget.h"
+#include "widgets/ColormapPickWidget.h"
+#include "widgets/SmoothingPickWidget.h"
 
 namespace tool
 {

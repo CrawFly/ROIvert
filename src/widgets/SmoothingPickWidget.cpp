@@ -1,4 +1,4 @@
-#include "SmoothingPickWidget.h"
+#include "widgets/SmoothingPickWidget.h"
 #include <QBoxLayout>
 #include <QComboBox>
 #include <QSpinBox>

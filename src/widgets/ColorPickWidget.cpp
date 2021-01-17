@@ -1,4 +1,4 @@
-#include "ColorPickWidget.h"
+#include "widgets/ColorPickWidget.h"
 #include <QBoxLayout>
 #include <QMenu>
 #include <QPushButton>
