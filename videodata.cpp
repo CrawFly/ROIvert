@@ -2,6 +2,8 @@
 #include "qdebug.h"
 #include <QTime>
 
+#include <QFile>
+
 VideoData::VideoData(QObject* parent) : QObject(parent) {
     setParent(parent);
     data[0]->clear();
@@ -171,24 +173,6 @@ cv::Mat VideoData::getFrame(bool isDff, size_t frameindex) {
     }
     return data[isDff]->operator[](frameindex);
 }
-/* Old getFrame Impl...will allow cacheless version?
-cv::Mat VideoData::getFrameRaw(size_t frameindex) {
-    if (frameindex >= data[0]->size()) {
-    }
-    return data[0]->at(frameindex);
-}
-cv::Mat VideoData::getFrameDff(size_t frameindex) {
-    if (frameindex >= data[1]->size()) {
-        return cv::Mat();
-    }
-    if (storeDff && frameindex>= data[1]->size()) {
-        return data[1]->at(frameindex);
-    }
-    else {
-        return calcDffNative(data[0]->at(frameindex));
-    }
-}
-*/
 
 
 cv::Mat VideoData::getProjection(bool isDff, VideoData::projection projtype) { return proj[isDff][(size_t)projtype]; }
