@@ -1,3 +1,4 @@
+// What a MESS!
 #include "roivert.h"
 #include "qboxlayout.h"
 #include "qsplitter.h"
@@ -18,6 +19,9 @@
 #include "qvalueaxis.h"
 #include "qsettings.h"
 #include <QGraphicsLayout>
+
+
+#include "TraceView.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -61,6 +65,16 @@ Roivert::Roivert(QWidget* parent)
     w_colors->setObjectName("WColors");
     addDockWidget(Qt::RightDockWidgetArea, w_colors);
     w_colors->setVisible(false);
+
+    // 0---- new chart widget test code here!
+    cv::Mat foo = cv::imread("D://deitcher//rvchart_testdata.png", cv::IMREAD_GRAYSCALE);
+
+    auto w_newcharts = new QDockWidget();
+    auto t_newcharts = new TraceView(&foo, this);
+    w_newcharts->setWidget(t_newcharts);
+    addDockWidget(Qt::BottomDockWidgetArea, w_newcharts);
+    t_newcharts->updateAll();
+
 
 
     // Right Side:

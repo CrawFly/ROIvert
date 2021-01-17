@@ -24,15 +24,15 @@ namespace TraceChart {
         bool ShowY = true;
     };
     struct LineStyle {
-        std::vector<QColor> Colors = { Qt::black };
+        std::vector<QColor> Colors = { Qt::darkGreen };
 
-        bool Fill = false;
-        bool FillGradientToLineColor = false;
+        bool Fill = true;
+        bool FillGradientToLineColor = true;
 
         // not recommended to play with these...
         float FillGradientExponent = 4.;
         float FillGradientDivisor = 3.;
-        std::vector<QColor> FillColors = { Qt::black };
+        std::vector<QColor> FillColors = { Qt::white };
 
         double Width = 3;
 
@@ -42,13 +42,13 @@ namespace TraceChart {
         ChartStyle() {
             // just some default font hier
             QFont f;
-            f.setPointSize(12);
+            f.setPointSize(9);
             Axis.TickLabelFont = f;
 
             f.setBold(true);
             Axis.LabelFont = f;
 
-            f.setPointSize(14);
+            f.setPointSize(10);
             Title.Font = f;
         }
         AxisStyle Axis;
