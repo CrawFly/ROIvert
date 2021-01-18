@@ -28,9 +28,12 @@ public:
     // aesthetics
     // xlimits
     // normalization
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
 
 signals:
     void traceSelected(size_t roiid); 
+    void roiDeleted(size_t roiid);
 
 private:
     struct pimpl;

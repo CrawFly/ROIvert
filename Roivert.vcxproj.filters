@@ -45,9 +45,6 @@
     <ClCompile Include="displaysettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="traceviewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="toolwindows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,9 +93,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="videodata.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="traceviewer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ColormapPickWidget.h">

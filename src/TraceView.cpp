@@ -9,6 +9,7 @@
 #include <QTabWidget>
 #include <QApplication>
 #include <QPushButton>
+#include <QKeyEvent>
 
 #include <QDebug>
 //**** note always that traceid is 1 based, it's the roi number not the 
@@ -123,6 +124,11 @@ void TraceView::setTimeLimits(float min, float max) {
     impl->timelimits[0] = min;
     impl->timelimits[1] = max; 
     updateTraces(0, true); 
+}
+void TraceView::keyPressEvent(QKeyEvent* event) {
+    if (event->key() == Qt::Key::Key_Delete && impl->getSelected()>0) {
+        emit roiDeleted(impl->getSelected());
+    }
 }
 
 //

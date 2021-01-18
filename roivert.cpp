@@ -16,7 +16,6 @@
 #include "qxmlstream.h"
 #include "qfileinfo.h"
 #include "qdir.h"
-#include "qvalueaxis.h"
 #include "qsettings.h"
 #include <QGraphicsLayout>
 
@@ -66,11 +65,6 @@ Roivert::Roivert(QWidget* parent)
     addDockWidget(Qt::RightDockWidgetArea, w_colors);
     w_colors->setVisible(false);
 
-    // 0---- new chart widget test code here!
-    auto w_newcharts = new QDockWidget();
-    traceview = new TraceView(&TraceData, this);
-    w_newcharts->setWidget(traceview);
-    addDockWidget(Qt::BottomDockWidgetArea, w_newcharts);
     
     
     // Right Side:
@@ -93,9 +87,9 @@ Roivert::Roivert(QWidget* parent)
     // Trace Viewer
     w_charts = new QDockWidget;
     w_charts->setWindowTitle("Charts");
-    tviewer = new TraceViewer(this);
-    w_charts->setWidget(tviewer);
+    traceview = new TraceView(&TraceData, this);
     w_charts->setObjectName("WCharts");
+    w_charts->setWidget(traceview);
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
 
 
@@ -106,19 +100,12 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-    connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {traceview->setTimeLimits(0, viddata->getNFrames() / fr); });
 
-    connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
-
-    connect(tviewer, &TraceViewer::chartClicked, imview, &ImageROIViewer::setSelectedROI);
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
-    
-    connect(imview, &ImageROIViewer::roiDeleted, tviewer, &TraceViewer::roideleted);
-    connect(tviewer, &TraceViewer::deleteroi, imview, &ImageROIViewer::deleteROI);
 
+    connect(traceview, &TraceView::roiDeleted, imview, &ImageROIViewer::deleteROI);
     connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
-
     connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
         // remove the trace. note that removing a row from a mat is hard
         cv::Mat newTraceData = cv::Mat( TraceData.size().height-1, TraceData.size().width, TraceData.type());
@@ -144,6 +131,7 @@ Roivert::Roivert(QWidget* parent)
         traceview->select(roiid);
     });
 
+
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
     connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
@@ -151,11 +139,6 @@ Roivert::Roivert(QWidget* parent)
     
     connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
     connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
-    connect(t_clrs, &tool::colors::setSelectedColor, tviewer, &TraceViewer::setSelectedColor);
-    connect(t_clrs, &tool::colors::setUnselectedColor, tviewer, &TraceViewer::setUnselectedColor);
-    connect(t_clrs, &tool::colors::setChartBackColor, tviewer, &TraceViewer::setBackgroundColor);
-    connect(t_clrs, &tool::colors::setChartForeColor, tviewer, &TraceViewer::setForegroundColor);
-    connect(t_clrs, &tool::colors::setChartGridColor, tviewer, &TraceViewer::setGridColor);
 
     imview->setMouseMode(ROIVert::ADDROI);
     imview->setROIShape(ROIVert::RECTANGLE);
@@ -203,7 +186,6 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t_io->setEnabled(true);
         
     //viddata->getNFrames() / frameRate;
-    tviewer->setmaxtime(viddata->getNFrames() / frameRate);
     traceview->setTimeLimits(0, viddata->getNFrames() / frameRate);
 
     updateContrastWidget(vidctrl->dff());
@@ -323,12 +305,6 @@ void Roivert::updateTrace(int roiid)
     if (thisroi) {
         cv::Mat mask = thisroi->getMask();
         const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
-        if (ind >= traces.size()) {
-            traces.resize(ind + 1);
-        }
-        traces[ind] = viddata->calcTrace(cvbb, mask);
-        tviewer->setTrace(roiid, traces[ind]);
-
         // new plotter
         viddata->computeTrace(cvbb, mask, roiid, TraceData);
         traceview->updateTraces(roiid,false);
@@ -346,7 +322,12 @@ void Roivert::selecttoolfromkey(int key) {
 }
 
 void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
+    // exportTraces needs rewrite, should be easier now (as it's a mat!)
+
+
+
     // todo:  I scraped these traces out of tviewer, but this has traces in it...why am I getting them from the viewer?
+    /*
     std::vector<float> t = tviewer->getTVec();
     std::vector<std::vector<float>> y = tviewer->getAllTraces();
     QMessageBox msg;
@@ -397,6 +378,7 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
         msg.setText(tr("Could not write to this file, is it open?"));
         msg.exec();
     }
+    */
 }
 
 void Roivert::exportROIs(QString filename) {
@@ -534,114 +516,8 @@ void Roivert::importROIs(QString filename) {
 }
 
 void Roivert::exportCharts(QString filename, bool doTitle, int width, int height) {
-    // this is the hard one...we need to get a copy of each of the chartview pointers
-    // going to reuse getTVec() and getAllTraces even though it's non-optimal (just unpacking and repacking the QPointFs...
+    // chart export currently disabled!
 
-    std::vector<float> t = tviewer->getTVec();
-    std::vector<std::vector<float>> y = tviewer->getAllTraces();
-    QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-
-    if (t.empty()) {
-        msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("No traces to export."));
-        msg.exec();
-        return;
-    }
-
-    QFileInfo basefile(filename);
-    QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
-
-
-    QChartView* cv = new QChartView;
-    QChart* ch = new QChart;
-    QLineSeries* series = new QLineSeries;
-
-    ch->addSeries(series);
-    cv->setChart(ch);
-    ch->createDefaultAxes();
-
-    QValueAxis* xax = (QValueAxis*)ch->axes(Qt::Horizontal)[0];
-    QValueAxis* yax = (QValueAxis*)ch->axes(Qt::Vertical)[0];
-    xax->setTitleText("Time (s)");
-    yax->setTitleText(ROIVert::dffstring());
-    const double xmin = *std::min_element(t.begin(), t.end());
-    const double xmax = *std::max_element(t.begin(), t.end());
-    cv->setContentsMargins(0, 0, 0, 0);
-    ch->layout()->setContentsMargins(0, 0, 0, 0);
-    ch->legend()->hide();
-    
-    QPen pen(series->pen());
-    pen.setWidth(3);
-    series->setPen(pen);
-
-    // do some smartish font sizing?
-    int maxdim = qMax(width, height);
-    const int fs[3] = { maxdim / 90, maxdim / 100, maxdim / 110 };
-
-    QFont font(ch->titleFont());
-    font.setPointSize(fs[0]);
-    ch->setTitleFont(font);
-    
-    font.setPointSize(fs[1]);
-    xax->setTitleFont(font);
-    yax->setTitleFont(font);
-
-    font.setBold(false);
-    font.setPointSize(fs[2]);
-    xax->setLabelsFont(font);
-    yax->setLabelsFont(font);
-    cv->resize(width, height);
-
-    QProgressDialog* dlg = new QProgressDialog(this);
-    dlg->show();
-    dlg->setLabelText("Exporting charts");
-    dlg->setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-    dlg->setMinimum(0);
-    dlg->setMaximum(y.size());
-
-    qApp->processEvents(QEventLoop::AllEvents);
-
-    bool cancelled = false;
-    for (size_t traces = 0; traces < y.size(); traces++) { 
-        if (dlg->wasCanceled()) {
-            cancelled = true;
-            break;
-        }
-        QVector<QPointF> pts;
-        pts.reserve(y[traces].size());
-        for (size_t frames = 0; frames < y[traces].size(); frames++) {
-            pts.push_back(QPointF(t[frames], y[traces][frames]));
-        }
-        series->replace(pts);
-
-        const double ymin = *std::min_element(y[traces].begin(), y[traces].end());
-        const double ymax = *std::max_element(y[traces].begin(), y[traces].end());
-        yax->setMin(ymin);
-        yax->setMax(ymax);
-        xax->setMin(xmin);
-        xax->setMax(xmax);
-        if (doTitle) {
-            ch->setTitle("ROI " + QString::number(traces + 1));
-        }
-        // Needed to ensure title is updated, putting outside of title to ensure all chart is properly updated
-        qApp->processEvents(QEventLoop::AllEvents);
-        
-        cv->grab().toImage().save(basename + "_" + QString::number(traces + 1) + ".png");
-        dlg->setValue(traces);
-    }
-
-    QString msgtext = QString(tr("The export was aborted.")); 
-    if (!cancelled) {
-        dlg->setValue(y.size());
-        msgtext = tr("The charts have been exported.");
-    }
-
-    delete(cv);// this should delete cv and series
-    delete(dlg); 
-        
-    msg.setText(msgtext);
-    msg.exec();
 }
 
 void Roivert::closeEvent(QCloseEvent* event) {

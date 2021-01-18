@@ -9,7 +9,6 @@
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
-#include "traceviewer.h"
 #include <QtCharts/qvalueaxis.h>
 
 class TraceView;
@@ -49,15 +48,12 @@ private:
     
 
     DisplaySettings dispSettings;
-    TraceViewer* tviewer;
-
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
     void updateTrace(int roiid);
 
-    std::vector<std::vector<double>> traces;
     void selecttoolfromkey(int key);
 
     void exportTraces(QString filename, bool doHeader, bool doTimeCol);
