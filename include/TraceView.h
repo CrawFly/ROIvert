@@ -24,7 +24,8 @@ public:
     void connectChartSelect(TraceChartWidget* chart, size_t traceid);
     void setTimeLimits(float min, float max);
 
-    // save
+    void exportCharts(QString filename, int width, int height, int quality, bool ridge);
+
     // aesthetics
     // xlimits
     // normalization

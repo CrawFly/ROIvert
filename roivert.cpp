@@ -104,6 +104,7 @@ Roivert::Roivert(QWidget* parent)
 
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
 
+    connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
     connect(traceview, &TraceView::roiDeleted, imview, &ImageROIViewer::deleteROI);
     connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
     connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
@@ -131,9 +132,10 @@ Roivert::Roivert(QWidget* parent)
         traceview->select(roiid);
     });
 
-
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
-    connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
+    
+
+    
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
     connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
     
@@ -514,12 +516,6 @@ void Roivert::importROIs(QString filename) {
     rois.clear();
 
 }
-
-void Roivert::exportCharts(QString filename, bool doTitle, int width, int height) {
-    // chart export currently disabled!
-
-}
-
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
     settings.setValue("geometry", saveGeometry());

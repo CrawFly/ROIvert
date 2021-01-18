@@ -10,6 +10,8 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QKeyEvent>
+#include <QFileInfo>
+#include <QDir>
 
 #include <QDebug>
 //**** note always that traceid is 1 based, it's the roi number not the 
@@ -93,7 +95,20 @@ TraceView::TraceView(cv::Mat* DataSource, QWidget* parent)
     });
 
 }
-
+void TraceView::exportCharts(QString filename, int width, int height, int quality, bool ridge) {
+    if (ridge) {
+        impl->RidgeChart->saveAsImage(filename, width, height, quality);
+    }
+    else {
+        const QFileInfo basefile(filename);
+        const QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
+        for (int i = 0; i < impl->LineCharts.size(); i++) {
+            // make the filename
+            const QString filename(basename + "_" + QString::number(i + 1) + ".png");
+            impl->LineCharts[i]->saveAsImage(filename, width, height, quality);
+        }
+    }
+}
 TraceView::~TraceView() = default;
 
 void TraceView::updateTraces(size_t traceid, bool down){
@@ -126,9 +141,20 @@ void TraceView::setTimeLimits(float min, float max) {
     updateTraces(0, true); 
 }
 void TraceView::keyPressEvent(QKeyEvent* event) {
-    if (event->key() == Qt::Key::Key_Delete && impl->getSelected()>0) {
-        emit roiDeleted(impl->getSelected());
+    if (impl->getSelected() > 0) {
+        qDebug() << event->key();
+        switch (event->key())
+        {
+            //** i was going to add up/down here, but they get caught by the scroll area
+            // leaving a hook in place, i might change my mind about pursuing this...
+        case Qt::Key::Key_Delete:
+            emit roiDeleted(impl->getSelected());
+            break;
+        default:
+            break;
+        }
     }
+    
 }
 
 //
@@ -157,6 +183,7 @@ TraceView::pimpl::pimpl() {
 }
 
 void TraceView::pimpl::updateTraces(std::vector<size_t> ids) {
+    
     // assumes sorted ascending
     for (auto& id : ids) {
         // if there's no chart at this id, add one
@@ -179,6 +206,14 @@ void TraceView::pimpl::updateTraces(std::vector<size_t> ids) {
         LineCharts.erase(LineCharts.begin() + i);
         RidgeChart->removeData("ROI " + QString::number(i + 1));
     }
+
+    qDebug() << "ScrollMin" << scroll->minimumHeight();
+    if (!LineCharts.empty()) {
+        scroll->setMinimumHeight(LineCharts[0]->minimumHeight()+5);
+    }
+    qDebug() << "LayMinSize" << lay->minimumSize();
+    
+
 };
 
 void TraceView::pimpl::setSelected(size_t newselect) {
@@ -199,6 +234,7 @@ void TraceView::pimpl::setSelected(size_t newselect) {
             cs.Line.Colors = { selectedcolor };
             chart->setStyle(cs);
             chart->update();
+            chart->setFocus();
 
             // update scroll 
             if (newselect == LineCharts.size()) {
@@ -212,5 +248,6 @@ void TraceView::pimpl::setSelected(size_t newselect) {
         }
         // update select
         selected = newselect;
+        
     }
 }
