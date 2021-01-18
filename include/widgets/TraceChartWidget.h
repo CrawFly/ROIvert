@@ -8,7 +8,6 @@ namespace cv {
 }
 class QMargins;
 
-
 class TraceChartWidget : public QWidget
 {
     Q_OBJECT
@@ -58,9 +57,12 @@ public:
 
     void saveAsImage(const QString& filename, int outputwidth = -1, int outputheight = -1, int quality = -1);
 
+signals:
+    void clicked(QPointF datalocation, int seriesindex);
+
 protected:
     void paintEvent(QPaintEvent*) override;
-
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     struct pimpl;

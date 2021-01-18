@@ -78,6 +78,9 @@
     <ClCompile Include="src\widgets\TraceChartImpl\Series.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TraceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="imageroiviewer.h">
@@ -117,6 +120,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\TraceChartWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\TraceView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

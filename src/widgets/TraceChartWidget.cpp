@@ -5,9 +5,12 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QSize>
+#include <QMouseEvent>
 
 #include "opencv2/opencv.hpp"
 #include "assert.h"
+
+#include <QDebug>
 
 using namespace TraceChart;
 
@@ -34,9 +37,39 @@ struct TraceChartWidget::pimpl {
     QMargins getInnerMargins() noexcept { return margins; };
 
     bool AntiAlias = false;
+
+    QPointF pos2data(QPoint pos) {
+        QPointF hitpos;
+        
+        if (plotbox.contains(pos)) {
+            // convert to data units:
+            double xmin, xmax, ymin, ymax;
+            std::tie(xmin, xmax) = xaxis.getLimits();
+            std::tie(ymin, ymax) = yaxis.getLimits();
+
+            hitpos.setX(xmin + (xmax - xmin) * (pos.x() - plotbox.left()) / (float)plotbox.width());
+            hitpos.setY(ymin + (ymax - ymin) * (plotbox.bottom() - pos.y()) / (float)plotbox.height());
+        }
+
+        return hitpos;
+    }
+
+    int getHitObj(QPointF datapos) {
+        int ind = -1;
+        if (!datapos.isNull()) {
+            // We'll call the hit object the first (last?) one (?) in series that's hit?
+            for (int i = 0; i < series.size(); i++) {
+                if (series[i]->polyContains(datapos)) {
+                    ind = i;
+                }
+            }
+        }
+        return ind;
+    }
+        
+
 private:
     int getSeriesIndex(const QString& name);
-    std::unique_ptr<Series>& getSeries(const QString& name);
     void calcPlotbox();
 
     void paint_background(QPainter& painter);
@@ -119,9 +152,6 @@ QString TraceChartWidget::getTitle() const noexcept { return impl->titlestring; 
 QString TraceChartWidget::getXLabel() const noexcept { return impl->xaxis.getLabel(); }
 QString TraceChartWidget::getYLabel() const noexcept { return impl->yaxis.getLabel(); }
 
-
-
-
 void TraceChartWidget::saveAsImage(const QString & filename, int w, int h, int quality) {
     // cache some properties to set back after:
     const auto oldmarg = contentsMargins();
@@ -148,20 +178,31 @@ void TraceChartWidget::saveAsImage(const QString & filename, int w, int h, int q
     }
 }
 
+void TraceChartWidget::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::MouseButton::LeftButton) {
+        QPointF hitpos = impl->pos2data(event->pos());
+        int hitobj = impl->getHitObj(hitpos);
+        emit clicked(hitpos, hitobj);
+    }
+    
+    QWidget::mousePressEvent(event);
+
+}
+
 /* ----- PIMPL ------ */
 void TraceChartWidget::pimpl::setData(cv::Mat datas, QStringList names, const std::vector<double>&xmins, const std::vector<double>&xmaxs, const std::vector<double> &offsets, NORM norm) {
     for (size_t i = 0; i < names.size(); i++) {
         auto row = datas.row(i);
-        auto ser(std::move(getSeries(names[i])));
+        auto ind = getSeriesIndex(names[i]);
 
-        if (ser == nullptr) {
+        if (ind == -1) {
             series.push_back(std::make_unique<Series>(datas, xmins[i], xmaxs[i], names[i], offsets[i], norm));
             series.back()->setStyle(style.Line);
         }
         else {
-            ser->setXMin(xmins[i]);
-            ser->setXMax(xmaxs[i]);
-            ser->setData(row, offsets[i], norm);
+            series[ind]->setXMin(xmins[i]);
+            series[ind]->setXMax(xmaxs[i]);
+            series[ind]->setData(row, offsets[i], norm);
         }
     }
     updateExtents();
@@ -199,14 +240,6 @@ int TraceChartWidget::pimpl::getSeriesIndex(const QString & name) {
         }
     }
     return -1;
-}
-std::unique_ptr<Series>& TraceChartWidget::pimpl::getSeries(const QString & name) {
-    for (auto& s : series) {
-        if (s && s->getName() == name) {
-            return std::move(s);
-        }
-    }
-    return std::unique_ptr<Series>(nullptr); // is this okay??? it's an address of a temporary... :(
 }
 QSize TraceChartWidget::pimpl::estimateMinimumSize() {
     // Minimum height is:

@@ -11,6 +11,9 @@
 #include "roivertcore.h"
 #include "traceviewer.h"
 #include <QtCharts/qvalueaxis.h>
+
+class TraceView;
+
 using namespace QtCharts;
 
 class Roivert : public QMainWindow
@@ -64,4 +67,7 @@ private:
     
     void restoreSettings();
     void resetLayout();
+
+    cv::Mat TraceData;
+    TraceView* traceview;
 };

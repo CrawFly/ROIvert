@@ -42,6 +42,8 @@ public:
 
     void dffNativeToOrig(double &val);
     std::vector<double> calcTrace(cv::Rect cvbb, cv::Mat mask);
+    void computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row, cv::Mat& traces);
+
 signals:
     void loadProgress(int progress);          // progress goes 0-100
 

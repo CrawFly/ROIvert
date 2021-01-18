@@ -231,3 +231,23 @@ std::vector<double> VideoData::calcTrace(cv::Rect cvbb, cv::Mat mask) {
     }
     return trace;
 }
+
+void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row,cv::Mat &traces) {
+    if (traces.empty()) {
+        traces = cv::Mat(1, getNFrames(), CV_64FC1);
+    }
+
+    const int n = traces.size().height;
+    if (row > n) {
+        // Append n-row rows
+        cv::Mat newrows = cv::Mat::zeros(row - n, traces.size().width, traces.type());
+        traces.push_back(newrows);
+    }
+
+    for (size_t i = 0; i < getNFrames(); ++i) {
+        cv::Mat boundedimage = data[1]->at(i)(cvbb);
+        double mu = cv::mean(boundedimage, mask)[0];
+        dffNativeToOrig(mu);
+        traces.at<double>(row - 1, i) = mu;
+    }
+}

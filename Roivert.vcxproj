@@ -110,6 +110,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\TraceView.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="src\widgets\ContrastWidget.cpp" />
     <ClCompile Include="src\widgets\SmoothingPickWidget.cpp" />
     <ClCompile Include="src\widgets\ColormapPickWidget.cpp" />
@@ -152,6 +158,7 @@
     <QtMoc Include="include\widgets\ProjectionPickWidget.h" />
     <QtMoc Include="include\widgets\ColormapPickWidget.h" />
     <QtMoc Include="include\widgets\ContrastWidget.h" />
+    <QtMoc Include="include\TraceView.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Axis.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Core.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Series.h" />

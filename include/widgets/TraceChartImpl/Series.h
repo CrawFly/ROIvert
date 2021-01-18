@@ -6,10 +6,13 @@ class QString;
 class QPolygonF;
 class QPainterPath;
 class QRectF;
+class QPointF;
+
 
 class QPainter;
 class QColor;
 class QTransform;
+
 
 namespace cv {
     class Mat;
@@ -46,6 +49,8 @@ public:
 
     void setStyle(const TraceChart::LineStyle& s);
     TraceChart::LineStyle getStyle();
+    
+    bool polyContains(QPointF pt);
 
 private:
     struct pimpl;

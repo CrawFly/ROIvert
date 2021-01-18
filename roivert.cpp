@@ -67,16 +67,12 @@ Roivert::Roivert(QWidget* parent)
     w_colors->setVisible(false);
 
     // 0---- new chart widget test code here!
-    cv::Mat foo = cv::imread("D://deitcher//rvchart_testdata.png", cv::IMREAD_GRAYSCALE);
-
     auto w_newcharts = new QDockWidget();
-    auto t_newcharts = new TraceView(&foo, this);
-    w_newcharts->setWidget(t_newcharts);
+    traceview = new TraceView(&TraceData, this);
+    w_newcharts->setWidget(traceview);
     addDockWidget(Qt::BottomDockWidgetArea, w_newcharts);
-    t_newcharts->updateAll();
-
-
-
+    
+    
     // Right Side:
     QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
@@ -111,15 +107,48 @@ Roivert::Roivert(QWidget* parent)
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {tviewer->setmaxtime(viddata->getNFrames() / fr); });
+    connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {traceview->setTimeLimits(0, viddata->getNFrames() / fr); });
+
     connect(imview, &ImageROIViewer::roiSelectionChange, tviewer, &TraceViewer::setSelectedTrace);
+
     connect(tviewer, &TraceViewer::chartClicked, imview, &ImageROIViewer::setSelectedROI);
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
+    
     connect(imview, &ImageROIViewer::roiDeleted, tviewer, &TraceViewer::roideleted);
     connect(tviewer, &TraceViewer::deleteroi, imview, &ImageROIViewer::deleteROI);
+
+    connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
+
+    connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
+        // remove the trace. note that removing a row from a mat is hard
+        cv::Mat newTraceData = cv::Mat( TraceData.size().height-1, TraceData.size().width, TraceData.type());
+
+        if (TraceData.size().height >1 ) {
+            size_t row = roiid - 1;
+            if (row > 0) {
+                cv::Rect rect(0, 0, TraceData.size().width, row);
+                TraceData(rect).copyTo(newTraceData(rect));
+            }
+            if (row < TraceData.size().height - 1) {
+                cv::Rect rect1(0, row + 1, TraceData.size().width, TraceData.size().height - row - 1);
+                cv::Rect rect2(0, row, TraceData.size().width, TraceData.size().height - row - 1);
+                TraceData(rect1).copyTo(newTraceData(rect2));
+            }
+        }
+        TraceData = newTraceData;
+        
+        // update
+        traceview->removeTrace(roiid);
+    });
+    connect(imview, &ImageROIViewer::roiSelectionChange, this, [=](size_t oldid, size_t roiid) {
+        traceview->select(roiid);
+    });
+
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
     connect(t_io, &tool::fileIO::exportCharts, this, &Roivert::exportCharts);
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
     connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
+    
     connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
     connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
     connect(t_clrs, &tool::colors::setSelectedColor, tviewer, &TraceViewer::setSelectedColor);
@@ -175,6 +204,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         
     //viddata->getNFrames() / frameRate;
     tviewer->setmaxtime(viddata->getNFrames() / frameRate);
+    traceview->setTimeLimits(0, viddata->getNFrames() / frameRate);
+
     updateContrastWidget(vidctrl->dff());
 }
 
@@ -297,7 +328,13 @@ void Roivert::updateTrace(int roiid)
         }
         traces[ind] = viddata->calcTrace(cvbb, mask);
         tviewer->setTrace(roiid, traces[ind]);
+
+        // new plotter
+        viddata->computeTrace(cvbb, mask, roiid, TraceData);
+        traceview->updateTraces(roiid,false);
     }
+
+    
 }
 
 void Roivert::selecttoolfromkey(int key) {

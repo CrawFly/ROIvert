@@ -66,6 +66,7 @@ struct Series::pimpl {
     double extents[4] = { 0,1,0,1 };
     QString name;
     cv::Mat data;
+    bool polyContains(QPointF pt);
 
 private:
     QPolygonF poly;
@@ -100,6 +101,7 @@ QRectF Series::getExtents() {
 }
 
 void Series::setData(cv::Mat data, double offset, NORM norm) {
+    
     if (data.depth() != 5) {
         auto fdata = cv::Mat(data);
         data.convertTo(fdata, CV_32F);
@@ -150,6 +152,10 @@ LineStyle Series::getStyle() { return impl->getStyle(); };
 
 void Series::paint(QPainter & painter, const QColor & lineColor, const QColor & fillColor, const QTransform & T, const double& ymin) {
     impl->paint(painter, lineColor, fillColor, T, ymin);
+}
+
+bool Series::polyContains(QPointF pt) {
+    return impl->polyContains(pt);
 }
 
 void Series::pimpl::updatePoly() {
@@ -213,4 +219,8 @@ void Series::pimpl::paint(QPainter & painter, const QColor & lineColor, const QC
 
     painter.setPen(QPen(lineColor, style.Width));
     painter.drawPolyline(T.map(poly));
+}
+
+bool Series::pimpl::polyContains(QPointF pt) {
+    return path.contains(pt);
 }

@@ -236,7 +236,9 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
     if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
     {
         emit roiEdited(mousestatus.ActiveROI);
+        emit roiSelectionChange(0, mousestatus.ActiveROI);// shim until i can time this correctly...
         updateROIMap(mousestatus.ActiveROI);
+
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
     }
@@ -257,6 +259,7 @@ void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
         rois[mousestatus.ActiveROI - 1]->setVertices(pt);
 
         emit roiEdited(mousestatus.ActiveROI);
+        emit roiSelectionChange(0, mousestatus.ActiveROI);// shim until i can time this correctly...
         updateROIMap(mousestatus.ActiveROI);
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;

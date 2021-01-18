@@ -6,6 +6,7 @@ namespace cv {
     class Mat;
 }
 
+class TraceChartWidget;
 
 class TraceView : public QWidget
 {
@@ -15,16 +16,13 @@ public:
     TraceView(cv::Mat* DataSource, QWidget* parent = nullptr);
     ~TraceView();
     
-    void updateTraces(size_t traceid, bool down);
+    void updateTraces(size_t traceid=1, bool down=true);
     void select(size_t traceid);
     size_t getSelected();
 
-
-    // these are all thin wrappers un update:
-    void add(size_t traceid);
-    void remove(size_t traceid);
-    void edit(size_t traceid);
-    void updateAll();
+    void removeTrace(size_t traceid);
+    void connectChartSelect(TraceChartWidget* chart, size_t traceid);
+    void setTimeLimits(float min, float max);
 
     // save
     // aesthetics
@@ -32,7 +30,7 @@ public:
     // normalization
 
 signals:
-    void traceSelected(); // note this is the one from within
+    void traceSelected(size_t roiid); 
 
 private:
     struct pimpl;
