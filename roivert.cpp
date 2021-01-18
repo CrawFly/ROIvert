@@ -334,7 +334,10 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
         return;
     }
 
-    auto sz = TraceData.size();
+    const auto sz = TraceData.size();
+    const auto nsamples = sz.width;
+    const auto nrois = sz.height;
+
 
     QFile file(filename);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
@@ -344,46 +347,33 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
             if (doTimeCol) {
                 out << "\"Time\",";
             }
-            for (size_t j = 0; j < sz.width - 1; ++j) {
-                out << "\"ROI " + QString::number(j + 1) + "\",";
-            }
-            out << "\"ROI " + QString::number(sz.width) + "\"";
-            out << Qt::endl;
-        }
-
-        for (size_t i = 0; i < sz.height; i++) { 
-            if (doTimeCol) {
-                // compute time, it's:
-                // i/sz.height * 
-            }
-        }
-    }
-
-
-
-    // todo:  I scraped these traces out of tviewer, but this has traces in it...why am I getting them from the viewer?
-    /*
-                out << t[i] << ",";
-            }
             
-            for (size_t j = 0; j < y.size()-1; j++) { // for each trace
-                out << y[j][i] << ",";
+            for (size_t roiind = 0; roiind < nrois - 1; ++roiind) {
+                out << "\"ROI " + QString::number(roiind + 1) + "\",";
             }
-            out << y[y.size() - 1][i];
+            out << "\"ROI " + QString::number(nrois) + "\"";
             out << Qt::endl;
         }
 
+        for (size_t sample = 0; sample < nsamples; sample++) {
+            if (doTimeCol) {
+                const float t = static_cast<float>(sample) / vidctrl->getFrameRate();
+                out << t << ",";
+            }
+            for (size_t roiind = 0; roiind < nrois - 1; ++roiind){
+                out << TraceData.at<double>(roiind, sample) << ",";
+            }
+            out << TraceData.at<double>(nrois-1, sample) << ",";
+            out << Qt::endl;
+        }
         file.flush();
         file.close();
-        msg.setText(tr("The traces have been exported."));
-        msg.exec();
     }
     else {
         msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("Could not write to this file, is it open?"));
+        msg.setText(tr("Could not write to this file, is it open in another program?"));
         msg.exec();
     }
-    */
 }
 
 void Roivert::exportROIs(QString filename) {
