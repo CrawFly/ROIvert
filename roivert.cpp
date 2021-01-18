@@ -100,7 +100,7 @@ Roivert::Roivert(QWidget* parent)
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
     connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-    connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {traceview->setTimeLimits(0, viddata->getNFrames() / fr); });
+    //connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {traceview->setTimeLimits(0, viddata->getNFrames() / fr); });
 
     connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
 
@@ -133,9 +133,7 @@ Roivert::Roivert(QWidget* parent)
     });
 
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
-    
-
-    
+        
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
     connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
     
@@ -152,7 +150,7 @@ Roivert::Roivert(QWidget* parent)
     actResetLayout->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_R));
     connect(actResetLayout, &QAction::triggered, this, &Roivert::resetLayout);
     addAction(actResetLayout);
-
+    
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 900);
 
@@ -186,10 +184,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t_imgSettings->setEnabled(true);
     imview->setEnabled(true);
     t_io->setEnabled(true);
-        
-    //viddata->getNFrames() / frameRate;
-    traceview->setTimeLimits(0, viddata->getNFrames() / frameRate);
-
+    traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
     updateContrastWidget(vidctrl->dff());
 }
 
@@ -209,6 +204,8 @@ void Roivert::changeFrame(const size_t frame)
 
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
+    traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
+    traceview->updateTraces();
 }
 
 void Roivert::makeToolbar() {
@@ -325,41 +322,47 @@ void Roivert::selecttoolfromkey(int key) {
 
 void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
     // exportTraces needs rewrite, should be easier now (as it's a mat!)
-
-
-
-    // todo:  I scraped these traces out of tviewer, but this has traces in it...why am I getting them from the viewer?
-    /*
-    std::vector<float> t = tviewer->getTVec();
-    std::vector<std::vector<float>> y = tviewer->getAllTraces();
+    
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     
-    if (t.empty()) {
+    if (TraceData.empty())
+    {
         msg.setIcon(QMessageBox::Warning);
         msg.setText(tr("No traces to export."));
         msg.exec();
         return;
     }
 
+    auto sz = TraceData.size();
+
     QFile file(filename);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
-        QTextStream out(&file);    
+        QTextStream out(&file);
 
         if (doHeader) {
             if (doTimeCol) {
                 out << "\"Time\",";
             }
-            for (size_t j = 0; j < y.size() - 1; j++) {
-                out << "\"ROI " + QString::number(j+1) + "\",";
+            for (size_t j = 0; j < sz.width - 1; ++j) {
+                out << "\"ROI " + QString::number(j + 1) + "\",";
             }
-            out << "\"ROI " + QString::number(y.size()) + "\"";
+            out << "\"ROI " + QString::number(sz.width) + "\"";
             out << Qt::endl;
         }
 
-        
-        for (size_t i = 0; i < t.size(); i++) { // for each time
+        for (size_t i = 0; i < sz.height; i++) { 
             if (doTimeCol) {
+                // compute time, it's:
+                // i/sz.height * 
+            }
+        }
+    }
+
+
+
+    // todo:  I scraped these traces out of tviewer, but this has traces in it...why am I getting them from the viewer?
+    /*
                 out << t[i] << ",";
             }
             

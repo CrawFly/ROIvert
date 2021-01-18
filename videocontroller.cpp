@@ -159,6 +159,9 @@ void VideoController::setFrameRate(const float fr)
     clock->setInterval(clockrate());
     updateTimeLabel();
 }
+
+float VideoController::getFrameRate() const { return framerate; }
+
 void VideoController::updateTimeLabel()
 {
     // qtime has to be specified as int, let's do it ms

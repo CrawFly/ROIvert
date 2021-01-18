@@ -21,6 +21,7 @@ public:
     void forceUpdate();
     void setNFrames(const size_t frames);
     void setFrameRate(const float framerate);
+    float getFrameRate() const;
     void setStop(); // Forces a video to stop, no emit.
 
 signals:
