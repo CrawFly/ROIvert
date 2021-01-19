@@ -18,15 +18,13 @@
 #include "qdir.h"
 #include "qsettings.h"
 #include <QGraphicsLayout>
-
-
 #include "TraceView.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
-    viddata = new VideoData(this);
+    viddata = new VideoData();
 
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
 
@@ -94,6 +92,8 @@ Roivert::Roivert(QWidget* parent)
 
 
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
+
+
     connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
@@ -159,6 +159,8 @@ Roivert::Roivert(QWidget* parent)
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
+        
+
     // confirm load if rois exist:
     if (imview->getNROIs() > 0) {
         // rois exist:

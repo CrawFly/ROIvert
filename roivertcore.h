@@ -44,4 +44,12 @@ namespace ROIVert {
             static_cast<size_t>(bb.width()),
             static_cast<size_t>(bb.height()));
     }
+
+    enum class projection
+    {
+        MIN,
+        MAX,
+        MEAN,
+        SUM
+    };
 }
