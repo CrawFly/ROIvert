@@ -1,4 +1,5 @@
 #include "roi.h"
+#include <QDebug>
 
 // roi rect
 roi_rect::roi_rect(QGraphicsScene *scene)
@@ -21,6 +22,7 @@ void roi_rect::setVertices(const QVector<QPoint> &verts)
     if (!verts.empty())
     {
         QRect rect;
+        qDebug() << "roiRect::setVertices" << verts;
         rect.setCoords(verts[0].x(), verts[0].y(), verts[0].x(), verts[0].y());
         for (size_t i = 1; i < verts.size(); i++)
         {

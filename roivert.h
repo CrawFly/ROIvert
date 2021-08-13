@@ -31,6 +31,9 @@ protected:
     void closeEvent(QCloseEvent* event) override;
 
 private:
+    void doConnect();
+
+
     Ui::RoivertClass ui;
     ImageROIViewer *imview;
     VideoController *vidctrl;
@@ -64,4 +67,5 @@ private:
 
     cv::Mat TraceData;
     TraceView* traceview;
+    ImageView* imageview;
 };

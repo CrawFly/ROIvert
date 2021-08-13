@@ -19,6 +19,8 @@
 #include "qsettings.h"
 #include <QGraphicsLayout>
 #include "TraceView.h"
+#include "opencv2/opencv.hpp"
+
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -90,58 +92,11 @@ Roivert::Roivert(QWidget* parent)
     w_charts->setWidget(traceview);
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
 
-
-    connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
-
-
-    connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
-    connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
-    connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
-    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
-    connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
-    connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-    //connect(t_imgData, &tool::imgData::frameRateChanged, this, [&](double fr) {traceview->setTimeLimits(0, viddata->getNFrames() / fr); });
-
-    connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
-
-    connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
-    connect(traceview, &TraceView::roiDeleted, imview, &ImageROIViewer::deleteROI);
-    connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
-    connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
-        // remove the trace. note that removing a row from a mat is hard
-        cv::Mat newTraceData = cv::Mat( TraceData.size().height-1, TraceData.size().width, TraceData.type());
-
-        if (TraceData.size().height >1 ) {
-            size_t row = roiid - 1;
-            if (row > 0) {
-                cv::Rect rect(0, 0, TraceData.size().width, row);
-                TraceData(rect).copyTo(newTraceData(rect));
-            }
-            if (row < TraceData.size().height - 1) {
-                cv::Rect rect1(0, row + 1, TraceData.size().width, TraceData.size().height - row - 1);
-                cv::Rect rect2(0, row, TraceData.size().width, TraceData.size().height - row - 1);
-                TraceData(rect1).copyTo(newTraceData(rect2));
-            }
-        }
-        TraceData = newTraceData;
-        
-        // update
-        traceview->removeTrace(roiid);
-    });
-    connect(imview, &ImageROIViewer::roiSelectionChange, this, [=](size_t oldid, size_t roiid) {
-        traceview->select(roiid);
-    });
-
-    connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
-        
-    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs); 
-    connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
-    
-    connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
-    connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
-
     imview->setMouseMode(ROIVert::ADDROI);
     imview->setROIShape(ROIVert::RECTANGLE);
+
+
+    doConnect();
 
     makeToolbar();
 
@@ -157,10 +112,89 @@ Roivert::Roivert(QWidget* parent)
     restoreSettings();
 }
 
+void Roivert::doConnect() {
+    // Describe the purpose of each connection, for factoring:
+
+
+    // First, list things that work with self
+
+    // imgdata tool load button hit, initiates loading the video
+    connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
+
+    // when timer or manual change of frame, initiate draw
+    connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
+
+    // framerate change (simple) fan out to vidctrl and traceview
+    connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
+
+    // mostly destined for displaysettings, change in smoothing/contrast etc.
+    connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
+
+    // key press functions
+    connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
+    
+    // export traces button
+    connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
+
+    // export rois button
+    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs);
+
+    // import rois button
+    connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
+
+    // passthroughs
+    // progress for loading
+    connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
+    // clicked the dff button, update contrast widget
+    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
+    // set selected color to roiviewer
+    connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
+    connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
+
+    // export charts button
+    connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
+
+    // These are all communication between roiviewer and traces:
+
+    // trace update for roi commit
+    connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
+
+    // roi deleted from traces to roiviewer
+    connect(traceview, &TraceView::roiDeleted, imview, &ImageROIViewer::deleteROI);
+
+    // selected from traces to roiviewer
+    connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
+    // deleted from roiviewer to traces
+    connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
+        // remove the trace. note that removing a row from a mat is hard
+        cv::Mat newTraceData = cv::Mat(TraceData.size().height - 1, TraceData.size().width, TraceData.type());
+
+        if (TraceData.size().height > 1) {
+            size_t row = roiid - 1;
+            if (row > 0) {
+                cv::Rect rect(0, 0, TraceData.size().width, row);
+                TraceData(rect).copyTo(newTraceData(rect));
+            }
+            if (row < TraceData.size().height - 1) {
+                cv::Rect rect1(0, row + 1, TraceData.size().width, TraceData.size().height - row - 1);
+                cv::Rect rect2(0, row, TraceData.size().width, TraceData.size().height - row - 1);
+                TraceData(rect1).copyTo(newTraceData(rect2));
+            }
+        }
+        TraceData = newTraceData;
+
+        // update
+        traceview->removeTrace(roiid);
+    });
+
+    // selected from roiviewer to traces
+    connect(imview, &ImageROIViewer::roiSelectionChange, this, [=](size_t oldid, size_t roiid) {
+        traceview->select(roiid);
+    });
+
+}
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-        
-
     // confirm load if rois exist:
     if (imview->getNROIs() > 0) {
         // rois exist:
@@ -207,7 +241,6 @@ void Roivert::changeFrame(const size_t frame)
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
     traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
-    traceview->updateTraces();
 }
 
 void Roivert::makeToolbar() {

@@ -289,7 +289,6 @@ ChartStyle TraceChartWidget::pimpl::getStyle() {
 }
 
 void TraceChartWidget::pimpl::calcPlotbox() {
-
     // subtract inner margins
     plotbox -= margins;
 
@@ -310,9 +309,9 @@ void TraceChartWidget::pimpl::calcPlotbox() {
         const int ymarg = style.Axis.ShowY ? std::get<0>(yaxis.getMargins()) : 0; // top and bottom are the same
 
         plotbox -= QMargins(std::max(ythickness, xleftmarg), ymarg, xrightmarg, xthickness);
+
         axlegaph = style.Axis.ShowX ? std::clamp(plotbox.width() * .03, 2. + style.Line.Width, 40.) : 5;
         axlegapv = style.Axis.ShowY ? std::clamp(plotbox.height() * .04, 2. + style.Line.Width, 40.) : 5;
-
         plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
     }
 }

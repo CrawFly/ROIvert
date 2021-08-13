@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QObject>
-#include <QStringList>
 #include "opencv2/opencv.hpp"
+class QStringList;
+
 
 class VideoData : public QObject
 {

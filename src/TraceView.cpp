@@ -112,6 +112,11 @@ void TraceView::exportCharts(QString filename, int width, int height, int qualit
 TraceView::~TraceView() = default;
 
 void TraceView::updateTraces(size_t traceid, bool down){
+    if (impl->getDataSize() == 0) {
+        impl->updateTraces({});
+        return;
+    }
+
     // note that we can probably just update everything always...
     size_t sz = down ? impl->getDataSize() - traceid + 1 : 1;
     sz = std::clamp(sz, (size_t)1, impl->getDataSize());
@@ -138,7 +143,7 @@ void TraceView::connectChartSelect(TraceChartWidget* chart, size_t traceid) {
 void TraceView::setTimeLimits(float min, float max) {
     impl->timelimits[0] = min;
     impl->timelimits[1] = max; 
-    updateTraces(0, true); 
+    updateTraces(); 
 }
 void TraceView::keyPressEvent(QKeyEvent* event) {
     if (impl->getSelected() > 0) {

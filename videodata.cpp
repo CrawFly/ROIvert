@@ -1,8 +1,8 @@
 #include "videodata.h"
 #include "qdebug.h"
-#include <QTime>
 
 #include <QFile>
+#include <QStringList>
 
 // TODO:
 //  5. add in tracedata

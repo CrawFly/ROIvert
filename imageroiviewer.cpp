@@ -27,6 +27,7 @@ ImageROIViewer::ImageROIViewer(QWidget *parent)
     pixitem->setShapeMode(QGraphicsPixmapItem::BoundingRectShape);
     scene->addItem(pixitem);
     scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+    scene->addItem(seltest);
 
     setScene(scene);
     setBackgroundBrush(Qt::black);
@@ -91,6 +92,7 @@ void ImageROIViewer::deleteROI(size_t roiind)
     if (roiind > 0 && roiind <= rois.size())
     {
         //delete(rois[roiind - 1]);
+        seltest->setVisible(false);
 
         // set selroi to 0, but don't call setSelectedROI
         selroi = 0;
@@ -119,6 +121,14 @@ void ImageROIViewer::setSelectedROI(size_t val)
     if (selroi > 0 && selroi <= rois.size())
     {
         rois[selroi - 1]->setColor(selectedColor);
+        
+        // put the selection handle here
+        seltest->setROI(rois[selroi - 1]->getVertices(), rois[selroi-1]->getBB());
+    }
+    else
+    {
+        // set visible off?
+        seltest->setVisible(false);
     }
     // todo: emit something (with old and new)
     emit roiSelectionChange(prevind, newind);
@@ -186,9 +196,10 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
             // Add mode with no active ROI, push one and set it
             pushROI();
             mousestatus.ActiveROI = rois.size(); // Note ActiveROI uses 1 based indexing
-            QVector<QPoint> pt = {clickpos.toPoint(), clickpos.toPoint()};
+            QPoint pt(std::floor(clickpos.x()), std::floor(clickpos.y()));
+            QVector<QPoint> pts = {pt,pt};
             mousestatus.ActiveVert = 2; // Also 1 based indexing.
-            rois[mousestatus.ActiveROI - 1]->setVertices(pt);
+            rois[mousestatus.ActiveROI - 1]->setVertices(pts);
         }
         else if (roishape == ROIVert::POLYGON && mousestatus.ActiveVert > 0)
         {
@@ -201,9 +212,32 @@ void ImageROIViewer::mousePressEvent(QMouseEvent *event)
     }
     else if (mousestatus.mode == ROIVert::SELROI)
     {
-        setSelectedROI(roimap.at<unsigned short int>(static_cast<int>(clickpos.y()), static_cast<int>(clickpos.x())));
+        // in select mode, we check for an edit first...
+        if (seltest->isVisible() && seltest->isUnderMouse()) {
+            // find the nearest vertex to the mousepos, start moving it!
+            mousestatus.ActiveROI = selroi; // Note ActiveROI uses 1 based indexing
+            
+            auto verts = rois[selroi-1]->getVertices();
+            int d = (verts[0] - clickpos).manhattanLength();
+            int hit = 1;
+            for (int i = 0; i < verts.size(); ++i) {
+                int di = (verts[i] - clickpos).manhattanLength();
+                if ( di < d) {
+                    hit = i + 1;
+                    d = di;
+                }
+            }
+
+            mousestatus.ActiveVert = hit;
+        }
+        else {
+            setSelectedROI(roimap.at<unsigned short int>(static_cast<int>(clickpos.y()), static_cast<int>(clickpos.x())));
+        }
     }
+
+    QGraphicsView::mouseMoveEvent(event);
 }
+
 void ImageROIViewer::mouseMoveEvent(QMouseEvent *event)
 {
     // Look for mouse moves where we're in progress adding a new ROI
@@ -222,9 +256,15 @@ void ImageROIViewer::mouseMoveEvent(QMouseEvent *event)
 
     // Set vertex
     QVector<QPoint> verts = rois[ROIind]->getVertices();
-    verts[VERTind] = clickpos.toPoint();
+    if (roishape == ROIVert::POLYGON) verts[VERTind] = clickpos.toPoint();
+    else verts[VERTind] = QPoint(std::floor(clickpos.x()), std::floor(clickpos.y()));
+    
+    //verts[VERTind] = clickpos.toPoint();
     rois[ROIind]->setVertices(verts);
     QGraphicsView::mouseMoveEvent(event);
+    if (mousestatus.mode == ROIVert::SELROI) {
+        seltest->setROI(verts, rois[ROIind]->getBB());
+    }
 }
 void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
 {
@@ -233,6 +273,7 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
     if (mousestatus.ActiveROI == 0 || mousestatus.ActiveVert == 0){return;};
 
     // if we were adding a square or ellipse, complete it
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     if (mousestatus.mode == ROIVert::ADDROI && roishape != ROIVert::POLYGON && mousestatus.ActiveROI != 0)
     {
         emit roiEdited(mousestatus.ActiveROI);
@@ -242,6 +283,14 @@ void ImageROIViewer::mouseReleaseEvent(QMouseEvent *event)
         mousestatus.ActiveROI = 0;
         mousestatus.ActiveVert = 0;
     }
+    else if (mousestatus.mode == ROIVert::SELROI) {
+        emit roiEdited(mousestatus.ActiveROI);
+        emit roiSelectionChange(0, mousestatus.ActiveROI);// shim until i can time this correctly...
+        createROIMap(); // need a full recreate of roimap in case an overlap has changed
+        mousestatus.ActiveROI = 0;
+        mousestatus.ActiveVert = 0;
+    }
+    QGuiApplication::restoreOverrideCursor();
 }
 void ImageROIViewer::mouseDoubleClickEvent(QMouseEvent *event)
 {
@@ -304,6 +353,24 @@ void ImageROIViewer::wheelEvent(QWheelEvent *event)
 void ImageROIViewer::setMouseMode(ROIVert::MODE md)
 {
     mousestatus.mode = md;
+    switch (md)
+    {
+    case ROIVert::NONE:
+        seltest->setVisible(false);
+        break;
+    case ROIVert::ADDROI:
+        seltest->setVisible(false);
+        break;
+    case ROIVert::SELROI:
+        if (selroi > 0) {
+            seltest->setROI(rois[selroi-1]->getVertices(), rois[selroi - 1]->getBB());
+        }
+        break;
+    case ROIVert::ZOOM:
+        break;
+    default:
+        break;
+    }
 }
 void ImageROIViewer::setROIShape(ROIVert::ROISHAPE shp)
 {
