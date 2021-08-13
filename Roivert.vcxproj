@@ -144,13 +144,8 @@
     <QtRcc Include="roivert.qrc" />
     <QtUic Include="roivert.ui" />
     <QtMoc Include="roivert.h" />
-    <ClCompile Include="imageroiviewer.cpp" />
-    <ClCompile Include="roi.cpp" />
     <ClCompile Include="roivert.cpp" />
     <ClCompile Include="main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="imageroiviewer.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\ZoomPan.h" />
@@ -169,7 +164,6 @@
     <ClInclude Include="roivertcore.h" />
     <ClInclude Include="displaysettings.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="roi.h" />
     <QtMoc Include="videodata.h" />
     <QtMoc Include="toolwindows.h" />
     <QtMoc Include="videocontroller.h" />

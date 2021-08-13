@@ -1,0 +1,19 @@
+imageview integration
+    insert it
+    remove references to the old one
+    
+    
+    just get it in there and showing an image
+        and movie
+        
+	get rois in 
+	move traces into rois
+	get it so that selecting and roi selects the traces
+    and vice versa
+    make colors work with traces
+    
+    connect up so that the toolbar controls change the modes
+	
+	connect keys from imageview to something that allows set controls from key
+    
+    

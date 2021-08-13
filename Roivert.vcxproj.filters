@@ -27,12 +27,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageroiviewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="roi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="roivert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -86,9 +80,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="imageroiviewer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="roivert.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -133,9 +124,6 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="roi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>

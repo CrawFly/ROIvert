@@ -2,13 +2,13 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_roivert.h"
-#include "imageroiviewer.h"
 #include "videocontroller.h"
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
+#include "ImageView.h"
 #include <QtCharts/qvalueaxis.h>
 
 class TraceView;
@@ -35,7 +35,6 @@ private:
 
 
     Ui::RoivertClass ui;
-    ImageROIViewer *imview;
     VideoController *vidctrl;
     VideoData* viddata;
     tool::imgData* t_imgData;

@@ -73,12 +73,10 @@ Roivert::Roivert(QWidget* parent)
     rightLayout->setContentsMargins(0, 0, 0, 0);
 
     // Image Viewer:
-    imview = new ImageROIViewer(rightLayoutWidget);
-    rightLayout->addWidget(imview);
+    imageview = new ImageView(rightLayoutWidget);
+    rightLayout->addWidget(imageview);
 
-    Graphics_view_zoom* z = new Graphics_view_zoom(imview);
-    z->set_modifiers(Qt::ControlModifier);
-
+    
     // Contols:
     vidctrl = new VideoController(rightLayoutWidget);
     rightLayout->addWidget(vidctrl);
@@ -92,8 +90,6 @@ Roivert::Roivert(QWidget* parent)
     w_charts->setWidget(traceview);
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
 
-    imview->setMouseMode(ROIVert::ADDROI);
-    imview->setROIShape(ROIVert::RECTANGLE);
 
 
     doConnect();
@@ -129,10 +125,7 @@ void Roivert::doConnect() {
 
     // mostly destined for displaysettings, change in smoothing/contrast etc.
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
-
-    // key press functions
-    connect(imview, &ImageROIViewer::toolfromkey, this, &Roivert::selecttoolfromkey);
-    
+        
     // export traces button
     connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
 
@@ -147,55 +140,16 @@ void Roivert::doConnect() {
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
     // clicked the dff button, update contrast widget
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
-    // set selected color to roiviewer
-    connect(t_clrs, &tool::colors::setSelectedColor, imview, &ImageROIViewer::setSelectedColor);
-    connect(t_clrs, &tool::colors::setUnselectedColor, imview, &ImageROIViewer::setUnselectedColor);
-
+    
     // export charts button
     connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
 
-    // These are all communication between roiviewer and traces:
-
-    // trace update for roi commit
-    connect(imview, &ImageROIViewer::roiEdited, this, &Roivert::updateTrace);
-
-    // roi deleted from traces to roiviewer
-    connect(traceview, &TraceView::roiDeleted, imview, &ImageROIViewer::deleteROI);
-
-    // selected from traces to roiviewer
-    connect(traceview, &TraceView::traceSelected, imview, &ImageROIViewer::setSelectedROI);
-    // deleted from roiviewer to traces
-    connect(imview, &ImageROIViewer::roiDeleted, this, [=](size_t roiid) {
-        // remove the trace. note that removing a row from a mat is hard
-        cv::Mat newTraceData = cv::Mat(TraceData.size().height - 1, TraceData.size().width, TraceData.type());
-
-        if (TraceData.size().height > 1) {
-            size_t row = roiid - 1;
-            if (row > 0) {
-                cv::Rect rect(0, 0, TraceData.size().width, row);
-                TraceData(rect).copyTo(newTraceData(rect));
-            }
-            if (row < TraceData.size().height - 1) {
-                cv::Rect rect1(0, row + 1, TraceData.size().width, TraceData.size().height - row - 1);
-                cv::Rect rect2(0, row, TraceData.size().width, TraceData.size().height - row - 1);
-                TraceData(rect1).copyTo(newTraceData(rect2));
-            }
-        }
-        TraceData = newTraceData;
-
-        // update
-        traceview->removeTrace(roiid);
-    });
-
-    // selected from roiviewer to traces
-    connect(imview, &ImageROIViewer::roiSelectionChange, this, [=](size_t oldid, size_t roiid) {
-        traceview->select(roiid);
-    });
-
 }
+
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
     // confirm load if rois exist:
+    /*
     if (imview->getNROIs() > 0) {
         // rois exist:
         QMessageBox msg;
@@ -209,6 +163,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
             imview->deleteROI(1);
         }
     }
+    */
 
     viddata->load(fileList, dsTime, dsSpace);
     t_imgData->setProgBar(-1);
@@ -218,7 +173,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     
     vidctrl->setEnabled(true);
     t_imgSettings->setEnabled(true);
-    imview->setEnabled(true);
+    imageview->setEnabled(true);
     t_io->setEnabled(true);
     traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
     updateContrastWidget(vidctrl->dff());
@@ -234,7 +189,7 @@ void Roivert::changeFrame(const size_t frame)
         // todo: consider moving fmt to dispSettings
         const QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
         QImage qimg(proc.data,proc.cols,proc.rows,proc.step,fmt);
-        imview->setImage(qimg);
+        imageview->setImage(qimg);
     }
  }
 
@@ -258,6 +213,7 @@ void Roivert::makeToolbar() {
     actROISelect->setCheckable(true);
 
     actROIEllipse->setChecked(true);
+    /*
     imview->setROIShape(ROIVert::ELLIPSE); // setting default here so it matches with checked
 
     actROIEllipse->setProperty("Shape", ROIVert::ELLIPSE);
@@ -268,6 +224,7 @@ void Roivert::makeToolbar() {
     actROIPoly->setProperty("Mode", ROIVert::ADDROI);
     actROIRect->setProperty("Mode", ROIVert::ADDROI);
     actROISelect->setProperty("Mode", ROIVert::SELROI);
+    */
 
     actROIEllipse->setToolTip(tr("Draw ellipse ROIs"));
     actROIPoly->setToolTip(tr("Draw polygon ROIs"));
@@ -277,6 +234,7 @@ void Roivert::makeToolbar() {
 
     ui.mainToolBar->addActions(ROIGroup->actions());
     ui.mainToolBar->addSeparator();
+    /*
     connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
                 {
                     ROIVert::MODE mode = static_cast<ROIVert::MODE>(act->property("Mode").toInt());
@@ -287,6 +245,7 @@ void Roivert::makeToolbar() {
                     }
                 }
             );
+            */
 
     // add dockables...
     w_imgData->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
@@ -335,7 +294,8 @@ void Roivert::updateTrace(int roiid)
     if (roiid < 1) { return; }
     const size_t ind = static_cast<size_t>(roiid - 1);
 
-    roi *thisroi = imview->getRoi(ind);
+    //roi *thisroi = imview->getRoi(ind);
+    /*
     if (thisroi) {
         cv::Mat mask = thisroi->getMask();
         const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
@@ -343,7 +303,7 @@ void Roivert::updateTrace(int roiid)
         viddata->computeTrace(cvbb, mask, roiid, TraceData);
         traceview->updateTraces(roiid,false);
     }
-
+    */
     
 }
 
@@ -412,6 +372,7 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
 }
 
 void Roivert::exportROIs(QString filename) {
+    /*
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
 
@@ -463,9 +424,11 @@ void Roivert::exportROIs(QString filename) {
         msg.setText(tr("Could not write to this file, is it open?"));
         msg.exec();
     }
+    */
 }
 
 void Roivert::importROIs(QString filename) {
+    /*
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
 
@@ -542,7 +505,7 @@ void Roivert::importROIs(QString filename) {
 
     // clear rois vector to free the memory
     rois.clear();
-
+    */
 }
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
