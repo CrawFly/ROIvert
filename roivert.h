@@ -9,11 +9,11 @@
 #include "displaysettings.h"
 #include "roivertcore.h"
 #include "ImageView.h"
-#include <QtCharts/qvalueaxis.h>
+#include "ROI/ROIs.h"
+
 
 class TraceView;
 
-using namespace QtCharts;
 
 class Roivert : public QMainWindow
 {
@@ -67,4 +67,6 @@ private:
     cv::Mat TraceData;
     TraceView* traceview;
     ImageView* imageview;
+    ROIs* rois;
+    
 };

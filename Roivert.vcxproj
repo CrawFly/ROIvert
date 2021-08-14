@@ -111,6 +111,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ImageView.cpp" />
+    <ClCompile Include="src\ROI\ROI.cpp" />
+    <ClCompile Include="src\ROI\ROIs.cpp" />
+    <ClCompile Include="src\ROI\ROISelector.cpp" />
+    <ClCompile Include="src\ROI\ROIShape.cpp" />
+    <ClCompile Include="src\ROI\ROIStyle.cpp" />
     <ClCompile Include="src\TraceView.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -157,6 +162,12 @@
     <QtMoc Include="include\widgets\ContrastWidget.h" />
     <QtMoc Include="include\TraceView.h" />
     <QtMoc Include="include\ImageView.h" />
+    <ClInclude Include="include\ROIVertEnums.h" />
+    <ClInclude Include="include\ROI\ROI.h" />
+    <QtMoc Include="include\ROI\ROIs.h" />
+    <ClInclude Include="include\ROI\ROISelector.h" />
+    <QtMoc Include="include\ROI\ROIShape.h" />
+    <QtMoc Include="include\ROI\ROIStyle.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Axis.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Core.h" />
     <ClInclude Include="include\widgets\TraceChartImpl\Series.h" />

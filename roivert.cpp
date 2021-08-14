@@ -1,4 +1,6 @@
 // What a MESS!
+#include <QDebug>
+
 #include "roivert.h"
 #include "qboxlayout.h"
 #include "qsplitter.h"
@@ -20,6 +22,7 @@
 #include <QGraphicsLayout>
 #include "TraceView.h"
 #include "opencv2/opencv.hpp"
+#include "ROIVertEnums.h"
 
 
 Roivert::Roivert(QWidget* parent)
@@ -74,8 +77,11 @@ Roivert::Roivert(QWidget* parent)
 
     // Image Viewer:
     imageview = new ImageView(rightLayoutWidget);
+    imageview->setEnabled(false);
     rightLayout->addWidget(imageview);
-
+    
+    // ROIs container
+    rois = new ROIs(imageview);
     
     // Contols:
     vidctrl = new VideoController(rightLayoutWidget);
@@ -109,11 +115,6 @@ Roivert::Roivert(QWidget* parent)
 }
 
 void Roivert::doConnect() {
-    // Describe the purpose of each connection, for factoring:
-
-
-    // First, list things that work with self
-
     // imgdata tool load button hit, initiates loading the video
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
 
@@ -143,7 +144,7 @@ void Roivert::doConnect() {
     
     // export charts button
     connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
-
+    
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
@@ -213,18 +214,12 @@ void Roivert::makeToolbar() {
     actROISelect->setCheckable(true);
 
     actROIEllipse->setChecked(true);
-    /*
-    imview->setROIShape(ROIVert::ELLIPSE); // setting default here so it matches with checked
+    rois->setROIShape(ROIVert::SHAPE::ELLIPSE);
 
-    actROIEllipse->setProperty("Shape", ROIVert::ELLIPSE);
-    actROIPoly->setProperty("Shape", ROIVert::POLYGON);
-    actROIRect->setProperty("Shape", ROIVert::RECTANGLE);
-
-    actROIEllipse->setProperty("Mode", ROIVert::ADDROI);
-    actROIPoly->setProperty("Mode", ROIVert::ADDROI);
-    actROIRect->setProperty("Mode", ROIVert::ADDROI);
-    actROISelect->setProperty("Mode", ROIVert::SELROI);
-    */
+    actROIEllipse->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::ELLIPSE));
+    actROIPoly->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::POLYGON));
+    actROIRect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::RECTANGLE));
+    actROISelect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::SELECT));
 
     actROIEllipse->setToolTip(tr("Draw ellipse ROIs"));
     actROIPoly->setToolTip(tr("Draw polygon ROIs"));
@@ -234,6 +229,12 @@ void Roivert::makeToolbar() {
 
     ui.mainToolBar->addActions(ROIGroup->actions());
     ui.mainToolBar->addSeparator();
+    connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
+    {
+        ROIVert::SHAPE shp{act->property("Shape").toInt()  };
+        rois->setROIShape(shp);
+    });
+
     /*
     connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
                 {
