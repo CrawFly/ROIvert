@@ -1,154 +1,80 @@
 #include "widgets\TraceChartWidget.h"
-#include "widgets\TraceChartImpl\Axis.h"
-#include "widgets\TraceChartImpl\Series.h"
-
 #include <QPainter>
-#include <QPainterPath>
-#include <QSize>
-#include <QMouseEvent>
-
-#include "opencv2/opencv.hpp"
-#include "assert.h"
-
 #include <QDebug>
 
-using namespace TraceChart;
-
-
 struct TraceChartWidget::pimpl {
-    pimpl() {
-        setStyle(style);
-    }
+    std::vector<std::shared_ptr<TraceChartSeries>> series;
+    std::unique_ptr<TraceChartHAxis> xaxis = std::make_unique<TraceChartHAxis>();
+    std::unique_ptr<TraceChartVAxis> yaxis = std::make_unique<TraceChartVAxis>();
 
     QString titlestring;
-    HAxis xaxis;
-    VAxis yaxis;
+    bool antialias;
+    QFontMetrics titlefontmea = QFontMetrics(QFont());
 
-    void setData(cv::Mat, QStringList, const std::vector<double>&, const std::vector<double>&, const std::vector<double>&, NORM norm);
-    void removeData(const QStringList&);
-    void clearData();
+
+    QSize estimateMinimumSize();
     void updateExtents();
     void paint(QPainter& painter, const QRect& contentsRect);
-    QSize estimateMinimumSize();
+    void setInnerMargins(const QMargins& marg) noexcept;
 
-    void setStyle(ChartStyle);
-    ChartStyle getStyle();
-    void setInnerMargins(const QMargins& marg) noexcept { margins = marg; };
-    QMargins getInnerMargins() noexcept { return margins; };
+    //todo: need pos2data when impl mouse stuff
 
-    bool AntiAlias = false;
-
-    QPointF pos2data(QPoint pos) {
-        QPointF hitpos;
-        
-        if (plotbox.contains(pos)) {
-            // convert to data units:
-            double xmin, xmax, ymin, ymax;
-            std::tie(xmin, xmax) = xaxis.getLimits();
-            std::tie(ymin, ymax) = yaxis.getLimits();
-
-            hitpos.setX(xmin + (xmax - xmin) * (pos.x() - plotbox.left()) / (float)plotbox.width());
-            hitpos.setY(ymin + (ymax - ymin) * (plotbox.bottom() - pos.y()) / (float)plotbox.height());
-        }
-
-        return hitpos;
-    }
-
-    int getHitObj(QPointF datapos) {
-        int ind = -1;
-        if (!datapos.isNull()) {
-            // We'll call the hit object the first (last?) one (?) in series that's hit?
-            for (int i = 0; i < series.size(); i++) {
-                if (series[i]->polyContains(datapos)) {
-                    ind = i;
-                }
-            }
-        }
-        return ind;
-    }
-        
 
 private:
-    int getSeriesIndex(const QString& name);
-    void calcPlotbox();
+    QMargins margins;
+    QRect plotbox;
+    int titlethickness = 0;
+    int titlespace = 8;
+    int axlegapv, axlegaph;
 
+    void calcPlotbox();
     void paint_background(QPainter& painter);
     void paint_title(QPainter& painter);
     void paint_axes(QPainter& painter, const int& left);
     void paint_data(QPainter& painter);
-
-    int titlespace = 8;
-    double xminmax[2] = { 0,1 };
-    double yminmax[2] = { 0,1 };
-    std::vector<std::unique_ptr<Series>> series; // like to do this with unique_ptr...but i might have made a mess with getseries?
-    QFontMetrics titlefontmea = QFontMetrics(QFont());
-    ChartStyle style;
-    QRect plotbox;
-    QMargins margins;
-    int titlethickness = 0;
-    int axlegapv, axlegaph;
 };
 
 TraceChartWidget::TraceChartWidget(QWidget* parent)
     : QWidget(parent)
 {
-    // default contents margins?
     setContentsMargins(11, 11, 11, 11);
-    setInnerMargins(QMargins(5, 5, 5, 5));
+    impl->setInnerMargins(QMargins(5, 5, 5, 5));
+
 }
+
 TraceChartWidget::~TraceChartWidget() = default;
 
-
-void TraceChartWidget::paintEvent(QPaintEvent*) {
-    QPainter painter(this);
-    impl->paint(painter, contentsRect());
+void TraceChartWidget::addSeries(std::shared_ptr<TraceChartSeries> series) {
+    impl->series.push_back(series);
+    impl->updateExtents();
 }
-
-void TraceChartWidget::setData(cv::Mat datas, QStringList names, const std::vector<double>&xmins, const std::vector<double>&xmaxs, const std::vector<double>&offsets, NORM norm) {
-    assert(datas.size().height == names.size()); // todo: exception!
-    impl->setData(datas, names, xmins, xmaxs, offsets, norm);
-    update();
+void TraceChartWidget::removeSeries(std::shared_ptr<TraceChartSeries> series) {
+    auto it = std::find(impl->series.begin(), impl->series.end(), series);
+    impl->series.erase(it);
+    impl->updateExtents();
 }
-void TraceChartWidget::setData(cv::Mat data, QString name, const double& xmin, const double& xmax, const double& offset, NORM norm) {
-    assert(data.size().height == 1); // todo: to replace this with a exception
-    setData(data, QStringList(name), { xmin }, { xmax }, { offset }, norm);
+std::vector<std::shared_ptr<TraceChartSeries>> TraceChartWidget::getSeries() const {
+    return impl->series;
 }
-void TraceChartWidget::removeData(const QString & name) {
-    removeData(QStringList(name));
+TraceChartAxis* TraceChartWidget::getXAxis() const noexcept {
+    return impl->xaxis.get();
 }
-void TraceChartWidget::removeData(const QStringList & names) {
-    impl->removeData(names);
-    update();
+TraceChartAxis* TraceChartWidget::getYAxis() const noexcept {
+    return impl->yaxis.get();
 }
-void TraceChartWidget::clearData() {
-    impl->clearData();
-    update();
+void TraceChartWidget::setTitle(const QString& title) noexcept {
+    impl->titlestring = title;
 }
-void TraceChartWidget::setStyle(ChartStyle style) {
-    impl->setStyle(style);
+QString TraceChartWidget::getTitle() const noexcept {
+    return impl->titlestring;
 }
-ChartStyle TraceChartWidget::getStyle() {
-    return impl->getStyle();
+void TraceChartWidget::setAntiAliasing(bool onoff) noexcept {
+    impl->antialias = onoff;
 }
-QSize TraceChartWidget::minimumSizeHint() const {
-    return impl->estimateMinimumSize();
+bool TraceChartWidget::getAntiAliasing() const noexcept {
+    return impl->antialias;
 }
-void TraceChartWidget::setInnerMargins(QMargins marg) {
-    impl->setInnerMargins(marg);
-}
-QMargins TraceChartWidget::getInnerMargins() {
-    return impl->getInnerMargins();
-}
-
-void TraceChartWidget::setTitle(const QString & title) noexcept { impl->titlestring = title; }
-void TraceChartWidget::setXLabel(const QString & xlabel) { impl->xaxis.setLabel(xlabel); }
-void TraceChartWidget::setYLabel(const QString & ylabel) { impl->yaxis.setLabel(ylabel); }
-QString TraceChartWidget::getTitle() const noexcept { return impl->titlestring; }
-QString TraceChartWidget::getXLabel() const noexcept { return impl->xaxis.getLabel(); }
-QString TraceChartWidget::getYLabel() const noexcept { return impl->yaxis.getLabel(); }
-
 void TraceChartWidget::saveAsImage(const QString & filename, int w, int h, int quality) {
-    // cache some properties to set back after:
     const auto oldmarg = contentsMargins();
 
     const bool doresize = w > 0 || h > 0;
@@ -173,51 +99,28 @@ void TraceChartWidget::saveAsImage(const QString & filename, int w, int h, int q
     }
 }
 
-void TraceChartWidget::mousePressEvent(QMouseEvent* event) {
-    if (event->button() == Qt::MouseButton::LeftButton) {
-        QPointF hitpos = impl->pos2data(event->pos());
-        int hitobj = impl->getHitObj(hitpos);
-        emit clicked(hitpos, hitobj);
-    }
-    
-    QWidget::mousePressEvent(event);
-
+QSize TraceChartWidget::minimumSizeHint() const {
+    return impl->estimateMinimumSize();
+}
+void TraceChartWidget::paintEvent(QPaintEvent*) {
+    QPainter painter(this);
+    impl->paint(painter, contentsRect());
+}
+void TraceChartWidget::updateExtents() {
+    impl->updateExtents();
 }
 
-/* ----- PIMPL ------ */
-void TraceChartWidget::pimpl::setData(cv::Mat datas, QStringList names, const std::vector<double>&xmins, const std::vector<double>&xmaxs, const std::vector<double> &offsets, NORM norm) {
-    for (size_t i = 0; i < names.size(); i++) {
-        auto row = datas.row(i);
-        auto ind = getSeriesIndex(names[i]);
-
-        if (ind == -1) {
-            series.push_back(std::make_unique<Series>(datas, xmins[i], xmaxs[i], names[i], offsets[i], norm));
-            series.back()->setStyle(style.Line);
-        }
-        else {
-            series[ind]->setXMin(xmins[i]);
-            series[ind]->setXMax(xmaxs[i]);
-            series[ind]->setData(row, offsets[i], norm);
-        }
-    }
-    updateExtents();
-}
-void TraceChartWidget::pimpl::removeData(const QStringList & names) {
-    for (auto& name : names) {
-        const auto ind = getSeriesIndex(name);
-        series.erase(series.begin() + ind);
-    }
-    updateExtents();
-}
-void TraceChartWidget::pimpl::clearData() {
-    series.clear();
-    updateExtents();
+// pimpl
+QSize TraceChartWidget::pimpl::estimateMinimumSize() {
+    const int h = 2 * (titlefontmea.height() + xaxis->getThickness());
+    const int w = 2 * yaxis->getThickness();
+    return QSize(w, h);
 }
 void TraceChartWidget::pimpl::updateExtents() {
     QRectF r;
     if (series.empty()) {
-        xaxis.setExtents(0, 1);
-        yaxis.setExtents(0, 1);
+        xaxis->setExtents(0, 1);
+        yaxis->setExtents(0, 1);
     }
 
     for (auto& s : series) {
@@ -225,64 +128,35 @@ void TraceChartWidget::pimpl::updateExtents() {
             r |= s->getExtents();
         }
     }
-    xaxis.setExtents(r.left(), r.right());
-    yaxis.setExtents(r.top(), r.bottom());
-}
-int TraceChartWidget::pimpl::getSeriesIndex(const QString & name) {
-    for (int i = 0; i < series.size(); ++i) {
-        if (series[i] && series[i]->getName() == name) {
-            return i;
-        }
-    }
-    return -1;
-}
-QSize TraceChartWidget::pimpl::estimateMinimumSize() {
-    // Minimum height is:
-    //  1.2*(titlefontheight (*istitle) + xaxis.labelfontheight(*islabel) + ticklabelfontheight) + 20?
-    const int h = 2 * (titlefontmea.height() + xaxis.getThickness());
-    const int w = 2 * yaxis.getThickness();
-    return QSize(w, h);
-}
-void TraceChartWidget::pimpl::paint(QPainter & painter, const QRect & cRect) {
-    QSize foo;
+    xaxis->setExtents(r.left(), r.right());
+    yaxis->setExtents(r.top(), r.bottom());
 
-
-    if (AntiAlias) {
+}
+void TraceChartWidget::pimpl::paint(QPainter& painter, const QRect& contentsRect) {
+    
+    if (antialias) {
         painter.setRenderHint(QPainter::Antialiasing);
     }
 
-    plotbox = cRect;
+    plotbox = contentsRect;
     paint_background(painter);
 
     // Adjust n-ticks based on overall size, poor man's estimate
-    xaxis.setMaxNTicks(std::max(cRect.width() / 80, 5));
-    yaxis.setMaxNTicks(std::max(cRect.height() / 80, 5));
+    xaxis->setMaxNTicks(std::max(contentsRect.width() / 80, 5));
+    yaxis->setMaxNTicks(std::max(contentsRect.height() / 80, 5));
 
     calcPlotbox();
     paint_title(painter);
 
     // Draw Axes
-    paint_axes(painter, cRect.left() + margins.left());
+    paint_axes(painter, contentsRect.left() + margins.left());
 
     // Draw children
-    painter.setClipRect(plotbox + QMargins(0, style.Line.Width, 0, style.Line.Width));
+    // todo: with style, temp linewidth = 2
+    //painter.setClipRect(plotbox + QMargins(0, style.Line.Width, 0, style.Line.Width));
+    painter.setClipRect(plotbox + QMargins(0, 2, 0, 2));
     paint_data(painter);
 }
-
-void TraceChartWidget::pimpl::setStyle(ChartStyle newstyle) {
-    style = newstyle;
-    titlefontmea = QFontMetrics(style.Title.Font);
-    xaxis.setStyle(style.Axis);
-    yaxis.setStyle(style.Axis);
-    for (auto& s : series) {
-        s->setStyle(style.Line);
-    }
-
-}
-ChartStyle TraceChartWidget::pimpl::getStyle() {
-    return style;
-}
-
 void TraceChartWidget::pimpl::calcPlotbox() {
     // subtract inner margins
     plotbox -= margins;
@@ -293,6 +167,9 @@ void TraceChartWidget::pimpl::calcPlotbox() {
     }
     plotbox -= QMargins(0, titlethickness, 0, 0);
 
+
+    // todo: style work
+    /*
     if (style.Axis.Show) {
         // Get thickness of each axis, will determine things below
         const int xthickness = style.Axis.ShowX ? xaxis.getThickness() : 0;
@@ -309,13 +186,22 @@ void TraceChartWidget::pimpl::calcPlotbox() {
         axlegapv = style.Axis.ShowY ? std::clamp(plotbox.height() * .04, 2. + style.Line.Width, 40.) : 5;
         plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
     }
+    */
+    const int xthickness{ xaxis->getThickness() };
+    const int ythickness{ yaxis->getThickness() };
+    const int xleftmarg = std::get<0>(xaxis->getMargins());
+    const int xrightmarg = std::get<1>(xaxis->getMargins());
+    const int ymarg = std::get<0>(yaxis->getMargins()); // top and bottom are the same
+    plotbox -= QMargins(std::max(ythickness, xleftmarg), ymarg, xrightmarg, xthickness);
+    axlegaph = std::clamp(plotbox.width() * .03, 2. + 2., 40.); //todo: note forced linewidth when moving to style...
+    axlegapv = std::clamp(plotbox.height() * .04, 2. + 2., 40.);
+    plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
 }
-void TraceChartWidget::setAntiAliasing(bool onoff) noexcept { impl->AntiAlias = onoff; }
-bool TraceChartWidget::getAntiAliasing() const noexcept { return impl->AntiAlias; }
-
 void TraceChartWidget::pimpl::paint_background(QPainter & painter) {
     painter.setPen(Qt::NoPen);
-    painter.setBrush(style.Background.Color);
+    //todo: style work
+    //painter.setBrush(style.Background.Color);
+    painter.setBrush(Qt::white);
     painter.drawRect(plotbox);
 }
 void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
@@ -323,28 +209,34 @@ void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
         plotbox.top() - titlethickness - titlespace,
         plotbox.width(),
         titlethickness - titlespace);
-    painter.setFont(style.Title.Font);
-    painter.setPen(style.Title.Color);
+
+    //todo: style work
+    //painter.setFont(style.Title.Font);
+    //painter.setPen(style.Title.Color);
+    auto font = QFont();
+    painter.setFont(QFont());
+    painter.setPen(Qt::black);
+
     painter.drawText(titler, titlestring, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 }
-
 void TraceChartWidget::pimpl::paint_axes(QPainter & painter, const int& left) {
-    if (style.Axis.ShowX) {
-        xaxis.setZero(plotbox.left(), plotbox.bottom() + axlegapv);
-        xaxis.setLength(plotbox.width());
-        xaxis.paint(painter);
-    }
+    // todo: style work
+    //if (style.Axis.ShowX) {
+        xaxis->setZero(plotbox.left(), plotbox.bottom() + axlegapv);
+        xaxis->setLength(plotbox.width());
+        xaxis->paint(painter);
+    //}
 
-    if (style.Axis.ShowY) {
-        yaxis.setZero(left, plotbox.top());
-        yaxis.setLength(plotbox.height());
-        yaxis.paint(painter);
-    }
+    //if (style.Axis.ShowY) {
+        yaxis->setZero(left, plotbox.top());
+        yaxis->setLength(plotbox.height());
+        yaxis->paint(painter);
+    //}
 }
 void TraceChartWidget::pimpl::paint_data(QPainter & painter) {
     double xmin, xmax, ymin, ymax;
-    std::tie(xmin, xmax) = xaxis.getLimits();
-    std::tie(ymin, ymax) = yaxis.getLimits();
+    std::tie(xmin, xmax) = xaxis->getLimits();
+    std::tie(ymin, ymax) = yaxis->getLimits();
 
     QTransform T;
     T = QTransform::fromTranslate(-xmin, -ymin) *
@@ -352,8 +244,14 @@ void TraceChartWidget::pimpl::paint_data(QPainter & painter) {
         QTransform::fromTranslate(plotbox.left(), static_cast<double>(plotbox.top()) + static_cast<double>(plotbox.height()));
 
     for (int i = 0; i < series.size(); ++i) {
-        const QColor lineColor(style.Line.Colors[i % style.Line.Colors.size()]);
-        const QColor fillColor = QColor(style.Line.FillColors[i % style.Line.FillColors.size()]);
+        const QColor lineColor(Qt::red);
+        const QColor fillColor(Qt::red);
+
+        //const QColor lineColor(style.Line.Colors[i % style.Line.Colors.size()]);
+        //const QColor fillColor = QColor(style.Line.FillColors[i % style.Line.FillColors.size()]);
         series[i]->paint(painter, lineColor, fillColor, T, ymin);
     }
+}
+void TraceChartWidget::pimpl::setInnerMargins(const QMargins& marg) noexcept {
+    margins = marg;
 }

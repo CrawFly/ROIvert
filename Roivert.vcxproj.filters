@@ -60,15 +60,6 @@
     <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\widgets\TraceChartWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\widgets\TraceChartImpl\Axis.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\widgets\TraceChartImpl\Series.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ImageView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -94,6 +85,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ROI\ROITrace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartAxis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartSeries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +128,6 @@
     <QtMoc Include="include\widgets\SmoothingPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\widgets\TraceChartWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="include\ImageView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -152,6 +149,9 @@
     <QtMoc Include="include\ROI\ROITrace.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="include\widgets\TraceChartWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -161,15 +161,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="roivertcore.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\widgets\TraceChartImpl\Axis.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\widgets\TraceChartImpl\Core.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\widgets\TraceChartImpl\Series.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ROI\ROI.h">

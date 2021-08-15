@@ -229,16 +229,16 @@ void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size
 }
 */
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
-    auto res = cv::Mat(1, getNFrames(), CV_64FC1);
+    auto res = cv::Mat(1, getNFrames(), CV_32FC1);
     for (size_t i = 0; i < getNFrames(); ++i) {
         cv::Mat boundedRaw = get(false, 0, i)(cvbb);
         cv::Mat boundedMu = get(false, 3, i)(cvbb);
-        boundedRaw.convertTo(boundedRaw, CV_64FC1);
-        boundedMu.convertTo(boundedMu, CV_64FC1);
+        boundedRaw.convertTo(boundedRaw, CV_32FC1);
+        boundedMu.convertTo(boundedMu, CV_32FC1);
         cv::Mat boundedDff = (boundedRaw - boundedMu) / boundedMu;
         double mu = cv::mean(boundedDff, mask)[0];
 
-        res.at<double>(0, i) = mu;
+        res.at<float>(0, i) = mu;
     }
 
     return res;

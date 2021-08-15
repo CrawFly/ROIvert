@@ -14,7 +14,6 @@ using namespace TraceChart;
 
 namespace {
     void lerpGradAlpha(QLinearGradient& grad, QColor clr, float exp, float div) {
-
         for (int ii = 0; ii < 10; ++ii) {
             const float x = ii / 10.;
             clr.setAlphaF(pow(x, exp) / div);

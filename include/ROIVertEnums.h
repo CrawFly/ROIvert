@@ -6,4 +6,13 @@ namespace ROIVert {
         POLYGON,
         SELECT
     };
+    
+    enum class NORMALIZATION {
+        NONE,
+        ZEROTOONE,
+        L1NORM,
+        L2NORM,
+        ZSCORE,
+        MEDIQR
+    };
 }
