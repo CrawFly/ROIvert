@@ -37,14 +37,6 @@ namespace ROIVert {
         };
         return ret;
     }
-
-    static cv::Rect QRect2CVRect(const QRect &bb) {
-        return cv::Rect(static_cast<size_t>(bb.x()),
-            static_cast<size_t>(bb.y()),
-            static_cast<size_t>(bb.width()),
-            static_cast<size_t>(bb.height()));
-    }
-
     enum class projection
     {
         MIN,

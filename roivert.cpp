@@ -80,8 +80,6 @@ Roivert::Roivert(QWidget* parent)
     imageview->setEnabled(false);
     rightLayout->addWidget(imageview);
     
-    // ROIs container
-    rois = new ROIs(imageview);
     
     // Contols:
     vidctrl = new VideoController(rightLayoutWidget);
@@ -91,12 +89,15 @@ Roivert::Roivert(QWidget* parent)
     // Trace Viewer
     w_charts = new QDockWidget;
     w_charts->setWindowTitle("Charts");
-    traceview = new TraceView(&TraceData, this);
+    traceview = new TraceView(this);
+
     w_charts->setObjectName("WCharts");
     w_charts->setWidget(traceview);
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
 
-
+    
+    // ROIs container
+    rois = new ROIs(imageview, traceview, viddata);
 
     doConnect();
 
@@ -143,7 +144,7 @@ void Roivert::doConnect() {
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     
     // export charts button
-    connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
+    //connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
     
 }
 
@@ -176,7 +177,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t_imgSettings->setEnabled(true);
     imageview->setEnabled(true);
     t_io->setEnabled(true);
-    traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
+
+    //traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
     updateContrastWidget(vidctrl->dff());
 }
 
@@ -196,7 +198,7 @@ void Roivert::changeFrame(const size_t frame)
 
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
-    traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
+    //traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
 }
 
 void Roivert::makeToolbar() {

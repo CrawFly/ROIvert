@@ -1,19 +1,203 @@
 imageview integration
-    insert it
-    remove references to the old one
-    
-    
-    just get it in there and showing an image
-        and movie
-        
+    [x] insert it
+    [x] remove references to the old one
+
+    [x] just get it in there and showing an image
+        [x] and movie
+
 	get rois in 
-	move traces into rois
-	get it so that selecting and roi selects the traces
-    and vice versa
-    make colors work with traces
+        [x] first build!
+        (the old roi had an include for opencv? maybe it owned traces)
+        
+        [x] make it so i can draw rois
+            (I think this requires a connect between the imview and the rois?)
+           
+        [x]connect up so that the toolbar controls change the modes
+            Roivert::makeToolbar        
+        
+        [x] Folder Structure for ROIs:
+            let's say all this stuff with ROI prefix belongs in one folder
+            
+    [x] imageview should start up as disabled!
     
-    connect up so that the toolbar controls change the modes
-	
+	move traces into rois
+        OK here's what it looks like
+            TraceChartWidget makes one chart
+            TraceView has the traces but is also the container for all the charts
+            So we want to keep a TraceView...
+                it's analogous to ImageView
+                it's going to hold the tabgroup for switching betwewwen chart types
+                but the charts themselves are going to live in the new ROITraces
+                We'll have to think about where the stack and image charts live...
+                
+                Interesting
+                    So we should hold a stack of charts and
+                    A stack of lines
+                    And TraceView has to somehow manage the rest
+                    
+                    Start with just getting the lines and ignoring all the details...
+                        ROI needs to be created with a ptr to the TraceView...?
+                        but first traceview needs a total revamp..
+                        
+                        And we need to get the compute in somewhere
+                        and the notification...lots to do!
+                        
+                        at the end of Roivert::loadVideo we were setting the time limits for traceview...(and also in Roivert::frameRateChanged
+                            
+                        Start with traceview2?
+                            [x] brand new:
+                                tabs, scroll in Line, Empty ridge
+                                Something has to tell it the t axis on video load?
+                                
+                                It looks like videodata has the computetrace?
+                                    ...it needs:
+                                        a cv::Rect which is the bounding box for the ROI
+                                        a cv::Mat mask
+                                        a size_t row
+                                        and a cv::Mat& traces
+                                        
+                                        I hate this...it reinforces the indexing woe I'm trying to avoid...
+                                        
+                                        setData's internal data setter iterates over names
+                                        for each one it gets the namesit creates a "Series which takes in the cv::Mat
+                                        
+                                        I bet we could just do cv::Mats that are all 1 row for the non-ridgeline
+                                        I remember this mess of inserting a row into a cv::Mat
+                                        what a pain
+                                        but there's something actually kindof important here which is that we used cv to normalize...so if we're going to keep that then we need to keep some aspect of this...
+                                        
+                                        
+                                        I feel like this can still all be done without the matrix version of cv::mat...i've got this series abstraction in there which is precisely for htis purpose...
+                                        
+                                        I'd like to pull out the stupid shit around the way I did setData
+                                            instead I'd almost want to expose the Series...
+                                                Then the trace itself can live in roi...
+                                                
+                                                series* = addSeries(data, xmin, xmax, offset, norm)
+                                                and then erasing it just erases it?
+                                                
+                                                man this would really clean up the interface...
+                                                ugh and i have color/style stuff baked in there too...
+
+
+
+                                                There's some deep lesson here, but I don't have time for that!
+                                                
+                                                
+                                                How hard is it going to be to get a new charting system up and running?
+                                                
+                                                Let's start with just computing the damn trace
+                                        
+                                                ok videodata now has a computeTrace that needs a cv::Rect for the bb and a cv::Mat for the mask
+                                                how do we get those?
+                                                
+                                                // this will convert a qrect to a cvrect
+                                                const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
+                                                    
+                                                // this is the old mask code
+                                                cv::Mat mask = thisroi->getMask();
+                                        
+                                                we need to install an interface to get what we need out of an roishape
+                                                What we'll need is:
+                                                    1. type             toimpl :: ROIVert::SHAPE getShapeType() const noexcept;
+                                                    2. verts            maybe this will be enough? investigate :: getVertices()
+                                                    3. boundingbox      toimpl :: QRect getTightBoundingBox() const noexcept;
+                                                    
+                                                        getmask was overloaded:
+RECT:
+    QRect bb = getBB();
+
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 255;
+    return mask;                
+
+ELLIPSE:
+    QRect bb = getBB();
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 0;
+    cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
+    return mask;
+
+POLY:
+
+    QRect bb = getBB();
+
+    int w = bb.width();
+    int h = bb.height();
+    cv::Size sz(w, h);
+    cv::Mat mask(sz, CV_8U);
+    mask = 0;
+
+    float left = std::numeric_limits<float>::infinity();
+    float top = std::numeric_limits<float>::infinity();
+    foreach(QPoint vertex, vertices) {
+        left = std::min((float)vertex.x(), left);
+        top = std::min((float)vertex.y(), top);
+    }
+
+    // make points from qpoints?
+    std::vector<cv::Point> cVertices;
+    foreach(QPoint vertex, vertices)
+    {
+        cVertices.push_back(cv::Point(vertex.x() - left, vertex.y() - top));
+    }
+    cv::fillPoly(mask, cVertices, cv::Scalar(255));
+
+    return mask;
+    
+    
+
+                                                    
+                                                    Note that boundingrect is the imagesize
+                                                
+                            
+                            [] make ROITrace...this holds the data, the ptr to the line chart, the ptr to the line in the ridge chart
+                            
+                            [] update when verts set
+                            
+                            
+            
+    
+    get it so that selecting and roi selects the traces
+        and vice versa
+        delete key in trace window
+        have a look at Roivert::updateTrace
+        
+    make colors work with traces
+    	
 	connect keys from imageview to something that allows set controls from key
+    
+    redo color picking widget with something new
+    
+    
+    make export rois work
+    
+        commented out code in roivert::loadVideo...
+        would rois needsd a check of whether there are any rois
+    
+    
+    What are we doing with deleted code? I'm going to remove and delete later...that means a delete pass!
+    
+    Some of ROIVert should become dead:
+        setSelectedROI
+        deleteROI
+        
+        
+    General export work:
+        write up the button for trace export in Roivert::doConnect
+        
+    
+    ---
+    when this is all done i really want to implify and simplify roivert, and make everything smartptr
+    Need a front end for visualization
+    make sure qtcharts is legit out
+    Use what i learned in tetris for making the speed selector legit
+    Maybe a quick look at export?
     
     

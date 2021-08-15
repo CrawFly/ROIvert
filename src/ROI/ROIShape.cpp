@@ -44,8 +44,8 @@ struct ROIShape::pimpl {
     QRectF bb;                  // todo: rename to distinguish from roi bounding box
     int EditingVertex{ -1 };    // current vertex being edited, -1 for none
     
-    QRect getBoundingBox() {
-        if (vertices.size() > 0)
+    QRect getBoundingBox() const noexcept {
+        if (!vertices.empty())
         {
             QRect r(vertices[0], QSize(0, 0));
             for (auto& v : vertices) {
@@ -58,6 +58,7 @@ struct ROIShape::pimpl {
         }
         return QRect();
     }
+
     bool isPoly() const noexcept {
         return shptype == ROIVert::SHAPE::POLYGON;
     }
@@ -196,6 +197,10 @@ struct ROIShape::pimpl {
         }
     }
 
+    ROIVert::SHAPE getShapeType() const noexcept {
+        return shptype;
+    }
+
 private:
     std::vector<QPoint> vertices;
     QGraphicsItem* shapeItem = nullptr;
@@ -271,7 +276,7 @@ void ROIShape::mouseReleaseEvent(QGraphicsSceneMouseEvent * event) {
     impl->mouseRelease(clickpos, sceneScale);
     if (impl->EditingVertex<0) {
         ungrabMouse();
-        emit roiEdited(this);
+        emit roiEdited(getShapeType(), getTightBoundingBox(), getVertices());
     }
 }
 
@@ -301,4 +306,12 @@ bool ROIShape::isSelectVisible() const noexcept {
 
 void ROIShape::updateStyle(QPen pen, QBrush brush, int selsize) {
     impl->updateStyle(pen, brush, selsize);
+}
+
+ROIVert::SHAPE ROIShape::getShapeType() const noexcept {
+    return impl->getShapeType();
+}
+
+QRect ROIShape::getTightBoundingBox() const noexcept {
+    return impl->getBoundingBox();
 }

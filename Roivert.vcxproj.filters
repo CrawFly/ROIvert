@@ -69,9 +69,6 @@
     <ClCompile Include="src\widgets\TraceChartImpl\Series.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TraceView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ImageView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -91,6 +88,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ROI\ROIStyle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TraceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROITrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -128,9 +131,6 @@
     <QtMoc Include="include\widgets\TraceChartWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\TraceView.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="include\ImageView.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -144,6 +144,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\ROI\ROIStyle.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\TraceView.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ROI\ROITrace.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

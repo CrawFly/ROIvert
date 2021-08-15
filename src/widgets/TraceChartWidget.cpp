@@ -111,12 +111,7 @@ void TraceChartWidget::setData(cv::Mat datas, QStringList names, const std::vect
 }
 void TraceChartWidget::setData(cv::Mat data, QString name, const double& xmin, const double& xmax, const double& offset, NORM norm) {
     assert(data.size().height == 1); // todo: to replace this with a exception
-
-    const std::vector<double> xmins = { xmin };
-    const std::vector<double> xmaxs = { xmax };
-    const std::vector<double> offsets = { offset };
-
-    setData(data, QStringList(name), xmins, xmaxs, offsets, norm);
+    setData(data, QStringList(name), { xmin }, { xmax }, { offset }, norm);
 }
 void TraceChartWidget::removeData(const QString & name) {
     removeData(QStringList(name));

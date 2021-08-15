@@ -9,6 +9,9 @@
 
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
+    TraceView* traceview{ nullptr };
+    VideoData* videodata{ nullptr };
+
     std::vector<std::unique_ptr<ROI>> rois; // todo: consider whether ROI could be a unique_ptr?
     ROIPalette pal;
     ROIStyle coreStyle;
@@ -24,13 +27,16 @@ struct ROIs::pimpl {
         s=coreStyle;
         s.setColor(pal.getPaletteColor(rois.size()));
 
-        rois.push_back(std::make_unique<ROI>(scene, mousemode, imgsize, s));
+        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, s));
         
         auto& gObj = rois.back()->graphicsShape;
 
         gObj->setVertices({ pos, pos });
         gObj->setEditingVertex(1);
         gObj->grabMouse();
+
+        auto& tObj = rois.back()->Trace;
+        connect(gObj.get(), &ROIShape::roiEdited, tObj.get(), &ROITrace::updateTrace);
     }
 
     bool outofbounds(QPointF pt) const noexcept{
@@ -132,15 +138,17 @@ struct ROIs::pimpl {
 };
 
 
-ROIs::ROIs(ImageView* view) {
+ROIs::ROIs(ImageView* iView, TraceView* tView, VideoData* vData) {
     // store scene
-    impl->scene = view->scene();
-    impl->imgsize = view->getImageSize();
+    impl->scene = iView->scene();
+    impl->imgsize = iView->getImageSize();
+    impl->traceview = tView;
+    impl->videodata = vData;
 
     // connect with view
-    connect(view, &ImageView::mousePressed, this, &ROIs::mousePress);
-    connect(view, &ImageView::keyPressed, this, &ROIs::keyPress);
-    connect(view, &ImageView::imageSizeUpdated, this, &ROIs::imageSizeUpdate);
+    connect(iView, &ImageView::mousePressed, this, &ROIs::mousePress);
+    connect(iView, &ImageView::keyPressed, this, &ROIs::keyPress);
+    connect(iView, &ImageView::imageSizeUpdated, this, &ROIs::imageSizeUpdate);
 }
 ROIs::~ROIs() = default;
 
@@ -195,9 +203,9 @@ void ROIs::setROIShape(ROIVert::SHAPE shp) noexcept {
     impl->mousemode = shp;
 }
 
-void ROIs::roiEdit(ROIShape*) {
+void ROIs::roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>) {
     // need to force an update after an edit completion to clean up artifact pixels outside of image rect.
-    impl->scene->update();impl->scene->update();
+    impl->scene->update();
 }
 
 std::vector<size_t> ROIs::getSelected() const noexcept {

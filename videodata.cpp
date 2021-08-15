@@ -3,10 +3,13 @@
 
 #include <QFile>
 #include <QStringList>
+#include <QRect>
+#include "ROIVertEnums.h"
 
-// TODO:
-//  5. add in tracedata
-//  7. 
+
+
+
+
 
 struct VideoData::pimpl {
 
@@ -64,7 +67,7 @@ void VideoData::load(QStringList filelist, int dst, int dss){
 }
 
 
-cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
+cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const {
     if (projmode > 0) {
         return impl->proj[isDff][(size_t)static_cast<VideoData::projection>(projmode - 1)];
     }
@@ -74,12 +77,12 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) {
     return impl->data[isDff][framenum];
 }
 
-void VideoData::getHistogram(bool isDff, std::vector<float>& h) { impl->histogram[isDff].copyTo(h); }
-int VideoData::getWidth() { return impl->width; }
-int VideoData::getHeight() { return impl->height; }
-size_t VideoData::getNFrames() { return impl->nframes; }
-int VideoData::getdsTime() { return impl->dsTime; }
-int VideoData::getdsSpace() { return impl->dsSpace; }
+void VideoData::getHistogram(bool isDff, std::vector<float>& h) const noexcept { impl->histogram[isDff].copyTo(h); }
+int VideoData::getWidth() const noexcept { return impl->width; }
+int VideoData::getHeight() const noexcept { return impl->height; }
+size_t VideoData::getNFrames() const noexcept { return impl->nframes; }
+int VideoData::getdsTime() const noexcept { return impl->dsTime; }
+int VideoData::getdsSpace() const noexcept { return impl->dsSpace; }
 
 
 void VideoData::pimpl::init() {
@@ -195,7 +198,11 @@ void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool a
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
 
+
+/*
 void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row,cv::Mat &traces) {
+    //todo: trying to kill this code, so remove it if I'm successful
+
     if (traces.empty()) {
         traces = cv::Mat(1, getNFrames(), CV_64FC1);
     }
@@ -219,4 +226,56 @@ void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size
 
         traces.at<double>(row - 1, i) = mu;
     }
+}
+*/
+cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
+    auto res = cv::Mat(1, getNFrames(), CV_64FC1);
+    for (size_t i = 0; i < getNFrames(); ++i) {
+        cv::Mat boundedRaw = get(false, 0, i)(cvbb);
+        cv::Mat boundedMu = get(false, 3, i)(cvbb);
+        boundedRaw.convertTo(boundedRaw, CV_64FC1);
+        boundedMu.convertTo(boundedMu, CV_64FC1);
+        cv::Mat boundedDff = (boundedRaw - boundedMu) / boundedMu;
+        double mu = cv::mean(boundedDff, mask)[0];
+
+        res.at<double>(0, i) = mu;
+    }
+
+    return res;
+}
+
+cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> pts) const {
+    // Turn the bounding box into a cv box
+    const cv::Rect cvbb(static_cast<size_t>(bb.x()),
+                        static_cast<size_t>(bb.y()),
+                        static_cast<size_t>(bb.width()),
+                        static_cast<size_t>(bb.height()));
+    
+    const int w = bb.width();
+    const int h = bb.height();
+    const cv::Size sz(w, h);
+
+    cv::Mat mask(sz, CV_8U);
+    mask = 0;
+
+    // Get a mask
+    switch (s)
+    {
+    case ROIVert::SHAPE::RECTANGLE:
+        mask = 255;
+        break;
+    case ROIVert::SHAPE::ELLIPSE:
+        cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
+        break;
+    case ROIVert::SHAPE::POLYGON:
+        std::vector<cv::Point> cVertices;
+        for (auto& pt : pts) {
+            // todo: this needs verification, it's sig. diff. from before, want to double check i didn't mess up orientation...
+            cVertices.push_back(cv::Point(pt.x() - bb.left(), pt.y() - bb.top()));
+        }
+        cv::fillPoly(mask, cVertices, cv::Scalar(255));
+        break;
+    }
+    
+    return computeTrace(cvbb, mask);
 }

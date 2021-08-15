@@ -1,6 +1,8 @@
 #pragma once
 #include <QObject>
 #include "ImageView.h"
+#include "TraceView.h"
+#include "videodata.h"
 #include "ROIVertEnums.h"
 
 
@@ -12,7 +14,7 @@ class ROIs : public QObject
     Q_OBJECT
 
 public:
-    ROIs(ImageView* view);
+    ROIs(ImageView*, TraceView*, VideoData*);
     ~ROIs();
 
     std::vector<size_t> getSelected() const noexcept;
@@ -25,7 +27,7 @@ public slots:
     void keyPress(int, Qt::KeyboardModifiers);
     void imageSizeUpdate(QSize);
     void setROIShape(ROIVert::SHAPE) noexcept;
-    void roiEdit(ROIShape*);
+    void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
     
 private:
     struct pimpl;

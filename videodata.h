@@ -3,6 +3,9 @@
 #include <QObject>
 #include "opencv2/opencv.hpp"
 class QStringList;
+namespace ROIVert {
+    enum class SHAPE;
+}
 
 
 class VideoData : public QObject
@@ -22,18 +25,24 @@ public:
     ~VideoData();
 
     void load(QStringList filelist, int dst, int dss);
-    cv::Mat get(bool isDff, int projmode, size_t framenum);
-    void getHistogram(bool isDff, std::vector<float>& histogram);
+    cv::Mat get(bool isDff, int projmode, size_t framenum) const;
+    void getHistogram(bool isDff, std::vector<float>& histogram) const noexcept;
     
-    int getWidth();
-    int getHeight();
-    size_t getNFrames();
-    int getdsTime();
-    int getdsSpace();
+    int getWidth() const noexcept;
+    int getHeight() const noexcept;
+    size_t getNFrames() const noexcept;
+    int getdsTime() const noexcept;
+    int getdsSpace() const noexcept;
     
 
-    // replace computeTrace with some methods for update/get
-    void computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row, cv::Mat& traces);      // will be able to move to private when we have traces in here...
+    // TODO: KILL this OLD COMPUTERS!
+    //void computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row, cv::Mat& traces);      // will be able to move to private when we have traces in here...
+
+    // todo: this one could move to private, idc.
+    cv::Mat computeTrace(const cv::Rect cvbb, const cv::Mat mask) const;
+
+    cv::Mat computeTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>) const;
+
 
 signals:
     void loadProgress(int progress);          // progress goes 0-100
@@ -41,6 +50,4 @@ signals:
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
-
-
 };

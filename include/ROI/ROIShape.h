@@ -25,11 +25,11 @@ public:
     void setSelectVisible(bool visible = true);
     bool isSelectVisible() const noexcept;
 
-    void setBoundingRect(QRectF);
-
-
+    void setBoundingRect(QRectF); // NOTE that this boundingrect is the one used for painting, NOT the tight rect
     void updateStyle(QPen pen, QBrush brush, int selsize);
     
+    ROIVert::SHAPE getShapeType() const noexcept;
+    QRect getTightBoundingBox() const noexcept;
 
     // Overrides to support painting, selection, cliping, etc.
     enum { Type = UserType + 1 };
@@ -42,7 +42,7 @@ public:
     void doPress(QPoint pos);
 
 signals:
-    void roiEdited(ROIShape *roi);
+    void roiEdited(ROIVert::SHAPE, QRect, std::vector<QPoint>);
 
 
 protected:
