@@ -48,9 +48,11 @@ void TraceChartWidget::addSeries(std::shared_ptr<TraceChartSeries> series) {
     impl->series.push_back(series);
     impl->updateExtents();
 }
-void TraceChartWidget::removeSeries(std::shared_ptr<TraceChartSeries> series) {
+void TraceChartWidget::removeSeries(std::shared_ptr<TraceChartSeries> series) noexcept {
     auto it = std::find(impl->series.begin(), impl->series.end(), series);
-    impl->series.erase(it);
+    if (it != impl->series.end()) {
+        impl->series.erase(it);
+    }
     impl->updateExtents();
 }
 std::vector<std::shared_ptr<TraceChartSeries>> TraceChartWidget::getSeries() const {

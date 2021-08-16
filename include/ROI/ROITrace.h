@@ -19,7 +19,8 @@ class ROITrace : public QObject
 
 public:
     ROITrace(TraceView*, VideoData*);
-    
+    ~ROITrace();
+
 public slots:
     void updateTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>);
 

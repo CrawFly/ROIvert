@@ -3,6 +3,7 @@
 
 class QVBoxLayout;
 class TraceChartWidget;
+class RidgeLineWidget;
 
 class TraceView : public QWidget
 {
@@ -17,7 +18,7 @@ public:
     //QVBoxLayout& getLineChartLayout();
     void addLineChart(TraceChartWidget*);
 
-    TraceChartWidget& getRidgeChart();
+    RidgeLineWidget& getRidgeChart() noexcept;
     
 private:
     struct pimpl;

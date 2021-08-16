@@ -1,11 +1,13 @@
 #include "ROI\ROI.h"
 
 ROI::ROI(QGraphicsScene* scene, TraceView* tView, VideoData* videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle& style) {
-    graphicsShape = std::make_unique<ROIShape>(scene, shp, imgsize, style.getSelectorSize(), style.getPen(), style.getBrush());
     Style = std::make_unique<ROIStyle>(style);
 
-    Trace = std::make_unique<ROITrace>(tView, videodata);
+    //todo: ROIShape should take a ROIStyle, args 3-5 collapse
+    graphicsShape = std::make_unique<ROIShape>(scene, shp, imgsize, style.getSelectorSize(), style.getPen(), style.getBrush());
 
+    //todo: Trace should take a ROIStyle, it'll use that for color (for now)
+    Trace = std::make_unique<ROITrace>(tView, videodata);
 
     //Chart = std::make_unique<TraceChartWidget>();
     //tView->addLineChart(Chart.get());

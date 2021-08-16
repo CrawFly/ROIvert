@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\widgets\RidgeLineWidget.cpp" />
     <ClCompile Include="src\ROI\ROITrace.cpp" />
     <ClCompile Include="src\ImageView.cpp" />
     <ClCompile Include="src\ROI\ROI.cpp" />
@@ -166,6 +167,7 @@
     <QtMoc Include="include\ROI\ROIShape.h" />
     <QtMoc Include="include\ROI\ROIStyle.h" />
     <QtMoc Include="include\ROI\ROITrace.h" />
+    <ClInclude Include="include\widgets\RidgeLineWidget.h" />
     <ClInclude Include="roivertcore.h" />
     <ClInclude Include="displaysettings.h" />
     <ClInclude Include="resource.h" />

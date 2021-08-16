@@ -3,11 +3,12 @@
 #include <QTabWidget>
 #include <QScrollArea>
 #include "widgets/TraceChartWidget.h"
+#include "widgets/RidgeLineWidget.h"
 
 
 struct TraceView::pimpl {
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
-    std::unique_ptr<TraceChartWidget> ridgeChart = std::make_unique<TraceChartWidget>(nullptr);
+    std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
 
     void doLayout() {
@@ -64,6 +65,6 @@ void TraceView::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
 }
     
-TraceChartWidget& TraceView::getRidgeChart() {
+RidgeLineWidget& TraceView::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
 }

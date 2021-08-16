@@ -17,7 +17,7 @@ public:
     ~TraceChartWidget();
 
     void addSeries(std::shared_ptr<TraceChartSeries>);
-    void removeSeries(std::shared_ptr<TraceChartSeries>);
+    void removeSeries(std::shared_ptr<TraceChartSeries>) noexcept;
     std::vector<std::shared_ptr<TraceChartSeries>> getSeries() const;
 
     TraceChartAxis* getXAxis() const noexcept;
@@ -47,10 +47,11 @@ class TraceChartSeries
 {
 public:
     TraceChartSeries();
-    TraceChartSeries(cv::Mat data, double xmin = 0., double xmax = 1., double offset = 0., ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
+    TraceChartSeries(cv::Mat data, double xmin = 0., double xmax = 1., float offset = 0., ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
     ~TraceChartSeries();
 
-    void setData(cv::Mat, double offset = 0., ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
+    void setData(cv::Mat, float offset, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
+    void setData(cv::Mat, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
     cv::Mat getData() const noexcept;
 
     void setXMin(const double&) noexcept;
@@ -65,6 +66,10 @@ public:
     QRectF getExtents();
     
     void paint(QPainter& painter, const QColor& lineColor, const QColor& fillColor, const QTransform& T, const double& ymin);
+
+    void setOffset(float) noexcept;
+    float getOffset() const noexcept;
+    
     
 private:
     struct pimpl;

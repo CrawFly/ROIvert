@@ -96,6 +96,9 @@
     <ClCompile Include="src\widgets\TraceChartSeries.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\RidgeLineWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="roivert.h">
@@ -170,6 +173,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\ROIVertEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\widgets\RidgeLineWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -270,8 +270,7 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
     case ROIVert::SHAPE::POLYGON:
         std::vector<cv::Point> cVertices;
         for (auto& pt : pts) {
-            // todo: this needs verification, it's sig. diff. from before, want to double check i didn't mess up orientation...
-            cVertices.push_back(cv::Point(pt.x() - bb.left(), pt.y() - bb.top()));
+             cVertices.push_back(cv::Point(pt.x() - bb.left(), pt.y() - bb.top()));
         }
         cv::fillPoly(mask, cVertices, cv::Scalar(255));
         break;
