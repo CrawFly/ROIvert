@@ -34,13 +34,14 @@ public:
     int getdsTime() const noexcept;
     int getdsSpace() const noexcept;
     
+    float getTMax() const noexcept;
+    void setFrameRate(float framerate) noexcept;
 
     // TODO: KILL this OLD COMPUTERS!
     //void computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row, cv::Mat& traces);      // will be able to move to private when we have traces in here...
 
     // todo: this one could move to private, idc.
     cv::Mat computeTrace(const cv::Rect cvbb, const cv::Mat mask) const;
-
     cv::Mat computeTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>) const;
 
 

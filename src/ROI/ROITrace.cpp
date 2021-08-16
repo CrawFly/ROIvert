@@ -10,46 +10,56 @@
 #include "ROI/ROIStyle.h"
 
 struct ROITrace::pimpl {
-    VideoData* vd;
-    TraceView* tv;
+    VideoData* videodata;
+    TraceView* traceview;
 
     cv::Mat TraceData;
-    std::unique_ptr<TraceChartWidget> tc = std::make_unique<TraceChartWidget>();
+    std::unique_ptr<TraceChartWidget> TraceChart = std::make_unique<TraceChartWidget>();
     std::shared_ptr<TraceChartSeries> LineSeries = std::make_shared<TraceChartSeries>();
     std::shared_ptr<TraceChartSeries> RidgeSeries = std::make_shared<TraceChartSeries>();
+
+    double xmin, xmax;
 };
 
 
 ROITrace::ROITrace(TraceView* tv, VideoData* vd, ROIStyle style) {
-    impl->vd = vd;
-    impl->tv = tv;
-    tv->addLineChart(impl->tc.get());
+    impl->videodata = vd;
+    impl->traceview = tv;
+    tv->addLineChart(impl->TraceChart.get());
 
-    // todo: need the limits for the chart
-    impl->tc->addSeries(impl->LineSeries);
-    impl->tv->getRidgeChart().addSeries(impl->RidgeSeries);
+    impl->LineSeries->setXMax(impl->videodata->getTMax());
+    impl->RidgeSeries->setXMax(impl->videodata->getTMax());
+
+    impl->TraceChart->addSeries(impl->LineSeries);
+    impl->traceview->getRidgeChart().addSeries(impl->RidgeSeries);
 
     impl->LineSeries->setColor(style.getPen().color());
     impl->RidgeSeries->setColor(style.getPen().color());
 }
 
 ROITrace::~ROITrace() {
-    if (impl->tv) {
-        impl->tv->getRidgeChart().removeSeries(impl->RidgeSeries);
-        impl->tv->getRidgeChart().updateOffsets();
-        impl->tv->getRidgeChart().updateExtents();
-        impl->tv->getRidgeChart().update();
+    if (impl->traceview) {
+        impl->traceview->getRidgeChart().removeSeries(impl->RidgeSeries);
+        impl->traceview->getRidgeChart().updateOffsets();
+        impl->traceview->getRidgeChart().updateExtents();
+        impl->traceview->getRidgeChart().update();
     }
 }
 
 void ROITrace::updateTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> pts) {
-    impl->TraceData = impl->vd->computeTrace(s, bb, pts);
+    impl->TraceData = impl->videodata->computeTrace(s, bb, pts);
+    update();
+}
+
+void ROITrace::update() {
+    impl->LineSeries->setXMax(impl->videodata->getTMax());
     impl->LineSeries->setData(impl->TraceData);
-    impl->tc->updateExtents();
-    impl->tc->update();
+    impl->TraceChart->updateExtents();
+    impl->TraceChart->update();
 
     impl->RidgeSeries->setData(impl->TraceData, ROIVert::NORMALIZATION::ZEROTOONE);
-    impl->tv->getRidgeChart().updateOffsets();
-    impl->tv->getRidgeChart().updateExtents();
-    impl->tv->getRidgeChart().update();
+    impl->RidgeSeries->setXMax(impl->videodata->getTMax());
+    impl->traceview->getRidgeChart().updateOffsets();
+    impl->traceview->getRidgeChart().updateExtents();
+    impl->traceview->getRidgeChart().update();
 }

@@ -80,6 +80,8 @@ struct TraceChartAxis::pimpl {
     bool tightleft = false;
     bool tightright = false;
 
+    bool visible = true;
+
     QFontMetrics labelfontmea = QFontMetrics(QFont());
     QFontMetrics tickfontmea = QFontMetrics(QFont());
 
@@ -181,8 +183,14 @@ void TraceChartAxis::updateLayout() {
         impl->labelthickness = impl->labelfontmea.height();
     }
 }
+void TraceChartAxis::setVisible(bool yesno) noexcept { impl->visible = yesno; }
+bool TraceChartAxis::getVisible() const noexcept { return impl->visible; }
 
 void TraceChartHAxis::paint(QPainter & painter) {
+    if (!impl->visible) {
+        return;
+    }
+
     const QRect& pos = impl->position;
 
     // todo: style work
@@ -247,10 +255,14 @@ std::tuple<double, double> TraceChartHAxis::getMargins() const {
     return std::make_tuple(left, right);
 }
 int TraceChartHAxis::getThickness() const noexcept {
-    return impl->position.height();
+    return impl->visible ? impl->position.height() : 0;
 }
 
 void TraceChartVAxis::paint(QPainter & painter) {
+    if (!impl->visible) {
+        return;
+    }
+
     const QRect& pos = impl->position;
 
     //todo: style work
@@ -312,6 +324,6 @@ std::tuple<double, double> TraceChartVAxis::getMargins() const {
     return std::make_tuple(marg, marg);
 }
 int TraceChartVAxis::getThickness() const noexcept {
-    return impl->position.width();
+    return impl->visible ? impl->position.width() : 0;
 }
 

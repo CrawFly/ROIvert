@@ -65,6 +65,7 @@ void TraceView::setTimeLimits(float min, float max) {
 }
 void TraceView::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
+    chart->getXAxis()->setLabel("Time (s)");
 }
     
 RidgeLineWidget& TraceView::getRidgeChart() noexcept {

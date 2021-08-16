@@ -234,3 +234,9 @@ void ROIs::setColorBySelect(bool yesno) {
         r->Style->setColorBySelected(yesno);
     }
 }
+
+void ROIs::updateROITraces() {
+    for (auto& r : impl->rois) {
+        r->Trace->update();
+    }
+}

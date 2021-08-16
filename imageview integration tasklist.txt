@@ -214,19 +214,25 @@ imageview integration
             
         
     NEXT UP IN CHART PARITY:
-        1. LOOKS LIKE THERE'S SOME MARGIN IN CHART LAYOUT
-        2. CHART X AXIS PICKING
-        3. RIDGECHART FORMATTING - REMOVE Y AXIS
+        [x] LOOKS LIKE THERE'S SOME MARGIN IN CHART LAYOUT
+        [x] CHART X AXIS PICKING
+        3. RIDGECHART FORMATTING - 
+            [x] REMOVE Y AXIS
+            add shading (needs the impl back in there first)
+        
         4. SETTINGS FOR FILL AND GRADIENT STUFF
+        
         5. SELECTION: 
             MAKE CHARTS CLICKABLE
             INDICATE SELECTED CHARTS
             SCROLL TO SELECTION
             CLICKY ON RIDGECHART
             
-        6. YLABELLING
+        6. [x] XLabelling, 
+            YLABELLING ... this is fine to do df/f, but norm is coming....
+            
         7. EXPORT
-        A BUNCH OF TIDY'S IN CHARTS WRT STYLE/LAYOUT
+        8. A BUNCH OF remaingning todo's IN CHARTS WRT STYLE/LAYOUT
         
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...

@@ -171,6 +171,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     t_imgData->setProgBar(-1);
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
+    viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
     t_imgData->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
     
     vidctrl->setEnabled(true);
@@ -198,7 +199,8 @@ void Roivert::changeFrame(const size_t frame)
 
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
-    //traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
+    viddata->setFrameRate(frameRate / viddata->getdsTime()); // duplicated for convenience
+    rois->updateROITraces();
 }
 
 void Roivert::makeToolbar() {

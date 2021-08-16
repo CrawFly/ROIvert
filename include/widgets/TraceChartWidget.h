@@ -108,6 +108,9 @@ public:
     
     void setMaxNTicks(const unsigned int& n);
 
+    void setVisible(bool) noexcept;
+    bool getVisible() const noexcept;
+
 protected:
     // this updates the tick values, the ticklabelthickness, and the margins. It needs to be called if the font changes or the labels change.
     virtual void updateLayout();

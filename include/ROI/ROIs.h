@@ -19,8 +19,9 @@ public:
 
     std::vector<size_t> getSelected() const noexcept;
     ROIStyle* getROIStyle(size_t ind) const noexcept;
-    
     void setColorBySelect(bool yesno = true);
+    
+    void updateROITraces();
 
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);

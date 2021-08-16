@@ -32,7 +32,7 @@ struct VideoData::pimpl {
     double dffminval = 0., dffmaxval = 0., dffrng = 0.;
     cv::Mat histogram[2]; // [raw|dff]
     std::vector<cv::Mat> data[2]; 
-
+    float framerate;
 };
 
 
@@ -282,4 +282,11 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
     }
     
     return computeTrace(cvbb, mask);
+}
+void VideoData::setFrameRate(float framerate) noexcept {
+    impl->framerate = framerate;
+}
+
+float VideoData::getTMax() const noexcept {
+    return impl->nframes / impl->framerate;
 }
