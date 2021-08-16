@@ -223,11 +223,24 @@ imageview integration
         
         4. SETTINGS FOR FILL AND GRADIENT STUFF
             Do I want a separate style object for traces? 
-                ....TO CONSIDER::::::AT LEAST A DIFFERENT SIGNAL?
+                ...TO CONSIDER::::::AT LEAST A DIFFERENT SIGNAL?
+                ...could have a separate chart style object, we use the ROIStyleChanged signal to set the color
+                    so color only comes from ROIStyle
+                    Then we'll have two instances 
+                    one for ridge and one for line
+                    actually it can have an ROIStyle in its constructor, and it can wire itself up to it, which means no need for any outside connection,.,...
+                        [] add getColor and getFillColor to ROIStyle
+                        [] make ChartStyle
+                        [] make chartstyle use ROIStyle colors 
+                        [] move series to use chartstyle
+                        
+                    
+                
             
-            [] add chart stuff to style object 
+            [X] add chart stuff to style object 
                 [] REPLACE SETCOLOR WITH SETSTYLE
                 [] CONSTRUCTOR
+                ----problem: i put in a ridgeline style and a trace style, but the series objects won't know which they are...
                 
                 
             [] put style object onto the traces

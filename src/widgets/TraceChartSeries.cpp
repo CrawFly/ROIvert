@@ -226,7 +226,18 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
         painter.drawPath(T.map(path).translated(QPointF(0, style.Width / 2)));
     }
     */
+    auto brush = style.getTraceBrush();
+    auto pen = style.getTracePen();
+    painter.setPen(Qt::NoPen);
+    auto backbrush = QBrush(style.getBackgroundColor());
+    painter.setBrush(backbrush);
+    painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
+
+
+    painter.setBrush(brush);
+    painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
 
     painter.setPen(style.getTracePen());
+    painter.setBrush(Qt::NoBrush);
     painter.drawPolyline(T.map(poly));
 }

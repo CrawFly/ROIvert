@@ -12,6 +12,7 @@ public:
 
     // Charts
     void setBackgroundColor(QColor);
+    QColor getBackgroundColor() const noexcept;
 
     // Axes
     void setAxisColor(QColor);

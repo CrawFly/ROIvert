@@ -10,7 +10,7 @@ struct ChartStyle::pimpl {
     int tickfontsize{ 10 };
 
     int tracelinewidth{ 3 };
-    int tracefillopacity{ 0 };
+    int tracefillopacity{ 55 };
     bool tracefillgradient{ false };
     QColor linecolor{ Qt::red };
     QColor fillcolor{ Qt::red };
@@ -38,6 +38,9 @@ ChartStyle& ChartStyle::operator=(const ChartStyle& that) {
 void ChartStyle::setBackgroundColor(QColor c) {
     impl->backgroundcolor = c;
     emit StyleChanged(*this);
+}
+QColor ChartStyle::getBackgroundColor() const noexcept {
+    return impl->backgroundcolor;
 }
 
 // Axes
