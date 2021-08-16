@@ -146,7 +146,6 @@ void imgData::filePathChanged(const QString &filepath)
 }
 void imgData::load()
 {
-    // load just emits the load signal with all the data...
     QFileInfoList fileinfolist = QDir(txtFilePath->text()).entryInfoList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
     QStringList filelist;
     for each (QFileInfo filename in fileinfolist)
@@ -221,16 +220,16 @@ imgSettings::imgSettings(QWidget* parent) {
     addVSep(topLay);
     {// Smoothing
         topLay->addWidget(new QLabel(tr("Smoothing:")));
-        smoothing = new SmoothingPickWidget;
-        smoothing->setMaximumWidth(300);
-        topLay->addWidget(smoothing);
+        Wsmoothing = new SmoothingPickWidget;
+        Wsmoothing->setMaximumWidth(300);
+        topLay->addWidget(Wsmoothing);
         topLay->addStretch(1);
     }
 
     connect(contrast, &ContrastWidget::contrastChanged, this, &imgSettings::updateSettings);
     connect(projection, &ProjectionPickWidget::projectionChanged, this, &imgSettings::updateSettings);
     connect(colormap, &ColormapPickWidget::colormapChanged, this, &imgSettings::updateSettings);
-    connect(smoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
+    connect(Wsmoothing, &SmoothingPickWidget::smoothingChanged, this, &imgSettings::updateSettings);
 
     setEnabled(false);
 }
@@ -239,20 +238,21 @@ void imgSettings::setHistogram(std::vector<float> &data){
     // shim: convert to qvector...(should this come in as qvector? should contrast use std vector?)
     contrast->setHistogram(QVector<float>::fromStdVector(data));
 }
-void imgSettings::setContrast(float min, float max, float gamma){
-    contrast->setContrast(std::make_tuple(min, max, gamma));
+void imgSettings::setContrast(ROIVert::contrast c){
+    contrast->setContrast(c);
 }
 void imgSettings::updateSettings() {
     // this is a centralized location for updating settings and emitting a signal with the whole payload:
     ROIVert::imgsettings pay;
     
-    std::tie(pay.contrastMin, pay.contrastMax, pay.contrastGamma) = contrast->getContrast();
+    pay.Contrast = contrast->getContrast();
     pay.projectionType = projection->getProjection();
     pay.cmap = colormap->getColormap();
-    pay.smoothing = smoothing->getSmoothing();
+    pay.Smoothing = Wsmoothing->getSmoothing();
     
     emit imgSettingsChanged(pay);
 }
+
 fileIO::fileIO(QWidget* parent) {
     setParent(parent);
     QVBoxLayout* lay = new QVBoxLayout;
@@ -282,30 +282,46 @@ fileIO::fileIO(QWidget* parent) {
     lay->addWidget(new QLabel("Charts"));
     QSpinBox* spinChartWidth = new QSpinBox;
     QSpinBox* spinChartHeight = new QSpinBox;
-    spinChartWidth->setMinimum(0);
-    spinChartHeight->setMinimum(0);
-    spinChartWidth->setMaximum(10000);
-    spinChartHeight->setMaximum(10000);
+    QSpinBox* spinChartQuality = new QSpinBox;
 
-    spinChartWidth->setValue(1600);
+    spinChartWidth->setMinimum(0);
+    spinChartWidth->setMaximum(10000);
+    spinChartWidth->setValue(1600); 
+    
+    spinChartHeight->setMinimum(0);
+    spinChartHeight->setMaximum(10000);
     spinChartHeight->setValue(600);
+    
+    spinChartQuality->setMinimum(10);
+    spinChartQuality->setMaximum(100);
+    spinChartQuality->setValue(100);
+
     spinChartWidth->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinChartHeight->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+    spinChartQuality->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
 
-    QHBoxLayout* layChartDim = new QHBoxLayout;
-    layChartDim->addWidget(new QLabel("Dimensions:"));
-    layChartDim->addWidget(spinChartWidth);
-    layChartDim->addWidget(new QLabel(" x "));
-    layChartDim->addWidget(spinChartHeight);
-    layChartDim->addStretch(1);
-    QCheckBox* chkChartTitle = new QCheckBox("Include Title");
 
-    QPushButton* cmdExpCharts = new QPushButton("Export Charts", this);
-    cmdExpCharts->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    lay->addLayout(layChartDim);
-    lay->addWidget(chkChartTitle);
-    lay->addWidget(cmdExpCharts);
+    QGridLayout* layChartParams = new QGridLayout;
 
+    layChartParams->addWidget(new QLabel("Dimensions:"),0,0);
+    layChartParams->addWidget(spinChartWidth,0,1);
+    layChartParams->addWidget(new QLabel(" x "),0,2);
+    layChartParams->addWidget(spinChartHeight,0,3);
+    layChartParams->setAlignment(Qt::AlignLeft);
+    layChartParams->addWidget(new QLabel("Quality:"),1,0);
+    layChartParams->addWidget(spinChartQuality,1,1);
+
+    QHBoxLayout* layChartButs = new QHBoxLayout;
+    QPushButton* cmdExpCharts = new QPushButton("Export Lines", this);
+    QPushButton* cmdExpRidge = new QPushButton("Export Ridge", this);
+
+    //cmdExpCharts->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    layChartButs->addWidget(cmdExpCharts);
+    layChartButs->addWidget(cmdExpRidge);
+    layChartButs->addStretch(1);
+
+    lay->addLayout(layChartParams);
+    lay->addLayout(layChartButs);
     {
         QFrame* line = new QFrame;
         line->setFrameStyle(QFrame::HLine);
@@ -370,10 +386,22 @@ fileIO::fileIO(QWidget* parent) {
     {
         QString initpath = QDir::currentPath();
         if (!cachepath.isEmpty()) { initpath = cachepath; }
-        QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png)"));
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
         if (!filename.isEmpty()) {
             cachepath = QFileInfo(filename).absolutePath();
-            emit exportCharts(filename, chkChartTitle->isChecked(), spinChartWidth->value(), spinChartHeight->value());
+            emit exportCharts(filename, spinChartWidth->value(), spinChartHeight->value(), spinChartQuality->value(), false);
+        }
+    }
+    );
+
+    connect(cmdExpRidge, &QPushButton::clicked, this, [=]()
+    {
+        QString initpath = QDir::currentPath();
+        if (!cachepath.isEmpty()) { initpath = cachepath; }
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
+        if (!filename.isEmpty()) {
+            cachepath = QFileInfo(filename).absolutePath();
+            emit exportCharts(filename, spinChartWidth->value(), spinChartHeight->value(), spinChartQuality->value(), true);
         }
     }
     );

@@ -27,12 +27,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="imageroiviewer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="roi.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="roivert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,9 +37,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="displaysettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="traceviewer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="toolwindows.cpp">
@@ -66,11 +57,50 @@
     <ClCompile Include="src\widgets\ContrastWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ImageView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ZoomPan.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROIs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROISelector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROIShape.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROIStyle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TraceView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ROI\ROITrace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartAxis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\TraceChartSeries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\RidgeLineWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="imageroiviewer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="roivert.h">
       <Filter>Header Files</Filter>
     </QtMoc>
@@ -83,29 +113,50 @@
     <QtMoc Include="videodata.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="traceviewer.h">
+    <QtMoc Include="include\widgets\ColormapPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ColorPickWidget.h">
+    <QtMoc Include="include\widgets\ColorPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ProjectionPickWidget.h">
+    <QtMoc Include="include\widgets\ContrastWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ColormapPickWidget.h">
+    <QtMoc Include="include\widgets\ContrastWidgetImpl.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\SmoothingPickWidget.h">
+    <QtMoc Include="include\widgets\ProjectionPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="src\widgets\ContrastWidget.h">
+    <QtMoc Include="include\widgets\SmoothingPickWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ImageView.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ZoomPan.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ROI\ROIs.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ROI\ROIShape.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ROI\ROIStyle.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\TraceView.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\ROI\ROITrace.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\TraceChartWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="roi.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,6 +164,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="roivertcore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ROI\ROI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ROI\ROISelector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ROIVertEnums.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\widgets\RidgeLineWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

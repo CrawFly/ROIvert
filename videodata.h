@@ -1,8 +1,12 @@
 #pragma once
 
 #include <QObject>
-#include <QStringList>
 #include "opencv2/opencv.hpp"
+class QStringList;
+namespace ROIVert {
+    enum class SHAPE;
+}
+
 
 class VideoData : public QObject
 {
@@ -17,62 +21,34 @@ public:
         SUM
     };
 
-    VideoData(QObject *parent);
+    VideoData();
     ~VideoData();
 
     void load(QStringList filelist, int dst, int dss);
-    cv::Mat getFrame(bool isDff, size_t frameindex);
-    cv::Mat getProjection(bool isDff, VideoData::projection proj);
+    cv::Mat get(bool isDff, int projmode, size_t framenum) const;
+    void getHistogram(bool isDff, std::vector<float>& histogram) const noexcept;
+    
+    int getWidth() const noexcept;
+    int getHeight() const noexcept;
+    size_t getNFrames() const noexcept;
+    int getdsTime() const noexcept;
+    int getdsSpace() const noexcept;
+    
+    float getTMax() const noexcept;
+    void setFrameRate(float framerate) noexcept;
 
-    // this is maybe temporary until i refactor into a nice clean array
-    cv::Mat get(bool isDff, int projmode, size_t framenum);
-    
-    void setStoreDff(bool enabled);
-    bool getStoreDff();
-    
-    // these get the total histograms
-    void getHistogram(bool isDff, std::vector<float>& histogram);
-    void getHistogram(bool isDff, std::vector<float>& histogram, size_t framenum);
-    
-    int getWidth();
-    int getHeight();
-    size_t getNFrames();
-    int getdsTime();
-    int getdsSpace();
+    // TODO: KILL this OLD COMPUTERS!
+    //void computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row, cv::Mat& traces);      // will be able to move to private when we have traces in here...
 
-    void dffNativeToOrig(double &val);
-    std::vector<double> calcTrace(cv::Rect cvbb, cv::Mat mask);
+    // todo: this one could move to private, idc.
+    cv::Mat computeTrace(const cv::Rect cvbb, const cv::Mat mask) const;
+    cv::Mat computeTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>) const;
+
+
 signals:
     void loadProgress(int progress);          // progress goes 0-100
 
 private:
-    bool storeDff = true; // For now many things sort of depnd on this being true, but there's some flexibility here
-    QStringList files;
-    int width=0, height=0, nframes=0;
-
-    // Projections:
-    cv::Mat proj[2][4];  // outer is raw|dff; inner is indexed by enum
-    cv::Mat projdbl[2][4];
-
-    // Meta data:
-    int dsTime = 1, dsSpace = 1, bitdepth = 0; 
-
-    // Range values:
-    double dffminval = 0., dffmaxval = 0., dffrng = 0.;
-
-    void init();
-    bool readframe(size_t filenum);
-    void accum(const cv::Mat &frame);
-    void complete();
-
-    cv::Mat calcDffDouble(const cv::Mat& frame);
-    cv::Mat calcDffNative(const cv::Mat& frame);
-
-    // Histogram stuff:
-    void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
-
-    cv::Mat histogram[2]; // [raw|dff]
-
-    // Actual storage:
-    std::vector<cv::Mat>* data[2] = { new std::vector<cv::Mat>, new std::vector<cv::Mat> };
+    struct pimpl;
+    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
 };

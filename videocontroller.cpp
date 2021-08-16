@@ -48,8 +48,6 @@ VideoController::VideoController(QWidget *parent) : QWidget(parent)
     txtSpeed->setValidator(val);
 
     cmdDff->setText(ROIVert::dffstring());
-    //const QSize ctextSize = cmdDff->fontMetrics().size(Qt::TextShowMnemonic, " " + cmdDff->text() + " ");
-    //cmdDff->setFixedWidth(ctextSize.width());
     cmdDff->setCheckable(true);
     
     QVBoxLayout *layTop = new QVBoxLayout;
@@ -161,6 +159,9 @@ void VideoController::setFrameRate(const float fr)
     clock->setInterval(clockrate());
     updateTimeLabel();
 }
+
+float VideoController::getFrameRate() const { return framerate; }
+
 void VideoController::updateTimeLabel()
 {
     // qtime has to be specified as int, let's do it ms

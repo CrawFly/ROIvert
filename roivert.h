@@ -2,18 +2,17 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_roivert.h"
-#include "imageroiviewer.h"
 #include "videocontroller.h"
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
 #include "videodata.h"
 #include "displaysettings.h"
 #include "roivertcore.h"
-#include "traceviewer.h"
-#include <QtCharts/qvalueaxis.h>
-using namespace QtCharts;
+#include "ImageView.h"
+#include "ROI/ROIs.h"
 
 
+class TraceView;
 
 
 class Roivert : public QMainWindow
@@ -28,15 +27,14 @@ public slots:
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
     
-signals:
-    void MupdateTrace(ImageROIViewer*, VideoData*, const int);
-
 protected:
     void closeEvent(QCloseEvent* event) override;
 
 private:
+    void doConnect();
+
+
     Ui::RoivertClass ui;
-    ImageROIViewer *imview;
     VideoController *vidctrl;
     VideoData* viddata;
     tool::imgData* t_imgData;
@@ -52,22 +50,23 @@ private:
     
 
     DisplaySettings dispSettings;
-    TraceViewer* tviewer;
-
 
     void frameRateChanged(double frameRate);
     void makeToolbar();
-    void updateContrastPickWidget(bool isDff);
+    void updateContrastWidget(bool isDff);
     void updateTrace(int roiid);
 
-    std::vector<std::vector<double>> traces;
     void selecttoolfromkey(int key);
 
     void exportTraces(QString filename, bool doHeader, bool doTimeCol);
     void exportROIs(QString filename);
     void importROIs(QString filename);
-    void exportCharts(QString filename, bool doTitle, int width, int height);
-    
     void restoreSettings();
     void resetLayout();
+
+    cv::Mat TraceData;
+    TraceView* traceview;
+    ImageView* imageview;
+    ROIs* rois;
+    
 };

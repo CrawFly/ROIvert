@@ -10,11 +10,11 @@
 #include <QLabel>
 #include "roivertcore.h"
 
-#include "src/widgets/ContrastWidget.h"
-#include "src/widgets/ColorPickWidget.h"
-#include "src/widgets/ProjectionPickWidget.h"
-#include "src/widgets/ColormapPickWidget.h"
-#include "src/widgets/SmoothingPickWidget.h"
+#include "widgets/ContrastWidget.h"
+#include "widgets/ColorPickWidget.h"
+#include "widgets/ProjectionPickWidget.h"
+#include "widgets/ColormapPickWidget.h"
+#include "widgets/SmoothingPickWidget.h"
 
 namespace tool
 {
@@ -59,7 +59,7 @@ namespace tool
         imgSettings(QWidget* parent);
         ~imgSettings();
         void setHistogram(std::vector<float> &data);
-        void setContrast(float min, float max, float gamma);
+        void setContrast(ROIVert::contrast c);
 
     signals:
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
@@ -68,7 +68,7 @@ namespace tool
         ContrastWidget* contrast;
         ProjectionPickWidget* projection;
         ColormapPickWidget* colormap;
-        SmoothingPickWidget* smoothing;
+        SmoothingPickWidget* Wsmoothing;
         
         void updateSettings();
     };
@@ -83,7 +83,7 @@ namespace tool
         void exportTraces(QString filename, bool doHeader, bool doTimeCol);
         void exportROIs(QString filename);
         void importROIs(QString filename);
-        void exportCharts(QString filename, bool doTitle, int width, int height);
+        void exportCharts(QString filename, int width, int height, int quality, bool ridge);
         
     private:
         QString cachepath; //TODO: replace with windowFilePath

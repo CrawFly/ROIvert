@@ -1,5 +1,7 @@
-#include "ColormapPickWidget.h"
+#include "widgets/ColormapPickWidget.h"
 #include <QFormLayout>
+#include <QComboBox>
+#include "opencv2/opencv.hpp"
 
 namespace {
     std::vector<QPixmap> getColormapPixmaps(std::vector<cv::ColormapTypes> CmapTypes) {
@@ -24,10 +26,11 @@ namespace {
 
         return res;
     }
+    const std::vector<cv::ColormapTypes> cmaps{ cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE };
 }
 
 ColormapPickWidget::ColormapPickWidget(QWidget* parent) noexcept : QWidget(parent) {
-
+    cmbColormap = new QComboBox;
     QVBoxLayout* lay = new QVBoxLayout;
 
     std::vector<QPixmap> c = getColormapPixmaps(cmaps);

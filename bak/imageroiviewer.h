@@ -6,6 +6,80 @@
 #include "opencv2/opencv.hpp"
 #include <QObject>
 
+#include <QGraphicsSceneMouseEvent>
+class selectionHandle : public QGraphicsItem {
+public :
+	selectionHandle() {
+		setZValue(1);
+		setCursor(Qt::SizeAllCursor);
+	}
+
+	QPolygon p;
+	QRectF bbf;
+	QPainterPath pp;
+
+	void setROI(QVector<QPoint> verts, QRect bb) {
+		if (verts.size() < 2){
+			setVisible(false);
+			return;
+		}
+		/*
+		if (verts.size() == 2) {
+			verts = { bb.topLeft(), bb.bottomRight() + QPoint(1, 1) };
+		}
+		*/
+
+		p = QPolygon(verts);
+
+		bbf = scene()->sceneRect(); // no matter what i did, i kept getting little artifacts remaining, need the whole rect on.
+		setVisible(true);
+		update();
+
+	}
+
+
+	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
+		/*
+		auto rect = scene()->sceneRect();
+		auto viewsize = scene()->views()[0]->size();
+		auto widthratio = rect.width() / (float)viewsize.width();
+		auto heightratio = rect.height() / (float)viewsize.height();
+
+		auto ratio = widthratio > heightratio ? widthratio : heightratio;
+		*/
+
+		// to get zoom to work it seems like we want scale...but i'm confused about what scale means...
+
+		qDebug() << "scale" << scene()->views()[0]->transform().m11();
+
+		pp.clear();
+		auto scale = scene()->views()[0]->transform().m11();
+		for (auto& pt : p) {
+			//pp.addRect(pt.x() - ratio*10, pt.y() - ratio*10, ratio*20, ratio*20);
+			const auto w = 20. / scale;
+			pp.addRect(pt.x() - w/2, pt.y() - w/2, w, w);
+		}
+
+
+		//painter->setPen(QPen(Qt::darkBlue, ratio * 15));
+		painter->setPen(QPen(Qt::darkBlue, 20./scale));
+		painter->drawPoints(p);
+		//painter->setPen(QPen(Qt::lightGray, ratio * 7));
+		painter->setPen(QPen(Qt::lightGray, 10./scale));
+		painter->drawPoints(p);
+	};
+
+	QRectF boundingRect() const {
+		return bbf ;
+		
+	}
+
+	QPainterPath selectionHandle::shape() const {
+		return pp;
+	}
+
+};
+
 namespace ROIVert
 {
 	enum MODE
@@ -68,6 +142,8 @@ protected:
 	void wheelEvent(QWheelEvent *event) override;
 
 private:
+	selectionHandle* seltest = new selectionHandle;
+
 	QImage img;
 	QGraphicsScene *scene;
 	QGraphicsPixmapItem *pixitem;

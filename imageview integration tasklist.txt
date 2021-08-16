@@ -1,0 +1,290 @@
+imageview integration
+    [x] insert it
+    [x] remove references to the old one
+
+    [x] just get it in there and showing an image
+        [x] and movie
+
+	get rois in 
+        [x] first build!
+        (the old roi had an include for opencv? maybe it owned traces)
+        
+        [x] make it so i can draw rois
+            (I think this requires a connect between the imview and the rois?)
+           
+        [x]connect up so that the toolbar controls change the modes
+            Roivert::makeToolbar        
+        
+        [x] Folder Structure for ROIs:
+            let's say all this stuff with ROI prefix belongs in one folder
+            
+    [x] imageview should start up as disabled!
+    
+	move traces into rois
+        OK here's what it looks like
+            TraceChartWidget makes one chart
+            TraceView has the traces but is also the container for all the charts
+            So we want to keep a TraceView...
+                it's analogous to ImageView
+                it's going to hold the tabgroup for switching betwewwen chart types
+                but the charts themselves are going to live in the new ROITraces
+                We'll have to think about where the stack and image charts live...
+                
+                Interesting
+                    So we should hold a stack of charts and
+                    A stack of lines
+                    And TraceView has to somehow manage the rest
+                    
+                    Start with just getting the lines and ignoring all the details...
+                        ROI needs to be created with a ptr to the TraceView...?
+                        but first traceview needs a total revamp..
+                        
+                        And we need to get the compute in somewhere
+                        and the notification...lots to do!
+                        
+                        at the end of Roivert::loadVideo we were setting the time limits for traceview...(and also in Roivert::frameRateChanged
+                            
+                        Start with traceview2?
+                            [x] brand new:
+                                tabs, scroll in Line, Empty ridge
+                                Something has to tell it the t axis on video load?
+                                
+                                It looks like videodata has the computetrace?
+                                    ...it needs:
+                                        a cv::Rect which is the bounding box for the ROI
+                                        a cv::Mat mask
+                                        a size_t row
+                                        and a cv::Mat& traces
+                                        
+                                        I hate this...it reinforces the indexing woe I'm trying to avoid...
+                                        
+                                        setData's internal data setter iterates over names
+                                        for each one it gets the namesit creates a "Series which takes in the cv::Mat
+                                        
+                                        I bet we could just do cv::Mats that are all 1 row for the non-ridgeline
+                                        I remember this mess of inserting a row into a cv::Mat
+                                        what a pain
+                                        but there's something actually kindof important here which is that we used cv to normalize...so if we're going to keep that then we need to keep some aspect of this...
+                                        
+                                        
+                                        I feel like this can still all be done without the matrix version of cv::mat...i've got this series abstraction in there which is precisely for htis purpose...
+                                        
+                                        I'd like to pull out the stupid shit around the way I did setData
+                                            instead I'd almost want to expose the Series...
+                                                Then the trace itself can live in roi...
+                                                
+                                                series* = addSeries(data, xmin, xmax, offset, norm)
+                                                and then erasing it just erases it?
+                                                
+                                                man this would really clean up the interface...
+                                                ugh and i have color/style stuff baked in there too...
+
+
+
+                                                There's some deep lesson here, but I don't have time for that!
+                                                
+                                                
+                                                How hard is it going to be to get a new charting system up and running?
+                                                
+                                                Let's start with just computing the damn trace
+                                        
+                                                ok videodata now has a computeTrace that needs a cv::Rect for the bb and a cv::Mat for the mask
+                                                how do we get those?
+                                                
+                                                // this will convert a qrect to a cvrect
+                                                const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
+                                                    
+                                                // this is the old mask code
+                                                cv::Mat mask = thisroi->getMask();
+                                        
+                                                we need to install an interface to get what we need out of an roishape
+                                                What we'll need is:
+                                                    1. type             toimpl :: ROIVert::SHAPE getShapeType() const noexcept;
+                                                    2. verts            maybe this will be enough? investigate :: getVertices()
+                                                    3. boundingbox      toimpl :: QRect getTightBoundingBox() const noexcept;
+                                                    
+                                                        getmask was overloaded:
+
+
+
+//
+            
+            
+                    *** i THINK NOW THAT I WANT VIDEODATA TO OWNN THIS...WHY SHOULD I HAVE TO DEAL WITH BULLSHIT CV SHIT
+                    
+    
+
+                                                    
+                                                    Note that boundingrect is the imagesize
+                                                
+                                                &*&*&&^&& we have a new trace computer!
+                                                    
+                                                    need to wire this up with ROITrace
+                                                        start with a debug
+                                                        
+                            
+                            [] make ROITrace...this holds the data, the ptr to the line chart, the ptr to the line in the ridge chart
+                            
+                            [] update when verts set
+                            
+    -----
+    Big push:
+        Get charts redone so that they're friendly
+            - Series is exposed and owned elsewhere.
+            - Have to watch out for deletion order
+            - Style is ported to the new style
+            - Pull the name nonsense totally out
+            
+            Almost want to pull out axis too, but maybe we can save that for later
+        
+        Chart auto-scroll and selection back/forth
+        
+        
+        New widget for roi style options, chart style options
+        More builtin color options
+    
+        
+    get it so that selecting and roi selects the traces
+        and vice versa
+        delete key in trace window
+        have a look at Roivert::updateTrace
+     
+
+    Let's consider pulling out axis, basically all of TraceChartImpl:
+    1. There's a TraceChartWidget that defines a few classes
+        TraceChartWidget
+        TraceChartSeries
+        TraceChartAxis
+        
+        TraceChartWidget has an addSeries method
+        TraceChartSeries has a setData method
+        
+        
+        The way I wrote TraceChartWidget, it loops over its series and calls paint explicitly...there's no parent child system
+            Can I redo this with parent chiold system?
+            Experiment?
+            I want to know if I can make a widget, make a child widget, overload paint, paint is called?
+            
+            Let's get this pup building by comment, but make sure there's a chart
+            
+            The question is: what are those children? Are they widgets? QGraphicsItems?
+                I guess they'd have to be widgets as I've conceived it...
+                When i went down the path of making this thing a graphics view it went badly...
+                    because I got lost in co-ordinate transforms...
+                    man i'm tempted to go back down that path if only to get the qgraphicssvg support...
+                    
+                    
+                    
+                I'd really love to make this work in a graphicsview, it's so natural...
+                
+                
+                
+                This is too elaborate now....let's get this thing up and running:
+                    1. Suppose the chart could continue to own them, but also return the ptr
+                        then my new roi thing can call an add method, and a remove method
+                        and we can dance around destruction?
+                        
+            okat charts are backup
+                now to think about ridgeline and image...
+                    there is some inherent indexing communication, even if it's just for the offsets
+                        I bet i could do something cool about that with a little wrapper around charts
+                        it's almost like i subclass charts with something that all the series are offset,  except that offset belonged to the series and not the chart...:(
+                        
+    
+    
+    
+    
+    If I pulled out offset from setData I'd be in a better place...
+        Then I'd just have a subclass of TraceChartWidget that had an updater that set all the offsets!
+        
+        
+    
+    
+    
+     
+    ------------------------
+    [x] make colors work with traces
+    	----
+    BUGS!
+        1. EXACT PIXEL PERFECT ROIS: 
+            (PUT IN A SHIM ON ROISHAPE THAT'S BLOCKING BOTTOMRIGHT PIXELS, REMOVE IT)
+        2. POLY SELECTION BUG I THINK I HAVE REPRO:
+            Draw a 2 x 2 square
+            Draw a poly on the top left, the bottom left, the bottom right
+            
+        
+    NEXT UP IN CHART PARITY:
+        [x] LOOKS LIKE THERE'S SOME MARGIN IN CHART LAYOUT
+        [x] CHART X AXIS PICKING
+        3. RIDGECHART FORMATTING - 
+            [x] REMOVE Y AXIS
+            add shading (needs the impl back in there first)
+        
+        4. SETTINGS FOR FILL AND GRADIENT STUFF
+        
+        5. SELECTION: 
+            MAKE CHARTS CLICKABLE
+            INDICATE SELECTED CHARTS
+            SCROLL TO SELECTION
+            CLICKY ON RIDGECHART
+            
+        6. [x] XLabelling, 
+            YLABELLING ... this is fine to do df/f, but norm is coming....
+            
+        7. EXPORT
+        8. A BUNCH OF remaingning todo's IN CHARTS WRT STYLE/LAYOUT
+        
+    THEN NEXT FEATURE PUSH:
+        STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
+        CHART NORMALIZATION
+        SHOT AT IMAGECHART
+        OTHER EXPORTS
+        SPEED CHECK, I THINK I CAN DO BETTER NOW?
+        
+    REFACTOR PUSH   
+        BIG CLEANUP IN ROIVERT.CPP
+            - PUSH AT MORE MEMORY MANAGEMENT
+        MOVE AND CLEAN FINAL REMAINING NONSENSE
+        DELETE ORPHAN FILES
+        
+    BIG TIDY PUSH
+    RELEASE PUSH
+    DOC
+    
+    KNOWN ISSUES LIST?
+        - CLICKING WHEN VERY ZOOMED IN CAN SELECT ROIS BY CLICKING A PIXEL OR TWO OUTSIDE OF THEM
+        - ARTIFACTS ON THE EDGE OF THE IMAGE IF SELECTION HANDLE GOES OUTSIDE OF THE IMAGE, SHOULD DISAPPEAR ON MOUSEUP
+        
+    
+        ----
+	connect keys from imageview to something that allows set controls from key
+    
+    redo color picking widget with something new
+    
+    
+    make export rois work
+    
+        commented out code in roivert::loadVideo...
+        would rois needsd a check of whether there are any rois
+    
+    
+    What are we doing with deleted code? I'm going to remove and delete later...that means a delete pass!
+    
+    Some of ROIVert should become dead:
+        setSelectedROI
+        deleteROI
+        
+        
+    General export work:
+        write up the button for trace export in Roivert::doConnect
+        
+    
+    ---
+    when this is all done i really want to implify and simplify roivert, and make everything smartptr
+    Need a front end for visualization
+    make sure qtcharts is legit out
+    Use what i learned in tetris for making the speed selector legit
+    Maybe a quick look at export?
+    
+    Shoudl i make all my constructors explicit?
+    What does this look like if i try to build in gnu or something...on linux?
