@@ -219,9 +219,24 @@ imageview integration
         3. RIDGECHART FORMATTING - 
             [x] REMOVE Y AXIS
             add shading (needs the impl back in there first)
+                
         
         4. SETTINGS FOR FILL AND GRADIENT STUFF
-        
+            Do I want a separate style object for traces? 
+                ....TO CONSIDER::::::AT LEAST A DIFFERENT SIGNAL?
+            
+            [] add chart stuff to style object 
+                [] REPLACE SETCOLOR WITH SETSTYLE
+                [] CONSTRUCTOR
+                
+                
+            [] put style object onto the traces
+            [] make sure we use it for color
+            [] add a line width
+            [] bring back in the fill
+            [] add a fill opacity
+            [] add gradient mode back in
+            
         5. SELECTION: 
             MAKE CHARTS CLICKABLE
             INDICATE SELECTED CHARTS
@@ -232,7 +247,10 @@ imageview integration
             YLABELLING ... this is fine to do df/f, but norm is coming....
             
         7. EXPORT
-        8. A BUNCH OF remaingning todo's IN CHARTS WRT STYLE/LAYOUT
+        8. A BUNCH OF remaining todo's IN CHARTS WRT STYLE/LAYOUT
+            (might be better saved for after i have a widget to tweak)
+            
+        *** PUT RIDGELINEWIDGET HEADER INTO TRACECHARTWIDGET.H
         
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...

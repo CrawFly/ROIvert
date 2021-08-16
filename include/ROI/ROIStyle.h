@@ -20,10 +20,11 @@ public:
 
     void setColor(QColor color);
     void setLineColor(QColor color);
+    QColor getLineColor() const noexcept;
     void setFillColor(QColor color);
+    QColor getFillColor() const noexcept;
     void setSelectedColor(QColor color);
     void setUnselectedColor(QColor color);
-
 
     void setLineWidth(int linewidth);
     void setFillOpacity(int opacity);
@@ -33,7 +34,7 @@ public:
 
     int getSelectorSize() const noexcept;
     bool isColorBySelected() const noexcept;
-
+    
 signals:
     void StyleChanged(const ROIStyle&);
 

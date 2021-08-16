@@ -2,7 +2,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QDebug>
-
+#include "ChartStyle.h"
 #include "opencv2/opencv.hpp"
 
 using ROIVert::NORMALIZATION;
@@ -61,7 +61,7 @@ struct TraceChartSeries::pimpl {
     cv::Mat data;
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
-    QColor color{ Qt::red };
+    ChartStyle style;
 
 private:
     QPolygonF poly;
@@ -69,14 +69,10 @@ private:
     float offset{ 0 };
 };
 
-TraceChartSeries::TraceChartSeries() = default; //?
-TraceChartSeries::~TraceChartSeries() = default;
-TraceChartSeries::TraceChartSeries(cv::Mat data, double xmin, double xmax, float offset, NORMALIZATION norm) {
-    setXMin(xmin);
-    setXMax(xmax);
-    setData(data, norm);
-    impl->setOffset(offset);
+TraceChartSeries::TraceChartSeries(const ChartStyle& style) {
+    setStyle(style);
 }
+TraceChartSeries::~TraceChartSeries() = default;
 void TraceChartSeries::setData(cv::Mat data, float offset, NORMALIZATION norm) {
     impl->setData(data, norm);
     impl->setOffset(offset);
@@ -100,8 +96,9 @@ double TraceChartSeries::getYMax() const noexcept { return impl->extents[3]; }
 void TraceChartSeries::setOffset(float offset) noexcept { impl->setOffset(offset); }
 float TraceChartSeries::getOffset() const noexcept { return impl->getOffset(); }
 
-void TraceChartSeries::setColor(const QColor& color) noexcept { impl->color = color; }
-QColor TraceChartSeries::getColor() const noexcept { return impl->color; };
+void TraceChartSeries::setStyle(const ChartStyle& style) noexcept { 
+    impl->style = style; 
+}
 
 QRectF TraceChartSeries::getExtents() {
     return QRectF(QPointF(impl->extents[0], impl->extents[2]), QPointF(impl->extents[1], impl->extents[3]));
@@ -230,8 +227,6 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     }
     */
 
-    //todo: style work
-    //painter.setPen(QPen(lineColor, style.Width));
-    painter.setPen(QPen(color, 2.));
+    painter.setPen(style.getTracePen());
     painter.drawPolyline(T.map(poly));
 }

@@ -7,22 +7,29 @@
 #include "widgets\TraceChartWidget.h"
 #include "widgets\RidgeLineWidget.h"
 #include "opencv2/opencv.hpp"
-#include "ROI/ROIStyle.h"
+#include "ChartStyle.h"
 
 struct ROITrace::pimpl {
     VideoData* videodata;
     TraceView* traceview;
 
     cv::Mat TraceData;
-    std::unique_ptr<TraceChartWidget> TraceChart = std::make_unique<TraceChartWidget>();
-    std::shared_ptr<TraceChartSeries> LineSeries = std::make_shared<TraceChartSeries>();
-    std::shared_ptr<TraceChartSeries> RidgeSeries = std::make_shared<TraceChartSeries>();
+    std::unique_ptr<TraceChartWidget> TraceChart;
+    std::shared_ptr<TraceChartSeries> LineSeries;
+    std::shared_ptr<TraceChartSeries> RidgeSeries;
 
     double xmin, xmax;
+
+    void init(const ChartStyle &style) {
+        TraceChart = std::make_unique<TraceChartWidget>();
+        LineSeries = std::make_shared<TraceChartSeries>(style);
+        RidgeSeries = std::make_shared<TraceChartSeries>(style);
+    }
 };
 
 
-ROITrace::ROITrace(TraceView* tv, VideoData* vd, ROIStyle style) {
+ROITrace::ROITrace(TraceView* tv, VideoData* vd, const ChartStyle &style) {
+    impl->init(style);
     impl->videodata = vd;
     impl->traceview = tv;
     tv->addLineChart(impl->TraceChart.get());
@@ -33,8 +40,8 @@ ROITrace::ROITrace(TraceView* tv, VideoData* vd, ROIStyle style) {
     impl->TraceChart->addSeries(impl->LineSeries);
     impl->traceview->getRidgeChart().addSeries(impl->RidgeSeries);
 
-    impl->LineSeries->setColor(style.getPen().color());
-    impl->RidgeSeries->setColor(style.getPen().color());
+    //impl->LineSeries->setColor(style.getPen().color());
+    //impl->RidgeSeries->setColor(style.getPen().color());
 }
 
 ROITrace::~ROITrace() {

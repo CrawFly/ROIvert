@@ -4,6 +4,8 @@
 
 class TraceChartSeries;
 class TraceChartAxis;
+class ChartStyle;
+
 namespace cv {
     class Mat;
 }
@@ -46,8 +48,7 @@ private:
 class TraceChartSeries
 {
 public:
-    TraceChartSeries();
-    TraceChartSeries(cv::Mat data, double xmin = 0., double xmax = 1., float offset = 0., ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
+    TraceChartSeries(const ChartStyle&);
     ~TraceChartSeries();
 
     void setData(cv::Mat, float offset, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
@@ -70,8 +71,7 @@ public:
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
     
-    void setColor(const QColor&) noexcept;
-    QColor getColor() const noexcept;
+    void setStyle(const ChartStyle&) noexcept;
     
 private:
     struct pimpl;

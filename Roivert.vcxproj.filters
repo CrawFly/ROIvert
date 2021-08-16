@@ -99,6 +99,9 @@
     <ClCompile Include="src\widgets\RidgeLineWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ChartStyle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="roivert.h">
@@ -153,6 +156,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\TraceChartWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ChartStyle.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

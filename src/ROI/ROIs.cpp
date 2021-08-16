@@ -6,6 +6,7 @@
 #include "ROI\ROI.h"
 #include "ROI\ROISelector.h"
 #include "ROI\ROIStyle.h"
+#include "ChartStyle.h"
 
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
@@ -22,12 +23,13 @@ struct ROIs::pimpl {
     ROIVert::SHAPE mousemode{ ROIVert::SHAPE::ELLIPSE };
 
     void pushROI(QPoint pos) {
-        //todo: clr and size with a style object or w/e
+        //todo: more careful work for style needed here...
         ROIStyle s;
         s=coreStyle;
         s.setColor(pal.getPaletteColor(rois.size()));
+        ChartStyle sc(s);
 
-        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, s));
+        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, s, sc));
         
         auto& gObj = rois.back()->graphicsShape;
 

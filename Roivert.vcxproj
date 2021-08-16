@@ -110,6 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChartStyle.cpp" />
     <ClCompile Include="src\widgets\RidgeLineWidget.cpp" />
     <ClCompile Include="src\ROI\ROITrace.cpp" />
     <ClCompile Include="src\ImageView.cpp" />
@@ -160,6 +161,7 @@
     <QtMoc Include="include\widgets\ColormapPickWidget.h" />
     <QtMoc Include="include\widgets\ContrastWidget.h" />
     <QtMoc Include="include\ImageView.h" />
+    <QtMoc Include="ChartStyle.h" />
     <ClInclude Include="include\ROIVertEnums.h" />
     <ClInclude Include="include\ROI\ROI.h" />
     <QtMoc Include="include\ROI\ROIs.h" />

@@ -11,6 +11,8 @@ struct ROIStyle::pimpl {
     int selsize{ 15 };
     bool colorbyselected{ false };
     bool isSelected{ false };
+    
+
 
     QColor getLineColor() const noexcept {
         return colorbyselected ? (isSelected ? selunselcolors.first : selunselcolors.second) : linecolor;
@@ -31,6 +33,7 @@ ROIStyle::ROIStyle(QColor color, int linewidth, int fillopacity, int selsize, bo
     impl->selunselcolors = ssclr;
 }
 
+// todo: write these copies better....
 ROIStyle& ROIStyle::operator=(const ROIStyle& that) {
     if (this != &that) {    
         this->impl->linecolor = that.impl->linecolor;
@@ -94,6 +97,8 @@ void ROIStyle::setLineColor(QColor color) {
     impl->linecolor = color;
     emit StyleChanged(*this);
 }
+QColor ROIStyle::getLineColor() const noexcept { return impl->linecolor; }
+QColor ROIStyle::getFillColor() const noexcept { return impl->fillcolor; }
 void ROIStyle::setFillColor(QColor color) {    
     impl->fillcolor = color;
     emit StyleChanged(*this);
@@ -136,6 +141,7 @@ void ROIStyle::setSelected(bool sel) {
         emit StyleChanged(*this);
     }
 }
+
 
 void ROIPalette::setPaletteColors(std::vector<QColor> clrs){
     palettecolors = clrs;
