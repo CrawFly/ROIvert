@@ -37,9 +37,10 @@ private:
 TraceChartWidget::TraceChartWidget(QWidget* parent)
     : QWidget(parent)
 {
-    setContentsMargins(11, 11, 11, 11);
+    //setContentsMargins(11, 11, 11, 11);
+    setContentsMargins(5, 5, 5, 5);
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
-
+    
 }
 
 TraceChartWidget::~TraceChartWidget() = default;
@@ -89,6 +90,7 @@ void TraceChartWidget::saveAsImage(const QString & filename, int w, int h, int q
         // *** consider adding a flag for normalzie fonts...that might be a tad tricky :)
     }
     setContentsMargins(0, 0, 0, 0);
+    
     update();
     QPixmap pm(size());
     render(&pm, QPoint(), QRegion(), QWidget::DrawChildren);
