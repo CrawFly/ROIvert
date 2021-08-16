@@ -61,6 +61,7 @@ struct TraceChartSeries::pimpl {
     cv::Mat data;
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
+    QColor color{ Qt::red };
 
 private:
     QPolygonF poly;
@@ -99,11 +100,12 @@ double TraceChartSeries::getYMax() const noexcept { return impl->extents[3]; }
 void TraceChartSeries::setOffset(float offset) noexcept { impl->setOffset(offset); }
 float TraceChartSeries::getOffset() const noexcept { return impl->getOffset(); }
 
+void TraceChartSeries::setColor(const QColor& color) noexcept { impl->color = color; }
+QColor TraceChartSeries::getColor() const noexcept { return impl->color; };
+
 QRectF TraceChartSeries::getExtents() {
     return QRectF(QPointF(impl->extents[0], impl->extents[2]), QPointF(impl->extents[1], impl->extents[3]));
 }
-
-
     
 
 // pimpl
@@ -230,7 +232,6 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
 
     //todo: style work
     //painter.setPen(QPen(lineColor, style.Width));
-    painter.setPen(QPen(lineColor, 2.));
+    painter.setPen(QPen(color, 2.));
     painter.drawPolyline(T.map(poly));
-    qDebug() << poly;
 }

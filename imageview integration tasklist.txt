@@ -104,73 +104,153 @@ imageview integration
                                                     3. boundingbox      toimpl :: QRect getTightBoundingBox() const noexcept;
                                                     
                                                         getmask was overloaded:
-RECT:
-    QRect bb = getBB();
 
-    int w = bb.width();
-    int h = bb.height();
-    cv::Size sz(w, h);
-    cv::Mat mask(sz, CV_8U);
-    mask = 255;
-    return mask;                
 
-ELLIPSE:
-    QRect bb = getBB();
-    int w = bb.width();
-    int h = bb.height();
-    cv::Size sz(w, h);
-    cv::Mat mask(sz, CV_8U);
-    mask = 0;
-    cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
-    return mask;
 
-POLY:
-
-    QRect bb = getBB();
-
-    int w = bb.width();
-    int h = bb.height();
-    cv::Size sz(w, h);
-    cv::Mat mask(sz, CV_8U);
-    mask = 0;
-
-    float left = std::numeric_limits<float>::infinity();
-    float top = std::numeric_limits<float>::infinity();
-    foreach(QPoint vertex, vertices) {
-        left = std::min((float)vertex.x(), left);
-        top = std::min((float)vertex.y(), top);
-    }
-
-    // make points from qpoints?
-    std::vector<cv::Point> cVertices;
-    foreach(QPoint vertex, vertices)
-    {
-        cVertices.push_back(cv::Point(vertex.x() - left, vertex.y() - top));
-    }
-    cv::fillPoly(mask, cVertices, cv::Scalar(255));
-
-    return mask;
-    
+//
+            
+            
+                    *** i THINK NOW THAT I WANT VIDEODATA TO OWNN THIS...WHY SHOULD I HAVE TO DEAL WITH BULLSHIT CV SHIT
+                    
     
 
                                                     
                                                     Note that boundingrect is the imagesize
                                                 
+                                                &*&*&&^&& we have a new trace computer!
+                                                    
+                                                    need to wire this up with ROITrace
+                                                        start with a debug
+                                                        
                             
                             [] make ROITrace...this holds the data, the ptr to the line chart, the ptr to the line in the ridge chart
                             
                             [] update when verts set
                             
-                            
+    -----
+    Big push:
+        Get charts redone so that they're friendly
+            - Series is exposed and owned elsewhere.
+            - Have to watch out for deletion order
+            - Style is ported to the new style
+            - Pull the name nonsense totally out
             
+            Almost want to pull out axis too, but maybe we can save that for later
+        
+        Chart auto-scroll and selection back/forth
+        
+        
+        New widget for roi style options, chart style options
+        More builtin color options
     
+        
     get it so that selecting and roi selects the traces
         and vice versa
         delete key in trace window
         have a look at Roivert::updateTrace
+     
+
+    Let's consider pulling out axis, basically all of TraceChartImpl:
+    1. There's a TraceChartWidget that defines a few classes
+        TraceChartWidget
+        TraceChartSeries
+        TraceChartAxis
         
-    make colors work with traces
-    	
+        TraceChartWidget has an addSeries method
+        TraceChartSeries has a setData method
+        
+        
+        The way I wrote TraceChartWidget, it loops over its series and calls paint explicitly...there's no parent child system
+            Can I redo this with parent chiold system?
+            Experiment?
+            I want to know if I can make a widget, make a child widget, overload paint, paint is called?
+            
+            Let's get this pup building by comment, but make sure there's a chart
+            
+            The question is: what are those children? Are they widgets? QGraphicsItems?
+                I guess they'd have to be widgets as I've conceived it...
+                When i went down the path of making this thing a graphics view it went badly...
+                    because I got lost in co-ordinate transforms...
+                    man i'm tempted to go back down that path if only to get the qgraphicssvg support...
+                    
+                    
+                    
+                I'd really love to make this work in a graphicsview, it's so natural...
+                
+                
+                
+                This is too elaborate now....let's get this thing up and running:
+                    1. Suppose the chart could continue to own them, but also return the ptr
+                        then my new roi thing can call an add method, and a remove method
+                        and we can dance around destruction?
+                        
+            okat charts are backup
+                now to think about ridgeline and image...
+                    there is some inherent indexing communication, even if it's just for the offsets
+                        I bet i could do something cool about that with a little wrapper around charts
+                        it's almost like i subclass charts with something that all the series are offset,  except that offset belonged to the series and not the chart...:(
+                        
+    
+    
+    
+    
+    If I pulled out offset from setData I'd be in a better place...
+        Then I'd just have a subclass of TraceChartWidget that had an updater that set all the offsets!
+        
+        
+    
+    
+    
+     
+    ------------------------
+    [x] make colors work with traces
+    	----
+    BUGS!
+        1. EXACT PIXEL PERFECT ROIS: 
+            (PUT IN A SHIM ON ROISHAPE THAT'S BLOCKING BOTTOMRIGHT PIXELS, REMOVE IT)
+        2. POLY SELECTION BUG I THINK I HAVE REPRO:
+            Draw a 2 x 2 square
+            Draw a poly on the top left, the bottom left, the bottom right
+            
+        
+    NEXT UP IN CHART PARITY:
+        1. LOOKS LIKE THERE'S SOME MARGIN IN CHART LAYOUT
+        2. CHART X AXIS PICKING
+        3. RIDGECHART FORMATTING - REMOVE Y AXIS
+        4. SETTINGS FOR FILL AND GRADIENT STUFF
+        5. SELECTION: 
+            MAKE CHARTS CLICKABLE
+            INDICATE SELECTED CHARTS
+            SCROLL TO SELECTION
+            CLICKY ON RIDGECHART
+            
+        6. YLABELLING
+        7. EXPORT
+        A BUNCH OF TIDY'S IN CHARTS WRT STYLE/LAYOUT
+        
+    THEN NEXT FEATURE PUSH:
+        STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
+        CHART NORMALIZATION
+        SHOT AT IMAGECHART
+        OTHER EXPORTS
+        SPEED CHECK, I THINK I CAN DO BETTER NOW?
+        
+    REFACTOR PUSH   
+        BIG CLEANUP IN ROIVERT.CPP
+            - PUSH AT MORE MEMORY MANAGEMENT
+        MOVE AND CLEAN FINAL REMAINING NONSENSE
+        DELETE ORPHAN FILES
+        
+    BIG TIDY PUSH
+    RELEASE PUSH
+    DOC
+    
+    KNOWN ISSUES LIST?
+        - CLICKING WHEN VERY ZOOMED IN CAN SELECT ROIS BY CLICKING A PIXEL OR TWO OUTSIDE OF THEM
+        - ARTIFACTS ON THE EDGE OF THE IMAGE IF SELECTION HANDLE GOES OUTSIDE OF THE IMAGE, SHOULD DISAPPEAR ON MOUSEUP
+        
+    
+        ----
 	connect keys from imageview to something that allows set controls from key
     
     redo color picking widget with something new
@@ -200,4 +280,5 @@ POLY:
     Use what i learned in tetris for making the speed selector legit
     Maybe a quick look at export?
     
-    
+    Shoudl i make all my constructors explicit?
+    What does this look like if i try to build in gnu or something...on linux?

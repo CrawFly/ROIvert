@@ -3,6 +3,7 @@
 #include <QRect>
 class VideoData;
 class TraceView;
+class ROIStyle;
 
 namespace ROIVert {
     enum class SHAPE;
@@ -18,7 +19,7 @@ class ROITrace : public QObject
     Q_OBJECT
 
 public:
-    ROITrace(TraceView*, VideoData*);
+    ROITrace(TraceView*, VideoData*, ROIStyle);
     ~ROITrace();
 
 public slots:

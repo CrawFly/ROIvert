@@ -7,6 +7,7 @@
 #include <QDebug>
 
 #include "ROI\ROISelector.h"
+#include "ROI\ROIStyle.h"
 
 static void clamp_point_to_rect(QPoint& pt, QRect rect) {
     pt.setX(std::clamp(pt.x(), rect.left(), rect.width()));
@@ -14,7 +15,7 @@ static void clamp_point_to_rect(QPoint& pt, QRect rect) {
 }
 
 struct ROIShape::pimpl {
-    void init(ROIVert::SHAPE shape, ROIShape* parent, double Selsz, QPen Pen, QBrush Brush) {
+    void init(ROIVert::SHAPE shape, ROIShape* parent, const ROIStyle& style) {
         
         switch (shape)
         {
@@ -37,7 +38,7 @@ struct ROIShape::pimpl {
             break;
         }
         sel = new ROISelector(parent);
-        updateStyle(Pen, Brush, Selsz);
+        updateStyle(style);
         shptype = shape;
     }
 
@@ -162,11 +163,11 @@ struct ROIShape::pimpl {
             }
         }
     }
-    void updateStyle(QPen Pen, QBrush Brush, int Selsize) {
+    void updateStyle(const ROIStyle& style) {
         // set pen, set brush, set color on sel, set selsize
-        pen = Pen;
-        brush = Brush;
-        selsize = Selsize;
+        pen = style.getPen();
+        brush = style.getBrush();
+        selsize = style.getSelectorSize();
 
         auto shp = dynamic_cast<QAbstractGraphicsShapeItem*>(shapeItem);
         if (shp) {
@@ -215,11 +216,9 @@ private:
 ROIShape::ROIShape(QGraphicsScene* scene, 
                    ROIVert::SHAPE shp, 
                    QSize imgsize, 
-                   double selsize, 
-                   QPen pen,
-                   QBrush brush) {
+                   const ROIStyle& style) {
     
-    impl->init(shp, this, selsize, pen, brush);
+    impl->init(shp, this, style);
     setBoundingRect(QRectF(0, 0, imgsize.width(), imgsize.height()));
     scene->addItem(this);
 }
@@ -304,8 +303,8 @@ bool ROIShape::isSelectVisible() const noexcept {
     return impl->isSelectVisible();
 }
 
-void ROIShape::updateStyle(QPen pen, QBrush brush, int selsize) {
-    impl->updateStyle(pen, brush, selsize);
+void ROIShape::updateStyle(const ROIStyle& style) {
+    impl->updateStyle(style);
 }
 
 ROIVert::SHAPE ROIShape::getShapeType() const noexcept {

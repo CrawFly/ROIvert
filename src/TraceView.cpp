@@ -26,6 +26,8 @@ struct TraceView::pimpl {
         scrollArea->setWidgetResizable(true);
         scrollAreaParent->setContentsMargins(0, 0, 0, 0);
         lineChartLayout->setContentsMargins(0, 0, 0, 0);
+        lineChartLayout->setSpacing(0);
+        lineChartLayout->setMargin(0);
 
         tabRidgeLine->setLayout(ridgeLayout);
         ridgeLayout->addWidget(ridgeChart.get());

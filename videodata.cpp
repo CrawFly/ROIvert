@@ -230,6 +230,11 @@ void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size
 */
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
     auto res = cv::Mat(1, getNFrames(), CV_32FC1);
+    if (cvbb.width == 0 || cvbb.height == 0) {
+        res = 0;
+        return res;
+    }
+
     for (size_t i = 0; i < getNFrames(); ++i) {
         cv::Mat boundedRaw = get(false, 0, i)(cvbb);
         cv::Mat boundedMu = get(false, 3, i)(cvbb);
@@ -248,11 +253,11 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
     // Turn the bounding box into a cv box
     const cv::Rect cvbb(static_cast<size_t>(bb.x()),
                         static_cast<size_t>(bb.y()),
-                        static_cast<size_t>(bb.width()),
-                        static_cast<size_t>(bb.height()));
+                        static_cast<size_t>(bb.width()-1),
+                        static_cast<size_t>(bb.height())-1);
     
-    const int w = bb.width();
-    const int h = bb.height();
+    const int w = bb.width() - 1;
+    const int h = bb.height() - 1;
     const cv::Size sz(w, h);
 
     cv::Mat mask(sz, CV_8U);

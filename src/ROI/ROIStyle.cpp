@@ -87,40 +87,41 @@ QBrush ROIStyle::getBrush() const {
 void ROIStyle::setColor(QColor color) {
     impl->linecolor = color;
     impl->fillcolor = color;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    
+    emit StyleChanged(*this);
 }
 void ROIStyle::setLineColor(QColor color) {
     impl->linecolor = color;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setFillColor(QColor color) {    
     impl->fillcolor = color;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setLineWidth(int linewidth) {    
     impl->linewidth = linewidth;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setFillOpacity(int opacity) {
     impl->fillopacity = opacity;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setSelectorSize(int size) {
     impl->selsize = size;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 
 }
 void ROIStyle::setColorBySelected(bool cbs) {
     impl->colorbyselected = cbs;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setSelectedColor(QColor color) {
     impl->selunselcolors.first = color;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 void ROIStyle::setUnselectedColor(QColor color) {
     impl->selunselcolors.second = color;
-    emit StyleChanged(getPen(), getBrush(), impl->selsize);
+    emit StyleChanged(*this);
 }
 int ROIStyle::getSelectorSize() const noexcept {
     return impl->selsize;
@@ -132,7 +133,7 @@ bool ROIStyle::isColorBySelected() const noexcept {
 void ROIStyle::setSelected(bool sel) {
     impl->isSelected = sel;
     if (impl->colorbyselected) {
-        emit StyleChanged(getPen(), getBrush(), impl->selsize);
+        emit StyleChanged(*this);
     }
 }
 
@@ -146,11 +147,10 @@ std::vector<QColor> ROIPalette::getPaletteColors()  const noexcept{
 
 std::vector<QColor> ROIPalette::getPaletteColors(std::vector<size_t> inds)  const {
     std::vector<QColor> ret;
-    if (palettecolors.empty()) {
-        return ret;
+    if (!palettecolors.empty()) {
+        std::transform(inds.begin(), inds.end(), ret.begin(), [&](size_t ind)->QColor {return palettecolors[ind % palettecolors.size()]; });
     }
-    
-    std::transform(inds.begin(), inds.end(), ret.begin(), [&](size_t ind)->QColor {return palettecolors[ind % palettecolors.size()]; });
+    return ret;
 }
 
 QColor ROIPalette::getPaletteColor(size_t ind) const noexcept {

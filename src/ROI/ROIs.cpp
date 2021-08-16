@@ -98,11 +98,18 @@ struct ROIs::pimpl {
     }
     
     bool dispatchPressToSelector(QList<QGraphicsItem*> hititems, QPointF mappedpoint) {
+        //  there's a very rare bug, where when drawing a poly it doesn't hit itself
+        // this only happens on the initial draw, which means it's on the back of the stack
+        if (!rois.empty() && rois.back()->graphicsShape->getShapeType() == ROIVert::SHAPE::POLYGON &&
+            rois.back()->graphicsShape->getEditingVertex() >= 0) {
+            return true;
+        }
+
         for (auto &obj : hititems) {
             const bool isSelector = qgraphicsitem_cast<ROISelector*>(obj) != nullptr;
             auto par = obj->parentItem();
             ROIShape* roiGraphicsObject = par==nullptr ? nullptr : qgraphicsitem_cast<ROIShape*>(par);
-
+            
             if (roiGraphicsObject != nullptr &&
                 ((isSelector && roiGraphicsObject->isSelectVisible()) ||    // hit a selector
                 (roiGraphicsObject->getEditingVertex() >= 0)))              // closing a poly

@@ -35,7 +35,7 @@ public:
     bool isColorBySelected() const noexcept;
 
 signals:
-    void StyleChanged(QPen, QBrush, int);
+    void StyleChanged(const ROIStyle&);
 
 public slots:
     void setSelected(bool);

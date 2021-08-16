@@ -2,6 +2,9 @@
 #include <QGraphicsItem>
 #include "ROIVertEnums.h"
 
+class ROIStyle;
+
+
 class ROIShape : public QGraphicsObject
 {
     Q_OBJECT
@@ -10,9 +13,7 @@ public:
     ROIShape(QGraphicsScene* scene,
         ROIVert::SHAPE,
         QSize imgsize,
-        double selsize, 
-        QPen pen,
-        QBrush brush);
+        const ROIStyle& style);
 
     ~ROIShape();
     
@@ -26,7 +27,7 @@ public:
     bool isSelectVisible() const noexcept;
 
     void setBoundingRect(QRectF); // NOTE that this boundingrect is the one used for painting, NOT the tight rect
-    void updateStyle(QPen pen, QBrush brush, int selsize);
+    void updateStyle(const ROIStyle& style);
     
     ROIVert::SHAPE getShapeType() const noexcept;
     QRect getTightBoundingBox() const noexcept;

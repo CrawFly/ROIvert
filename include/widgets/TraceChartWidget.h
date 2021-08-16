@@ -70,6 +70,8 @@ public:
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
     
+    void setColor(const QColor&) noexcept;
+    QColor getColor() const noexcept;
     
 private:
     struct pimpl;

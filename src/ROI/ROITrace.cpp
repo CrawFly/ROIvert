@@ -7,6 +7,7 @@
 #include "widgets\TraceChartWidget.h"
 #include "widgets\RidgeLineWidget.h"
 #include "opencv2/opencv.hpp"
+#include "ROI/ROIStyle.h"
 
 struct ROITrace::pimpl {
     VideoData* vd;
@@ -19,7 +20,7 @@ struct ROITrace::pimpl {
 };
 
 
-ROITrace::ROITrace(TraceView* tv, VideoData* vd) {
+ROITrace::ROITrace(TraceView* tv, VideoData* vd, ROIStyle style) {
     impl->vd = vd;
     impl->tv = tv;
     tv->addLineChart(impl->tc.get());
@@ -27,7 +28,11 @@ ROITrace::ROITrace(TraceView* tv, VideoData* vd) {
     // todo: need the limits for the chart
     impl->tc->addSeries(impl->LineSeries);
     impl->tv->getRidgeChart().addSeries(impl->RidgeSeries);
+
+    impl->LineSeries->setColor(style.getPen().color());
+    impl->RidgeSeries->setColor(style.getPen().color());
 }
+
 ROITrace::~ROITrace() {
     if (impl->tv) {
         impl->tv->getRidgeChart().removeSeries(impl->RidgeSeries);
