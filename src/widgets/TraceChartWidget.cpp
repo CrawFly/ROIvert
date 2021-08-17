@@ -69,7 +69,7 @@ TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget* p
     setStyle(style);
 
     //setContentsMargins(11, 11, 11, 11);
-    setContentsMargins(5, 5, 5, 5);
+    setContentsMargins(0, 0, 0, 0); // these margins are in the layout
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
     
 }
@@ -303,6 +303,12 @@ void TraceChartWidget::pimpl::setInnerMargins(const QMargins& marg) noexcept {
 void TraceChartWidget::mousePressEvent(QMouseEvent* event) {
     // convert hit position to data position:
     QPoint pos = event->pos();
+
+    if (!contentsRect().contains(pos)) {
+        // this probably can't be hit in the current state
+        emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
+    }
+
     auto hitTraces = impl->getHitSeries(impl->pos2data(pos));
     
     emit chartClicked(this, hitTraces, event->modifiers());

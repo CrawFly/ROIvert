@@ -3,6 +3,7 @@
 
 class QVBoxLayout;
 class TraceChartWidget;
+class TraceChartSeries;
 class RidgeLineWidget;
 class ChartStyle;
 
@@ -22,6 +23,14 @@ public:
     ChartStyle& getCoreChartStyle();
     
     void scrollToChart(TraceChartWidget*);
+
+signals:
+    void keyPressed(int key, Qt::KeyboardModifiers mod);
+    void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
+
+protected:
+    void keyPressEvent(QKeyEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     struct pimpl;

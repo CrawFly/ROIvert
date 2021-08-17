@@ -202,10 +202,15 @@ ROIs::ROIs(ImageView* iView, TraceView* tView, VideoData* vData) {
     connect(&tView->getRidgeChart(), &TraceChartWidget::chartClicked, this, &ROIs::chartClick);
     
 
-    // connect with view
+    // connect with image view
     connect(iView, &ImageView::mousePressed, this, &ROIs::mousePress);
     connect(iView, &ImageView::keyPressed, this, &ROIs::keyPress);
     connect(iView, &ImageView::imageSizeUpdated, this, &ROIs::imageSizeUpdate);
+
+    // connect with trace view
+    connect(tView, &TraceView::chartClicked, this, &ROIs::chartClick);
+    connect(tView, &TraceView::keyPressed, this, &ROIs::keyPress);
+
 }
 ROIs::~ROIs() = default;
 

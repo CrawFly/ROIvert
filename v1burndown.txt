@@ -220,22 +220,14 @@ imageview integration
         [o] SETTINGS FOR [x] FILL AND [] GRADIENT STUFF
             
         5. SELECTION: 
-            MAKE CHARTS CLICKABLE
-                [x] clicker in traceview? or maybe it can just be directly in the chartwidget?
-                    for it to work for both charts and data, i'd kind of like it to report 'this' and the nearest trace...but maybe there could be an event for the trace??
-                        no there can't because the trace isn't a qobj
-                        
-                   connections: 
-                        [] 1 on the ridge
-                        [] 1 on each push
-                    
-                    
-            INDICATE SELECTED CHARTS
-            SCROLL TO SELECTION
-            CLICKY ON RIDGECHART
+            [x] MAKE CHARTS CLICKABLE
+            [x] INDICATE SELECTED CHARTS
+            [x] SCROLL TO SELECTION
+            [x] CLICKY ON RIDGECHART
+            [] ctrl a key and delete key in charts window forward to do the same as in main window...
             
         6. [x] XLabelling, 
-            YLABELLING ... this is fine to do df/f, but norm is coming....
+            YLABELING ... this is fine to do df/f, but norm is coming....
             
         7. EXPORT
         8. A BUNCH OF remaining todo's IN CHARTS WRT STYLE/LAYOUT
@@ -245,6 +237,8 @@ imageview integration
         
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
+            MVP this - what are the most common styles/options?
+            
         CHART NORMALIZATION
         SHOT AT IMAGECHART
         OTHER EXPORTS

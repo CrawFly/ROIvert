@@ -2,10 +2,12 @@
 #include <QBoxLayout>
 #include <QTabWidget>
 #include <QScrollArea>
+#include <QApplication>
+#include <QKeyEvent>
+
 #include "widgets/TraceChartWidget.h"
 #include "widgets/RidgeLineWidget.h"
 #include "ChartStyle.h"
-#include <QApplication>
 
 struct TraceView::pimpl {
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
@@ -29,7 +31,7 @@ struct TraceView::pimpl {
         scrollArea->setWidgetResizable(true);
         scrollAreaParent->setContentsMargins(0, 0, 0, 0);
         lineChartLayout->setContentsMargins(0, 0, 0, 0);
-        lineChartLayout->setSpacing(0);
+        lineChartLayout->setSpacing(10);
         lineChartLayout->setMargin(0);
 
         tabRidgeLine->setLayout(ridgeLayout);
@@ -94,3 +96,11 @@ RidgeLineWidget& TraceView::getRidgeChart() noexcept {
 ChartStyle& TraceView::getCoreChartStyle() {
     return *(impl->coreStyle);
 }
+void TraceView::keyPressEvent(QKeyEvent* event) {
+    emit keyPressed(event->key(), event->modifiers());
+}
+
+void TraceView::mousePressEvent(QMouseEvent* event) {
+    emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
+}
+
