@@ -63,6 +63,9 @@ struct TraceChartSeries::pimpl {
     float getOffset() const noexcept;
     std::shared_ptr<ChartStyle> chartstyle;
 
+    bool polyContains(const QPointF&);
+    bool highlighted{ false };
+
 private:
     QPolygonF poly;
     QPainterPath path;
@@ -101,10 +104,13 @@ double TraceChartSeries::getYMax() const noexcept { return impl->extents[3]; }
 void TraceChartSeries::setOffset(float offset) noexcept { impl->setOffset(offset); }
 float TraceChartSeries::getOffset() const noexcept { return impl->getOffset(); }
 
+void TraceChartSeries::setHighlighted(bool yesno) { impl->highlighted = yesno; }
+
 QRectF TraceChartSeries::getExtents() {
     return QRectF(QPointF(impl->extents[0], impl->extents[2]), QPointF(impl->extents[1], impl->extents[3]));
 }
     
+bool TraceChartSeries::polyContains(const QPointF& pt) { return impl->polyContains(pt); }
 
 // pimpl
 void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
@@ -150,6 +156,8 @@ void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
     updateYExtents();
     updatePoly();
 }
+
+bool TraceChartSeries::pimpl::polyContains(const QPointF&  pt) { return path.contains(pt); }
 
 
 void TraceChartSeries::pimpl::updatePoly() {
@@ -234,16 +242,28 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     
     auto brush = chartstyle->getTraceBrush();
     auto pen = chartstyle->getTracePen();
+
+    if (highlighted) {
+        if (pen.style() == Qt::PenStyle::NoPen) {
+            pen.setStyle(Qt::PenStyle::SolidLine);
+            pen.setWidth(2);
+            pen.setCosmetic(true);
+        }
+        else {
+            const auto width = std::min(pen.width() * 2, pen.width() + 4);
+            pen.setWidth(width);
+        }
+    }
+
     painter.setPen(Qt::NoPen);
     auto backbrush = QBrush(chartstyle->getBackgroundColor());
     painter.setBrush(backbrush);
     painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
 
-
     painter.setBrush(brush);
     painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
 
-    painter.setPen(chartstyle->getTracePen());
+    painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawPolyline(T.map(poly));
 }

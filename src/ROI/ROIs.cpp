@@ -7,6 +7,8 @@
 #include "ROI\ROISelector.h"
 #include "ROI\ROIStyle.h"
 #include "ChartStyle.h"
+#include "widgets/TraceChartWidget.h"
+#include "widgets/RidgeLineWidget.h"
 
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
@@ -30,13 +32,15 @@ struct ROIs::pimpl {
         rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, rs, cs));
         
         auto& gObj = rois.back()->graphicsShape;
+        auto& tObj = rois.back()->Trace;
+        
 
         gObj->setVertices({ pos, pos });
         gObj->setEditingVertex(1);
         gObj->grabMouse();
 
-        auto& tObj = rois.back()->Trace;
         connect(gObj.get(), &ROIShape::roiEdited, tObj.get(), &ROITrace::updateTrace);
+        connect(tObj->getTraceChart(), &TraceChartWidget::chartClicked, par, &ROIs::chartClick);
     }
 
     bool outofbounds(QPointF pt) const noexcept{
@@ -46,17 +50,24 @@ struct ROIs::pimpl {
     void setSelectedROIs(std::vector<size_t> inds) {
         for (auto& ind : selectedROIs) {
             if (ind < rois.size()) {
-                rois[ind]->graphicsShape->setSelectVisible(false);
-                rois[ind]->roistyle->setSelected(false);
+                rois.at(ind)->graphicsShape->setSelectVisible(false);
+                rois.at(ind)->roistyle->setSelected(false);
+                rois.at(ind)->Trace->getLineSeries()->setHighlighted(false);
+                rois.at(ind)->Trace->getRidgeSeries()->setHighlighted(false);
+                rois.at(ind)->Trace->getTraceChart()->update();
             }
         }
         selectedROIs = inds;
         for (auto& ind : selectedROIs) {
             if (ind < rois.size()) {
-                rois[ind]->graphicsShape->setSelectVisible(true);
-                rois[ind]->roistyle->setSelected(true);
+                rois.at(ind)->graphicsShape->setSelectVisible(true);
+                rois.at(ind)->roistyle->setSelected(true);
+                rois.at(ind)->Trace->getLineSeries()->setHighlighted(true);
+                rois.at(ind)->Trace->getRidgeSeries()->setHighlighted(true);
+                rois.at(ind)->Trace->getTraceChart()->update();
             }
         }
+        traceview->update();
     }
     
     std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape* r) noexcept{
@@ -71,6 +82,36 @@ struct ROIs::pimpl {
         const auto it = find(r);
         return it == rois.end() ? -1 : it - rois.begin();
     }
+
+    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartWidget* chart) noexcept{
+        for(auto it = rois.begin(); it<rois.end();++it){
+            if ((*it)->Trace->getTraceChart() == chart) {
+                return it;
+            }
+        }
+        return rois.end();
+    }
+    int getIndex(const TraceChartWidget* chart) {
+        const auto it = find(chart);
+        return it == rois.end() ? -1 : it - rois.begin();
+        
+    }
+    
+    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartSeries* series) noexcept{
+        for(auto it = rois.begin(); it<rois.end();++it){
+            if ((*it)->Trace->getRidgeSeries() == series) {
+                return it;
+            }
+        }
+        return rois.end();
+    }
+    int getIndex(const TraceChartSeries* series) {
+        const auto it = find(series);
+        return it == rois.end() ? -1 : it - rois.begin();
+
+    }
+
+
     void deleteROIs(std::vector<size_t> inds) {
         // Unselect:
         std::vector<size_t> selected = selectedROIs;
@@ -142,15 +183,21 @@ struct ROIs::pimpl {
             }
         }
     }
+
+    ROIs* par{ nullptr };
 };
 
 
 ROIs::ROIs(ImageView* iView, TraceView* tView, VideoData* vData) {
-    // store scene
     impl->scene = iView->scene();
     impl->imgsize = iView->getImageSize();
     impl->traceview = tView;
     impl->videodata = vData;
+    impl->par = this; // used for connects on push
+
+    // Connect ridge chart with self
+    connect(&tView->getRidgeChart(), &TraceChartWidget::chartClicked, this, &ROIs::chartClick);
+    
 
     // connect with view
     connect(iView, &ImageView::mousePressed, this, &ROIs::mousePress);
@@ -244,9 +291,39 @@ void ROIs::updateROITraces() {
 
 size_t ROIs::getNROIs() const noexcept { return impl->rois.size(); }
 
-
 void ROIs::deleteAllROIs() {
     std::vector<size_t> inds(impl->rois.size());
     std::iota(inds.begin(), inds.end(), 0);
     impl->deleteROIs(inds);
+}
+
+void ROIs::chartClick(TraceChartWidget* chart, std::vector<TraceChartSeries*> series, Qt::KeyboardModifiers mods) {
+
+    int ind{ -1 };
+
+    if (chart == &impl->traceview->getRidgeChart() && !series.empty()) {
+        ind = impl->getIndex(series.back());
+    }
+    else {
+        ind = impl->getIndex(chart);
+    }
+    
+    if (ind == -1 && mods == Qt::ShiftModifier) {
+        return;
+    }
+
+    std::vector<size_t> inds;
+    
+    if (ind > -1) {
+        if (mods == Qt::ShiftModifier) {
+            inds = impl->selectedROIs;
+            auto it = std::find(inds.begin(), inds.end(), ind);
+            if (it == inds.end()) inds.push_back(ind);
+            else inds.erase(it);
+        }
+        else {
+            inds.push_back(ind);
+        }
+    }
+    impl->setSelectedROIs(inds);
 }

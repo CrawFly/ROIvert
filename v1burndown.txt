@@ -221,6 +221,15 @@ imageview integration
             
         5. SELECTION: 
             MAKE CHARTS CLICKABLE
+                [x] clicker in traceview? or maybe it can just be directly in the chartwidget?
+                    for it to work for both charts and data, i'd kind of like it to report 'this' and the nearest trace...but maybe there could be an event for the trace??
+                        no there can't because the trace isn't a qobj
+                        
+                   connections: 
+                        [] 1 on the ridge
+                        [] 1 on each push
+                    
+                    
             INDICATE SELECTED CHARTS
             SCROLL TO SELECTION
             CLICKY ON RIDGECHART

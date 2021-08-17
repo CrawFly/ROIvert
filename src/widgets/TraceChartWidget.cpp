@@ -2,6 +2,8 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QMouseEvent>
+
 #include "ChartStyle.h"
 
 struct TraceChartWidget::pimpl {
@@ -20,7 +22,31 @@ struct TraceChartWidget::pimpl {
     void setInnerMargins(const QMargins& marg) noexcept;
 
     std::shared_ptr<ChartStyle> chartstyle;
-    //todo: need pos2data when impl mouse stuff
+    QPointF pos2data(QPoint pos) {
+        QPointF hitpos;
+        if (plotbox.contains(pos)) {
+            // convert to data units:
+            double xmin, xmax, ymin, ymax;
+            std::tie(xmin, xmax) = xaxis->getLimits();
+            std::tie(ymin, ymax) = yaxis->getLimits();
+
+            hitpos.setX(xmin + (xmax - xmin) * (pos.x() - plotbox.left()) / static_cast<float>(plotbox.width()));
+            hitpos.setY(ymin + (ymax - ymin) * (plotbox.bottom() - pos.y()) / static_cast<float>(plotbox.height()));
+        }
+        return hitpos;
+    }
+    std::vector<TraceChartSeries*> getHitSeries(QPointF datapos) {
+        std::vector<TraceChartSeries*> ret;
+        if (!datapos.isNull()) {
+            for (auto &s:series) {
+                if (s->polyContains(datapos)) {
+                    ret.push_back(s.get());
+                }
+            }
+        }
+        return ret;
+        
+    }
 
 
 private:
@@ -272,4 +298,12 @@ void TraceChartWidget::pimpl::paint_data(QPainter & painter) {
 }
 void TraceChartWidget::pimpl::setInnerMargins(const QMargins& marg) noexcept {
     margins = marg;
+}
+
+void TraceChartWidget::mousePressEvent(QMouseEvent* event) {
+    // convert hit position to data position:
+    QPoint pos = event->pos();
+    auto hitTraces = impl->getHitSeries(impl->pos2data(pos));
+    
+    emit chartClicked(this, hitTraces, event->modifiers());
 }

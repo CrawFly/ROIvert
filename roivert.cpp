@@ -1,4 +1,5 @@
-// What a MESS!
+// What a MESS! this clearly needs a detailed pass
+
 #include <QDebug>
 
 #include "roivert.h"
@@ -114,8 +115,9 @@ Roivert::Roivert(QWidget* parent)
 
     restoreSettings();
 }
-
 void Roivert::doConnect() {
+    // todo: most of this could be eradicated by just passing some pointers around...is that better? worse?
+
     // imgdata tool load button hit, initiates loading the video
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
 
@@ -140,6 +142,7 @@ void Roivert::doConnect() {
     // passthroughs
     // progress for loading
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
+
     // clicked the dff button, update contrast widget
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     
@@ -147,7 +150,6 @@ void Roivert::doConnect() {
     //connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
     
 }
-
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
     // Confirm load if rois exist:
@@ -178,7 +180,6 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     //traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
     updateContrastWidget(vidctrl->dff());
 }
-
 void Roivert::changeFrame(const size_t frame)
 {
     if (frame > 0 && frame <= viddata->getNFrames())
@@ -192,13 +193,11 @@ void Roivert::changeFrame(const size_t frame)
         imageview->setImage(qimg);
     }
  }
-
 void Roivert::frameRateChanged(double frameRate){
     vidctrl->setFrameRate(frameRate / viddata->getdsTime());
     viddata->setFrameRate(frameRate / viddata->getdsTime()); // duplicated for convenience
     rois->updateROITraces();
 }
-
 void Roivert::makeToolbar() {
 
     QActionGroup* ROIGroup = new QActionGroup(this);
@@ -264,7 +263,6 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->toggleViewAction()->setVisible(false);
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
 }
-
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
     const ROIVert::contrast c = dispSettings.getContrast(isDff);
@@ -275,7 +273,6 @@ void Roivert::updateContrastWidget(bool isDff) {
     viddata->getHistogram(isDff, hist);
     t_imgSettings->setHistogram(hist);
 }
-
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
     dispSettings.setContrast(vidctrl->dff(), settings.Contrast);
@@ -289,8 +286,6 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
     vidctrl->forceUpdate();
 }
-
-
 void Roivert::selecttoolfromkey(int key) {
     //todo: enable this
     const int item = key - Qt::Key_1;
@@ -299,7 +294,6 @@ void Roivert::selecttoolfromkey(int key) {
         act->activate(QAction::Trigger);
     }
 }
-
 void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
     // exportTraces needs rewrite, should be easier now (as it's a mat!)
     
@@ -355,7 +349,6 @@ void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
         msg.exec();
     }
 }
-
 void Roivert::exportROIs(QString filename) {
     /*
     QMessageBox msg;
@@ -411,7 +404,6 @@ void Roivert::exportROIs(QString filename) {
     }
     */
 }
-
 void Roivert::importROIs(QString filename) {
     /*
     QMessageBox msg;
@@ -506,7 +498,6 @@ void Roivert::closeEvent(QCloseEvent* event) {
     }
     QMainWindow::closeEvent(event);
 }
-
 void Roivert::restoreSettings()
 {
     QSettings settings("Neuroph", "ROIVert");

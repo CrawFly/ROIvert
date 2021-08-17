@@ -8,6 +8,7 @@
 
 class ROIShape;
 class ROIStyle;
+class TraceChartSeries;
 
 class ROIs : public QObject
 {
@@ -32,7 +33,8 @@ public slots:
     void imageSizeUpdate(QSize);
     void setROIShape(ROIVert::SHAPE) noexcept;
     void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
-    
+    void chartClick(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
+
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();

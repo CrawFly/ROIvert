@@ -4,15 +4,13 @@
 class VideoData;
 class TraceView;
 class ChartStyle;
+class TraceChartWidget;
+class TraceChartSeries;
+
 
 namespace ROIVert {
     enum class SHAPE;
 }
-// ROITrace is just a little class that's going to do:
-//      Hold a TraceChartWidget
-//      Hold a reference to the RidgeLine
-//      
-//      Do the compute of a trace when roi is edited
 
 class ROITrace : public QObject
 {
@@ -22,6 +20,11 @@ public:
     ROITrace(TraceView*, VideoData*, std::shared_ptr<ChartStyle>);
     ~ROITrace();
     void update();
+
+    
+    TraceChartWidget* getTraceChart() const noexcept;
+    TraceChartSeries* getLineSeries() const noexcept;
+    TraceChartSeries* getRidgeSeries() const noexcept;
 
 public slots:
     void updateTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>);

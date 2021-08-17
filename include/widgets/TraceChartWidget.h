@@ -37,9 +37,13 @@ public:
 
     void updateExtents();
 
+
+signals:
+    void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
+
 protected:
     void paintEvent(QPaintEvent*) override;
-
+    void mousePressEvent(QMouseEvent* event) override;
 
 private:
     struct pimpl;
@@ -74,6 +78,9 @@ public:
     float getOffset() const noexcept;
     
     void setStyle(const ChartStyle&) noexcept;
+
+    bool polyContains(const QPointF&);
+    void setHighlighted(bool); // todo: highlighted means double thickness lines? What if there are no lines?
     
 private:
     struct pimpl;

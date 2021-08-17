@@ -73,3 +73,7 @@ void ROITrace::update() {
     impl->traceview->getRidgeChart().updateExtents();
     impl->traceview->getRidgeChart().update();
 }
+
+TraceChartWidget* ROITrace::getTraceChart() const noexcept { return impl->TraceChart.get(); }
+TraceChartSeries* ROITrace::getLineSeries() const noexcept { return impl->LineSeries.get();  }
+TraceChartSeries* ROITrace::getRidgeSeries() const noexcept { return impl->RidgeSeries.get(); }
