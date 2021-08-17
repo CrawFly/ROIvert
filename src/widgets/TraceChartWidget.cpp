@@ -1,11 +1,13 @@
 #include "widgets\TraceChartWidget.h"
+
 #include <QPainter>
 #include <QDebug>
+#include "ChartStyle.h"
 
 struct TraceChartWidget::pimpl {
     std::vector<std::shared_ptr<TraceChartSeries>> series;
-    std::unique_ptr<TraceChartHAxis> xaxis = std::make_unique<TraceChartHAxis>();
-    std::unique_ptr<TraceChartVAxis> yaxis = std::make_unique<TraceChartVAxis>();
+    std::unique_ptr<TraceChartHAxis> xaxis = std::make_unique<TraceChartHAxis>(chartstyle);
+    std::unique_ptr<TraceChartVAxis> yaxis = std::make_unique<TraceChartVAxis>(chartstyle);
 
     QString titlestring;
     bool antialias;
@@ -17,6 +19,7 @@ struct TraceChartWidget::pimpl {
     void paint(QPainter& painter, const QRect& contentsRect);
     void setInnerMargins(const QMargins& marg) noexcept;
 
+    std::shared_ptr<ChartStyle> chartstyle;
     //todo: need pos2data when impl mouse stuff
 
 
@@ -34,9 +37,11 @@ private:
     void paint_data(QPainter& painter);
 };
 
-TraceChartWidget::TraceChartWidget(QWidget* parent)
+TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget* parent)
     : QWidget(parent)
 {
+    setStyle(style);
+
     //setContentsMargins(11, 11, 11, 11);
     setContentsMargins(5, 5, 5, 5);
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
@@ -44,6 +49,12 @@ TraceChartWidget::TraceChartWidget(QWidget* parent)
 }
 
 TraceChartWidget::~TraceChartWidget() = default;
+
+void TraceChartWidget::setStyle(std::shared_ptr<ChartStyle> style) {
+    impl->chartstyle = style;
+    impl->xaxis->setStyle(style);
+    impl->yaxis->setStyle(style);
+}
 
 void TraceChartWidget::addSeries(std::shared_ptr<TraceChartSeries> series) {
     impl->series.push_back(series);
@@ -202,10 +213,11 @@ void TraceChartWidget::pimpl::calcPlotbox() {
     plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
 }
 void TraceChartWidget::pimpl::paint_background(QPainter & painter) {
-    painter.setPen(Qt::NoPen);
-    //todo: style work
-    //painter.setBrush(style.Background.Color);
-    painter.setBrush(Qt::white);
+    if (chartstyle == nullptr) {
+        return;
+    }
+    painter.setPen(Qt::NoPen); // todo: this could be selector right here!
+    painter.setBrush(chartstyle->getBackgroundColor());
     painter.drawRect(plotbox);
 }
 void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
@@ -225,17 +237,19 @@ void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
 }
 void TraceChartWidget::pimpl::paint_axes(QPainter & painter, const int& left) {
     // todo: style work
-    //if (style.Axis.ShowX) {
+    
+    
+    if (xaxis->getVisible()) {
         xaxis->setZero(plotbox.left(), plotbox.bottom() + axlegapv);
         xaxis->setLength(plotbox.width());
         xaxis->paint(painter);
-    //}
+    }
 
-    //if (style.Axis.ShowY) {
+    if (yaxis->getVisible()) {
         yaxis->setZero(left, plotbox.top());
         yaxis->setLength(plotbox.height());
         yaxis->paint(painter);
-    //}
+    }
 }
 void TraceChartWidget::pimpl::paint_data(QPainter & painter) {
     double xmin, xmax, ymin, ymax;

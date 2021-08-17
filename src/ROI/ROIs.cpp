@@ -24,12 +24,10 @@ struct ROIs::pimpl {
 
     void pushROI(QPoint pos) {
         //todo: more careful work for style needed here...
-        ROIStyle s;
-        s=coreStyle;
-        s.setColor(pal.getPaletteColor(rois.size()));
-        ChartStyle sc(s);
-
-        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, s, sc));
+        ROIStyle rs = coreStyle;
+        ChartStyle cs = traceview->getCoreChartStyle();
+        rs.setColor(pal.getPaletteColor(rois.size()));
+        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, rs, cs));
         
         auto& gObj = rois.back()->graphicsShape;
 
@@ -49,14 +47,14 @@ struct ROIs::pimpl {
         for (auto& ind : selectedROIs) {
             if (ind < rois.size()) {
                 rois[ind]->graphicsShape->setSelectVisible(false);
-                rois[ind]->Style->setSelected(false);
+                rois[ind]->roistyle->setSelected(false);
             }
         }
         selectedROIs = inds;
         for (auto& ind : selectedROIs) {
             if (ind < rois.size()) {
                 rois[ind]->graphicsShape->setSelectVisible(true);
-                rois[ind]->Style->setSelected(true);
+                rois[ind]->roistyle->setSelected(true);
             }
         }
     }
@@ -70,7 +68,7 @@ struct ROIs::pimpl {
         return rois.end();
     }
     int getIndex(const ROIShape* r) noexcept {
-        auto it = find(r);
+        const auto it = find(r);
         return it == rois.end() ? -1 : it - rois.begin();
     }
     void deleteROIs(std::vector<size_t> inds) {
@@ -181,7 +179,8 @@ void ROIs::mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint
         impl->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())));
         auto& it = impl->rois.back();        
         connect(it->graphicsShape.get(), &ROIShape::roiEdited, this, &ROIs::roiEdit);
-        connect(it->Style.get(), &ROIStyle::StyleChanged, it->graphicsShape.get(), &ROIShape::updateStyle);
+        // TODO: examine this connection, how it should work with new ptr mechanism is unclear...
+        //connect(it->roistyle.get(), &ROIStyle::StyleChanged, it->graphicsShape.get(), &ROIShape::updateStyle);
         impl->setSelectedROIs({ impl->rois.size() - 1 });
     }
     
@@ -222,18 +221,18 @@ std::vector<size_t> ROIs::getSelected() const noexcept {
 };
 
 ROIStyle* ROIs::getROIStyle(size_t ind) const noexcept {
+    // todo: eval whether this is needed...
     if (ind > impl->rois.size()) {
         return nullptr;
     }
-    return impl->rois[ind]->Style.get();
+    return impl->rois[ind]->roistyle.get();
 }
 
 void ROIs::setColorBySelect(bool yesno) {
-    // change corestyle
-    // change all existing
+    // todo: eval whether this is needed...or if a more general approach is warranted./..
     impl->coreStyle.setColorBySelected(yesno);
     for (auto &r : impl->rois) {
-        r->Style->setColorBySelected(yesno);
+        r->roistyle->setColorBySelected(yesno);
     }
 }
 

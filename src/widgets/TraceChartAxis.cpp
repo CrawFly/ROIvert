@@ -1,5 +1,6 @@
 #include "widgets\TraceChartWidget.h"
 #include <QPainter>
+#include "ChartStyle.h"
 namespace {
     double niceNum(const double& range, const bool round) noexcept {
         float exponent = std::floor(std::log10(range));
@@ -92,12 +93,16 @@ struct TraceChartAxis::pimpl {
     int thickness() noexcept {
         return labelthickness + spacelabel + ticklabelthickness + spaceticklabel + spacetickmark + ticklength;
     }
+    std::shared_ptr<ChartStyle> chartstyle;
 };
-TraceChartAxis::TraceChartAxis() {
+TraceChartAxis::TraceChartAxis(std::shared_ptr<ChartStyle> style) {
+    setStyle(style);
     updateLayout();
 }
 TraceChartAxis::~TraceChartAxis() = default;
-
+void TraceChartAxis::setStyle(std::shared_ptr<ChartStyle> style) {
+    impl->chartstyle = style;
+}
 void TraceChartAxis::setExtents(const double& min, const double& max) {
     if (max > min) {
         impl->extents = std::make_tuple(min, max);
@@ -186,20 +191,21 @@ void TraceChartAxis::updateLayout() {
 void TraceChartAxis::setVisible(bool yesno) noexcept { impl->visible = yesno; }
 bool TraceChartAxis::getVisible() const noexcept { return impl->visible; }
 
+TraceChartHAxis::TraceChartHAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
 void TraceChartHAxis::paint(QPainter & painter) {
-    if (!impl->visible) {
+    if (!impl->visible || impl->chartstyle==nullptr) {
         return;
     }
 
     const QRect& pos = impl->position;
 
-    // todo: style work
-    //painter.setPen(impl->style.Color);
-    painter.setPen(Qt::black);
+    
+    
+    painter.setPen(impl->chartstyle->getAxisPen());
     painter.setBrush(Qt::NoBrush);
 
     // Label:
-    //painter.setPen(impl->style.Color);
+    // todo: font size in style
     //painter.setFont(impl->style.LabelFont);
     painter.setFont(QFont());
 
@@ -207,6 +213,7 @@ void TraceChartHAxis::paint(QPainter & painter) {
     painter.drawText(labelR, impl->label, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
     // Tick Labels:
+    // todo: font size in style
     //painter.setFont(impl->style.TickLabelFont);
     const int ticklabeltop = labelR.top() - impl->spaceticklabel - impl->ticklabelthickness;
 
@@ -258,18 +265,16 @@ int TraceChartHAxis::getThickness() const noexcept {
     return impl->visible ? impl->position.height() : 0;
 }
 
+TraceChartVAxis::TraceChartVAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
 void TraceChartVAxis::paint(QPainter & painter) {
-    if (!impl->visible) {
+    if (!impl->visible || impl->chartstyle==nullptr) {
         return;
     }
-
     const QRect& pos = impl->position;
-
-    //todo: style work
-    //painter.setPen(impl->style.Color);
-    painter.setPen(Qt::black);
+    painter.setPen(impl->chartstyle->getAxisPen());
     painter.setBrush(Qt::NoBrush);
 
+    // todo: font
     //painter.setFont(impl->getStyle().LabelFont);
     painter.setFont(QFont());
 

@@ -15,8 +15,9 @@ class TraceChartWidget : public QWidget
     Q_OBJECT
 
 public:
-    TraceChartWidget(QWidget* parent = nullptr);
+    TraceChartWidget(std::shared_ptr<ChartStyle> style = nullptr, QWidget* parent = nullptr);
     ~TraceChartWidget();
+    void setStyle(std::shared_ptr<ChartStyle> style);
 
     void addSeries(std::shared_ptr<TraceChartSeries>);
     void removeSeries(std::shared_ptr<TraceChartSeries>) noexcept;
@@ -48,8 +49,9 @@ private:
 class TraceChartSeries
 {
 public:
-    TraceChartSeries(const ChartStyle&);
+    TraceChartSeries(std::shared_ptr<ChartStyle> = nullptr);
     ~TraceChartSeries();
+    void setStyle(std::shared_ptr<ChartStyle> style);
 
     void setData(cv::Mat, float offset, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
     void setData(cv::Mat, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
@@ -81,9 +83,10 @@ private:
 class TraceChartAxis
 {
 public:
-    TraceChartAxis();
+    TraceChartAxis(std::shared_ptr<ChartStyle> style = nullptr);
     virtual ~TraceChartAxis();
     virtual void paint(QPainter& painter) = 0;
+    void setStyle(std::shared_ptr<ChartStyle> style);
     
     void setExtents(const double& min, const double& max);
     std::tuple<double, double> getExtents() const noexcept;
@@ -99,9 +102,6 @@ public:
     virtual int getThickness() const noexcept = 0;               // Thickness is in the perpendecular direction to the axis. 
     
     void setZero(const int& xzero, const int& yzero) noexcept;
-    // todo: style work
-    //void setTickFont(const QFont& f);
-    //void setLabelFont(const QFont& f);
     
     void setSpacings(const int& label, const int& ticklabel, const int& tickmark) noexcept;
     void setTickLength(const int& ticklength) noexcept;
@@ -120,6 +120,7 @@ protected:
 
 class TraceChartHAxis : public TraceChartAxis {
 public:
+    TraceChartHAxis(std::shared_ptr<ChartStyle> style = nullptr);
     void paint(QPainter& painter) override;
     void setLength(const int& length) noexcept override;
     int getLength() const noexcept override;
@@ -132,6 +133,7 @@ protected:
 
 class TraceChartVAxis : public TraceChartAxis {
 public:
+    TraceChartVAxis(std::shared_ptr<ChartStyle> style = nullptr);
     void paint(QPainter& painter) override;
     void setLength(const int& length) noexcept override;
     int getLength() const noexcept override;

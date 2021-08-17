@@ -13,7 +13,7 @@ public:
     ROIShape(QGraphicsScene* scene,
         ROIVert::SHAPE,
         QSize imgsize,
-        const ROIStyle& style);
+        std::shared_ptr<ROIStyle> style);
 
     ~ROIShape();
     
@@ -27,7 +27,7 @@ public:
     bool isSelectVisible() const noexcept;
 
     void setBoundingRect(QRectF); // NOTE that this boundingrect is the one used for painting, NOT the tight rect
-    void updateStyle(const ROIStyle& style);
+    void updateStyle();
     
     ROIVert::SHAPE getShapeType() const noexcept;
     QRect getTightBoundingBox() const noexcept;

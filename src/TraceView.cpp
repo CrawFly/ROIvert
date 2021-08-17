@@ -4,12 +4,14 @@
 #include <QScrollArea>
 #include "widgets/TraceChartWidget.h"
 #include "widgets/RidgeLineWidget.h"
-
+#include "ChartStyle.h"
 
 struct TraceView::pimpl {
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
+    
+    std::shared_ptr<ChartStyle> coreStyle = std::make_shared<ChartStyle>();
 
     void doLayout() {
         topGridLayout->addWidget(tab);
@@ -53,6 +55,9 @@ private:
 
 
 TraceView::TraceView(QWidget* parent) : QWidget(parent) {
+    
+    impl->ridgeChart->setStyle(impl->coreStyle);
+
     setLayout(impl->topGridLayout.get());
     impl->doLayout();
 
@@ -70,4 +75,8 @@ void TraceView::addLineChart(TraceChartWidget* chart) {
     
 RidgeLineWidget& TraceView::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
+}
+
+ChartStyle& TraceView::getCoreChartStyle() {
+    return *(impl->coreStyle);
 }

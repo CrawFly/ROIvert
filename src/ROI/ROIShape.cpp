@@ -15,7 +15,7 @@ static void clamp_point_to_rect(QPoint& pt, QRect rect) {
 }
 
 struct ROIShape::pimpl {
-    void init(ROIVert::SHAPE shape, ROIShape* parent, const ROIStyle& style) {
+    void init(ROIVert::SHAPE shape, ROIShape* parent, std::shared_ptr<ROIStyle> style) {
         
         switch (shape)
         {
@@ -38,9 +38,13 @@ struct ROIShape::pimpl {
             break;
         }
         sel = new ROISelector(parent);
-        updateStyle(style);
         shptype = shape;
+        roistyle = style;
+
+        updateStyle();
     }
+    
+    std::shared_ptr<ROIStyle> roistyle;
 
     QRectF bb;                  // todo: rename to distinguish from roi bounding box
     int EditingVertex{ -1 };    // current vertex being edited, -1 for none
@@ -163,11 +167,11 @@ struct ROIShape::pimpl {
             }
         }
     }
-    void updateStyle(const ROIStyle& style) {
+    void updateStyle() {
         // set pen, set brush, set color on sel, set selsize
-        pen = style.getPen();
-        brush = style.getBrush();
-        selsize = style.getSelectorSize();
+        pen = roistyle->getPen();
+        brush = roistyle->getBrush();
+        selsize = roistyle->getSelectorSize();
 
         auto shp = dynamic_cast<QAbstractGraphicsShapeItem*>(shapeItem);
         if (shp) {
@@ -216,7 +220,7 @@ private:
 ROIShape::ROIShape(QGraphicsScene* scene, 
                    ROIVert::SHAPE shp, 
                    QSize imgsize, 
-                   const ROIStyle& style) {
+                   std::shared_ptr<ROIStyle> style) {
     
     impl->init(shp, this, style);
     setBoundingRect(QRectF(0, 0, imgsize.width(), imgsize.height()));
@@ -303,8 +307,8 @@ bool ROIShape::isSelectVisible() const noexcept {
     return impl->isSelectVisible();
 }
 
-void ROIShape::updateStyle(const ROIStyle& style) {
-    impl->updateStyle(style);
+void ROIShape::updateStyle() {
+    impl->updateStyle();
 }
 
 ROIVert::SHAPE ROIShape::getShapeType() const noexcept {

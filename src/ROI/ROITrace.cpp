@@ -20,15 +20,18 @@ struct ROITrace::pimpl {
 
     double xmin, xmax;
 
-    void init(const ChartStyle &style) {
-        TraceChart = std::make_unique<TraceChartWidget>();
-        LineSeries = std::make_shared<TraceChartSeries>(style);
-        RidgeSeries = std::make_shared<TraceChartSeries>(style);
+    void init(std::shared_ptr<ChartStyle> style) {
+        chartstyle = style;
+        TraceChart = std::make_unique<TraceChartWidget>(chartstyle);
+        LineSeries = std::make_shared<TraceChartSeries>(chartstyle);
+        RidgeSeries = std::make_shared<TraceChartSeries>(chartstyle);
     }
+
+    std::shared_ptr<ChartStyle> chartstyle;
 };
 
 
-ROITrace::ROITrace(TraceView* tv, VideoData* vd, const ChartStyle &style) {
+ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> style) {
     impl->init(style);
     impl->videodata = vd;
     impl->traceview = tv;

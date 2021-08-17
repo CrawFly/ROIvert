@@ -6,9 +6,11 @@ class ChartStyle : public QObject {
     Q_OBJECT
 public:
     ChartStyle();
-    ChartStyle(ROIStyle&);
     ChartStyle& operator=(const ChartStyle&);
+    ChartStyle(const ChartStyle&);
     ~ChartStyle();
+    
+    void connectToROIStyle(ROIStyle*);
 
     // Charts
     void setBackgroundColor(QColor);
@@ -18,9 +20,12 @@ public:
     void setAxisColor(QColor);
     void setAxisLineWidth(int);
     void setGrid(bool);
-    void setTitleFontSize(int);
+    void setTitleFontSize(int); //todo: getters for fontsizes
     void setLabelFontSize(int);
     void setTickLabelFontSize(int);
+    QPen getAxisPen() const;
+    bool getGrid() const noexcept;
+
     
     // Traces
     void setTraceLineWidth(int);

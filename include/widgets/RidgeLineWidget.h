@@ -4,7 +4,7 @@
 class RidgeLineWidget : public TraceChartWidget
 {
 public:
-    RidgeLineWidget(QWidget* parent = nullptr);
+    RidgeLineWidget(std::shared_ptr<ChartStyle> = nullptr, QWidget* parent = nullptr);
     void updateOffsets();
 };
 

@@ -61,7 +61,7 @@ struct TraceChartSeries::pimpl {
     cv::Mat data;
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
-    ChartStyle style;
+    std::shared_ptr<ChartStyle> chartstyle;
 
 private:
     QPolygonF poly;
@@ -69,10 +69,15 @@ private:
     float offset{ 0 };
 };
 
-TraceChartSeries::TraceChartSeries(const ChartStyle& style) {
-    setStyle(style);
+TraceChartSeries::TraceChartSeries(std::shared_ptr<ChartStyle> style) {
+    impl->chartstyle = style;
 }
 TraceChartSeries::~TraceChartSeries() = default;
+
+void TraceChartSeries::setStyle(std::shared_ptr<ChartStyle> style) {
+    impl->chartstyle = style;
+}
+
 void TraceChartSeries::setData(cv::Mat data, float offset, NORMALIZATION norm) {
     impl->setData(data, norm);
     impl->setOffset(offset);
@@ -95,10 +100,6 @@ double TraceChartSeries::getYMax() const noexcept { return impl->extents[3]; }
 
 void TraceChartSeries::setOffset(float offset) noexcept { impl->setOffset(offset); }
 float TraceChartSeries::getOffset() const noexcept { return impl->getOffset(); }
-
-void TraceChartSeries::setStyle(const ChartStyle& style) noexcept { 
-    impl->style = style; 
-}
 
 QRectF TraceChartSeries::getExtents() {
     return QRectF(QPointF(impl->extents[0], impl->extents[2]), QPointF(impl->extents[1], impl->extents[3]));
@@ -196,6 +197,10 @@ float TraceChartSeries::pimpl::getOffset() const noexcept {
 
 
 void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor, const QColor & fillColor, const QTransform & T, const double& ymin) {
+    if (chartstyle == nullptr) {
+        return;
+    }
+        
     //todo: fill work
     /*
     if (style.Fill) {
@@ -226,10 +231,11 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
         painter.drawPath(T.map(path).translated(QPointF(0, style.Width / 2)));
     }
     */
-    auto brush = style.getTraceBrush();
-    auto pen = style.getTracePen();
+    
+    auto brush = chartstyle->getTraceBrush();
+    auto pen = chartstyle->getTracePen();
     painter.setPen(Qt::NoPen);
-    auto backbrush = QBrush(style.getBackgroundColor());
+    auto backbrush = QBrush(chartstyle->getBackgroundColor());
     painter.setBrush(backbrush);
     painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
 
@@ -237,7 +243,7 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     painter.setBrush(brush);
     painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
 
-    painter.setPen(style.getTracePen());
+    painter.setPen(chartstyle->getTracePen());
     painter.setBrush(Qt::NoBrush);
     painter.drawPolyline(T.map(poly));
 }

@@ -4,6 +4,7 @@
 class QVBoxLayout;
 class TraceChartWidget;
 class RidgeLineWidget;
+class ChartStyle;
 
 class TraceView : public QWidget
 {
@@ -19,6 +20,8 @@ public:
     void addLineChart(TraceChartWidget*);
 
     RidgeLineWidget& getRidgeChart() noexcept;
+
+    ChartStyle& getCoreChartStyle();
     
 private:
     struct pimpl;

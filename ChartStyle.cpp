@@ -1,8 +1,8 @@
 #include "ChartStyle.h"
 
 struct ChartStyle::pimpl {
-    QColor backgroundcolor{ Qt::white };
-    QColor axiscolor{ Qt::black };
+    QColor backgroundcolor{ Qt::black };
+    QColor axiscolor{ Qt::white };
     int axislinewidth{ 1 };
     bool grid = false;
     int titlefontsize{ 14 };
@@ -17,22 +17,22 @@ struct ChartStyle::pimpl {
 };
 
 ChartStyle::ChartStyle() = default;
-ChartStyle::ChartStyle(ROIStyle& roistyle) {
-    connect(&roistyle, &ROIStyle::StyleChanged, this, &ChartStyle::ROIStyleChanged);
-    impl->linecolor = roistyle.getLineColor();
-    impl->fillcolor = roistyle.getFillColor();
-}
+
 ChartStyle::~ChartStyle() {}
 
 ChartStyle& ChartStyle::operator=(const ChartStyle& that) {
     if (this != &that) {
-        //todo: deal with reconnects...probable we want to be thinking through move...also this is messy...need to write out exactly what's where...
-        *(this->impl) = *(that.impl);
+        *(impl) = *(that.impl);
     }
     return *this;
-    
 }
 
+//todo: default ok?
+ChartStyle::ChartStyle(const ChartStyle& that) {
+    if (&that!=nullptr && that.impl!=nullptr && this != &that) {
+        *(impl) = *(that.impl);
+    }
+}
 
 // Charts
 void ChartStyle::setBackgroundColor(QColor c) {
@@ -69,6 +69,12 @@ void ChartStyle::setTickLabelFontSize(int fs) {
     emit StyleChanged(*this);
 }
     
+QPen ChartStyle::getAxisPen() const {
+    return QPen(impl->axiscolor, impl->axislinewidth);
+}
+bool ChartStyle::getGrid() const noexcept {
+    return impl->grid;
+}
 // Traces
 void ChartStyle::setTraceLineWidth(int w) {
     impl->tracelinewidth = w;
@@ -102,7 +108,11 @@ QBrush ChartStyle::getTraceBrush() const {
     return brush;
 }
 
-
+void ChartStyle::connectToROIStyle(ROIStyle* r) {
+    connect(r, &ROIStyle::StyleChanged, this, &ChartStyle::ROIStyleChanged);
+    impl->linecolor = r->getLineColor();
+    impl->fillcolor = r->getFillColor();
+}
 
 void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
     impl->linecolor = r.getLineColor();
