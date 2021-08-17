@@ -23,6 +23,9 @@ public:
     
     void updateROITraces();
 
+    size_t getNROIs() const noexcept;
+    void deleteAllROIs();
+
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
     void keyPress(int, Qt::KeyboardModifiers);

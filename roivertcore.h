@@ -37,11 +37,4 @@ namespace ROIVert {
         };
         return ret;
     }
-    enum class projection
-    {
-        MIN,
-        MAX,
-        MEAN,
-        SUM
-    };
 }

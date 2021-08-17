@@ -6,14 +6,12 @@ struct ROIStyle::pimpl {
     QColor fillcolor{ QColor(255,0,0) };
     std::pair<QColor, QColor> selunselcolors = {QColor(0,255,0), QColor(255,0,0)};
 
-    int linewidth{ 3 };
-    int fillopacity{ 0 };
+    int linewidth{ 1 }; //3
+    int fillopacity{ 60 };//0
     int selsize{ 15 };
     bool colorbyselected{ false };
     bool isSelected{ false };
     
-
-
     QColor getLineColor() const noexcept {
         return colorbyselected ? (isSelected ? selunselcolors.first : selunselcolors.second) : linecolor;
     }
@@ -23,15 +21,7 @@ struct ROIStyle::pimpl {
     }
 
 };
-ROIStyle::ROIStyle(QColor color, int linewidth, int fillopacity, int selsize, bool cbs, std::pair<QColor,QColor> ssclr) {
-    impl->linecolor = color;
-    impl->fillcolor = color;
-    impl->linewidth = linewidth;
-    impl->fillopacity = fillopacity;
-    impl->selsize = selsize;
-    impl->colorbyselected = cbs;
-    impl->selunselcolors = ssclr;
-}
+ROIStyle::ROIStyle() { }
 
 // todo: write these copies better....
 ROIStyle& ROIStyle::operator=(const ROIStyle& that) {

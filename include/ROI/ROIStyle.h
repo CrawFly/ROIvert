@@ -9,7 +9,7 @@ class ROIStyle : public QObject
 {
     Q_OBJECT
 public:
-    ROIStyle(QColor color = QColor(255, 0, 0), int linewidth = 3, int fillopacity = 0, int selsize = 15, bool cbs = false, std::pair<QColor,QColor> selcolors = { QColor(0,255,0), QColor(255,0,0) });
+    ROIStyle();
     ROIStyle& operator=(const ROIStyle&);
     ROIStyle(const ROIStyle&);
 

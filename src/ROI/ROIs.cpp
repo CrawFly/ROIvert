@@ -241,3 +241,12 @@ void ROIs::updateROITraces() {
         r->Trace->update();
     }
 }
+
+size_t ROIs::getNROIs() const noexcept { return impl->rois.size(); }
+
+
+void ROIs::deleteAllROIs() {
+    std::vector<size_t> inds(impl->rois.size());
+    std::iota(inds.begin(), inds.end(), 0);
+    impl->deleteROIs(inds);
+}

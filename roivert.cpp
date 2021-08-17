@@ -150,9 +150,8 @@ void Roivert::doConnect() {
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-    // confirm load if rois exist:
-    /*
-    if (imview->getNROIs() > 0) {
+    // Confirm load if rois exist:
+    if (rois->getNROIs() > 0) {
         // rois exist:
         QMessageBox msg;
         msg.setText(tr("Existing ROIs will be removed when loading a new file, continue?"));
@@ -161,11 +160,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         if (ret == QMessageBox::Cancel) {
             return;
         }
-        while (imview->getNROIs() > 0) {
-            imview->deleteROI(1);
-        }
+        rois->deleteAllROIs();
     }
-    */
 
     viddata->load(fileList, dsTime, dsSpace);
     t_imgData->setProgBar(-1);
@@ -294,25 +290,9 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     vidctrl->forceUpdate();
 }
 
-void Roivert::updateTrace(int roiid)
-{
-    if (roiid < 1) { return; }
-    const size_t ind = static_cast<size_t>(roiid - 1);
-
-    //roi *thisroi = imview->getRoi(ind);
-    /*
-    if (thisroi) {
-        cv::Mat mask = thisroi->getMask();
-        const cv::Rect cvbb(ROIVert::QRect2CVRect(thisroi->getBB()));
-        // new plotter
-        viddata->computeTrace(cvbb, mask, roiid, TraceData);
-        traceview->updateTraces(roiid,false);
-    }
-    */
-    
-}
 
 void Roivert::selecttoolfromkey(int key) {
+    //todo: enable this
     const int item = key - Qt::Key_1;
     if (item >= 0 && item < ui.mainToolBar->actions().size()) {
         QAction* act = ui.mainToolBar->actions()[item];
