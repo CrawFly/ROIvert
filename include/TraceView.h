@@ -18,11 +18,11 @@ public:
     
     //QVBoxLayout& getLineChartLayout();
     void addLineChart(TraceChartWidget*);
-
     RidgeLineWidget& getRidgeChart() noexcept;
-
     ChartStyle& getCoreChartStyle();
     
+    void scrollToChart(TraceChartWidget*);
+
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();

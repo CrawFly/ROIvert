@@ -68,6 +68,9 @@ struct ROIs::pimpl {
             }
         }
         traceview->update();
+        if (!selectedROIs.empty() && selectedROIs.back()<rois.size()) {
+            traceview->scrollToChart(rois.at(selectedROIs.back())->Trace->getTraceChart());
+        }
     }
     
     std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape* r) noexcept{

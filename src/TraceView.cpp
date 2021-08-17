@@ -5,6 +5,7 @@
 #include "widgets/TraceChartWidget.h"
 #include "widgets/RidgeLineWidget.h"
 #include "ChartStyle.h"
+#include <QApplication>
 
 struct TraceView::pimpl {
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
@@ -35,6 +36,9 @@ struct TraceView::pimpl {
         ridgeLayout->addWidget(ridgeChart.get());
     }
 
+    void scrollToWidget(QWidget* w) {
+        scrollArea->ensureWidgetVisible(w);
+    }
 private:
     // todo: I'd like these all to be unique_ptrs...but I end up with a crash on close presumably because of a double delete?
     // note that Qt will delete all of these as long as everything is parented...which it *should* be
@@ -61,6 +65,7 @@ TraceView::TraceView(QWidget* parent) : QWidget(parent) {
     setLayout(impl->topGridLayout.get());
     impl->doLayout();
 
+    
 }
 
 TraceView::~TraceView() {};
@@ -71,8 +76,17 @@ void TraceView::setTimeLimits(float min, float max) {
 void TraceView::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
+
+    // This extremely aggressive double update is required to ensure that the scroll area
+    // is up to date before scrolling to the new chart. 
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+
+    impl->scrollToWidget(chart);
 }
-    
+void TraceView::scrollToChart(TraceChartWidget* w) {
+    impl->scrollToWidget(w);
+}
 RidgeLineWidget& TraceView::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
 }
