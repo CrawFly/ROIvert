@@ -26,6 +26,8 @@ public:
     TraceChartSeries* getLineSeries() const noexcept;
     TraceChartSeries* getRidgeSeries() const noexcept;
 
+    std::vector<float> getTrace() const;
+
 public slots:
     void updateTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>);
 

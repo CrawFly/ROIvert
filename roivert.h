@@ -10,7 +10,7 @@
 #include "roivertcore.h"
 #include "ImageView.h"
 #include "ROI/ROIs.h"
-
+#include "FileIO.h"
 
 class TraceView;
 
@@ -58,7 +58,6 @@ private:
 
     void selecttoolfromkey(int key);
 
-    void exportTraces(QString filename, bool doHeader, bool doTimeCol);
     void exportROIs(QString filename);
     void importROIs(QString filename);
     void restoreSettings();
@@ -68,5 +67,5 @@ private:
     TraceView* traceview;
     ImageView* imageview;
     ROIs* rois;
-    
+    FileIO* fileio;
 };

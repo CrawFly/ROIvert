@@ -100,6 +100,9 @@ Roivert::Roivert(QWidget* parent)
     // ROIs container
     rois = new ROIs(imageview, traceview, viddata);
 
+    // File IO
+    fileio = new FileIO(rois, traceview, viddata);
+
     doConnect();
 
     makeToolbar();
@@ -131,7 +134,7 @@ void Roivert::doConnect() {
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
         
     // export traces button
-    connect(t_io, &tool::fileIO::exportTraces, this, &Roivert::exportTraces);
+    connect(t_io, &tool::fileIO::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
 
     // export rois button
     connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs);
@@ -294,61 +297,7 @@ void Roivert::selecttoolfromkey(int key) {
         act->activate(QAction::Trigger);
     }
 }
-void Roivert::exportTraces(QString filename, bool doHeader, bool doTimeCol) {
-    // exportTraces needs rewrite, should be easier now (as it's a mat!)
-    
-    QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-    
-    if (TraceData.empty())
-    {
-        msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("No traces to export."));
-        msg.exec();
-        return;
-    }
 
-    const auto sz = TraceData.size();
-    const auto nsamples = sz.width;
-    const auto nrois = sz.height;
-
-
-    QFile file(filename);
-    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
-        QTextStream out(&file);
-
-        if (doHeader) {
-            if (doTimeCol) {
-                out << "\"Time\",";
-            }
-            
-            for (size_t roiind = 0; roiind < nrois - 1; ++roiind) {
-                out << "\"ROI " + QString::number(roiind + 1) + "\",";
-            }
-            out << "\"ROI " + QString::number(nrois) + "\"";
-            out << Qt::endl;
-        }
-
-        for (size_t sample = 0; sample < nsamples; sample++) {
-            if (doTimeCol) {
-                const float t = static_cast<float>(sample) / vidctrl->getFrameRate();
-                out << t << ",";
-            }
-            for (size_t roiind = 0; roiind < nrois - 1; ++roiind){
-                out << TraceData.at<double>(roiind, sample) << ",";
-            }
-            out << TraceData.at<double>(nrois-1, sample) << ",";
-            out << Qt::endl;
-        }
-        file.flush();
-        file.close();
-    }
-    else {
-        msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("Could not write to this file, is it open in another program?"));
-        msg.exec();
-    }
-}
 void Roivert::exportROIs(QString filename) {
     /*
     QMessageBox msg;

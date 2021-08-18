@@ -120,7 +120,7 @@ void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
         data = fdata;
     }
     else {
-        data = d;
+        data = d.clone();
     }
     switch (norm)
     {

@@ -78,6 +78,7 @@ void TraceView::setTimeLimits(float min, float max) {
 void TraceView::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
+    chart->getYAxis()->setLabel("dF/F");
 
     // This extremely aggressive double update is required to ensure that the scroll area
     // is up to date before scrolling to the new chart. 

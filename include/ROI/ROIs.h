@@ -26,6 +26,7 @@ public:
 
     size_t getNROIs() const noexcept;
     void deleteAllROIs();
+    std::vector<std::vector<float>> getTraces(std::vector<size_t> inds) const;
 
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);

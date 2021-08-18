@@ -60,7 +60,15 @@ void ROITrace::updateTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> pts) 
     impl->TraceData = impl->videodata->computeTrace(s, bb, pts);
     update();
 }
-
+std::vector<float> ROITrace::getTrace() const {
+    auto numel = impl->TraceData.size().width;
+    
+    std::vector<float> out(numel, 0.);
+    for (size_t i = 0; i < numel; ++i) {
+        out[i] = impl->TraceData.at<float>(i);
+    }
+    return out;
+}
 void ROITrace::update() {
     impl->LineSeries->setXMax(impl->videodata->getTMax());
     impl->LineSeries->setData(impl->TraceData);

@@ -335,3 +335,15 @@ void ROIs::chartClick(TraceChartWidget* chart, std::vector<TraceChartSeries*> se
     }
     impl->setSelectedROIs(inds);
 }
+
+std::vector<std::vector<float>> ROIs::getTraces(std::vector<size_t> inds) const {
+    auto out = std::vector<std::vector<float>>();
+    out.reserve(inds.size());
+
+    for (auto &ind : inds) {
+        if (ind < impl->rois.size()) {
+            out.push_back(impl->rois.at(ind)->Trace->getTrace());
+        }
+    }
+    return out;
+}
