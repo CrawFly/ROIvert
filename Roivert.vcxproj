@@ -110,7 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="FileIO.cpp" />
+    <ClCompile Include="src\FileIO.cpp" />
     <ClCompile Include="src\ChartStyle.cpp" />
     <ClCompile Include="src\widgets\RidgeLineWidget.cpp" />
     <ClCompile Include="src\ROI\ROITrace.cpp" />
@@ -163,7 +163,7 @@
     <QtMoc Include="include\widgets\ContrastWidget.h" />
     <QtMoc Include="include\ImageView.h" />
     <QtMoc Include="include\ChartStyle.h" />
-    <ClInclude Include="FileIO.h" />
+    <ClInclude Include="include\FileIO.h" />
     <ClInclude Include="include\ROIVertEnums.h" />
     <ClInclude Include="include\ROI\ROI.h" />
     <QtMoc Include="include\ROI\ROIs.h" />
