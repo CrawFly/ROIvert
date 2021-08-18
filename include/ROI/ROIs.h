@@ -27,6 +27,7 @@ public:
     size_t getNROIs() const noexcept;
     void deleteAllROIs();
     std::vector<std::vector<float>> getTraces(std::vector<size_t> inds) const;
+    void exportLineChartImages(std::vector<size_t> inds, QString basename, int width, int height, int quality) const;
     
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;

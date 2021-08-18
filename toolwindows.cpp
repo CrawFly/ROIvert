@@ -380,7 +380,6 @@ fileIO::fileIO(QWidget* parent) {
     }
     );
 
-
     connect(cmdExpCharts, &QPushButton::clicked, this, [=]()
     {
         QString initpath = QDir::currentPath();

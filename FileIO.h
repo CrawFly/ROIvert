@@ -11,7 +11,7 @@ public:
     void exportTraces(QString filename, bool includeheader, bool includetime) const;
     void importROIs(QString filename) const;
     void exportROIs(QString filename) const;
-    void exportLineCharts(int width, int height, int quality) const;
+    void exportCharts(QString filename, int width, int height, int quality, bool ridge);
 
 private:
     struct pimpl;

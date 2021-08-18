@@ -218,28 +218,29 @@ imageview integration
         [x] CHART X AXIS PICKING
         [x] RIDGECHART FORMATTING - done modulo the gradient
         [o] SETTINGS FOR [x] FILL AND [] GRADIENT STUFF
-            
-        5. SELECTION: 
-            [x] MAKE CHARTS CLICKABLE
-            [x] INDICATE SELECTED CHARTS
-            [x] SCROLL TO SELECTION
-            [x] CLICKY ON RIDGECHART
-            [] ctrl a key and delete key in charts window forward to do the same as in main window...
-            
-        6. [x] XLabelling, 
-            YLABELING ... this is fine to do df/f, but norm is coming....
-            
-        7. EXPORT
-        8. A BUNCH OF remaining todo's IN CHARTS WRT STYLE/LAYOUT
-            (might be better saved for after i have a widget to tweak)
-            
+        [x] SELECTION
+        [x] X/YLabelling, 
+        7. IMPORT/EXPORT
+            [x] rois
+                [] needs style i/o...wait for styling widget to test this...
+                    [] unclear if we should export the default style?
+                    [] should probably export a version piece, and read it in?
+                    [] should have a validator
+                    
+            [x] traces
+            [] images
+                    
         *** PUT RIDGELINEWIDGET HEADER INTO TRACECHARTWIDGET.H
         
+-----
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
             MVP this - what are the most common styles/options?
             
         CHART NORMALIZATION
+            [] where's the control? Can i fit it in line charts? its' just a little dropdown...
+            [] it also will require a checkbox for match yaxes...ugh
+            
         SHOT AT IMAGECHART
         OTHER EXPORTS
         SPEED CHECK, I THINK I CAN DO BETTER NOW?

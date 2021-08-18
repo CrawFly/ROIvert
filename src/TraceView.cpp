@@ -4,7 +4,6 @@
 #include <QScrollArea>
 #include <QApplication>
 #include <QKeyEvent>
-
 #include "widgets/TraceChartWidget.h"
 #include "widgets/RidgeLineWidget.h"
 #include "ChartStyle.h"
@@ -104,4 +103,3 @@ void TraceView::keyPressEvent(QKeyEvent* event) {
 void TraceView::mousePressEvent(QMouseEvent* event) {
     emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
 }
-

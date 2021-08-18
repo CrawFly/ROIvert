@@ -370,3 +370,12 @@ void ROIs::write(QJsonObject& json) const {
     }
     json["ROIs"] = jrois;
 }
+
+void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int width, int height, int quality) const {
+    for (auto& ind : inds) {
+        if (ind < impl->rois.size()) {
+            const QString filename(basename + "_" + QString::number(ind + 1) + ".png");
+            impl->rois.at(ind)->Trace->getTraceChart()->saveAsImage(filename, width, height, quality);
+        }
+    }
+}

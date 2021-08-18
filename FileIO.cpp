@@ -4,11 +4,14 @@
 #include <QIcon>
 #include <QString>
 #include <QObject>
+#include <QDir>
 #include <QFile>
-
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+
+#include "widgets/RidgeLineWidget.h"
 
 static QString tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1) {
     return QObject::tr(sourceText, disambiguation, n);
@@ -131,7 +134,25 @@ void FileIO::exportROIs(QString filename) const {
     file.write(saveDoc.toJson());
 
 }
-void FileIO::exportLineCharts(int width, int height, int quality) const {}
 
-
-    
+void FileIO::exportCharts(QString filename, int width, int height, int quality, bool ridge) {
+    if (ridge) {
+        impl->traceview->getRidgeChart().saveAsImage(filename, width, height, quality);
+    }
+    else {        
+        auto ncharts = impl->rois->getNROIs();
+        if (impl->rois == nullptr || ncharts < 1) {
+            QMessageBox msg;
+            msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+            msg.setIcon(QMessageBox::Warning);
+            msg.setText(tr("No charts to export."));
+            msg.exec();
+            return;
+        }
+        const QFileInfo basefile(filename);
+        const QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
+        auto inds{ std::vector<size_t>(ncharts) };
+        std::iota(inds.begin(), inds.end(), 0);
+        impl->rois->exportLineChartImages(inds, basename, width, height, quality);
+    }
+}    

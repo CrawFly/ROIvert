@@ -133,6 +133,7 @@ void Roivert::doConnect() {
     // mostly destined for displaysettings, change in smoothing/contrast etc.
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
         
+    // todo: give tool::fileio interface a ptr to fileio so it can call directly
     // export traces button
     connect(t_io, &tool::fileIO::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
 
@@ -141,6 +142,11 @@ void Roivert::doConnect() {
 
     // import rois button
     connect(t_io, &tool::fileIO::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
+    
+    // export charts button
+    connect(t_io, &tool::fileIO::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
+    
+    //connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
 
     // passthroughs
     // progress for loading
@@ -149,8 +155,6 @@ void Roivert::doConnect() {
     // clicked the dff button, update contrast widget
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
     
-    // export charts button
-    //connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
     
 }
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
@@ -298,141 +302,6 @@ void Roivert::selecttoolfromkey(int key) {
     }
 }
 
-void Roivert::exportROIs(QString filename) {
-    /*
-    QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-
-    QVector<QPair<ROIVert::ROISHAPE, QVector<QPoint>>> r = imview->getAllROIs();
-    if (r.empty()) {
-        msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("No ROIs to export."));
-        msg.exec();
-        return;
-    }
-
-    QFile file(filename);
-    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
-        QXmlStreamWriter xml(&file);
-        xml.setAutoFormatting(true);
-        xml.writeStartDocument();
-
-        std::map<ROIVert::ROISHAPE, QString> shapemap;
-        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::RECTANGLE, "rectangle"));
-        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::ELLIPSE, "ellipse"));
-        shapemap.insert(std::make_pair(ROIVert::ROISHAPE::POLYGON, "polygon"));
-        
-        const int ds = viddata->getdsSpace();
-
-        xml.writeStartElement("ROIs");
-
-        for (auto roi : r)
-        {
-            xml.writeStartElement("ROI");
-            xml.writeAttribute("shape",shapemap[roi.first]);
-            for (auto pt : roi.second)
-            {
-                xml.writeStartElement("Vertex");
-                xml.writeAttribute("X", QString::number(pt.x()*ds));
-                xml.writeAttribute("Y", QString::number(pt.y()*ds));
-                xml.writeEndElement();
-            }
-            xml.writeEndElement();
-        }
-        xml.writeEndElement();
-
-        file.flush();
-        file.close();
-        msg.setText(tr("The ROIs have been exported."));
-        msg.exec();
-    }
-    else {
-        msg.setIcon(QMessageBox::Warning);
-        msg.setText(tr("Could not write to this file, is it open?"));
-        msg.exec();
-    }
-    */
-}
-void Roivert::importROIs(QString filename) {
-    /*
-    QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
-
-    QFile file(filename);
-
-    //std::vector<roi*> rois;
-    std::vector<std::unique_ptr<roi>> rois;
-
-    if (file.open(QFile::ReadOnly)) {
-        std::map<QString, ROIVert::ROISHAPE> shapemap;
-        shapemap.insert(std::make_pair("rectangle", ROIVert::ROISHAPE::RECTANGLE));
-        shapemap.insert(std::make_pair("ellipse", ROIVert::ROISHAPE::ELLIPSE));
-        shapemap.insert(std::make_pair("polygon", ROIVert::ROISHAPE::POLYGON));
-
-        QXmlStreamReader xml(&file);
-        const int ds = viddata->getdsSpace();
-
-        ROIVert::ROISHAPE type_e;
-        QVector<QPoint> verts;
-        while (!xml.atEnd()) {
-            const QXmlStreamReader::TokenType tkn =  xml.readNext();
-            if (xml.isStartElement() && xml.name()=="ROI" && xml.attributes().size()==1) {
-                QString type_s(xml.attributes()[0].value().toString());
-                type_e = shapemap[type_s];
-                switch (type_e)
-                {
-                case ROIVert::RECTANGLE:
-                    rois.push_back(std::make_unique<roi_rect>());
-                    verts.clear();
-                    break;
-                case ROIVert::ELLIPSE:
-                    rois.push_back(std::make_unique<roi_ellipse>());
-                    verts.clear();
-                    break;
-                case ROIVert::POLYGON:
-                    rois.push_back(std::make_unique<roi_polygon>());
-                    verts.clear();
-                    break;
-                default:
-                    break;
-                }
-            }
-            if (xml.isStartElement() && xml.name() == "Vertex" && xml.attributes().size()==2) {
-                const QPoint thispoint(QPoint(xml.attributes()[0].value().toInt() / ds, xml.attributes()[1].value().toInt()/ds));
-                if (thispoint.x() < 0 || thispoint.x() > viddata->getWidth() || thispoint.y() < 0 || thispoint.y() > viddata->getHeight()) {
-                    // TODO: factor out exceptions and handle outside.
-                    msg.setIcon(QMessageBox::Critical);
-                    msg.setText(tr("A vertex in the ROI file exceeds the boundaries of the current image."));
-                    msg.exec();
-                    return;
-                }
-                verts.push_back(thispoint);
-            }
-            if (xml.isEndElement() && xml.name()=="ROI") {
-                rois.back()->setVertices(verts);
-            }
-        }
-        if (xml.hasError()) {
-            msg.setIcon(QMessageBox::Critical);
-            msg.setText(tr("Error reading the ROI file."));
-            msg.exec();
-            return;
-        }
-    }
-    else {
-        msg.setIcon(QMessageBox::Critical);
-        msg.setText(tr("Error reading the ROI file."));
-        msg.exec();
-        return;
-    }
-    
-    // 
-    imview->importROIs(rois);
-
-    // clear rois vector to free the memory
-    rois.clear();
-    */
-}
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
     settings.setValue("geometry", saveGeometry());
