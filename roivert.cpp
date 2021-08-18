@@ -137,10 +137,10 @@ void Roivert::doConnect() {
     connect(t_io, &tool::fileIO::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
 
     // export rois button
-    connect(t_io, &tool::fileIO::exportROIs, this, &Roivert::exportROIs);
+    connect(t_io, &tool::fileIO::exportROIs, this, [=](QString fn) {fileio->exportROIs(fn); });
 
     // import rois button
-    connect(t_io, &tool::fileIO::importROIs, this, &Roivert::importROIs);
+    connect(t_io, &tool::fileIO::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
 
     // passthroughs
     // progress for loading

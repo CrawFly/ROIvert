@@ -22,4 +22,10 @@ struct ROI {
     
     std::unique_ptr<ROITrace> Trace;
     std::unique_ptr<ROITrace> Ridge;
+    
+    int pixelsubset;
+
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
+
 };

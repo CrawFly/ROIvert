@@ -6,6 +6,10 @@
 #include <QObject>
 #include <QFile>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+
 static QString tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1) {
     return QObject::tr(sourceText, disambiguation, n);
 }
@@ -24,7 +28,6 @@ FileIO::FileIO(ROIs* rois, TraceView* traceview, VideoData* videodata) {
 FileIO::~FileIO() = default;
 
 void FileIO::exportTraces(QString filename, bool includeheader, bool includetime) const {
-    qDebug() << "exportTraces";
     // exportTraces needs rewrite, should be easier now (as it's a mat!)
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
@@ -52,9 +55,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
         msg.exec();
         return;
     }
-
-    qDebug() << traces[0];
-        
+            
     QTextStream out(&file);
     
     if (includeheader) {
@@ -82,8 +83,54 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
     file.flush();
     file.close();
 }
-void FileIO::importROIs(QString filename) const {}
-void FileIO::exportROIs(QString filename) const {}
+void FileIO::importROIs(QString filename) const {
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    msg.setIcon(QMessageBox::Warning);
+    
+    qDebug() << "IMPORT ROIS";
+    QFile file(filename);
+    bool openable = file.open(QFile::ReadOnly);
+    if (!openable || impl->rois == nullptr) {
+        msg.setText(tr("Error reading the ROI file."));
+        msg.exec();
+        return;
+    }
+    
+    QByteArray saveData = file.readAll();
+    QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
+    
+    // can the doc be validated first?
+    impl->rois->deleteAllROIs();
+    impl->rois->read(loadDoc.object());
+}
+void FileIO::exportROIs(QString filename) const {
+
+    QMessageBox msg;
+    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    msg.setIcon(QMessageBox::Warning);
+    auto ntraces = impl->rois->getNROIs();
+    if (impl->rois == nullptr || ntraces < 1) {
+        msg.setText(tr("No traces to export."));
+        msg.exec();
+        return;
+    }
+    // todo: file export/import needs to somehow use pixel subset...
+    
+    QFile file(filename);
+    bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
+    if (!openable) {
+        msg.setText(tr("Could not write to this file, is it open in another program?"));
+        msg.exec();
+        return;
+    }
+
+    auto json = QJsonObject();
+    impl->rois->write(json);
+    QJsonDocument saveDoc(json);
+    file.write(saveDoc.toJson());
+
+}
 void FileIO::exportLineCharts(int width, int height, int quality) const {}
 
 

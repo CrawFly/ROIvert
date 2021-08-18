@@ -4,6 +4,8 @@
 #include <QMouseEvent>
 #include <QGraphicsView>
 #include <QPen>
+#include <QJsonObject>
+#include <QJsonArray>
 #include <QDebug>
 
 #include "ROI\ROISelector.h"
@@ -37,12 +39,14 @@ struct ROIShape::pimpl {
         default:
             break;
         }
+        par = parent;
         sel = new ROISelector(parent);
         shptype = shape;
         roistyle = style;
 
         updateStyle();
     }
+    ROIShape* par;
     
     std::shared_ptr<ROIStyle> roistyle;
 
@@ -202,8 +206,15 @@ struct ROIShape::pimpl {
         }
     }
 
+
     ROIVert::SHAPE getShapeType() const noexcept {
         return shptype;
+    }
+    void setShapeType(ROIVert::SHAPE shape) {
+        delete shapeItem;
+        delete sel;
+        init(shape, par, roistyle);
+        setSelectBoundingRect(bb);
     }
 
 private:
@@ -317,4 +328,26 @@ ROIVert::SHAPE ROIShape::getShapeType() const noexcept {
 
 QRect ROIShape::getTightBoundingBox() const noexcept {
     return impl->getBoundingBox();
+}
+
+void ROIShape::read(const QJsonObject& json, int pixelsubset) {
+    impl->setShapeType(static_cast<ROIVert::SHAPE>(json["type"].toInt()));
+    QJsonArray jverts = json["verts"].toArray();
+    std::vector<QPoint> vertices;
+    for (auto& vert : jverts) {
+        QPoint pt{ vert.toArray()[0].toInt(), vert.toArray()[1].toInt() };
+        vertices.push_back(pt/pixelsubset);
+    }
+    impl->setVertices(vertices);
+    impl->setSelectVisible(false);
+    emit roiEdited(getShapeType(), getTightBoundingBox(), getVertices());
+    
+}
+void ROIShape::write(QJsonObject& json, int pixelsubset) const {
+    json["type"] = static_cast<int>(impl->getShapeType());
+    QJsonArray jverts;
+    for (auto& pt : impl->getVertices()) {
+        jverts.append(QJsonArray({ pt.x()*pixelsubset, pt.y()*pixelsubset }));
+    }
+    json["verts"] = jverts;
 }

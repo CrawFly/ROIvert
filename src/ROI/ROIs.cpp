@@ -2,6 +2,9 @@
 #include <QDebug>
 #include <QGraphicsItem>
 #include <QMouseEvent>
+#include <QJsonObject>
+#include <QJsonArray>
+
 
 #include "ROI\ROI.h"
 #include "ROI\ROISelector.h"
@@ -34,12 +37,15 @@ struct ROIs::pimpl {
         auto& gObj = rois.back()->graphicsShape;
         auto& tObj = rois.back()->Trace;
         
-
-        gObj->setVertices({ pos, pos });
-        gObj->setEditingVertex(1);
-        gObj->grabMouse();
+        if (!pos.isNull()) {
+            // pos should only be NULL for an import push
+            gObj->setVertices({ pos, pos });
+            gObj->setEditingVertex(1);
+            gObj->grabMouse();
+        }
 
         connect(gObj.get(), &ROIShape::roiEdited, tObj.get(), &ROITrace::updateTrace);
+        connect(gObj.get(), &ROIShape::roiEdited, par,  &ROIs::roiEdit);
         connect(tObj->getTraceChart(), &TraceChartWidget::chartClicked, par, &ROIs::chartClick);
     }
 
@@ -232,8 +238,8 @@ void ROIs::mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint
     }
     else {
         impl->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())));
-        auto& it = impl->rois.back();        
-        connect(it->graphicsShape.get(), &ROIShape::roiEdited, this, &ROIs::roiEdit);
+        //auto& it = impl->rois.back();        
+        //connect(it->graphicsShape.get(), &ROIShape::roiEdited, this, &ROIs::roiEdit);
         // TODO: examine this connection, how it should work with new ptr mechanism is unclear...
         //connect(it->roistyle.get(), &ROIStyle::StyleChanged, it->graphicsShape.get(), &ROIShape::updateStyle);
         impl->setSelectedROIs({ impl->rois.size() - 1 });
@@ -346,4 +352,21 @@ std::vector<std::vector<float>> ROIs::getTraces(std::vector<size_t> inds) const 
         }
     }
     return out;
+}
+
+void ROIs::read(const QJsonObject& json) {
+    QJsonArray jrois = json["ROIs"].toArray();
+    for (auto& jroi : jrois) {
+        impl->pushROI(QPoint());
+        impl->rois.back()->read(jroi.toObject());
+    }
+}
+void ROIs::write(QJsonObject& json) const {
+    QJsonArray jrois;
+    for (auto& r : impl->rois) {
+        QJsonObject jroi;
+        r->write(jroi);
+        jrois.append(jroi);
+    }
+    json["ROIs"] = jrois;
 }

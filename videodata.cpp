@@ -230,7 +230,7 @@ void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size
 */
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
     auto res = cv::Mat(1, getNFrames(), CV_32FC1);
-    if (cvbb.width == 0 || cvbb.height == 0) {
+    if (cvbb.width <= 0 || cvbb.height <= 0) {
         res = 0;
         return res;
     }
@@ -256,8 +256,11 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
                         static_cast<size_t>(bb.width()-1),
                         static_cast<size_t>(bb.height())-1);
     
-    const int w = bb.width() - 1;
-    const int h = bb.height() - 1;
+    const int w = std::max(bb.width() - 1, 0);
+    const int h = std::max(bb.height() - 1, 0);
+
+    
+
     const cv::Size sz(w, h);
 
     cv::Mat mask(sz, CV_8U);

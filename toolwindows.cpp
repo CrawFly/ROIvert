@@ -360,7 +360,7 @@ fileIO::fileIO(QWidget* parent) {
     {
         QString initpath = QDir::currentPath();
         if (!cachepath.isEmpty()) { initpath = cachepath; }
-        QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("Extensible Markup Language (*.xml)"));
+        QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("JavaScript Object Notation (*.json)"));
         if (!filename.isEmpty()) {
             cachepath = QFileInfo(filename).absolutePath();
             emit exportROIs(filename);
@@ -372,8 +372,7 @@ fileIO::fileIO(QWidget* parent) {
     {
         QString initpath = QDir::currentPath();
         if (!cachepath.isEmpty()) { initpath = cachepath; }
-        //QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("Extensible Markup Language (*.xml)"));
-        QString filename = QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("Extensible Markup Language (*.xml)"));
+        QString filename = QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("JavaScript Object Notation (*.json)"));
         if (!filename.isEmpty()) {
             cachepath = QFileInfo(filename).absolutePath();
             emit importROIs(filename);

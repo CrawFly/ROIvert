@@ -39,8 +39,10 @@ public:
     QRectF boundingRect() const noexcept override;
     QPainterPath shape() const override;
 
-
     void doPress(QPoint pos);
+
+    void read(const QJsonObject &json, int pixesubset);
+    void write(QJsonObject &json, int pixesubset) const;
 
 signals:
     void roiEdited(ROIVert::SHAPE, QRect, std::vector<QPoint>);
