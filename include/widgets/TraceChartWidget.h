@@ -151,3 +151,12 @@ protected:
     void updateLayout() override;
 
 };
+
+
+class RidgeLineWidget : public TraceChartWidget
+{
+public:
+    RidgeLineWidget(std::shared_ptr<ChartStyle> = nullptr, QWidget* parent = nullptr);
+    void updateOffsets();
+};
+

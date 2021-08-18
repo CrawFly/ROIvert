@@ -1,4 +1,4 @@
-#include "widgets/RidgeLineWidget.h"
+#include "widgets/TraceChartWidget.h"
 
 
 RidgeLineWidget::RidgeLineWidget(std::shared_ptr<ChartStyle> style, QWidget* parent) : TraceChartWidget(style, parent) {

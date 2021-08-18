@@ -184,9 +184,6 @@
     <ClInclude Include="include\ROIVertEnums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\widgets\RidgeLineWidget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\FileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>

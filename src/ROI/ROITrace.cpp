@@ -5,7 +5,6 @@
 #include "ROIVertEnums.h"
 #include "TraceView.h"
 #include "widgets\TraceChartWidget.h"
-#include "widgets\RidgeLineWidget.h"
 #include "opencv2/opencv.hpp"
 #include "ChartStyle.h"
 

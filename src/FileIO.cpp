@@ -11,7 +11,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "widgets/RidgeLineWidget.h"
+#include "widgets/TraceChartWidget.h"
 
 static QString tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1) {
     return QObject::tr(sourceText, disambiguation, n);

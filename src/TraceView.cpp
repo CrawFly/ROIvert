@@ -5,7 +5,6 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include "widgets/TraceChartWidget.h"
-#include "widgets/RidgeLineWidget.h"
 #include "ChartStyle.h"
 
 struct TraceView::pimpl {

@@ -171,7 +171,6 @@
     <QtMoc Include="include\ROI\ROIShape.h" />
     <QtMoc Include="include\ROI\ROIStyle.h" />
     <QtMoc Include="include\ROI\ROITrace.h" />
-    <ClInclude Include="include\widgets\RidgeLineWidget.h" />
     <ClInclude Include="roivertcore.h" />
     <ClInclude Include="displaysettings.h" />
     <ClInclude Include="resource.h" />

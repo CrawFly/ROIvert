@@ -11,7 +11,6 @@
 #include "ROI\ROIStyle.h"
 #include "ChartStyle.h"
 #include "widgets/TraceChartWidget.h"
-#include "widgets/RidgeLineWidget.h"
 
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
