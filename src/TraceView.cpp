@@ -92,8 +92,8 @@ RidgeLineWidget& TraceView::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
 }
 
-ChartStyle& TraceView::getCoreChartStyle() {
-    return *(impl->coreStyle);
+ChartStyle* TraceView::getCoreChartStyle() {
+    return impl->coreStyle.get();
 }
 void TraceView::keyPressEvent(QKeyEvent* event) {
     emit keyPressed(event->key(), event->modifiers());

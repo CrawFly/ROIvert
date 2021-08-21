@@ -16,7 +16,9 @@
 #include "ROI/ROIs.h"
 #include "TraceView.h"
 #include "ROI/ROIStyle.h"
+#include "ChartStyle.h"
 #include "widgets/RGBWidget.h"
+#include "widgets/TraceChartWidget.h"
 
 
 
@@ -85,13 +87,20 @@ struct StyleWindow::pimpl{
         roilinewidth->setMinimum(0);
         roilinewidth->setMaximum(15);
         roilinewidth->setOrientation(Qt::Horizontal);
+        roilinewidth->setPageStep(1);
+        roilinewidth->setSingleStep(1);
 
         roiselsize->setMinimum(0);
         roiselsize->setMaximum(30);
         roiselsize->setOrientation(Qt::Horizontal);
+        roiselsize->setPageStep(1);
+        roiselsize->setSingleStep(1);
+
         roifillopacity->setMinimum(0);
         roifillopacity->setMaximum(255); 
         roifillopacity->setOrientation(Qt::Horizontal);
+        roifillopacity->setPageStep(8);
+        roifillopacity->setSingleStep(1);
 
         lay->addRow("Line Width", roilinewidth);
         lay->addRow("Selecter Size", roiselsize);
@@ -120,9 +129,9 @@ struct StyleWindow::pimpl{
         chartfont->setMinimumWidth(150);
 
         chartlabelfontsize->setMinimum(1);
-        chartlabelfontsize->setMinimum(72);
+        chartlabelfontsize->setMaximum(72);
         charttickfontsize->setMinimum(1);
-        charttickfontsize->setMinimum(72);
+        charttickfontsize->setMaximum(72);
 
         lay->addRow("Font:", chartfont);
         lay->addRow("Label Size:", chartlabelfontsize);
@@ -195,6 +204,23 @@ struct StyleWindow::pimpl{
         connect(ridgegrid, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWindow::RidgeChartStyleChange);
     }
+
+    void updateROIStyle(ROIStyle* style) {
+        auto selsize = roiselsize->value() > 0 ? roiselsize->value() : -15;
+        
+        style->blockSignals(true);
+        style->setSelectorSize(selsize);
+        style->setLineWidth(roilinewidth->value());
+        style->setFillOpacity(roifillopacity->value());
+        style->blockSignals(false);
+        emit style->StyleChanged(*style);
+    }
+    void updateChartStyle(ChartStyle* style) {
+        style->setBackgroundColor(chartbackcolor->getColor());
+        style->setAxisColor(chartforecolor->getColor());
+        style->setLabelFontSize(chartlabelfontsize->value());
+        style->setTickLabelFontSize(charttickfontsize->value());
+    }
 };
 
 StyleWindow::StyleWindow(QWidget *parent) : QWidget(parent)
@@ -213,36 +239,31 @@ void StyleWindow::ROIColorChange() {
         }
     }
 }
-
 void StyleWindow::ROIStyleChange(){
-    auto corestyle = impl->rois->getCoreROIStyle();
-    auto selsize = impl->roiselsize->value();
-    selsize = selsize > 0 ? selsize : -15;
-
-    corestyle->setSelectorSize(selsize);
-    corestyle->setLineWidth(impl->roilinewidth->value());
-    corestyle->setFillOpacity(impl->roifillopacity->value());
-
-    // get all the roistyles
+    impl->updateROIStyle(impl->rois->getCoreROIStyle());
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
-        auto style = impl->rois->getROIStyle(ind);
-        style->blockSignals(true);
-        style->setSelectorSize(selsize);
-        style->setLineWidth(impl->roilinewidth->value());
-        style->setFillOpacity(impl->roifillopacity->value());
-        style->blockSignals(false);
-        emit style->StyleChanged(*style);
+        impl->updateROIStyle(impl->rois->getROIStyle(ind));
     }
 
 }
 
 void StyleWindow::ChartStyleChange(){
-    qDebug()<<"ChartStyleChange";
+    impl->updateChartStyle(impl->traceview->getCoreChartStyle());
+    
+    impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
+    impl->traceview->getRidgeChart().updateStyle();
+
+    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::iota(inds.begin(), inds.end(), 0);
+    for (auto& ind : inds) {
+        impl->updateChartStyle(impl->rois->getChartStyle(ind));
+        impl->rois->updateChartStyle(ind);
+    }
 }
 void StyleWindow::LineChartStyleChange(){
-    qDebug()<<"LineChartStyleChange";
+    
 }
 void StyleWindow::RidgeChartStyleChange(){
     qDebug()<<"RidgeChartStyleChange";

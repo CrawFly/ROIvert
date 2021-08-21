@@ -20,7 +20,7 @@ public:
     //QVBoxLayout& getLineChartLayout();
     void addLineChart(TraceChartWidget*);
     RidgeLineWidget& getRidgeChart() noexcept;
-    ChartStyle& getCoreChartStyle();
+    ChartStyle* getCoreChartStyle();
     
     void scrollToChart(TraceChartWidget*);
 

@@ -78,8 +78,15 @@ TraceChartWidget::~TraceChartWidget() = default;
 
 void TraceChartWidget::setStyle(std::shared_ptr<ChartStyle> style) {
     impl->chartstyle = style;
-    impl->xaxis->setStyle(style);
-    impl->yaxis->setStyle(style);
+    updateStyle();
+}
+ChartStyle* TraceChartWidget::getStyle() {
+    return impl->chartstyle.get();
+}
+void TraceChartWidget::updateStyle() {
+    impl->xaxis->setStyle(impl->chartstyle);
+    impl->yaxis->setStyle(impl->chartstyle);
+    update();
 }
 
 void TraceChartWidget::addSeries(std::shared_ptr<TraceChartSeries> series) {

@@ -5,6 +5,7 @@
 #include "videodata.h"
 #include "ROIVertEnums.h"
 #include "ROIStyle.h"
+#include "ChartStyle.h"
 
 class ROIShape;
 
@@ -21,6 +22,9 @@ public:
     std::vector<size_t> getSelected() const noexcept;
     ROIStyle* getROIStyle(size_t ind) const noexcept;
     ROIStyle* getCoreROIStyle() const noexcept;
+
+    ChartStyle* getChartStyle(size_t ind) const noexcept;
+    void updateChartStyle(size_t ind);
 
     void setColorBySelect(bool yesno = true);
     

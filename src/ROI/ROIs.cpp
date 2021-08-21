@@ -29,7 +29,7 @@ struct ROIs::pimpl {
     void pushROI(QPoint pos) {
         //todo: more careful work for style needed here...
         ROIStyle rs = coreStyle;
-        ChartStyle cs = traceview->getCoreChartStyle();
+        ChartStyle cs = *traceview->getCoreChartStyle();
         rs.setColor(pal.getPaletteColor(rois.size()));
         rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, rs, cs));
         
@@ -384,4 +384,10 @@ void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int
 
 ROIStyle* ROIs::getCoreROIStyle() const noexcept {
     return &impl->coreStyle;
+}
+ChartStyle* ROIs::getChartStyle(size_t ind) const noexcept {
+    return impl->rois.at(ind)->chartstyle.get();
+}
+void ROIs::updateChartStyle(size_t ind) {
+    impl->rois.at(ind)->Trace->getTraceChart()->updateStyle();
 }

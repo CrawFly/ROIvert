@@ -18,6 +18,9 @@ public:
     TraceChartWidget(std::shared_ptr<ChartStyle> style = nullptr, QWidget* parent = nullptr);
     ~TraceChartWidget();
     void setStyle(std::shared_ptr<ChartStyle> style);
+    ChartStyle* getStyle();
+    void updateStyle();
+
 
     void addSeries(std::shared_ptr<TraceChartSeries>);
     void removeSeries(std::shared_ptr<TraceChartSeries>) noexcept;
