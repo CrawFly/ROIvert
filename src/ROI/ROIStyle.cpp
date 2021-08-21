@@ -34,6 +34,7 @@ ROIStyle& ROIStyle::operator=(const ROIStyle& that) {
         this->impl->colorbyselected = that.impl->colorbyselected;
         this->impl->selunselcolors = that.impl->selunselcolors;
     }
+    emit this->StyleChanged(*this);
     return *this;
 }
 
@@ -47,6 +48,7 @@ ROIStyle::ROIStyle(const ROIStyle& that) {
         this->impl->colorbyselected = that.impl->colorbyselected;
         this->impl->selunselcolors = that.impl->selunselcolors;
     }
+    emit this->StyleChanged(*this);
 }
 
 ROIStyle::~ROIStyle() = default;

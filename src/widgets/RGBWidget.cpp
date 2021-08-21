@@ -37,7 +37,7 @@ RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent)
 
     this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     //this->setMinimumHeight(100);
-    this->setFixedHeight(100);
+    this->setFixedHeight(120);
 }
 QColor RGBWidget::getColor() const {
     const int r{ impl->rgb[0].second->value() };

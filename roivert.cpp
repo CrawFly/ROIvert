@@ -23,6 +23,7 @@
 #include "opencv2/opencv.hpp"
 #include "ROIVertEnums.h"
 #include <QStringList>
+#include "ROI/ROIStyle.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -141,7 +142,12 @@ void Roivert::doConnect() {
     
     // todo: (consider) non-signal approach here too
     connect(stylewindow, &StyleWindow::ROIColorChanged, rois, &ROIs::setColorOfSelectedROIs);
-
+    connect(rois, &ROIs::selectionChanged, this, [=](std::vector<size_t> inds) {
+        if (!inds.empty()) {
+            stylewindow->selectionChange(rois->getROIStyle(inds.back())->getLineColor());            
+        }
+    });
+    connect(stylewindow, &StyleWindow::ROIStyleChanged, rois, &ROIs::setAllROIStylesNotColor);
 
     // progress for loading
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);

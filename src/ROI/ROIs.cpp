@@ -76,6 +76,9 @@ struct ROIs::pimpl {
         if (!selectedROIs.empty() && selectedROIs.back()<rois.size()) {
             traceview->scrollToChart(rois.at(selectedROIs.back())->Trace->getTraceChart());
         }
+        if (par) {
+            emit par->selectionChanged(selectedROIs);
+        }
     }
     
     std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape* r) noexcept{
@@ -383,4 +386,17 @@ void ROIs::setColorOfSelectedROIs(const QColor& clr) {
     for (auto& ind : inds) {
         impl->rois[ind]->roistyle->setColor(clr);
     }
+}
+
+void ROIs::setAllROIStylesNotColor(ROIStyle style) {
+    impl->coreStyle = style;
+    // set each ROI
+    for (auto& r : impl->rois) {
+        style.setColor(r->roistyle->getLineColor());
+        *(r->roistyle) = style;
+    }
+    //qDebug() << "ROIs::setAllROIStylesNotColor";
+
+    // does = or () prevent moving the ptr?
+
 }

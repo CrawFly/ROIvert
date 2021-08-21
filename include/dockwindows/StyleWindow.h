@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QProxyStyle>
 #include <QStyleOption>
+#include "ROI/ROIStyle.h"
 
 class StyleWindow : public QWidget
 {
@@ -11,8 +12,11 @@ class StyleWindow : public QWidget
                 
     signals:
         void ROIColorChanged(const QColor& clr);
-        void ROIStyleChanged();
+        void ROIStyleChanged(ROIStyle style);
         void ChartStyleChanged();
+
+    public slots:
+        void selectionChange(const QColor& clr);
 
     private slots:
         void ROIColorChange();

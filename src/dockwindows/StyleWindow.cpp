@@ -13,6 +13,7 @@
 #include <QCheckBox>
 #include <QDebug>
 
+#include "ROI/ROIStyle.h"
 #include "widgets/RGBWidget.h"
 
 struct StyleWindow::pimpl{
@@ -20,7 +21,7 @@ struct StyleWindow::pimpl{
 
     RGBWidget* roicolor = new RGBWidget;
 
-    QSpinBox* roilinewidth = new QSpinBox;
+    QSlider* roilinewidth = new QSlider;
     QSlider* roiselsize = new QSlider;
     QSlider* roifillopacity = new QSlider;
 
@@ -73,11 +74,15 @@ struct StyleWindow::pimpl{
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
+        roilinewidth->setMinimum(0);
+        roilinewidth->setMaximum(15);
+        roilinewidth->setOrientation(Qt::Horizontal);
+
         roiselsize->setMinimum(0);
         roiselsize->setMaximum(30);
         roiselsize->setOrientation(Qt::Horizontal);
         roifillopacity->setMinimum(0);
-        roifillopacity->setMaximum(100); //todo:255?
+        roifillopacity->setMaximum(255); 
         roifillopacity->setOrientation(Qt::Horizontal);
 
         lay->addRow("Line Width", roilinewidth);
@@ -124,7 +129,7 @@ struct StyleWindow::pimpl{
         linewidth->setMinimum(1);
         linewidth->setMaximum(10);
         linefill->setMinimum(0);
-        linefill->setMaximum(100);
+        linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
         linenorm->addItems({"None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR"});
 
@@ -143,7 +148,7 @@ struct StyleWindow::pimpl{
         ridgewidth->setMinimum(1);
         ridgewidth->setMaximum(10);
         ridgefill->setMinimum(0);
-        ridgefill->setMaximum(100);
+        ridgefill->setMaximum(255);
         ridgefill->setOrientation(Qt::Horizontal);
         ridgeoverlap->setMinimum(0);
         ridgeoverlap->setMaximum(100);
@@ -158,8 +163,7 @@ struct StyleWindow::pimpl{
 
     void doConnect(StyleWindow* par){
         connect(roicolor, &RGBWidget::colorChanged, par, &StyleWindow::ROIColorChange);
-
-        connect(roilinewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::ROIStyleChange);
+        connect(roilinewidth, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
         connect(roiselsize, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
         connect(roifillopacity, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
         connect(chartforecolor, &RGBWidget::colorChanged, par, &StyleWindow::ChartStyleChange);
@@ -194,7 +198,13 @@ void StyleWindow::ROIColorChange() {
 }
 
 void StyleWindow::ROIStyleChange(){
-    qDebug()<<"ROIStyleChange";
+    ROIStyle style;
+
+    auto selsize = impl->roiselsize->value();
+    style.setSelectorSize( selsize > 0 ? selsize : -15);
+    style.setLineWidth(impl->roilinewidth->value());
+    style.setFillOpacity(impl->roifillopacity->value());
+    emit ROIStyleChanged(style);
 }
 void StyleWindow::ChartStyleChange(){
     qDebug()<<"ChartStyleChange";
@@ -205,4 +215,8 @@ void StyleWindow::LineChartStyleChange(){
 }
 void StyleWindow::RidgeChartStyleChange(){
     qDebug()<<"RidgeChartStyleChange";
+}
+
+void StyleWindow::selectionChange(const QColor& clr) {
+    impl->roicolor->setColor(clr);
 }

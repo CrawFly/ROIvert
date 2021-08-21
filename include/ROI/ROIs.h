@@ -4,10 +4,10 @@
 #include "TraceView.h"
 #include "videodata.h"
 #include "ROIVertEnums.h"
-
+#include "ROIStyle.h"
 
 class ROIShape;
-class ROIStyle;
+
 class TraceChartSeries;
 
 class ROIs : public QObject
@@ -32,6 +32,9 @@ public:
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
+signals:
+    void selectionChanged(std::vector<size_t> inds);
+
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
     void keyPress(int, Qt::KeyboardModifiers);
@@ -39,7 +42,9 @@ public slots:
     void setROIShape(ROIVert::SHAPE) noexcept;
     void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
     void chartClick(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
+
     void setColorOfSelectedROIs(const QColor& clr);
+    void setAllROIStylesNotColor(ROIStyle style);
 
 
 private:

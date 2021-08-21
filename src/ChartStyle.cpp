@@ -27,7 +27,6 @@ ChartStyle& ChartStyle::operator=(const ChartStyle& that) {
     return *this;
 }
 
-//todo: default ok?
 ChartStyle::ChartStyle(const ChartStyle& that) {
     if (&that!=nullptr && that.impl!=nullptr && this != &that) {
         *(impl) = *(that.impl);
