@@ -99,6 +99,8 @@ Roivert::Roivert(QWidget* parent)
     
     // ROIs container
     rois = new ROIs(imageview, traceview, viddata);
+    stylewindow->setROIs(rois);
+    stylewindow->setTraceView(traceview);
 
     // File IO
     fileio = new FileIO(rois, traceview, viddata);
@@ -140,14 +142,6 @@ void Roivert::doConnect() {
     connect(t_io, &tool::fileIO::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
     connect(t_io, &tool::fileIO::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
     
-    // todo: (consider) non-signal approach here too
-    connect(stylewindow, &StyleWindow::ROIColorChanged, rois, &ROIs::setColorOfSelectedROIs);
-    connect(rois, &ROIs::selectionChanged, this, [=](std::vector<size_t> inds) {
-        if (!inds.empty()) {
-            stylewindow->selectionChange(rois->getROIStyle(inds.back())->getLineColor());            
-        }
-    });
-    connect(stylewindow, &StyleWindow::ROIStyleChanged, rois, &ROIs::setAllROIStylesNotColor);
 
     // progress for loading
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);

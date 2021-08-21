@@ -2,21 +2,20 @@
 #include <QWidget>
 #include <QProxyStyle>
 #include <QStyleOption>
-#include "ROI/ROIStyle.h"
+
+class ROIs;
+class TraceView;
 
 class StyleWindow : public QWidget
 {
     Q_OBJECT
     public:
         explicit StyleWindow(QWidget* parent);
-                
-    signals:
-        void ROIColorChanged(const QColor& clr);
-        void ROIStyleChanged(ROIStyle style);
-        void ChartStyleChanged();
+        void setROIs(ROIs* rois);
+        void setTraceView(TraceView* traceview);
 
     public slots:
-        void selectionChange(const QColor& clr);
+        void selectionChange(std::vector<size_t> inds);
 
     private slots:
         void ROIColorChange();

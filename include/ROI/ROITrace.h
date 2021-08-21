@@ -25,6 +25,7 @@ public:
     TraceChartWidget* getTraceChart() const noexcept;
     TraceChartSeries* getLineSeries() const noexcept;
     TraceChartSeries* getRidgeSeries() const noexcept;
+    
 
     std::vector<float> getTrace() const;
 

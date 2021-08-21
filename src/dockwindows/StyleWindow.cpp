@@ -13,8 +13,12 @@
 #include <QCheckBox>
 #include <QDebug>
 
+#include "ROI/ROIs.h"
+#include "TraceView.h"
 #include "ROI/ROIStyle.h"
 #include "widgets/RGBWidget.h"
+
+
 
 struct StyleWindow::pimpl{
     QTabWidget* tab = new QTabWidget;
@@ -44,6 +48,10 @@ struct StyleWindow::pimpl{
     QCheckBox* ridgegradient = new QCheckBox;
     QCheckBox* ridgegrid = new QCheckBox;
     QSlider* ridgeoverlap = new QSlider;
+
+
+    ROIs* rois{ nullptr };
+    TraceView* traceview{ nullptr };
 
     void doLayout(){
         tab->tabBar()->setStyle(new CustomTabStyle);
@@ -161,7 +169,10 @@ struct StyleWindow::pimpl{
         return ret;
     }
 
-    void doConnect(StyleWindow* par){
+    void doConnect(const StyleWindow* const par){
+        if (par == nullptr) {
+            return;
+        }
         connect(roicolor, &RGBWidget::colorChanged, par, &StyleWindow::ROIColorChange);
         connect(roilinewidth, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
         connect(roiselsize, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
@@ -194,21 +205,41 @@ StyleWindow::StyleWindow(QWidget *parent) : QWidget(parent)
     impl->doConnect(this);
 }
 void StyleWindow::ROIColorChange() {
-    emit ROIColorChanged(impl->roicolor->getColor());
+    if (impl->rois) {
+        auto inds = impl->rois->getSelected();
+        for (auto& ind : inds) {
+            auto thisStyle = impl->rois->getROIStyle(ind);
+            thisStyle->setColor(impl->roicolor->getColor());
+        }
+    }
 }
 
 void StyleWindow::ROIStyleChange(){
-    ROIStyle style;
-
+    auto corestyle = impl->rois->getCoreROIStyle();
     auto selsize = impl->roiselsize->value();
-    style.setSelectorSize( selsize > 0 ? selsize : -15);
-    style.setLineWidth(impl->roilinewidth->value());
-    style.setFillOpacity(impl->roifillopacity->value());
-    emit ROIStyleChanged(style);
+    selsize = selsize > 0 ? selsize : -15;
+
+    corestyle->setSelectorSize(selsize);
+    corestyle->setLineWidth(impl->roilinewidth->value());
+    corestyle->setFillOpacity(impl->roifillopacity->value());
+
+    // get all the roistyles
+    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::iota(inds.begin(), inds.end(), 0);
+    for (auto& ind : inds) {
+        auto style = impl->rois->getROIStyle(ind);
+        style->blockSignals(true);
+        style->setSelectorSize(selsize);
+        style->setLineWidth(impl->roilinewidth->value());
+        style->setFillOpacity(impl->roifillopacity->value());
+        style->blockSignals(false);
+        emit style->StyleChanged(*style);
+    }
+
 }
+
 void StyleWindow::ChartStyleChange(){
     qDebug()<<"ChartStyleChange";
-
 }
 void StyleWindow::LineChartStyleChange(){
     qDebug()<<"LineChartStyleChange";
@@ -217,6 +248,22 @@ void StyleWindow::RidgeChartStyleChange(){
     qDebug()<<"RidgeChartStyleChange";
 }
 
-void StyleWindow::selectionChange(const QColor& clr) {
-    impl->roicolor->setColor(clr);
+void StyleWindow::selectionChange(std::vector<size_t> inds) {
+    if (inds.empty()) {
+        impl->roicolor->setEnabled(false);
+    }
+    else {
+        auto style = impl->rois->getROIStyle(inds.back());
+        impl->roicolor->setColor(style->getLineColor());
+        impl->roicolor->setEnabled(true);
+    }
+}
+
+void StyleWindow::setROIs(ROIs* rois) {
+    impl->rois = rois;
+    connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
+}
+
+void StyleWindow::setTraceView(TraceView* traceview) {
+    impl->traceview = traceview;
 }

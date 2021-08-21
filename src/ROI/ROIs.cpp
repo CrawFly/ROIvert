@@ -381,22 +381,7 @@ void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int
         }
     }
 }
-void ROIs::setColorOfSelectedROIs(const QColor& clr) {
-    auto inds = getSelected();
-    for (auto& ind : inds) {
-        impl->rois[ind]->roistyle->setColor(clr);
-    }
-}
 
-void ROIs::setAllROIStylesNotColor(ROIStyle style) {
-    impl->coreStyle = style;
-    // set each ROI
-    for (auto& r : impl->rois) {
-        style.setColor(r->roistyle->getLineColor());
-        *(r->roistyle) = style;
-    }
-    //qDebug() << "ROIs::setAllROIStylesNotColor";
-
-    // does = or () prevent moving the ptr?
-
+ROIStyle* ROIs::getCoreROIStyle() const noexcept {
+    return &impl->coreStyle;
 }

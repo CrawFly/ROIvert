@@ -20,6 +20,8 @@ public:
 
     std::vector<size_t> getSelected() const noexcept;
     ROIStyle* getROIStyle(size_t ind) const noexcept;
+    ROIStyle* getCoreROIStyle() const noexcept;
+
     void setColorBySelect(bool yesno = true);
     
     void updateROITraces();
@@ -42,10 +44,6 @@ public slots:
     void setROIShape(ROIVert::SHAPE) noexcept;
     void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
     void chartClick(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
-
-    void setColorOfSelectedROIs(const QColor& clr);
-    void setAllROIStylesNotColor(ROIStyle style);
-
 
 private:
     struct pimpl;
