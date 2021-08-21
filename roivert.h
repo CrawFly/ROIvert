@@ -11,8 +11,10 @@
 #include "ImageView.h"
 #include "ROI/ROIs.h"
 #include "FileIO.h"
+#include "dockwindows/StyleWindow.h"
 
 class TraceView;
+class QStringList;
 
 
 class Roivert : public QMainWindow
@@ -40,13 +42,14 @@ private:
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;
     tool::fileIO* t_io;
-    tool::colors* t_clrs;
+    StyleWindow* stylewindow;
+
 
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
     QDockWidget* w_io;
     QDockWidget* w_charts;
-    QDockWidget* w_colors;
+    QDockWidget* w_stylewindow;
     
 
     DisplaySettings dispSettings;
@@ -54,12 +57,9 @@ private:
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
-    void updateTrace(int roiid);
 
     void selecttoolfromkey(int key);
 
-    void exportROIs(QString filename);
-    void importROIs(QString filename);
     void restoreSettings();
     void resetLayout();
 

@@ -105,6 +105,12 @@
     <ClCompile Include="src\FileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dockwindows\StyleWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\RGBWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="roivert.h">
@@ -162,6 +168,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\ChartStyle.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\dockwindows\StyleWindow.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\RGBWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

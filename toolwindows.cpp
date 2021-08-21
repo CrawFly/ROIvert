@@ -11,6 +11,14 @@
 
 
 using namespace tool;
+namespace {
+    void addVSep(QVBoxLayout *lay) {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        lay->addWidget(line);
+    }
+}
+
 
 imgData::imgData(QWidget *parent)
 {
@@ -181,13 +189,7 @@ void imgData::setProgBar(int val) {
     }
     progBar->setVisible(false);
 }
-namespace {
-    void addVSep(QVBoxLayout *lay) {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        lay->addWidget(line);
-    }
-}
+
 imgSettings::imgSettings(QWidget* parent) {
 
     QVBoxLayout* topLay = new QVBoxLayout(this);
@@ -403,62 +405,4 @@ fileIO::fileIO(QWidget* parent) {
         }
     }
     );
-}
-colors::colors(QWidget* parent) {
-    setParent(parent);
-
-    QFormLayout* lay = new QFormLayout;
-    setLayout(lay);
-
-    ColorPickWidget* selPicker = new ColorPickWidget(ROIVert::colors(), this);
-    ColorPickWidget* unselPicker = new ColorPickWidget(ROIVert::colors(), this);
-    QVector<QColor> chartclrs = { QColor("#222222"),QColor(Qt::lightGray),QColor(Qt::darkGray), QColor(Qt::white)};
-    ColorPickWidget* backPicker = new ColorPickWidget(chartclrs, this);
-    ColorPickWidget* forePicker = new ColorPickWidget(chartclrs, this);
-    ColorPickWidget* gridPicker = new ColorPickWidget(chartclrs, this);
-
-    selPicker->setObjectName("Selected");
-    unselPicker->setObjectName("Unselected");
-    backPicker->setObjectName("ChartBack");
-    forePicker->setObjectName("ChartFore");
-    gridPicker->setObjectName("ChartGrid");
-
-    lay->addRow("Selected:", selPicker);
-    lay->addRow("Unselected:", unselPicker);
-    lay->addRow("Chart Back:", backPicker);
-    lay->addRow("Chart Fore:", forePicker);
-    lay->addRow("Chart Grid:", gridPicker);
-
-    selPicker->setSelectedColor(ROIVert::colors()[4]);
-    unselPicker->setSelectedColor(ROIVert::colors()[3]);
-    backPicker->setSelectedColor(chartclrs[0]);
-    forePicker->setSelectedColor(chartclrs[1]);
-    gridPicker->setSelectedColor(chartclrs[2]);
-
-    connect(selPicker, &ColorPickWidget::colorSelected, this, &colors::setSelectedColor);
-    connect(unselPicker, &ColorPickWidget::colorSelected, this, &colors::setUnselectedColor);
-    connect(forePicker, &ColorPickWidget::colorSelected, this, &colors::setChartForeColor);
-    connect(backPicker, &ColorPickWidget::colorSelected, this, &colors::setChartBackColor);
-    connect(gridPicker, &ColorPickWidget::colorSelected, this, &colors::setChartGridColor);
-}
-QVector<QPair<QString, QColor>> colors::getColors(){
-    QVector<QPair<QString, QColor>> ret;
-
-    for (int i = 0; i < layout()->count(); i++) {
-        ColorPickWidget* obj = qobject_cast<ColorPickWidget*>(layout()->itemAt(i)->widget());
-        if (obj) {
-            QPair<QString, QColor> pair;
-            pair.first = obj->objectName();
-            pair.second = obj->getSelectedColor();
-            ret.push_back(pair);
-        }
-    }
-    return ret;
-}
-void colors::setColors(QVector<QPair<QString, QColor>> clrs){
-    for each (QPair<QString, QColor> pair in clrs)
-    {
-        ColorPickWidget* obj = findChild<ColorPickWidget*>(pair.first);
-        if (obj) { obj->setSelectedColor(pair.second); }
-    }
 }

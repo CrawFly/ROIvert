@@ -1,6 +1,7 @@
 #pragma once
 // toolwindows is all of the various dockables:
 
+// todo: refactor and pimplify
 #include <QWidget>
 #include <QLineEdit>
 #include <QPushButton>
@@ -89,19 +90,4 @@ namespace tool
         QString cachepath; //TODO: replace with windowFilePath
     };
 
-    class colors : public QWidget {
-        Q_OBJECT
-
-    public:
-        colors(QWidget* parent);
-        QVector<QPair<QString,QColor>> getColors();
-        void setColors(QVector<QPair<QString, QColor>>);
-        
-    signals:
-        void setSelectedColor(QColor clr);
-        void setUnselectedColor(QColor clr);
-        void setChartForeColor(QColor clr);
-        void setChartBackColor(QColor clr);
-        void setChartGridColor(QColor clr);
-    };
 } // namespace tool

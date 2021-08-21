@@ -235,6 +235,7 @@ ROIShape::ROIShape(QGraphicsScene* scene,
     
     impl->init(shp, this, style);
     setBoundingRect(QRectF(0, 0, imgsize.width(), imgsize.height()));
+    connect(style.get(), &ROIStyle::StyleChanged, this, &ROIShape::updateStyle);
     scene->addItem(this);
 }
 ROIShape::~ROIShape() = default;

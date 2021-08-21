@@ -27,7 +27,7 @@ ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
     layEdit->addStretch(1);
     layEdit->addWidget(spinMax);
     lay->addLayout(layEdit);
-    lay->setMargin(0);
+    lay->setContentsMargins(QMargins(0, 0, 0, 0));
 
     spinMin->setSingleStep(.05);
     spinMax->setValue(0.);

@@ -378,3 +378,9 @@ void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int
         }
     }
 }
+void ROIs::setColorOfSelectedROIs(const QColor& clr) {
+    auto inds = getSelected();
+    for (auto& ind : inds) {
+        impl->rois[ind]->roistyle->setColor(clr);
+    }
+}

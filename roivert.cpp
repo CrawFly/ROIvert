@@ -2,9 +2,10 @@
 
 #include <QDebug>
 
+
 #include "roivert.h"
+
 #include "qboxlayout.h"
-#include "qsplitter.h"
 #include "qpushbutton.h"
 #include "qtoolbox.h"
 #include "qformlayout.h"
@@ -16,19 +17,17 @@
 #include "qtextstream.h"
 #include "qactiongroup.h"
 #include "qmessagebox.h"
-#include "qxmlstream.h"
-#include "qfileinfo.h"
-#include "qdir.h"
 #include "qsettings.h"
 #include <QGraphicsLayout>
 #include "TraceView.h"
 #include "opencv2/opencv.hpp"
 #include "ROIVertEnums.h"
-
+#include <QStringList>
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
 {
+    //todo: megarefactor!
     ui.setupUi(this);
     viddata = new VideoData();
 
@@ -61,16 +60,16 @@ Roivert::Roivert(QWidget* parent)
     t_io->setEnabled(false);
     w_io->setVisible(false);
 
-    t_clrs = new tool::colors(this);
-    w_colors = new QDockWidget();
-    w_colors->setWidget(t_clrs);
-    w_colors->setWindowTitle("Colors");
-    w_colors->setObjectName("WColors");
-    addDockWidget(Qt::RightDockWidgetArea, w_colors);
-    w_colors->setVisible(false);
+    stylewindow = new StyleWindow(this);
+    w_stylewindow = new QDockWidget();
+    w_stylewindow->setWindowTitle("Color and Style");
+    w_stylewindow->setObjectName("WStyle");
+    w_stylewindow->setWidget(stylewindow);
 
-    
-    
+    addDockWidget(Qt::RightDockWidgetArea, w_stylewindow);
+    w_stylewindow->setVisible(false);
+    //todo: set initial style
+
     // Right Side:
     QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
     QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
@@ -109,7 +108,7 @@ Roivert::Roivert(QWidget* parent)
 
     // Action that resets window state:
     QAction* actResetLayout = new QAction(tr("Reset Layout"));
-    actResetLayout->setShortcut(QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_R));
+    actResetLayout->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
     connect(actResetLayout, &QAction::triggered, this, &Roivert::resetLayout);
     addAction(actResetLayout);
     
@@ -133,32 +132,29 @@ void Roivert::doConnect() {
     // mostly destined for displaysettings, change in smoothing/contrast etc.
     connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
         
-    // todo: give tool::fileio interface a ptr to fileio so it can call directly
-    // export traces button
+    // todo: (consider) give tool::fileio interface a ptr to fileio so it can call directly
+    // File IO:
     connect(t_io, &tool::fileIO::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
-
-    // export rois button
     connect(t_io, &tool::fileIO::exportROIs, this, [=](QString fn) {fileio->exportROIs(fn); });
-
-    // import rois button
     connect(t_io, &tool::fileIO::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
-    
-    // export charts button
     connect(t_io, &tool::fileIO::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
     
-    //connect(t_io, &tool::fileIO::exportCharts, traceview, &TraceView::exportCharts);
+    // todo: (consider) non-signal approach here too
+    connect(stylewindow, &StyleWindow::ROIColorChanged, rois, &ROIs::setColorOfSelectedROIs);
 
-    // passthroughs
+
     // progress for loading
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
 
     // clicked the dff button, update contrast widget
     connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
-    
-    
+
+
+
 }
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
+
     // Confirm load if rois exist:
     if (rois->getNROIs() > 0) {
         // rois exist:
@@ -263,8 +259,9 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addAction(w_charts->toggleViewAction());
     w_io->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
     ui.mainToolBar->addAction(w_io->toggleViewAction());
-    w_colors->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
-    ui.mainToolBar->addAction(w_colors->toggleViewAction());
+    
+    w_stylewindow->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
+    ui.mainToolBar->addAction(w_stylewindow->toggleViewAction());
 
     ui.mainToolBar->setFloatable(false);
     ui.mainToolBar->toggleViewAction()->setVisible(false);
@@ -307,13 +304,8 @@ void Roivert::closeEvent(QCloseEvent* event) {
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
 
-    // restore colors
-    QVector<QPair<QString, QColor>> clrs = t_clrs->getColors();
+    // todo: store style info and chart colors
 
-    for each (QPair<QString,QColor> pair in clrs)
-    {
-        settings.setValue("color/" + pair.first, pair.second);
-    }
     QMainWindow::closeEvent(event);
 }
 void Roivert::restoreSettings()
@@ -322,19 +314,7 @@ void Roivert::restoreSettings()
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
 
-    QVector<QPair<QString, QColor>> clrs;
-    settings.beginGroup("color");
-    QStringList keys = settings.childKeys();
-
-    for each (QString key in keys)
-    {
-        QPair<QString, QColor> clr;
-        clr.first = key;
-        clr.second = settings.value(key).value<QColor>();
-        clrs.push_back(clr);
-    }
-
-    t_clrs->setColors(clrs);
+    // todo: retrieve colors and style from settings
 }
 void Roivert::resetLayout() {
     // Dock all dockables in default position
@@ -342,13 +322,13 @@ void Roivert::resetLayout() {
     addDockWidget(Qt::RightDockWidgetArea, w_imgData);
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
     addDockWidget(Qt::RightDockWidgetArea, w_io);
-    addDockWidget(Qt::RightDockWidgetArea, w_colors);
+    addDockWidget(Qt::RightDockWidgetArea, w_stylewindow);
 
     w_charts->setFloating(false);
     w_imgData->setFloating(false);
     w_imgSettings->setFloating(false);
     w_io->setFloating(false);
-    w_colors->setFloating(false);
+    w_stylewindow->setFloating(false);
 
     // Set dockables to visible off (except file loader)
     w_charts->setVisible(true);
@@ -356,7 +336,7 @@ void Roivert::resetLayout() {
 
     w_imgSettings->setVisible(false);
     w_io->setVisible(false);
-    w_colors->setVisible(false);
+    w_stylewindow->setVisible(false);
 
     // Put toolbar at left
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);

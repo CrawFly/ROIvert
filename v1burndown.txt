@@ -226,24 +226,45 @@ imageview integration
                     [] unclear if we should export the default style?
                     [] should probably export a version piece, and read it in?
                     [] should have a validator
-                    
             [x] traces
-            [] images
+            [x] images
                     
-        *** PUT RIDGELINEWIDGET HEADER INTO TRACECHARTWIDGET.H
-        
+        [x] PUT RIDGELINEWIDGET HEADER INTO TRACECHARTWIDGET.H
+     
+
+** try the bump to qt6. fail. wait for 6.2?
+     
 -----
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
             MVP this - what are the most common styles/options?
+[x]                sketch out what this looks like in a separate project?
+
+    [x] Fold in new tool and widget
+    [x] Make color work
+        [x] colorwidg -> charts/rois
+        [] selection to widg.
+    
+    Make ROI style work
+    Make Chart style work modulo the hard bits
+    Hard bits:
+        normalization
+        match axes
+        grid
+        
+        
+            
+
+            
+                    
             
         CHART NORMALIZATION
             [] where's the control? Can i fit it in line charts? its' just a little dropdown...
             [] it also will require a checkbox for match yaxes...ugh
             
-        SHOT AT IMAGECHART
-        OTHER EXPORTS
-        SPEED CHECK, I THINK I CAN DO BETTER NOW?
+        SHOT AT IMAGECHART                              ** DEFER
+        OTHER EXPORTS                                   ** DEFER, EVERYONE ELSE CAN USE JSON!
+        playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** TOCONSIDER
         
     REFACTOR PUSH   
         BIG CLEANUP IN ROIVERT.CPP

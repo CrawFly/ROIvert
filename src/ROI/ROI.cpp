@@ -5,7 +5,7 @@ ROI::ROI(QGraphicsScene* scene, TraceView* tView, VideoData* videodata, ROIVert:
     
     roistyle = std::make_unique<ROIStyle>(rstyle);
     chartstyle = std::make_unique<ChartStyle>(cstyle);
-    chartstyle->connectToROIStyle(roistyle.get()); // is this safe? I think so, the signal can't fire during destruction...
+    chartstyle->connectToROIStyle(roistyle.get()); 
 
     graphicsShape = std::make_unique<ROIShape>(scene, shp, imgsize, roistyle); 
     Trace = std::make_unique<ROITrace>(tView, videodata, chartstyle);

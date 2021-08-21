@@ -46,6 +46,7 @@ ProjectionPickWidget::ProjectionPickWidget(QWidget* parent) : QWidget(parent) {
     Lay->setSpacing(0);
     this->setLayout(Lay);
 
+    
     connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
 }
 int ProjectionPickWidget::getProjection() {return projection->checkedId();}

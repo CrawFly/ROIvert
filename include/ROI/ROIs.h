@@ -39,6 +39,8 @@ public slots:
     void setROIShape(ROIVert::SHAPE) noexcept;
     void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
     void chartClick(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
+    void setColorOfSelectedROIs(const QColor& clr);
+
 
 private:
     struct pimpl;
