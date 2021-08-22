@@ -21,7 +21,7 @@ struct TraceView::pimpl {
         
         tab->addTab(tabLine, "Line");
         tab->addTab(tabRidgeLine, "Ridge");
-        tab->addTab(tabImage, "Image");
+        //tab->addTab(tabImage, "Image");
         
         tabLine->setLayout(scrollAreaParent);
         scrollAreaParent->addWidget(scrollArea);
