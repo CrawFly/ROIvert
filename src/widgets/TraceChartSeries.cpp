@@ -8,10 +8,11 @@
 using ROIVert::NORMALIZATION;
 
 namespace {
-    void lerpGradAlpha(QLinearGradient& grad, QColor clr, float exp, float div) {
+    void lerpGradAlpha(QLinearGradient& grad, QColor clr) {
+        const auto alp = clr.alphaF();
         for (int ii = 0; ii < 10; ++ii) {
             const float x = ii / 10.;
-            clr.setAlphaF(pow(x, exp) / div);
+            clr.setAlphaF(x * alp);
             grad.setColorAt(x, clr);
         }
     }
@@ -228,40 +229,20 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     if (chartstyle == nullptr) {
         return;
     }
-        
-    //todo: gradient
-    /*
-    if (style.Fill) {
-        painter.setPen(Qt::NoPen);
-
-        if (style.FillGradientToLineColor) {
-            QLinearGradient grad(T.map(QPointF(extents[0], extents[2])),
-                T.map(QPointF(extents[0], extents[3])));
-            painter.setBrush(fillColor);
-
-            QPointF orig_start = QPointF(path.elementAt(0));;
-            QPointF orig_end = QPointF(path.elementAt(path.elementCount() - 1));
-
-            path.setElementPositionAt(0, orig_start.x(), ymin);
-            path.setElementPositionAt(path.elementCount() - 1, orig_end.x(), ymin);
-
-            painter.drawPath(T.map(path).translated(QPointF(0, style.Width / 2)));
-
-            path.setElementPositionAt(0, orig_start.x(), orig_start.y());
-            path.setElementPositionAt(path.elementCount() - 1, orig_end.x(), orig_end.y());
-
-            lerpGradAlpha(grad, lineColor, style.FillGradientExponent, style.FillGradientDivisor);
-            painter.setBrush(grad);
-        }
-        else {
-            painter.setBrush(fillColor);
-        }
-        painter.drawPath(T.map(path).translated(QPointF(0, style.Width / 2)));
-    }
-    */
     
     auto brush = chartstyle->getTraceBrush();
     auto pen = chartstyle->getTracePen();
+    
+
+    if (chartstyle->getTraceFillGradient() && brush.style() != Qt::NoBrush) {
+        // A fill gradient 
+        QLinearGradient grad(T.map(QPointF(extents[0], extents[2])),
+                             T.map(QPointF(extents[0], extents[3])));
+        
+        auto alp = brush.color().alphaF() > 0. ? 1 / brush.color().alphaF() : 1;
+        lerpGradAlpha(grad, brush.color());
+        brush = QBrush(grad);
+    }
 
     if (highlighted) {
         if (pen.style() == Qt::NoPen && brush.style() == Qt::SolidPattern && brush.color().alphaF() < 1) {
@@ -278,6 +259,8 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     painter.setPen(Qt::NoPen);
 
     if (chartstyle->getDoBackBrush()) {
+        qDebug() << chartstyle->getBackgroundColor();
+
         auto backbrush = QBrush(chartstyle->getBackgroundColor());
         painter.setBrush(backbrush);
         painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));

@@ -200,6 +200,7 @@ struct StyleWindow::pimpl{
         connect(linenorm, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWindow::LineChartStyleChange);
 
         connect(ridgewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::RidgeChartStyleChange);
+        connect(ridgegradient, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgefill, &QSlider::valueChanged, par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgegrid, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWindow::RidgeOverlapChange);
@@ -272,10 +273,9 @@ void StyleWindow::ROIStyleChange(){
 }
 
 void StyleWindow::ChartStyleChange(){
-    // ChartStyleChange is just charts, not series...so ignore CoreRidgeLineChartStyle
     impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
-
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
+
     impl->traceview->getRidgeChart().updateStyle();
 
     std::vector<size_t> inds(impl->rois->getNROIs());
@@ -283,6 +283,10 @@ void StyleWindow::ChartStyleChange(){
     for (auto& ind : inds) {
         impl->updateChartStyle(impl->rois->getLineChartStyle(ind));
         impl->rois->updateLineChartStyle(ind);
+
+        impl->updateChartStyle(impl->rois->getRidgeChartStyle(ind));
+        impl->rois->updateRidgeChartStyle(ind);
+
     }
 }
 

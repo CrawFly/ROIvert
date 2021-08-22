@@ -88,6 +88,7 @@ ChartStyle* TraceChartWidget::getStyle() {
 void TraceChartWidget::updateStyle() {
     impl->xaxis->setStyle(impl->chartstyle);
     impl->yaxis->setStyle(impl->chartstyle);
+
     for (auto& s : impl->series) {
         s->updatePoly();
     }

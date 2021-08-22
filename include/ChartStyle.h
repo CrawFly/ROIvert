@@ -47,6 +47,7 @@ public:
     QBrush getTraceBrush() const;
     void setNormalization(ROIVert::NORMALIZATION);
     ROIVert::NORMALIZATION getNormalization() const noexcept;
+    bool getTraceFillGradient() const noexcept;
     
 public slots:
     void ROIStyleChanged(const ROIStyle&);

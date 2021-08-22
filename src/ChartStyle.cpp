@@ -134,6 +134,8 @@ QBrush ChartStyle::getTraceBrush() const {
         clr.setAlpha(impl->tracefillopacity);
         brush.setColor(clr);
         brush.setStyle(Qt::BrushStyle::SolidPattern);
+
+        //brush.setStyle(Qt::BrushStyle::);
     }
     else {
         brush.setStyle(Qt::BrushStyle::NoBrush);
@@ -168,4 +170,8 @@ void ChartStyle::setLimitStyle(ROIVert::LIMITSTYLE limitstyle) {
 }
 ROIVert::LIMITSTYLE ChartStyle::getLimitStyle() const noexcept {
     return impl->limitstyle;
+}
+
+bool ChartStyle::getTraceFillGradient() const noexcept {
+    return impl->tracefillgradient;
 }
