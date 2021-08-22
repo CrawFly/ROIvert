@@ -228,10 +228,12 @@ struct StyleWindow::pimpl{
         style->setTraceFillOpacity(linefill->value());
         style->setTraceFillGradient(linegradient->isChecked());
         style->setGrid(linegrid->isChecked());
-        //todo:
+        style->setNormalization(static_cast<ROIVert::NORMALIZATION>(linenorm->currentIndex()));
+
+        //style->setNormalization()
+        
         /*
             QCheckBox* linematchy = new QCheckBox;
-            QComboBox* linenorm = new QComboBox;
         */
     }
     void updateRidgeChartStyle(ChartStyle* style) {
@@ -290,7 +292,10 @@ void StyleWindow::LineChartStyleChange(){
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
-        impl->updateLineChartStyle(impl->rois->getLineChartStyle(ind));
+        auto style = impl->rois->getLineChartStyle(ind);
+        style->blockSignals(true);
+        impl->updateLineChartStyle(style);
+        style->blockSignals(false);
         impl->rois->updateLineChartStyle(ind);
     }
 }
@@ -300,9 +305,12 @@ void StyleWindow::RidgeChartStyleChange(){
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
-        impl->updateRidgeChartStyle(impl->rois->getRidgeChartStyle(ind));
-        impl->rois->updateRidgeChartStyle(ind);
+        auto style = impl->rois->getRidgeChartStyle(ind);
+        style->blockSignals(true);
+        impl->updateRidgeChartStyle(style);
+        style->blockSignals(false);
     }
+    impl->traceview->getRidgeChart().update();
 }
 
 void StyleWindow::RidgeOverlapChange() {

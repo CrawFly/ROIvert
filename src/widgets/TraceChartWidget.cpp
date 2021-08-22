@@ -66,7 +66,9 @@ private:
 TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget* parent)
     : QWidget(parent)
 {
-    setStyle(style);
+    if (style) {
+        setStyle(style);
+    }   
 
     //setContentsMargins(11, 11, 11, 11);
     setContentsMargins(0, 0, 0, 0); // these margins are in the layout
@@ -86,6 +88,36 @@ ChartStyle* TraceChartWidget::getStyle() {
 void TraceChartWidget::updateStyle() {
     impl->xaxis->setStyle(impl->chartstyle);
     impl->yaxis->setStyle(impl->chartstyle);
+    for (auto& s : impl->series) {
+        s->updatePoly();
+    }
+    // set y axis label
+    auto norm = impl->chartstyle->getNormalization();
+    switch (norm)
+    {
+    case ROIVert::NORMALIZATION::NONE:
+        impl->yaxis->setLabel("df/f");
+        break;
+    case ROIVert::NORMALIZATION::ZEROTOONE:
+        impl->yaxis->setLabel("df/f (0-1)");
+        break;
+    case ROIVert::NORMALIZATION::L1NORM:
+        impl->yaxis->setLabel("df/f (L1 Norm)");
+        break;
+    case ROIVert::NORMALIZATION::L2NORM:
+        impl->yaxis->setLabel("df/f (L2 Norm)");
+        break;
+    case ROIVert::NORMALIZATION::ZSCORE:
+        impl->yaxis->setLabel("df/f (z units)");
+        break;
+    case ROIVert::NORMALIZATION::MEDIQR:
+        impl->yaxis->setLabel("df/f (IQR units)");
+        break;
+    default:
+        break;
+    }
+
+    updateExtents();
     update();
 }
 

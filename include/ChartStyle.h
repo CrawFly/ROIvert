@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
 #include "ROI/ROIStyle.h"
+#include "ROIVertEnums.h"
 
 class ChartStyle : public QObject {
     Q_OBJECT
@@ -28,7 +29,8 @@ public:
     QFont getTickLabelFont();
     QFontMetrics getLabelFontMetrics();
     QFontMetrics getTickLabelFontMetrics();
-
+    void setLimitStyle(ROIVert::LIMITSTYLE);
+    ROIVert::LIMITSTYLE getLimitStyle() const noexcept;
 
 
     QPen getAxisPen() const;
@@ -43,6 +45,8 @@ public:
     bool getDoBackBrush() const noexcept;
     QPen getTracePen() const;
     QBrush getTraceBrush() const;
+    void setNormalization(ROIVert::NORMALIZATION);
+    ROIVert::NORMALIZATION getNormalization() const noexcept;
     
 
     

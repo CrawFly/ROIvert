@@ -60,8 +60,7 @@ public:
     ~TraceChartSeries();
     void setStyle(std::shared_ptr<ChartStyle> style);
 
-    void setData(cv::Mat, float offset, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
-    void setData(cv::Mat, ROIVert::NORMALIZATION norm = ROIVert::NORMALIZATION::NONE);
+    void setData(cv::Mat);
     cv::Mat getData() const noexcept;
 
     void setXMin(const double&) noexcept;
@@ -85,6 +84,7 @@ public:
     bool polyContains(const QPointF&);
     void setHighlighted(bool); // todo: highlighted means double thickness lines? What if there are no lines?
         
+    void updatePoly();
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();

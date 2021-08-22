@@ -35,12 +35,9 @@ namespace {
     }
     std::vector<double> getNiceTicksLimits(double minval, const double& maxval, const unsigned int& maxticks) {
         // https://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
-        // might still be some bugs here around floating point precision, hard to fgigure out how to not make a mess out of this!
 
         const auto range = niceNum(maxval - minval, false);
         const auto spacing = niceNum(range / (maxticks - 1), true);
-
-        //spacing = std::round(spacing / spacing_round_fac) * spacing_round_fac;
 
         auto nicemin = std::floor(minval / spacing) * spacing;
         const auto nicemax = ceil(maxval / spacing) * spacing;
@@ -71,14 +68,16 @@ struct TraceChartAxis::pimpl {
     QRect position = QRect(0, 0, 1, 1);
     QRect plotbox = QRect(0, 0, 1, 1);
     std::tuple<qreal, qreal> extents = std::make_tuple(0, 1);;
+    std::tuple<qreal, qreal> manuallimits = std::make_tuple(0, 1);;
 
     int spacelabel = 0, spaceticklabel = 10, spacetickmark = 5;
     int labelthickness = 0, ticklabelthickness = 0; //** these are font size caches...
     int margins[2] = { 0,0 };
 
     int ticklength = 8;
-
     int maxnticks = 14;
+
+    
 
     bool tightleft = false;
     bool tightright = false;
@@ -114,9 +113,28 @@ std::tuple<double, double> TraceChartAxis::getExtents() const  noexcept {
     return impl->extents;
 }
 std::tuple<double, double> TraceChartAxis::getLimits() const {
-
-    double min = impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front();
-    double max = impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back();
+    auto limitstyle = impl->chartstyle->getLimitStyle();
+    double min{ 0 };
+    double max{ 0 };
+    switch (limitstyle)
+    {
+    case ROIVert::LIMITSTYLE::AUTO:
+        min = impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front();
+        max = impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back();
+        break;
+    case ROIVert::LIMITSTYLE::TIGHT:
+        min = std::get<0>(impl->extents);
+        max = std::get<1>(impl->extents);
+        break;
+    case ROIVert::LIMITSTYLE::MANAGED:
+        min = std::get<0>(impl->manuallimits);
+        max = std::get<1>(impl->manuallimits);
+        break;
+    default:
+        break;
+    }
+    
+    
 
     return std::make_tuple(min, max);
 }
@@ -151,26 +169,38 @@ void TraceChartAxis::setMaxNTicks(const unsigned int& n) {
 
 void TraceChartAxis::updateLayout() {
     double extmin, extmax;
-    std::tie(extmin, extmax) = impl->extents;
-
+    if (impl->chartstyle->getLimitStyle() == ROIVert::LIMITSTYLE::MANAGED) {
+        std::tie(extmin, extmax) = impl->manuallimits;
+    }
+    else {
+        std::tie(extmin, extmax) = impl->extents;
+    }
+    
     // hacky fix for rounding errors?
     if ((extmax - extmin) > 1E-5) {
-        extmax = std::round(extmax * 1E10) / 1E10;
-        extmin = std::round(extmin * 1E10) / 1E10;
+        extmax = std::round(extmax * 1E6) / 1E6;
+        extmin = std::round(extmin * 1E6) / 1E6;
     }
+    
 
     // we maybe bail on the tickpicker if the range is crazy?
     if ((extmin != 0 && std::abs(log10(extmin)) > 7) || (extmax != 0 && std::abs(log10(extmax)) > 7)) {
-        impl->tickvalues = { extmin,(extmin + extmax) / 2, extmax };
+        impl->tickvalues = { extmin, (extmin + extmax) / 2, extmax };
     }
     else {
         impl->tickvalues = getNiceTicksLimits(extmin, extmax, impl->maxnticks);
     }
 
 
-    impl->tightleft = (extmin - impl->tickvalues.front()) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
-    impl->tightright = (impl->tickvalues.back() - extmax) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
-
+    if (impl->chartstyle->getLimitStyle() == ROIVert::LIMITSTYLE::AUTO) {
+        impl->tightleft = (extmin - impl->tickvalues.front()) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
+        impl->tightright = (impl->tickvalues.back() - extmax) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
+    }
+    else {
+        impl->tightleft = true;
+        impl->tightright = true;
+    }
+        
     // cast to string for tickstrings
     impl->tickstrings.clear();
     impl->tickwidths.clear();

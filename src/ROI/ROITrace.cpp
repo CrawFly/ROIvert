@@ -68,12 +68,13 @@ std::vector<float> ROITrace::getTrace() const {
     return out;
 }
 void ROITrace::update() {
+    qDebug() << "ROITrace::update";
     impl->LineSeries->setXMax(impl->videodata->getTMax());
     impl->LineSeries->setData(impl->TraceData);
     impl->TraceChart->updateExtents();
     impl->TraceChart->update();
 
-    impl->RidgeSeries->setData(impl->TraceData, ROIVert::NORMALIZATION::ZEROTOONE);
+    impl->RidgeSeries->setData(impl->TraceData);
     impl->RidgeSeries->setXMax(impl->videodata->getTMax());
     impl->traceview->getRidgeChart().updateOffsets();
     impl->traceview->getRidgeChart().updateExtents();

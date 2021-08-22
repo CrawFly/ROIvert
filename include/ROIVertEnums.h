@@ -15,4 +15,10 @@ namespace ROIVert {
         ZSCORE,
         MEDIQR
     };
+
+    enum class LIMITSTYLE {
+        AUTO,
+        TIGHT,
+        MANAGED
+    };
 }

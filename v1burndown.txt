@@ -237,30 +237,19 @@ imageview integration
 -----
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
-            MVP this - what are the most common styles/options?
-[x]                sketch out what this looks like in a separate project?
-
-    [x] Fold in new tool and widget
-    [x] Make color work
-        [x] colorwidg -> charts/rois
-        [] selection to widg.
-    
-    Make ROI style work
-    Make Chart style work modulo the hard bits
-    Hard bits:
-        normalization
-        match axes
-        grid
+            [] axis matching:
+                needs a limitsmode on series(?)
+                tight limits should be used for ridgeline
+                auto limits for linechart except when matching, in which case manual limits
+                And then traceview is going to have to hit limits
+            
+            [] set defaults on styling widget
+            [] store and load styling widget
+            [] store/load roi colors
+            
+            [] gradient reimpl
         
-        
-            
-
-            
-                    
-            
-        CHART NORMALIZATION
-            [] where's the control? Can i fit it in line charts? its' just a little dropdown...
-            [] it also will require a checkbox for match yaxes...ugh
+        [x] CHART NORMALIZATION
             
         SHOT AT IMAGECHART                              ** DEFER
         OTHER EXPORTS                                   ** DEFER, EVERYONE ELSE CAN USE JSON!
@@ -279,6 +268,7 @@ imageview integration
     KNOWN ISSUES LIST?
         - CLICKING WHEN VERY ZOOMED IN CAN SELECT ROIS BY CLICKING A PIXEL OR TWO OUTSIDE OF THEM
         - ARTIFACTS ON THE EDGE OF THE IMAGE IF SELECTION HANDLE GOES OUTSIDE OF THE IMAGE, SHOULD DISAPPEAR ON MOUSEUP
+        - occasionally may see a 1E-04 in place of a zero in a line chart?
         
     
         ----

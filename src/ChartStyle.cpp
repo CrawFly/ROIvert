@@ -17,6 +17,9 @@ struct ChartStyle::pimpl {
     QColor fillcolor{ Qt::red };
 
     bool dobackbrush;
+    ROIVert::NORMALIZATION normalization{ ROIVert::NORMALIZATION::NONE };
+    
+    ROIVert::LIMITSTYLE limitstyle{ ROIVert::LIMITSTYLE::AUTO };
 };
 
 ChartStyle::ChartStyle() = default;
@@ -152,3 +155,17 @@ void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
 
 void ChartStyle::setDoBackBrush(bool yesno)  { impl->dobackbrush = yesno; }
 bool ChartStyle::getDoBackBrush() const noexcept { return impl->dobackbrush; };
+
+void ChartStyle::setNormalization(ROIVert::NORMALIZATION normalization) {
+    impl->normalization = normalization;
+}
+ROIVert::NORMALIZATION ChartStyle::getNormalization() const noexcept {
+    return impl->normalization;
+}
+
+void ChartStyle::setLimitStyle(ROIVert::LIMITSTYLE limitstyle) {
+    impl->limitstyle = limitstyle;
+}
+ROIVert::LIMITSTYLE ChartStyle::getLimitStyle() const noexcept {
+    return impl->limitstyle;
+}

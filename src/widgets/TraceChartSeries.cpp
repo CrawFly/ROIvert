@@ -51,20 +51,25 @@ namespace {
 
 
 struct TraceChartSeries::pimpl {
-    void setData(cv::Mat data, NORMALIZATION norm);
+    void setData(cv::Mat data);
     void updatePoly();
+    void updateNorm();
     void updateYExtents();
     void paint(QPainter& painter, const QColor& lineColor, const QColor& fillColor, const QTransform& T, const double& ymin);
     
     double extents[4] = { 0,1,0,1 };
     QString name;
     cv::Mat data;
+
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
     std::shared_ptr<ChartStyle> chartstyle;
 
     bool polyContains(const QPointF&);
     bool highlighted{ false };
+
+    NORMALIZATION norm{ NORMALIZATION::NONE }; // normalization used to calculate normdata...(cache)
+    cv::Mat normdata;
 
 private:
     QPolygonF poly;
@@ -82,12 +87,8 @@ void TraceChartSeries::setStyle(std::shared_ptr<ChartStyle> style) {
     impl->chartstyle = style;
 }
 
-void TraceChartSeries::setData(cv::Mat data, float offset, NORMALIZATION norm) {
-    impl->setData(data, norm);
-    impl->setOffset(offset);
-}
-void TraceChartSeries::setData(cv::Mat data, NORMALIZATION norm) {
-    impl->setData(data, norm);
+void TraceChartSeries::setData(cv::Mat data) {
+    impl->setData(data);
 }
 void TraceChartSeries::paint(QPainter & painter, const QColor & lineColor, const QColor & fillColor, const QTransform & T, const double& ymin) {
     impl->paint(painter, lineColor, fillColor, T, ymin);
@@ -113,8 +114,12 @@ QRectF TraceChartSeries::getExtents() {
     
 bool TraceChartSeries::polyContains(const QPointF& pt) { return impl->polyContains(pt); }
 
+void TraceChartSeries::updatePoly() {
+    impl->updatePoly();
+}
+
 // pimpl
-void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
+void TraceChartSeries::pimpl::setData(cv::Mat d) {
     if (d.depth() != 5) {
         auto fdata = cv::Mat(d);
         d.convertTo(fdata, CV_32F);
@@ -123,18 +128,31 @@ void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
     else {
         data = d.clone();
     }
-    switch (norm)
+    
+    normdata = data.clone();
+    norm = NORMALIZATION::NONE;
+
+    updateYExtents();
+    updatePoly();
+}
+
+bool TraceChartSeries::pimpl::polyContains(const QPointF&  pt) { return path.contains(pt); }
+
+void TraceChartSeries::pimpl::updateNorm() {
+    
+    switch (chartstyle->getNormalization())
     {
     case ROIVert::NORMALIZATION::NONE:
+        normdata = data.clone();
         break;
     case ROIVert::NORMALIZATION::ZEROTOONE:
-        cv::normalize(data, data, 1., 0., cv::NORM_MINMAX);
+        cv::normalize(data, normdata, 1., 0., cv::NORM_MINMAX);
         break;
     case ROIVert::NORMALIZATION::L1NORM:
-        cv::normalize(data, data, 1., 0., cv::NORM_L1);
+        cv::normalize(data, normdata, 1., 0., cv::NORM_L1);
         break;
     case ROIVert::NORMALIZATION::L2NORM:
-        cv::normalize(data, data, 1., 0., cv::NORM_L2);
+        cv::normalize(data, normdata, 1., 0., cv::NORM_L2);
         break;
     case ROIVert::NORMALIZATION::ZSCORE:
         {
@@ -143,33 +161,34 @@ void TraceChartSeries::pimpl::setData(cv::Mat d, NORMALIZATION norm) {
             if (sigma == cv::Scalar::zeros()) {
                 sigma = cv::Scalar(1, 1, 1, 1);
             }
-            data = (data - mu) / sigma;
+            normdata = (data.clone() - mu) / sigma;
         }   
         break;
     case ROIVert::NORMALIZATION::MEDIQR:
         double med; double iqr;
         cvMedIqr(data, med, iqr);
-        data = (data - med) / iqr;
+        normdata = (data.clone() - med) / iqr;
         break;
     default:
         break;
     }
     updateYExtents();
-    updatePoly();
 }
 
-bool TraceChartSeries::pimpl::polyContains(const QPointF&  pt) { return path.contains(pt); }
-
-
 void TraceChartSeries::pimpl::updatePoly() {
+    if (chartstyle->getNormalization() != norm) {
+        updateNorm();
+        norm = chartstyle->getNormalization();
+    }
+
     poly.clear();
-    if (data.empty()) return;
+    if (normdata.empty()) return;
 
     const double mult = (extents[1] - extents[0]) / (data.size().width - 1);
-    poly.reserve(data.size().width);
+    poly.reserve(normdata.size().width);
 
-    for (int i = 0; i < data.size().width; ++i) {
-        poly << QPointF(mult * i + extents[0], data.at<float>(0, i) + offset);
+    for (int i = 0; i < normdata.size().width; ++i) {
+        poly << QPointF(mult * i + extents[0], normdata.at<float>(0, i) + offset);
     }
 
     // Path used for filling
@@ -180,12 +199,12 @@ void TraceChartSeries::pimpl::updatePoly() {
     path.addPolygon(p2);
 }
 void TraceChartSeries::pimpl::updateYExtents() {
-    if (data.empty()) {
+    if (normdata.empty()) {
         extents[2] = 0;
         extents[3] = 1;
     }
     else {
-        cv::minMaxLoc(data, &extents[2], &extents[3]);
+        cv::minMaxLoc(normdata, &extents[2], &extents[3]);
         extents[2] += offset;
         extents[3] += offset;
     }
