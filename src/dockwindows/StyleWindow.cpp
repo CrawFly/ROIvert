@@ -196,7 +196,7 @@ struct StyleWindow::pimpl{
         connect(linefill, &QSlider::valueChanged, par, &StyleWindow::LineChartStyleChange);
         connect(linegradient, &QCheckBox::stateChanged, par, &StyleWindow::LineChartStyleChange);
         connect(linegrid, &QCheckBox::stateChanged, par, &StyleWindow::LineChartStyleChange);
-        connect(linematchy, &QCheckBox::stateChanged, par, &StyleWindow::LineChartStyleChange);
+        connect(linematchy, &QCheckBox::stateChanged, par, &StyleWindow::LineMatchyChange);
         connect(linenorm, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWindow::LineChartStyleChange);
 
         connect(ridgewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::RidgeChartStyleChange);
@@ -336,4 +336,8 @@ void StyleWindow::setROIs(ROIs* rois) {
 
 void StyleWindow::setTraceView(TraceView* traceview) {
     impl->traceview = traceview;
+}
+
+void StyleWindow::LineMatchyChange() {
+    impl->rois->setMatchYAxes(impl->linematchy->isChecked());
 }

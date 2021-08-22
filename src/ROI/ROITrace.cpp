@@ -65,7 +65,6 @@ std::vector<float> ROITrace::getTrace() const {
     return out;
 }
 void ROITrace::update() {
-    qDebug() << "ROITrace::update";
     impl->LineSeries->setXMax(impl->videodata->getTMax());
     impl->LineSeries->setData(impl->TraceData);
     impl->TraceChart->updateExtents();

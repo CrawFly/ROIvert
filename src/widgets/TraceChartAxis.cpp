@@ -113,10 +113,10 @@ std::tuple<double, double> TraceChartAxis::getExtents() const  noexcept {
     return impl->extents;
 }
 std::tuple<double, double> TraceChartAxis::getLimits() const {
-    auto limitstyle = impl->chartstyle->getLimitStyle();
     double min{ 0 };
     double max{ 0 };
-    switch (limitstyle)
+        
+    switch (getLimitStyle())
     {
     case ROIVert::LIMITSTYLE::AUTO:
         min = impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front();
@@ -132,9 +132,7 @@ std::tuple<double, double> TraceChartAxis::getLimits() const {
         break;
     default:
         break;
-    }
-    
-    
+    }    
 
     return std::make_tuple(min, max);
 }
@@ -169,7 +167,9 @@ void TraceChartAxis::setMaxNTicks(const unsigned int& n) {
 
 void TraceChartAxis::updateLayout() {
     double extmin, extmax;
-    if (impl->chartstyle->getLimitStyle() == ROIVert::LIMITSTYLE::MANAGED) {
+    auto a = this->getLimitStyle();
+
+    if (getLimitStyle() == ROIVert::LIMITSTYLE::MANAGED) {
         std::tie(extmin, extmax) = impl->manuallimits;
     }
     else {
@@ -191,8 +191,7 @@ void TraceChartAxis::updateLayout() {
         impl->tickvalues = getNiceTicksLimits(extmin, extmax, impl->maxnticks);
     }
 
-
-    if (impl->chartstyle->getLimitStyle() == ROIVert::LIMITSTYLE::AUTO) {
+    if (getLimitStyle() == ROIVert::LIMITSTYLE::AUTO) {
         impl->tightleft = (extmin - impl->tickvalues.front()) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
         impl->tightright = (impl->tickvalues.back() - extmax) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
     }
@@ -223,7 +222,10 @@ void TraceChartAxis::updateLayout() {
 void TraceChartAxis::setVisible(bool yesno) noexcept { impl->visible = yesno; }
 bool TraceChartAxis::getVisible() const noexcept { return impl->visible; }
 void TraceChartAxis::setPlotBox(QRect pos) { impl->plotbox = pos; }
-
+void TraceChartAxis::setManualLimits(qreal min, qreal max) {
+    impl->manuallimits = { min, max };
+    updateLayout();
+};
 
 TraceChartHAxis::TraceChartHAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
 void TraceChartHAxis::paint(QPainter & painter) {
@@ -305,6 +307,10 @@ int TraceChartHAxis::getThickness() const noexcept {
     return impl->visible ? impl->position.height() : 0;
 }
 
+ROIVert::LIMITSTYLE TraceChartHAxis::getLimitStyle() const {
+    return ROIVert::LIMITSTYLE::AUTO;
+}
+
 TraceChartVAxis::TraceChartVAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
 void TraceChartVAxis::paint(QPainter & painter) {
     if (!impl->visible || impl->chartstyle==nullptr) {
@@ -382,3 +388,10 @@ int TraceChartVAxis::getThickness() const noexcept {
     return impl->visible ? impl->position.width() : 0;
 }
 
+ROIVert::LIMITSTYLE TraceChartVAxis::getLimitStyle() const {
+    return impl->chartstyle->getLimitStyle();
+}
+
+ROIVert::LIMITSTYLE TraceChartAxis::getLimitStyle() const {
+    return ROIVert::LIMITSTYLE::AUTO;
+}

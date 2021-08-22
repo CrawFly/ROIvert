@@ -30,7 +30,6 @@ public:
     void updateRidgeChartStyle(size_t ind);
 
     void setColorBySelect(bool yesno = true);
-    
     void updateROITraces();
 
     size_t getNROIs() const noexcept;
@@ -38,6 +37,8 @@ public:
     std::vector<std::vector<float>> getTraces(std::vector<size_t> inds) const;
     void exportLineChartImages(std::vector<size_t> inds, QString basename, int width, int height, int quality) const;
     
+    void setMatchYAxes(bool);
+
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 

@@ -148,6 +148,7 @@ struct ROIs::pimpl {
             }
         }
         scene->update();
+        updateYLimits();
     }
     
     bool dispatchPressToSelector(QList<QGraphicsItem*> hititems, QPointF mappedpoint) {
@@ -197,6 +198,46 @@ struct ROIs::pimpl {
     }
 
     ROIs* par{ nullptr };
+
+    bool matchyaxes{ false };
+    void setMatchYAxes(bool onoff) {
+        if (matchyaxes == onoff) {
+            return;
+        }
+        matchyaxes = onoff;
+
+        if (onoff) {
+            // matchy
+            for (auto& roi : rois) {
+                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+            }
+            updateYLimits();
+        }
+        else {
+            for (auto& roi : rois) {
+                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+                roi->Trace->update();
+            }
+
+        }
+        
+    }
+    void updateYLimits() {
+        if (matchyaxes) {
+            double themin = std::numeric_limits<double>::infinity();
+            double themax = -std::numeric_limits<double>::infinity();
+
+            for (auto& roi : rois) {
+                themin = std::min(themin, roi->Trace->getLineSeries()->getYMin());
+                themax = std::max(themax, roi->Trace->getLineSeries()->getYMax());
+            }
+            for (auto& roi : rois) {
+                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+                roi->Trace->getTraceChart()->getYAxis()->setManualLimits(themin, themax);
+                roi->Trace->update();
+            }
+        }
+    }
 };
 
 
@@ -241,10 +282,6 @@ void ROIs::mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint
     }
     else {
         impl->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())));
-        //auto& it = impl->rois.back();        
-        //connect(it->graphicsShape.get(), &ROIShape::roiEdited, this, &ROIs::roiEdit);
-        // TODO: examine this connection, how it should work with new ptr mechanism is unclear...
-        //connect(it->roistyle.get(), &ROIStyle::StyleChanged, it->graphicsShape.get(), &ROIShape::updateStyle);
         impl->setSelectedROIs({ impl->rois.size() - 1 });
     }
     
@@ -278,6 +315,8 @@ void ROIs::setROIShape(ROIVert::SHAPE shp) noexcept {
 void ROIs::roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>) {
     // need to force an update after an edit completion to clean up artifact pixels outside of image rect.
     impl->scene->update();
+
+    impl->updateYLimits();
 }
 
 std::vector<size_t> ROIs::getSelected() const noexcept {
@@ -394,6 +433,7 @@ ChartStyle* ROIs::getLineChartStyle(size_t ind) const noexcept {
 }
 void ROIs::updateLineChartStyle(size_t ind) {
     impl->rois.at(ind)->Trace->getTraceChart()->updateStyle();
+    impl->updateYLimits();
 }
     
 ChartStyle* ROIs::getRidgeChartStyle(size_t ind) const noexcept {
@@ -401,4 +441,8 @@ ChartStyle* ROIs::getRidgeChartStyle(size_t ind) const noexcept {
 }
 void ROIs::updateRidgeChartStyle(size_t ind) { 
     impl->traceview->getRidgeChart().updateStyle();
+}
+
+void ROIs::setMatchYAxes(bool onoff) {
+    impl->setMatchYAxes(onoff);
 }

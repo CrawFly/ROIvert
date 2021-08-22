@@ -238,16 +238,31 @@ imageview integration
     THEN NEXT FEATURE PUSH:
         STYLING WIDGET FOR COLORPICKING, FONT, ROIS, CHARTS...
             [] axis matching:
-                needs a limitsmode on series(?)
-                tight limits should be used for ridgeline
-                auto limits for linechart except when matching, in which case manual limits
+                [x] needs a limitsmode on series(?)
+                [x] tight limits should be used for ridgeline
+                [x] auto limits for linechart except when matching, in which case manual limits
+                
                 And then traceview is going to have to hit limits
+                    ... rois has all the series...
+                        what are the cases where we'll need to update limits:
+                            we've got a updateROITraces already...
+                            
+                            [x] (delete)                    :ROIs:impl:deleteROIs
+                            [x] (add)                       :ROIs::roiEdit
+                            [x] (modify)                    :ROIs::roiEdit
+                            [x] (normalization change)      get this from style change
+                            [x] (linkaxes change)           xxx
+                            
+                            some update issues
+                            
+                            haxis and vacis both need this:
+                            virtual ROIVert::LIMITSTYLE getLimitStyle();
             
             [] set defaults on styling widget
             [] store and load styling widget
             [] store/load roi colors
             
-            [] gradient reimpl
+            [x] gradient reimpl
         
         [x] CHART NORMALIZATION
             

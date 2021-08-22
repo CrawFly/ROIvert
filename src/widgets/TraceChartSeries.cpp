@@ -259,8 +259,6 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     painter.setPen(Qt::NoPen);
 
     if (chartstyle->getDoBackBrush()) {
-        qDebug() << chartstyle->getBackgroundColor();
-
         auto backbrush = QBrush(chartstyle->getBackgroundColor());
         painter.setBrush(backbrush);
         painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));

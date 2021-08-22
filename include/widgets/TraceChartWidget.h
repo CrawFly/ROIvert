@@ -122,10 +122,13 @@ public:
     bool getVisible() const noexcept;
 
     void setPlotBox(QRect);
+    void setManualLimits(qreal min, qreal max);
+
 
 protected:
     // this updates the tick values, the ticklabelthickness, and the margins. It needs to be called if the font changes or the labels change.
     virtual void updateLayout();
+    virtual ROIVert::LIMITSTYLE getLimitStyle() const;
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
 };
@@ -140,6 +143,7 @@ public:
     int getThickness() const noexcept override;
 
 protected:
+    virtual ROIVert::LIMITSTYLE getLimitStyle() const override;
     void updateLayout() override;
 };
 
@@ -153,6 +157,7 @@ public:
     int getThickness() const noexcept override;
 
 protected:
+    virtual ROIVert::LIMITSTYLE getLimitStyle() const override;
     void updateLayout() override;
 
 };

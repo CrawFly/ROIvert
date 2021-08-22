@@ -24,7 +24,8 @@ class StyleWindow : public QWidget
         void LineChartStyleChange();
         void RidgeChartStyleChange();
         void RidgeOverlapChange();
-    
+        void LineMatchyChange();
+
     private:
         struct pimpl;
         std::unique_ptr<pimpl>impl = std::make_unique<pimpl>();
