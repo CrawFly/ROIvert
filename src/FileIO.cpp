@@ -91,7 +91,6 @@ void FileIO::importROIs(QString filename) const {
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
     
-    qDebug() << "IMPORT ROIS";
     QFile file(filename);
     bool openable = file.open(QFile::ReadOnly);
     if (!openable || impl->rois == nullptr) {

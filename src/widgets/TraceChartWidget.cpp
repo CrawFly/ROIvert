@@ -200,9 +200,7 @@ void TraceChartWidget::pimpl::paint(QPainter& painter, const QRect& contentsRect
     paint_axes(painter, contentsRect.left() + margins.left());
 
     // Draw children
-    // todo: with style, temp linewidth = 2
-    //painter.setClipRect(plotbox + QMargins(0, style.Line.Width, 0, style.Line.Width));
-    painter.setClipRect(plotbox + QMargins(0, 2, 0, 2));
+    painter.setClipRect(plotbox + QMargins(0, chartstyle->getAxisPen().width(), 0, chartstyle->getAxisPen().width()));
     paint_data(painter);
 }
 void TraceChartWidget::pimpl::calcPlotbox() {
@@ -214,42 +212,26 @@ void TraceChartWidget::pimpl::calcPlotbox() {
         titlethickness = titlefontmea.height() + titlespace;
     }
     plotbox -= QMargins(0, titlethickness, 0, 0);
+    
 
-
-    // todo: style work
-    /*
-    if (style.Axis.Show) {
-        // Get thickness of each axis, will determine things below
-        const int xthickness = style.Axis.ShowX ? xaxis.getThickness() : 0;
-        const int ythickness = style.Axis.ShowY ? yaxis.getThickness() : 0;
-        // need to use max with margs...or we end up not quite getting it right when we shut of y axis (for e.g.)
-
-        const int xleftmarg = std::get<0>(xaxis.getMargins());
-        const int xrightmarg = style.Axis.ShowX ? std::get<1>(xaxis.getMargins()) : 0;
-        const int ymarg = style.Axis.ShowY ? std::get<0>(yaxis.getMargins()) : 0; // top and bottom are the same
-
-        plotbox -= QMargins(std::max(ythickness, xleftmarg), ymarg, xrightmarg, xthickness);
-
-        axlegaph = style.Axis.ShowX ? std::clamp(plotbox.width() * .03, 2. + style.Line.Width, 40.) : 5;
-        axlegapv = style.Axis.ShowY ? std::clamp(plotbox.height() * .04, 2. + style.Line.Width, 40.) : 5;
-        plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
-    }
-    */
-    const int xthickness{ xaxis->getThickness() };
-    const int ythickness{ yaxis->getThickness() };
-    const int xleftmarg = std::get<0>(xaxis->getMargins());
-    const int xrightmarg = std::get<1>(xaxis->getMargins());
-    const int ymarg = std::get<0>(yaxis->getMargins()); // top and bottom are the same
+    const int xthickness{ xaxis->getVisible() ? xaxis->getThickness() : 0 };
+    const int ythickness{ yaxis->getVisible() ? yaxis->getThickness() : 0 };
+    const int xleftmarg{ (int)std::get<0>(xaxis->getMargins()) };
+    const int xrightmarg{ xaxis->getVisible() ? (int)std::get<1>(xaxis->getMargins()) : 0 };
+    const int ymarg{ yaxis->getVisible() ? (int)std::get<0>(yaxis->getMargins()) : 0 }; // top and bottom are the same
     plotbox -= QMargins(std::max(ythickness, xleftmarg), ymarg, xrightmarg, xthickness);
-    axlegaph = std::clamp(plotbox.width() * .03, 2. + 2., 40.); //todo: note forced linewidth when moving to style...
-    axlegapv = std::clamp(plotbox.height() * .04, 2. + 2., 40.);
+    
+    auto lw{ chartstyle->getAxisPen().widthF() };
+    axlegaph = xaxis->getVisible() ? std::clamp(plotbox.width() * .03, 2. + lw, 40.) : 5; 
+    axlegapv = yaxis->getVisible() ? std::clamp(plotbox.height() * .04, 2. + lw, 40.) : 5;
     plotbox -= QMargins(axlegaph, 0, 0, axlegapv);
+
 }
 void TraceChartWidget::pimpl::paint_background(QPainter & painter) {
     if (chartstyle == nullptr) {
         return;
     }
-    painter.setPen(Qt::NoPen); // todo: this could be selector right here!
+    painter.setPen(Qt::NoPen); 
     painter.setBrush(chartstyle->getBackgroundColor());
     painter.drawRect(plotbox);
 }
@@ -258,10 +240,7 @@ void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
         plotbox.top() - titlethickness - titlespace,
         plotbox.width(),
         titlethickness - titlespace);
-
-    //todo: style work
-    //painter.setFont(style.Title.Font);
-    //painter.setPen(style.Title.Color);
+    
     auto font = QFont();
     painter.setFont(QFont());
     painter.setPen(Qt::black);
@@ -269,18 +248,19 @@ void TraceChartWidget::pimpl::paint_title(QPainter & painter) {
     painter.drawText(titler, titlestring, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 }
 void TraceChartWidget::pimpl::paint_axes(QPainter & painter, const int& left) {
-    // todo: style work
-    
-    
+        
     if (xaxis->getVisible()) {
         xaxis->setZero(plotbox.left(), plotbox.bottom() + axlegapv);
-        xaxis->setLength(plotbox.width());
+        // todo: this is moot now that i'm just passing plotbox?
+        xaxis->setLength(plotbox.width()); 
+        xaxis->setPlotBox(plotbox);
         xaxis->paint(painter);
     }
 
     if (yaxis->getVisible()) {
         yaxis->setZero(left, plotbox.top());
         yaxis->setLength(plotbox.height());
+        yaxis->setPlotBox(plotbox);
         yaxis->paint(painter);
     }
 }

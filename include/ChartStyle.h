@@ -39,8 +39,11 @@ public:
     void setTraceLineWidth(int);
     void setTraceFillOpacity(int);
     void setTraceFillGradient(bool);
+    void setDoBackBrush(bool);
+    bool getDoBackBrush() const noexcept;
     QPen getTracePen() const;
     QBrush getTraceBrush() const;
+    
 
     
 

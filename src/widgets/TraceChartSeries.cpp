@@ -74,6 +74,7 @@ private:
 
 TraceChartSeries::TraceChartSeries(std::shared_ptr<ChartStyle> style) {
     impl->chartstyle = style;
+
 }
 TraceChartSeries::~TraceChartSeries() = default;
 
@@ -256,9 +257,12 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     }
 
     painter.setPen(Qt::NoPen);
-    auto backbrush = QBrush(chartstyle->getBackgroundColor());
-    painter.setBrush(backbrush);
-    painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
+
+    if (chartstyle->getDoBackBrush()) {
+        auto backbrush = QBrush(chartstyle->getBackgroundColor());
+        painter.setBrush(backbrush);
+        painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));
+    }
 
     painter.setBrush(brush);
     painter.drawPath(T.map(path).translated(QPointF(0, pen.width() / 2)));

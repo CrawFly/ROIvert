@@ -1,5 +1,6 @@
 #include "widgets\TraceChartWidget.h"
 #include <QPainter>
+#include <QDebug>
 #include "ChartStyle.h"
 namespace {
     double niceNum(const double& range, const bool round) noexcept {
@@ -68,6 +69,7 @@ struct TraceChartAxis::pimpl {
     QString label;
 
     QRect position = QRect(0, 0, 1, 1);
+    QRect plotbox = QRect(0, 0, 1, 1);
     std::tuple<qreal, qreal> extents = std::make_tuple(0, 1);;
 
     int spacelabel = 0, spaceticklabel = 10, spacetickmark = 5;
@@ -190,6 +192,8 @@ void TraceChartAxis::updateLayout() {
 }
 void TraceChartAxis::setVisible(bool yesno) noexcept { impl->visible = yesno; }
 bool TraceChartAxis::getVisible() const noexcept { return impl->visible; }
+void TraceChartAxis::setPlotBox(QRect pos) { impl->plotbox = pos; }
+
 
 TraceChartHAxis::TraceChartHAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
 void TraceChartHAxis::paint(QPainter & painter) {
@@ -198,10 +202,14 @@ void TraceChartHAxis::paint(QPainter & painter) {
     }
 
     const QRect& pos = impl->position;
+    auto pen{ impl->chartstyle->getAxisPen() };
+    auto gridpen = QPen(pen);
 
-    
-    
-    painter.setPen(impl->chartstyle->getAxisPen());
+    auto gridclr{ pen.color() };
+    gridclr.setAlpha(100);
+    gridpen.setColor(gridclr);
+
+    painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
 
     // Label:
@@ -226,8 +234,13 @@ void TraceChartHAxis::paint(QPainter & painter) {
 
         // tick marks:
         painter.drawLine(xpos, pos.top(), xpos, pos.top() + impl->ticklength);
+        if (impl->chartstyle->getGrid()) {
+            painter.setPen(gridpen);
+            painter.drawLine(xpos, impl->plotbox.bottom(), xpos, impl->plotbox.top());
+            painter.setPen(pen);
+        }
+        
     }
-
     // Axle:
     painter.drawLine(pos.topLeft(), pos.topRight());
 }
@@ -268,7 +281,14 @@ void TraceChartVAxis::paint(QPainter & painter) {
         return;
     }
     const QRect& pos = impl->position;
-    painter.setPen(impl->chartstyle->getAxisPen());
+    auto pen{ impl->chartstyle->getAxisPen() };
+    auto gridpen = QPen(pen);
+
+    auto gridclr{ pen.color() };
+    gridclr.setAlpha(100);
+    gridpen.setColor(gridclr);
+
+    painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
 
     painter.setFont(impl->chartstyle->getLabelFont());
@@ -299,6 +319,12 @@ void TraceChartVAxis::paint(QPainter & painter) {
 
         // tick marks:
         painter.drawLine(pos.right(), ypos, pos.right() - impl->ticklength, ypos);
+        if (impl->chartstyle->getGrid()) {
+            painter.setPen(gridpen);
+            painter.drawLine(impl->plotbox.left(), ypos, impl->plotbox.right(), ypos);
+            painter.setPen(pen);
+        }
+        
     }
 
     painter.drawLine(pos.topRight(), pos.bottomRight());

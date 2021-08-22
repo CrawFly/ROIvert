@@ -202,7 +202,7 @@ struct StyleWindow::pimpl{
         connect(ridgewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgefill, &QSlider::valueChanged, par, &StyleWindow::RidgeChartStyleChange);
         connect(ridgegrid, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
-        connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWindow::RidgeChartStyleChange);
+        connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWindow::RidgeOverlapChange);
     }
 
     void updateROIStyle(ROIStyle* style) {
@@ -227,7 +227,7 @@ struct StyleWindow::pimpl{
         style->setTraceLineWidth(linewidth->value());
         style->setTraceFillOpacity(linefill->value());
         style->setTraceFillGradient(linegradient->isChecked());
-        style->setGrid(linegrid->isCheckable());
+        style->setGrid(linegrid->isChecked());
         //todo:
         /*
             QCheckBox* linematchy = new QCheckBox;
@@ -238,11 +238,7 @@ struct StyleWindow::pimpl{
         style->setTraceLineWidth(ridgewidth->value());
         style->setTraceFillOpacity(ridgefill->value());
         style->setTraceFillGradient(ridgegradient->isChecked());
-        style->setGrid(ridgegrid->isCheckable());
-        //todo:
-        /*
-            QSlider* ridgeoverlap = new QSlider;
-        */
+        style->setGrid(ridgegrid->isChecked());
     }
 
 };
@@ -307,6 +303,11 @@ void StyleWindow::RidgeChartStyleChange(){
         impl->updateRidgeChartStyle(impl->rois->getRidgeChartStyle(ind));
         impl->rois->updateRidgeChartStyle(ind);
     }
+}
+
+void StyleWindow::RidgeOverlapChange() {
+    impl->traceview->getRidgeChart().offset = float(impl->ridgeoverlap->value())/100.;
+    impl->traceview->getRidgeChart().updateOffsets();
 }
 
 void StyleWindow::selectionChange(std::vector<size_t> inds) {

@@ -60,7 +60,7 @@ private:
 
 
 TraceView::TraceView(QWidget* parent) : QWidget(parent) {
-    
+    impl->coreRidgeStyle->setDoBackBrush(true);
     impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
     setLayout(impl->topGridLayout.get());

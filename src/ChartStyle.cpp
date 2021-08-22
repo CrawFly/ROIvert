@@ -9,13 +9,14 @@ struct ChartStyle::pimpl {
     int labelfontsize{ 12 };
     int tickfontsize{ 10 };
     QString fontfamily{ "Arial" };
-    
 
     int tracelinewidth{ 3 };
     int tracefillopacity{ 55 };
     bool tracefillgradient{ false };
     QColor linecolor{ Qt::red };
     QColor fillcolor{ Qt::red };
+
+    bool dobackbrush;
 };
 
 ChartStyle::ChartStyle() = default;
@@ -148,3 +149,6 @@ void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
     impl->fillcolor = r.getFillColor();
     emit StyleChanged(*this);
 }
+
+void ChartStyle::setDoBackBrush(bool yesno)  { impl->dobackbrush = yesno; }
+bool ChartStyle::getDoBackBrush() const noexcept { return impl->dobackbrush; };

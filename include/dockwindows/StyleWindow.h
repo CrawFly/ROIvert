@@ -23,6 +23,7 @@ class StyleWindow : public QWidget
         void ChartStyleChange();
         void LineChartStyleChange();
         void RidgeChartStyleChange();
+        void RidgeOverlapChange();
     
     private:
         struct pimpl;

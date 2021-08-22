@@ -84,7 +84,7 @@ public:
 
     bool polyContains(const QPointF&);
     void setHighlighted(bool); // todo: highlighted means double thickness lines? What if there are no lines?
-    
+        
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
@@ -120,6 +120,8 @@ public:
 
     void setVisible(bool) noexcept;
     bool getVisible() const noexcept;
+
+    void setPlotBox(QRect);
 
 protected:
     // this updates the tick values, the ticklabelthickness, and the margins. It needs to be called if the font changes or the labels change.
@@ -161,5 +163,6 @@ class RidgeLineWidget : public TraceChartWidget
 public:
     RidgeLineWidget(std::shared_ptr<ChartStyle> = nullptr, QWidget* parent = nullptr);
     void updateOffsets();
+    float offset{ 0.5 };
 };
 
