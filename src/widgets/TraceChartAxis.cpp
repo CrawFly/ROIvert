@@ -83,9 +83,6 @@ struct TraceChartAxis::pimpl {
 
     bool visible = true;
 
-    QFontMetrics labelfontmea = QFontMetrics(QFont());
-    QFontMetrics tickfontmea = QFontMetrics(QFont());
-
     std::vector<double> tickvalues;
     std::vector<double> tickwidths;
     QStringList tickstrings;
@@ -101,7 +98,9 @@ TraceChartAxis::TraceChartAxis(std::shared_ptr<ChartStyle> style) {
 }
 TraceChartAxis::~TraceChartAxis() = default;
 void TraceChartAxis::setStyle(std::shared_ptr<ChartStyle> style) {
-    impl->chartstyle = style;
+    
+    impl->chartstyle = style == nullptr ? std::make_shared<ChartStyle>() : style;
+    updateLayout();
 }
 void TraceChartAxis::setExtents(const double& min, const double& max) {
     if (max > min) {
@@ -180,12 +179,13 @@ void TraceChartAxis::updateLayout() {
 
         QString str(QString::number(val, 'G', 7).replace("-", QChar(0x2212)));
         impl->tickstrings.push_back(str);
-        impl->tickwidths.push_back(impl->tickfontmea.size(Qt::TextSingleLine, str).width());
+        
+        impl->tickwidths.push_back(impl->chartstyle->getTickLabelFontMetrics().size(Qt::TextSingleLine, str).width());
     }
 
     impl->labelthickness = 0;
     if (!impl->label.isEmpty()) {
-        impl->labelthickness = impl->labelfontmea.height();
+        impl->labelthickness = impl->chartstyle->getLabelFontMetrics().height();
     }
 }
 void TraceChartAxis::setVisible(bool yesno) noexcept { impl->visible = yesno; }
@@ -205,16 +205,12 @@ void TraceChartHAxis::paint(QPainter & painter) {
     painter.setBrush(Qt::NoBrush);
 
     // Label:
-    // todo: font size in style
-    //painter.setFont(impl->style.LabelFont);
-    painter.setFont(QFont());
-
+    painter.setFont(impl->chartstyle->getLabelFont());
     const QRect labelR(pos.left(), pos.bottom() - impl->spacelabel - impl->labelthickness, pos.width(), impl->labelthickness);
     painter.drawText(labelR, impl->label, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
     // Tick Labels:
-    // todo: font size in style
-    //painter.setFont(impl->style.TickLabelFont);
+    painter.setFont(impl->chartstyle->getTickLabelFont());
     const int ticklabeltop = labelR.top() - impl->spaceticklabel - impl->ticklabelthickness;
 
     double min, max;
@@ -237,7 +233,7 @@ void TraceChartHAxis::paint(QPainter & painter) {
 }
 void TraceChartHAxis::updateLayout() {
     TraceChartAxis::updateLayout();
-    impl->ticklabelthickness = impl->tickfontmea.height();
+    impl->ticklabelthickness = impl->chartstyle->getTickLabelFontMetrics().height();
 
     // set the thickness to the sumb of everything:
     impl->position.setHeight(impl->thickness());
@@ -252,8 +248,9 @@ std::tuple<double, double> TraceChartHAxis::getMargins() const {
     // margins for HAxis come from the first and last tick labels. 
     double left = 0., right = 0.;
     if (!impl->tickstrings.empty()) {
-        const int wL = impl->tickfontmea.size(Qt::TextSingleLine, impl->tickstrings.first()).width();
-        const int wR = impl->tickfontmea.size(Qt::TextSingleLine, impl->tickstrings.last()).width();
+        auto mea = impl->chartstyle->getTickLabelFontMetrics();
+        const int wL = mea.size(Qt::TextSingleLine, impl->tickstrings.first()).width();
+        const int wR = mea.size(Qt::TextSingleLine, impl->tickstrings.last()).width();
         // this is imperfect for the trimmed case... that's okay?
 
         left = static_cast<double>(wL) / 2.;
@@ -274,9 +271,7 @@ void TraceChartVAxis::paint(QPainter & painter) {
     painter.setPen(impl->chartstyle->getAxisPen());
     painter.setBrush(Qt::NoBrush);
 
-    // todo: font
-    //painter.setFont(impl->getStyle().LabelFont);
-    painter.setFont(QFont());
+    painter.setFont(impl->chartstyle->getLabelFont());
 
     const QPointF point(pos.left() + impl->spacelabel, pos.top() + pos.height() / 2.);
 
@@ -287,10 +282,9 @@ void TraceChartVAxis::paint(QPainter & painter) {
     painter.drawText(labelR, impl->label, QTextOption(Qt::AlignHCenter | Qt::AlignBottom));
     painter.restore();
 
-    //
-    //painter.setFont(impl->getStyle().TickLabelFont);
+    painter.setFont(impl->chartstyle->getTickLabelFont());
     const int xpos = pos.left() + impl->spacelabel + impl->labelthickness + impl->spaceticklabel;
-    const int height = impl->tickfontmea.height();
+    const int height = impl->chartstyle->getTickLabelFontMetrics().height();
     const int w = impl->ticklabelthickness;
 
     double min, max;
@@ -325,7 +319,7 @@ int TraceChartVAxis::getLength() const noexcept {
     return impl->position.height();
 }
 std::tuple<double, double> TraceChartVAxis::getMargins() const {
-    double marg = static_cast<double>(impl->tickfontmea.height()) / 2.;
+    double marg = static_cast<double>(impl->chartstyle->getTickLabelFontMetrics().height()) / 2.;
     return std::make_tuple(marg, marg);
 }
 int TraceChartVAxis::getThickness() const noexcept {

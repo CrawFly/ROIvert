@@ -1,5 +1,5 @@
 #pragma once
-#include "QObject"
+#include <QObject>
 #include "ROI/ROIStyle.h"
 
 class ChartStyle : public QObject {
@@ -20,9 +20,17 @@ public:
     void setAxisColor(QColor);
     void setAxisLineWidth(int);
     void setGrid(bool);
-    void setTitleFontSize(int); //todo: getters for fontsizes
+    
     void setLabelFontSize(int);
     void setTickLabelFontSize(int);
+    void setFontFamily(QString);
+    QFont getLabelFont();
+    QFont getTickLabelFont();
+    QFontMetrics getLabelFontMetrics();
+    QFontMetrics getTickLabelFontMetrics();
+
+
+
     QPen getAxisPen() const;
     bool getGrid() const noexcept;
 
@@ -33,6 +41,8 @@ public:
     void setTraceFillGradient(bool);
     QPen getTracePen() const;
     QBrush getTraceBrush() const;
+
+    
 
 signals:
     void StyleChanged(const ChartStyle&);

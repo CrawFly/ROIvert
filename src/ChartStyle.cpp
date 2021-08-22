@@ -1,13 +1,15 @@
 #include "ChartStyle.h"
-
+#include <QFont>
+#include <QFontMetrics>
 struct ChartStyle::pimpl {
     QColor backgroundcolor{ Qt::black };
     QColor axiscolor{ Qt::white };
     int axislinewidth{ 1 };
     bool grid = false;
-    int titlefontsize{ 14 };
     int labelfontsize{ 12 };
     int tickfontsize{ 10 };
+    QString fontfamily{ "Arial" };
+    
 
     int tracelinewidth{ 3 };
     int tracefillopacity{ 55 };
@@ -55,10 +57,6 @@ void ChartStyle::setGrid(bool onoff) {
     impl->grid = onoff;
     emit StyleChanged(*this);
 }
-void ChartStyle::setTitleFontSize(int fs) {
-    impl->titlefontsize = fs;
-    emit StyleChanged(*this);
-}
 void ChartStyle::setLabelFontSize(int fs) {
     impl->labelfontsize = fs;
     emit StyleChanged(*this);
@@ -67,6 +65,31 @@ void ChartStyle::setTickLabelFontSize(int fs) {
     impl->tickfontsize = fs;
     emit StyleChanged(*this);
 }
+
+void ChartStyle::setFontFamily(QString font) {
+    impl->fontfamily = font;
+    emit StyleChanged(*this);
+}
+QFont ChartStyle::getLabelFont() {
+    QFont font;
+    font.setFamily(impl->fontfamily);
+    font.setPointSize(impl->labelfontsize);
+    return font;
+}
+QFont ChartStyle::getTickLabelFont() {
+    QFont font;
+    font.setFamily(impl->fontfamily);
+    font.setPointSize(impl->tickfontsize);
+    return font;
+}
+QFontMetrics ChartStyle::getLabelFontMetrics() {
+    return QFontMetrics(getLabelFont());
+}
+QFontMetrics ChartStyle::getTickLabelFontMetrics() {
+    return QFontMetrics(getTickLabelFont());
+}
+
+
     
 QPen ChartStyle::getAxisPen() const {
     return QPen(impl->axiscolor, impl->axislinewidth);

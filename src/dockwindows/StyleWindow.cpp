@@ -220,6 +220,7 @@ struct StyleWindow::pimpl{
         style->setAxisColor(chartforecolor->getColor());
         style->setLabelFontSize(chartlabelfontsize->value());
         style->setTickLabelFontSize(charttickfontsize->value());
+        style->setFontFamily(chartfont->currentText());
     }
 
     void updateLineChartStyle(ChartStyle* style) {
