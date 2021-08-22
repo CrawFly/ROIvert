@@ -446,3 +446,5 @@ void ROIs::updateRidgeChartStyle(size_t ind) {
 void ROIs::setMatchYAxes(bool onoff) {
     impl->setMatchYAxes(onoff);
 }
+
+bool ROIs::getMatchYAxes() const noexcept { return impl->matchyaxes; }

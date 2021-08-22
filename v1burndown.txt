@@ -1,8 +1,8 @@
 STYLING 
     Initialization and Serialization
-        [] set defaults on styling widget   (use core styles?)
         [] store and load styling widget    (use core styles?)
-        [] store/load roi colors            (export file)
+                    
+            
             
 playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** 
 
@@ -18,6 +18,9 @@ REFACTOR PUSH
     DELETE ORPHAN FILES
     
 
+    validate json files before importing (important because import is unsafe)
+    add json version
+    
     
 BIG TIDY PUSH
 RELEASE PUSH
@@ -37,4 +40,5 @@ DOC:
 when this is all done i really want to implify and simplify roivert, and make everything smartptr
 quick look at export video
 What does this look like if i try to build in gnu or something...on linux? How about port to Qt and use vs, with assumption that this would make it easier to build on mac? didn't I have something like this once before?
+
 

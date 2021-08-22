@@ -67,7 +67,7 @@ struct StyleWindow::pimpl{
         tab->addTab(ChartLineTab(), "Line Style");
         tab->addTab(ChartRidgeTab(), "Ridge Style");
 
-        tab->setCurrentIndex(4);
+        tab->setCurrentIndex(0);
     }
 
     QWidget* ROIColorTab(){
@@ -79,7 +79,6 @@ struct StyleWindow::pimpl{
         lay->addStretch();
         return ret;
     }
-
     QWidget* ROIStyleTab(){
         auto ret = new QWidget;
         auto lay = new QFormLayout;
@@ -207,43 +206,86 @@ struct StyleWindow::pimpl{
     }
 
     void updateROIStyle(ROIStyle* style) {
-        auto selsize = roiselsize->value() > 0 ? roiselsize->value() : -15;
-        
-        style->blockSignals(true);
-        style->setSelectorSize(selsize);
-        style->setLineWidth(roilinewidth->value());
-        style->setFillOpacity(roifillopacity->value());
-        style->blockSignals(false);
-        emit style->StyleChanged(*style);
+        if (!isLoading) {
+            auto selsize = roiselsize->value() > 0 ? roiselsize->value() : -15;
+            style->blockSignals(true);
+            style->setSelectorSize(selsize);
+            style->setLineWidth(roilinewidth->value());
+            style->setFillOpacity(roifillopacity->value());
+            style->blockSignals(false);
+            emit style->StyleChanged(*style);
+        }
     }
     void updateChartStyle(ChartStyle* style) {
-        style->setBackgroundColor(chartbackcolor->getColor());
-        style->setAxisColor(chartforecolor->getColor());
-        style->setLabelFontSize(chartlabelfontsize->value());
-        style->setTickLabelFontSize(charttickfontsize->value());
-        style->setFontFamily(chartfont->currentText());
+        if (!isLoading) {
+            style->setBackgroundColor(chartbackcolor->getColor());
+            style->setAxisColor(chartforecolor->getColor());
+            style->setLabelFontSize(chartlabelfontsize->value());
+            style->setTickLabelFontSize(charttickfontsize->value());
+            style->setFontFamily(chartfont->currentText());
+        }
     }
 
     void updateLineChartStyle(ChartStyle* style) {
-        style->setTraceLineWidth(linewidth->value());
-        style->setTraceFillOpacity(linefill->value());
-        style->setTraceFillGradient(linegradient->isChecked());
-        style->setGrid(linegrid->isChecked());
-        style->setNormalization(static_cast<ROIVert::NORMALIZATION>(linenorm->currentIndex()));
+        if (!isLoading) {
+            style->setTraceLineWidth(linewidth->value());
+            style->setTraceFillOpacity(linefill->value());
+            style->setTraceFillGradient(linegradient->isChecked());
+            style->setGrid(linegrid->isChecked());
+            style->setNormalization(static_cast<ROIVert::NORMALIZATION>(linenorm->currentIndex()));
 
-        //style->setNormalization()
-        
-        /*
-            QCheckBox* linematchy = new QCheckBox;
-        */
+        }
     }
     void updateRidgeChartStyle(ChartStyle* style) {
-        style->setTraceLineWidth(ridgewidth->value());
-        style->setTraceFillOpacity(ridgefill->value());
-        style->setTraceFillGradient(ridgegradient->isChecked());
-        style->setGrid(ridgegrid->isChecked());
+        if (!isLoading) {
+            style->setTraceLineWidth(ridgewidth->value());
+            style->setTraceFillOpacity(ridgefill->value());
+            style->setTraceFillGradient(ridgegradient->isChecked());
+            style->setGrid(ridgegrid->isChecked());
+        }
     }
 
+
+    void loadFromTV() {
+        // set gui state from TraceView:
+        auto cls{ traceview->getCoreLineChartStyle() };
+        auto crs{ traceview->getCoreRidgeChartStyle() };
+        
+        // General (comes from line)
+        if (cls != nullptr) {
+            chartbackcolor->setColor(cls->getBackgroundColor());
+            chartforecolor->setColor(cls->getAxisPen().color());
+            chartlabelfontsize->setValue(cls->getLabelFont().pointSize());
+            charttickfontsize->setValue(cls->getTickLabelFont().pointSize());
+            chartfont->setCurrentText(cls->getTickLabelFont().family());
+
+            // Line:
+            linewidth->setValue(cls->getTracePen().width());
+            linefill->setValue(cls->getTraceBrush().color().alpha());
+            linegradient->setChecked(cls->getTraceFillGradient());
+            linegrid->setChecked(cls->getGrid());
+            linenorm->setCurrentIndex(static_cast<int>(cls->getNormalization()));
+        }
+
+        // Ridge:
+        if (crs != nullptr) {
+            ridgewidth->setValue(crs->getTracePen().width());
+            ridgefill->setValue(crs->getTraceBrush().color().alpha());
+            ridgegradient->setChecked(crs->getTraceFillGradient());
+            ridgegrid->setChecked(crs->getGrid());
+        }
+        ridgeoverlap->setValue(traceview->getRidgeChart().offset*100);
+    }
+    void loadFromROIs() {
+        auto style = rois->getCoreROIStyle();
+        if (style != nullptr) {
+            roilinewidth->setValue(style->getPen().width());
+            roiselsize->setValue(style->getSelectorSize());
+            roifillopacity->setValue(style->getBrush().color().alpha());
+        }
+        linematchy->setChecked(rois->getMatchYAxes());
+    }
+    bool isLoading{ false };
 };
 
 StyleWindow::StyleWindow(QWidget *parent) : QWidget(parent)
@@ -310,12 +352,12 @@ void StyleWindow::RidgeChartStyleChange(){
     }
     impl->traceview->getRidgeChart().update();
 }
-
 void StyleWindow::RidgeOverlapChange() {
-    impl->traceview->getRidgeChart().offset = float(impl->ridgeoverlap->value())/100.;
-    impl->traceview->getRidgeChart().updateOffsets();
+    if (!impl->isLoading) {
+        impl->traceview->getRidgeChart().offset = static_cast<float>(impl->ridgeoverlap->value())/100.;
+        impl->traceview->getRidgeChart().updateOffsets();
+    }
 }
-
 void StyleWindow::selectionChange(std::vector<size_t> inds) {
     if (inds.empty()) {
         impl->roicolor->setEnabled(false);
@@ -329,11 +371,24 @@ void StyleWindow::selectionChange(std::vector<size_t> inds) {
 
 void StyleWindow::setROIs(ROIs* rois) {
     impl->rois = rois;
-    connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
+    if (rois) {
+        connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
+        impl->isLoading = true;
+        impl->loadFromROIs();
+        impl->isLoading = false;
+
+    }
+    
 }
 
 void StyleWindow::setTraceView(TraceView* traceview) {
     impl->traceview = traceview;
+    if (traceview) {
+        impl->isLoading = true;
+        impl->loadFromTV();
+        impl->isLoading = false;
+    }
+    
 }
 
 void StyleWindow::LineMatchyChange() {

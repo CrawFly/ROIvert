@@ -38,6 +38,7 @@ public:
     void exportLineChartImages(std::vector<size_t> inds, QString basename, int width, int height, int quality) const;
     
     void setMatchYAxes(bool);
+    bool getMatchYAxes() const noexcept;
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
