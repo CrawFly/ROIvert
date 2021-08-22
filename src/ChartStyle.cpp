@@ -89,8 +89,15 @@ void ChartStyle::setTraceFillGradient(bool onoff) {
 }
 QPen ChartStyle::getTracePen() const {
     QPen pen(impl->linecolor);
-    pen.setCosmetic(true);
-    pen.setWidth(impl->tracelinewidth);
+    if (impl->tracelinewidth > 0) {
+        pen.setCosmetic(true);
+        pen.setWidth(impl->tracelinewidth);
+        pen.setStyle(Qt::PenStyle::SolidLine);
+    }
+    else {
+        pen.setStyle(Qt::PenStyle::NoPen);
+    }
+    
     return pen;
 }
 QBrush ChartStyle::getTraceBrush() const {

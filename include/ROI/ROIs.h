@@ -23,8 +23,11 @@ public:
     ROIStyle* getROIStyle(size_t ind) const noexcept;
     ROIStyle* getCoreROIStyle() const noexcept;
 
-    ChartStyle* getChartStyle(size_t ind) const noexcept;
-    void updateChartStyle(size_t ind);
+    ChartStyle* getLineChartStyle(size_t ind) const noexcept;
+    void updateLineChartStyle(size_t ind);
+    
+    ChartStyle* getRidgeChartStyle(size_t ind) const noexcept;
+    void updateRidgeChartStyle(size_t ind);
 
     void setColorBySelect(bool yesno = true);
     

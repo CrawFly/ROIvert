@@ -17,7 +17,7 @@ class ROITrace : public QObject
     Q_OBJECT
 
 public:
-    ROITrace(TraceView*, VideoData*, std::shared_ptr<ChartStyle>);
+    ROITrace(TraceView*, VideoData*, std::shared_ptr<ChartStyle>, std::shared_ptr<ChartStyle>);
     ~ROITrace();
     void update();
 

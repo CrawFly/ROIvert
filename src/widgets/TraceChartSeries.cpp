@@ -209,7 +209,7 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
         return;
     }
         
-    //todo: fill work
+    //todo: gradient
     /*
     if (style.Fill) {
         painter.setPen(Qt::NoPen);
@@ -244,12 +244,12 @@ void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor
     auto pen = chartstyle->getTracePen();
 
     if (highlighted) {
-        if (pen.style() == Qt::PenStyle::NoPen) {
-            pen.setStyle(Qt::PenStyle::SolidLine);
-            pen.setWidth(2);
-            pen.setCosmetic(true);
+        if (pen.style() == Qt::NoPen && brush.style() == Qt::SolidPattern && brush.color().alphaF() < 1) {
+            auto color = brush.color();
+            color.setAlphaF(1.);
+            brush.setColor(color);
         }
-        else {
+        else if (pen.style() == Qt::SolidLine) {
             const auto width = std::min(pen.width() * 2, pen.width() + 4);
             pen.setWidth(width);
         }

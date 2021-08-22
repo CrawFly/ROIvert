@@ -67,7 +67,7 @@ struct StyleWindow::pimpl{
         tab->addTab(ChartLineTab(), "Line Style");
         tab->addTab(ChartRidgeTab(), "Ridge Style");
 
-        tab->setCurrentIndex(3);
+        tab->setCurrentIndex(4);
     }
 
     QWidget* ROIColorTab(){
@@ -143,8 +143,8 @@ struct StyleWindow::pimpl{
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
-        linewidth->setMinimum(1);
-        linewidth->setMaximum(10);
+        linewidth->setMinimum(0);
+        linewidth->setMaximum(15);
         linefill->setMinimum(0);
         linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
@@ -162,8 +162,8 @@ struct StyleWindow::pimpl{
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
-        ridgewidth->setMinimum(1);
-        ridgewidth->setMaximum(10);
+        ridgewidth->setMinimum(0);
+        ridgewidth->setMaximum(15);
         ridgefill->setMinimum(0);
         ridgefill->setMaximum(255);
         ridgefill->setOrientation(Qt::Horizontal);
@@ -221,6 +221,29 @@ struct StyleWindow::pimpl{
         style->setLabelFontSize(chartlabelfontsize->value());
         style->setTickLabelFontSize(charttickfontsize->value());
     }
+
+    void updateLineChartStyle(ChartStyle* style) {
+        style->setTraceLineWidth(linewidth->value());
+        style->setTraceFillOpacity(linefill->value());
+        style->setTraceFillGradient(linegradient->isChecked());
+        style->setGrid(linegrid->isCheckable());
+        //todo:
+        /*
+            QCheckBox* linematchy = new QCheckBox;
+            QComboBox* linenorm = new QComboBox;
+        */
+    }
+    void updateRidgeChartStyle(ChartStyle* style) {
+        style->setTraceLineWidth(ridgewidth->value());
+        style->setTraceFillOpacity(ridgefill->value());
+        style->setTraceFillGradient(ridgegradient->isChecked());
+        style->setGrid(ridgegrid->isCheckable());
+        //todo:
+        /*
+            QSlider* ridgeoverlap = new QSlider;
+        */
+    }
+
 };
 
 StyleWindow::StyleWindow(QWidget *parent) : QWidget(parent)
@@ -250,23 +273,39 @@ void StyleWindow::ROIStyleChange(){
 }
 
 void StyleWindow::ChartStyleChange(){
-    impl->updateChartStyle(impl->traceview->getCoreChartStyle());
-    
+    // ChartStyleChange is just charts, not series...so ignore CoreRidgeLineChartStyle
+    impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
+
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
     impl->traceview->getRidgeChart().updateStyle();
 
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
-        impl->updateChartStyle(impl->rois->getChartStyle(ind));
-        impl->rois->updateChartStyle(ind);
+        impl->updateChartStyle(impl->rois->getLineChartStyle(ind));
+        impl->rois->updateLineChartStyle(ind);
     }
 }
+
 void StyleWindow::LineChartStyleChange(){
+    impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
     
+    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::iota(inds.begin(), inds.end(), 0);
+    for (auto& ind : inds) {
+        impl->updateLineChartStyle(impl->rois->getLineChartStyle(ind));
+        impl->rois->updateLineChartStyle(ind);
+    }
 }
 void StyleWindow::RidgeChartStyleChange(){
-    qDebug()<<"RidgeChartStyleChange";
+    impl->updateRidgeChartStyle(impl->traceview->getCoreRidgeChartStyle());
+    
+    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::iota(inds.begin(), inds.end(), 0);
+    for (auto& ind : inds) {
+        impl->updateRidgeChartStyle(impl->rois->getRidgeChartStyle(ind));
+        impl->rois->updateRidgeChartStyle(ind);
+    }
 }
 
 void StyleWindow::selectionChange(std::vector<size_t> inds) {

@@ -19,19 +19,18 @@ struct ROITrace::pimpl {
 
     double xmin, xmax;
 
-    void init(std::shared_ptr<ChartStyle> style) {
-        chartstyle = style;
-        TraceChart = std::make_unique<TraceChartWidget>(chartstyle);
-        LineSeries = std::make_shared<TraceChartSeries>(chartstyle);
-        RidgeSeries = std::make_shared<TraceChartSeries>(chartstyle);
+    void init(std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
+        TraceChart = std::make_unique<TraceChartWidget>(linestyle);
+        LineSeries = std::make_shared<TraceChartSeries>(linestyle);
+        RidgeSeries = std::make_shared<TraceChartSeries>(ridgestyle);
     }
 
     std::shared_ptr<ChartStyle> chartstyle;
 };
 
 
-ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> style) {
-    impl->init(style);
+ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
+    impl->init(ridgestyle, linestyle);
     impl->videodata = vd;
     impl->traceview = tv;
     tv->addLineChart(impl->TraceChart.get());
@@ -42,7 +41,8 @@ ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> sty
     impl->TraceChart->addSeries(impl->LineSeries);
     impl->traceview->getRidgeChart().addSeries(impl->RidgeSeries);
     
-    connect(style.get(), &ChartStyle::StyleChanged, this, &ROITrace::update );
+    connect(ridgestyle.get(), &ChartStyle::StyleChanged, this, &ROITrace::update );
+    connect(linestyle.get(), &ChartStyle::StyleChanged, this, &ROITrace::update );
 }
 
 ROITrace::~ROITrace() {

@@ -12,6 +12,7 @@
 #include "ChartStyle.h"
 #include "widgets/TraceChartWidget.h"
 
+
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
     TraceView* traceview{ nullptr };
@@ -29,9 +30,9 @@ struct ROIs::pimpl {
     void pushROI(QPoint pos) {
         //todo: more careful work for style needed here...
         ROIStyle rs = coreStyle;
-        ChartStyle cs = *traceview->getCoreChartStyle();
         rs.setColor(pal.getPaletteColor(rois.size()));
-        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, rs, cs));
+
+        rois.push_back(std::make_unique<ROI>(scene, traceview, videodata, mousemode, imgsize, rs));
         
         auto& gObj = rois.back()->graphicsShape;
         auto& tObj = rois.back()->Trace;
@@ -385,9 +386,19 @@ void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int
 ROIStyle* ROIs::getCoreROIStyle() const noexcept {
     return &impl->coreStyle;
 }
-ChartStyle* ROIs::getChartStyle(size_t ind) const noexcept {
-    return impl->rois.at(ind)->chartstyle.get();
+
+
+
+ChartStyle* ROIs::getLineChartStyle(size_t ind) const noexcept {
+    return impl->rois.at(ind)->linechartstyle.get();
 }
-void ROIs::updateChartStyle(size_t ind) {
+void ROIs::updateLineChartStyle(size_t ind) {
     impl->rois.at(ind)->Trace->getTraceChart()->updateStyle();
+}
+    
+ChartStyle* ROIs::getRidgeChartStyle(size_t ind) const noexcept {
+    return impl->rois.at(ind)->ridgechartstyle.get();
+}
+void ROIs::updateRidgeChartStyle(size_t ind) { 
+    impl->traceview->getRidgeChart().updateStyle();
 }

@@ -12,7 +12,8 @@ struct TraceView::pimpl {
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
     
-    std::shared_ptr<ChartStyle> coreStyle = std::make_shared<ChartStyle>();
+    std::shared_ptr<ChartStyle> coreRidgeStyle = std::make_shared<ChartStyle>();
+    std::shared_ptr<ChartStyle> coreLineStyle = std::make_shared<ChartStyle>();
 
     void doLayout() {
         topGridLayout->addWidget(tab);
@@ -60,7 +61,7 @@ private:
 
 TraceView::TraceView(QWidget* parent) : QWidget(parent) {
     
-    impl->ridgeChart->setStyle(impl->coreStyle);
+    impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
     setLayout(impl->topGridLayout.get());
     impl->doLayout();
@@ -92,8 +93,11 @@ RidgeLineWidget& TraceView::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
 }
 
-ChartStyle* TraceView::getCoreChartStyle() {
-    return impl->coreStyle.get();
+ChartStyle* TraceView::getCoreRidgeChartStyle() const noexcept {
+    return impl->coreRidgeStyle.get();
+}
+ChartStyle* TraceView::getCoreLineChartStyle() const noexcept {
+    return impl->coreLineStyle.get();
 }
 void TraceView::keyPressEvent(QKeyEvent* event) {
     emit keyPressed(event->key(), event->modifiers());
