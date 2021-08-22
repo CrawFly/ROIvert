@@ -36,7 +36,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
     msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
     
-    auto ntraces = impl->rois->getNROIs();
+    const auto ntraces = impl->rois->getNROIs();
     if (impl->rois == nullptr || ntraces < 1) {
         msg.setText(tr("No traces to export."));
         msg.exec();
@@ -52,7 +52,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
     auto nframes = impl->videodata->getNFrames();
 
     QFile file(filename);
-    bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
+    const bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!openable) {
         msg.setText(tr("Could not write to this file, is it open in another program?"));
         msg.exec();

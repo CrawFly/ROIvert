@@ -1,6 +1,8 @@
 #include "ChartStyle.h"
 #include <QFont>
 #include <QFontMetrics>
+#include <QDebug>
+
 struct ChartStyle::pimpl {
     QColor backgroundcolor{ Qt::black };
     QColor axiscolor{ Qt::white };
@@ -152,7 +154,7 @@ void ChartStyle::connectToROIStyle(ROIStyle* r) {
 void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
     impl->linecolor = r.getLineColor();
     impl->fillcolor = r.getFillColor();
-    
+    emit ColorChange();
 }
 
 void ChartStyle::setDoBackBrush(bool yesno)  { impl->dobackbrush = yesno; }

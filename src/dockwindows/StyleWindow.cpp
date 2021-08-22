@@ -271,7 +271,6 @@ void StyleWindow::ROIStyleChange(){
     }
 
 }
-
 void StyleWindow::ChartStyleChange(){
     impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
@@ -289,7 +288,6 @@ void StyleWindow::ChartStyleChange(){
 
     }
 }
-
 void StyleWindow::LineChartStyleChange(){
     impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
     

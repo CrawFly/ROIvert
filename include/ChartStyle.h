@@ -48,7 +48,10 @@ public:
     void setNormalization(ROIVert::NORMALIZATION);
     ROIVert::NORMALIZATION getNormalization() const noexcept;
     bool getTraceFillGradient() const noexcept;
-    
+
+signals:
+    void ColorChange();
+
 public slots:
     void ROIStyleChanged(const ROIStyle&);
 

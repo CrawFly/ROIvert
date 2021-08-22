@@ -1,5 +1,6 @@
 #include "ROI\ROI.h"
 #include <QJsonObject>
+#include <QJsonArray>
 
 ROI::ROI(QGraphicsScene* scene, TraceView* tView, VideoData* videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle& rstyle) {
     
@@ -22,20 +23,22 @@ ROI::ROI(QGraphicsScene* scene, TraceView* tView, VideoData* videodata, ROIVert:
 
 void ROI::read(const QJsonObject& json) {
     QJsonObject jShape = json["shape"].toObject();
-    
     graphicsShape->read(jShape, pixelsubset);
-    // QJsonObject roistyle = roistyle.read
+
+    
+    QJsonArray jrgb = jShape["RGB"].toArray();
+    QColor clr(jrgb[0].toInt(), jrgb[1].toInt(), jrgb[2].toInt());
+    roistyle->setColor(clr);
 }
 void ROI::write(QJsonObject& json) const {
     QJsonObject jShape;
     graphicsShape->write(jShape, pixelsubset);
-    json["shape"] = jShape;
-
-    // todo: style read write *** really just color
-    //QJsonObject jroistyle;
-    //roistyle->write(jroistyle);
-    //json["roistyle"]=jroistyle;
     
-    // roistyle.write(json);
-    // chartstyle.write(json);
+    auto clr = roistyle->getLineColor();
+    QJsonArray rgb;
+    rgb.append(clr.red());
+    rgb.append(clr.green());
+    rgb.append(clr.blue());
+    jShape["RGB"] = rgb;
+    json["shape"] = jShape;
 }

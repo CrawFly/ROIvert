@@ -40,6 +40,8 @@ ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> rid
 
     impl->TraceChart->addSeries(impl->LineSeries);
     impl->traceview->getRidgeChart().addSeries(impl->RidgeSeries);
+
+    connect(linestyle.get(), &ChartStyle::ColorChange, this, &ROITrace::update);
 }
 
 ROITrace::~ROITrace() {
