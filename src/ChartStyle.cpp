@@ -42,7 +42,7 @@ ChartStyle::ChartStyle(const ChartStyle& that) {
 // Charts
 void ChartStyle::setBackgroundColor(QColor c) {
     impl->backgroundcolor = c;
-    emit StyleChanged(*this);
+    
 }
 QColor ChartStyle::getBackgroundColor() const noexcept {
     return impl->backgroundcolor;
@@ -51,28 +51,28 @@ QColor ChartStyle::getBackgroundColor() const noexcept {
 // Axes
 void ChartStyle::setAxisColor(QColor c) {
     impl->axiscolor = c;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setAxisLineWidth(int w) {
     impl->axislinewidth = w;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setGrid(bool onoff) {
     impl->grid = onoff;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setLabelFontSize(int fs) {
     impl->labelfontsize = fs;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setTickLabelFontSize(int fs) {
     impl->tickfontsize = fs;
-    emit StyleChanged(*this);
+    
 }
 
 void ChartStyle::setFontFamily(QString font) {
     impl->fontfamily = font;
-    emit StyleChanged(*this);
+    
 }
 QFont ChartStyle::getLabelFont() {
     QFont font;
@@ -104,15 +104,15 @@ bool ChartStyle::getGrid() const noexcept {
 // Traces
 void ChartStyle::setTraceLineWidth(int w) {
     impl->tracelinewidth = w;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setTraceFillOpacity(int o) {
     impl->tracefillopacity = o;
-    emit StyleChanged(*this);
+    
 }
 void ChartStyle::setTraceFillGradient(bool onoff) {
     impl->tracefillgradient = onoff;
-    emit StyleChanged(*this);
+    
 }
 QPen ChartStyle::getTracePen() const {
     QPen pen(impl->linecolor);
@@ -150,7 +150,7 @@ void ChartStyle::connectToROIStyle(ROIStyle* r) {
 void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
     impl->linecolor = r.getLineColor();
     impl->fillcolor = r.getFillColor();
-    emit StyleChanged(*this);
+    
 }
 
 void ChartStyle::setDoBackBrush(bool yesno)  { impl->dobackbrush = yesno; }

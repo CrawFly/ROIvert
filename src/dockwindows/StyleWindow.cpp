@@ -293,9 +293,7 @@ void StyleWindow::LineChartStyleChange(){
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
         auto style = impl->rois->getLineChartStyle(ind);
-        style->blockSignals(true);
         impl->updateLineChartStyle(style);
-        style->blockSignals(false);
         impl->rois->updateLineChartStyle(ind);
     }
 }
@@ -306,9 +304,7 @@ void StyleWindow::RidgeChartStyleChange(){
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
         auto style = impl->rois->getRidgeChartStyle(ind);
-        style->blockSignals(true);
         impl->updateRidgeChartStyle(style);
-        style->blockSignals(false);
     }
     impl->traceview->getRidgeChart().update();
 }

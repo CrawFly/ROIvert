@@ -48,12 +48,6 @@ public:
     void setNormalization(ROIVert::NORMALIZATION);
     ROIVert::NORMALIZATION getNormalization() const noexcept;
     
-
-    
-
-signals:
-    void StyleChanged(const ChartStyle&);
-
 public slots:
     void ROIStyleChanged(const ROIStyle&);
 
