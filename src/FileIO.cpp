@@ -16,11 +16,55 @@
 static QString tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1) {
     return QObject::tr(sourceText, disambiguation, n);
 }
+static bool validateROIsJson(QJsonObject json, QSize maxsize) {
+    // this is just looking for things that are likely to cause a crash...
+
+    auto jrois{ json["ROIs"].toArray() };
+    for (const auto& jroi : jrois) {
+        auto roi{ jroi.toObject() };
+        auto shape{ roi["shape"].toObject() };
+
+        QJsonArray jrgb = shape["RGB"].toArray();
+        if (jrgb.size() != 3) {
+            return false;
+        }
+
+        auto type{ shape["type"].toInt() };
+        if (type > 2) {
+            return false;
+        }
+        auto jverts{ shape["verts"].toArray() };
+        if (jverts.size() < 2) {
+            return false;
+        }
+        for (auto& vert : jverts) {
+            auto arr{ vert.toArray() };
+            if (arr.size() != 2) {
+                return false;
+            }
+            if (arr.at(0).toInt() < 0 || arr.at(0).toInt() > maxsize.width() || 
+                arr.at(1).toInt() < 0 || arr.at(1).toInt() > maxsize.height()) {
+                return false;
+            }
+        }
+    }
+    return true;
+
+}
 
 struct FileIO::pimpl {
     ROIs* rois{ nullptr };
     TraceView* traceview{ nullptr };
     VideoData* videodata{ nullptr };
+
+    QSize getMaxSize() {
+        QSize ret;
+        if (videodata) {
+            ret.setWidth(videodata->getWidth() * videodata->getdsSpace());
+            ret.setHeight(videodata->getHeight() * videodata->getdsSpace());
+        }
+        return ret;
+    }
 };
 
 FileIO::FileIO(ROIs* rois, TraceView* traceview, VideoData* videodata) {
@@ -103,8 +147,17 @@ void FileIO::importROIs(QString filename) const {
     QJsonDocument loadDoc(QJsonDocument::fromJson(saveData));
     
     // can the doc be validated first?
+    auto json = loadDoc.object();
+    
+    bool isok = validateROIsJson(json, impl->getMaxSize());
+    if (!isok) {
+        msg.setText(tr("Error reading the ROI file."));
+        msg.exec();
+        return;
+    }
+
     impl->rois->deleteAllROIs();
-    impl->rois->read(loadDoc.object());
+    impl->rois->read(json);
 }
 void FileIO::exportROIs(QString filename) const {
 
@@ -128,6 +181,8 @@ void FileIO::exportROIs(QString filename) const {
     }
 
     auto json = QJsonObject();
+    json["version"] = "1.0";
+
     impl->rois->write(json);
     QJsonDocument saveDoc(json);
     file.write(saveDoc.toJson());

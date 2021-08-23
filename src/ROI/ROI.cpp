@@ -27,14 +27,14 @@ void ROI::read(const QJsonObject& json) {
 
     
     QJsonArray jrgb = jShape["RGB"].toArray();
-    QColor clr(jrgb[0].toInt(), jrgb[1].toInt(), jrgb[2].toInt());
+    const QColor clr(jrgb[0].toInt(), jrgb[1].toInt(), jrgb[2].toInt());
     roistyle->setColor(clr);
 }
 void ROI::write(QJsonObject& json) const {
     QJsonObject jShape;
     graphicsShape->write(jShape, pixelsubset);
     
-    auto clr = roistyle->getLineColor();
+    const auto clr = roistyle->getLineColor();
     QJsonArray rgb;
     rgb.append(clr.red());
     rgb.append(clr.green());
