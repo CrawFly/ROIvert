@@ -173,7 +173,7 @@ struct StyleWindow::pimpl{
         lay->addRow("Fill Opacity:", ridgefill);
         lay->addRow("Fill Gradient:", ridgegradient);
         lay->addRow("Grid:", ridgegrid);
-        lay->addRow("Overlap:", ridgeoverlap);
+        lay->addRow("Offset:", ridgeoverlap);
         return ret;
     }
 
@@ -260,8 +260,8 @@ struct StyleWindow::pimpl{
             chartfont->setCurrentText(cls->getTickLabelFont().family());
 
             // Line:
-            linewidth->setValue(cls->getTracePen().width());
-            linefill->setValue(cls->getTraceBrush().color().alpha());
+            linewidth->setValue(cls->getTracePen().style() == Qt::NoPen ? 0 : cls->getTracePen().width());
+            linefill->setValue(cls->getTraceBrush().style() == Qt::NoBrush ? 0 : cls->getTraceBrush().color().alpha());
             linegradient->setChecked(cls->getTraceFillGradient());
             linegrid->setChecked(cls->getGrid());
             linenorm->setCurrentIndex(static_cast<int>(cls->getNormalization()));
@@ -269,8 +269,8 @@ struct StyleWindow::pimpl{
 
         // Ridge:
         if (crs != nullptr) {
-            ridgewidth->setValue(crs->getTracePen().width());
-            ridgefill->setValue(crs->getTraceBrush().color().alpha());
+            ridgewidth->setValue(crs->getTracePen().style() == Qt::NoPen ? 0 : crs->getTracePen().width());
+            ridgefill->setValue(crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
             ridgegradient->setChecked(crs->getTraceFillGradient());
             ridgegrid->setChecked(crs->getGrid());
         }
@@ -279,9 +279,9 @@ struct StyleWindow::pimpl{
     void loadFromROIs() {
         auto style = rois->getCoreROIStyle();
         if (style != nullptr) {
-            roilinewidth->setValue(style->getPen().width());
+            roilinewidth->setValue(style->getPen().style() == Qt::NoPen ? 0 : style->getPen().width());
             roiselsize->setValue(style->getSelectorSize());
-            roifillopacity->setValue(style->getBrush().color().alpha());
+            roifillopacity->setValue(style->getBrush().style() == Qt::NoBrush ? 0 : style->getBrush().color().alpha());
         }
         linematchy->setChecked(rois->getMatchYAxes());
     }
@@ -371,24 +371,20 @@ void StyleWindow::selectionChange(std::vector<size_t> inds) {
 
 void StyleWindow::setROIs(ROIs* rois) {
     impl->rois = rois;
-    if (rois) {
-        connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
-        impl->isLoading = true;
-        impl->loadFromROIs();
-        impl->isLoading = false;
-
-    }
-    
+    connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
 }
 
 void StyleWindow::setTraceView(TraceView* traceview) {
     impl->traceview = traceview;
-    if (traceview) {
+}
+
+void StyleWindow::loadSettings() {
+    if (impl->traceview != nullptr && impl->rois != nullptr) {
         impl->isLoading = true;
         impl->loadFromTV();
+        impl->loadFromROIs();
         impl->isLoading = false;
     }
-    
 }
 
 void StyleWindow::LineMatchyChange() {

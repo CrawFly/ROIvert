@@ -61,7 +61,7 @@ private:
     void selecttoolfromkey(int key);
 
     void restoreSettings();
-    void resetLayout();
+    void resetSettings();
 
     cv::Mat TraceData;
     TraceView* traceview;

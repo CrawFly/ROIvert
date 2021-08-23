@@ -6,9 +6,9 @@ struct ROIStyle::pimpl {
     QColor fillcolor{ QColor(255,0,0) };
     std::pair<QColor, QColor> selunselcolors = {QColor(0,255,0), QColor(255,0,0)};
 
-    int linewidth{ 1 }; //3
-    int fillopacity{ 60 };//0
-    int selsize{ 15 };
+    int linewidth{ 3 }; 
+    int fillopacity{ 0 };
+    int selsize{ 12 };
     bool colorbyselected{ false };
     bool isSelected{ false };
     

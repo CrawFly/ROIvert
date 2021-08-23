@@ -13,11 +13,11 @@ class StyleWindow : public QWidget
         explicit StyleWindow(QWidget* parent);
         void setROIs(ROIs* rois);
         void setTraceView(TraceView* traceview);
+        void loadSettings();
 
     public slots:
         void selectionChange(std::vector<size_t> inds);
 
-    private slots:
         void ROIColorChange();
         void ROIStyleChange();
         void ChartStyleChange();

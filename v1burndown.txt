@@ -7,7 +7,12 @@ STYLING
 playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** 
 
 settings storage, check compat vs previous release
-    reset settings key
+    reset settings key shortcut
+
+validate json files before importing (important because import is unsafe)
+add json version
+    
+    
     
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
@@ -16,11 +21,6 @@ REFACTOR PUSH
         
     MOVE AND CLEAN FINAL REMAINING NONSENSE
     DELETE ORPHAN FILES
-    
-
-    validate json files before importing (important because import is unsafe)
-    add json version
-    
     
 BIG TIDY PUSH
 RELEASE PUSH

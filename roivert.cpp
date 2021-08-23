@@ -24,6 +24,7 @@
 #include "ROIVertEnums.h"
 #include <QStringList>
 #include "ROI/ROIStyle.h"
+#include "widgets/TraceChartWidget.h"
 
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
@@ -102,6 +103,7 @@ Roivert::Roivert(QWidget* parent)
     stylewindow->setROIs(rois);
     stylewindow->setTraceView(traceview);
 
+
     // File IO
     fileio = new FileIO(rois, traceview, viddata);
 
@@ -110,15 +112,16 @@ Roivert::Roivert(QWidget* parent)
     makeToolbar();
 
     // Action that resets window state:
-    QAction* actResetLayout = new QAction(tr("Reset Layout"));
-    actResetLayout->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
-    connect(actResetLayout, &QAction::triggered, this, &Roivert::resetLayout);
-    addAction(actResetLayout);
+    QAction* actResetSettings = new QAction(tr("Reset Layout"));
+    actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
+    connect(actResetSettings, &QAction::triggered, this, &Roivert::resetSettings);
+    addAction(actResetSettings);
     
     setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
     resize(800, 900);
-
-    restoreSettings();
+    
+    restoreSettings();    
+    stylewindow->loadSettings();
 }
 void Roivert::doConnect() {
     // todo: most of this could be eradicated by just passing some pointers around...is that better? worse?
@@ -237,19 +240,6 @@ void Roivert::makeToolbar() {
         rois->setROIShape(shp);
     });
 
-    /*
-    connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
-                {
-                    ROIVert::MODE mode = static_cast<ROIVert::MODE>(act->property("Mode").toInt());
-                    imview->setMouseMode(mode);
-                    if (mode == ROIVert::ADDROI) {
-                        ROIVert::ROISHAPE shape = static_cast<ROIVert::ROISHAPE>(act->property("Shape").toInt());
-                        imview->setROIShape(shape);
-                    }
-                }
-            );
-            */
-
     // add dockables...
     w_imgData->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
     ui.mainToolBar->addAction(w_imgData->toggleViewAction());
@@ -301,22 +291,125 @@ void Roivert::selecttoolfromkey(int key) {
 
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
+    settings.setValue("version", 1.f);
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
 
     // todo: store style info and chart colors
+    const auto rs{ rois->getCoreROIStyle() };
+    settings.beginGroup("Style");
+        settings.beginGroup("ROIStyle");
+            settings.setValue("linewidth", rs->getPen().style()==Qt::NoPen ? 0 : rs->getPen().width());
+            settings.setValue("selsize", rs->getSelectorSize());
+            settings.setValue("fillopacity", rs->getBrush().style()==Qt::NoBrush ? 0 : rs->getBrush().color().alpha());
+        settings.endGroup();
+    
+        
+        auto cls{ traceview->getCoreLineChartStyle() };
+        auto crs{ traceview->getCoreRidgeChartStyle() };
 
+        settings.beginGroup("ChartStyle");
+            settings.setValue("back", cls->getBackgroundColor().name());
+            settings.setValue("fore", cls->getAxisPen().color().name());
+            settings.setValue("lblfontsize", cls->getLabelFont().pointSize());
+            settings.setValue("tickfontsize", cls->getTickLabelFont().pointSize());
+            settings.setValue("font", cls->getTickLabelFont().family());
+        settings.endGroup();
+
+
+        settings.beginGroup("LineChartStyle");
+            settings.setValue("width", cls->getTracePen().style() == Qt::NoPen ? 0 : cls->getTracePen().width());
+            settings.setValue("fillopacity", cls->getTraceBrush().style() == Qt::NoBrush ? 0 : cls->getTraceBrush().color().alpha());
+            settings.setValue("gradient", cls->getTraceFillGradient());
+            settings.setValue("grid", cls->getGrid());
+            settings.setValue("normalization", static_cast<int>(cls->getNormalization()));
+            settings.setValue("matchy", rois->getMatchYAxes());
+        settings.endGroup();
+        
+        settings.beginGroup("RidgeChartStyle");
+            settings.setValue("width", crs->getTracePen().style() == Qt::NoPen ? 0 : crs->getTracePen().width());
+            settings.setValue("fillopacity", crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
+            settings.setValue("gradient", crs->getTraceFillGradient());
+            settings.setValue("grid", crs->getGrid());
+            settings.setValue("overlap", traceview->getRidgeChart().offset);
+        settings.endGroup();
+
+    settings.endGroup();
     QMainWindow::closeEvent(event);
 }
 void Roivert::restoreSettings()
 {
     QSettings settings("Neuroph", "ROIVert");
+
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
 
-    // todo: retrieve colors and style from settings
+    auto cls{ traceview->getCoreLineChartStyle() };
+    auto crs{ traceview->getCoreRidgeChartStyle() };
+
+    settings.beginGroup("Style");
+        settings.beginGroup("ROIStyle");
+            auto rs = rois->getCoreROIStyle();
+            if (settings.contains("linewidth")) { rs->setLineWidth(settings.value("linewidth").toInt()); };
+            if (settings.contains("selsize")) { rs->setSelectorSize(settings.value("selsize").toInt()); };
+            if (settings.contains("fillopacity")) { rs->setFillOpacity(settings.value("fillopacity").toInt()); };
+        settings.endGroup();
+        
+        settings.beginGroup("ChartStyle");
+            if (settings.contains("back")) { cls->setBackgroundColor(QColor(settings.value("back").toString())); ;
+                                             crs->setBackgroundColor(QColor(settings.value("back").toString())); };
+            if (settings.contains("fore")) { cls->setAxisColor(QColor(settings.value("fore").toString())); 
+                                             crs->setAxisColor(QColor(settings.value("fore").toString())); };
+            if (settings.contains("lblfontsize")) { cls->setLabelFontSize(settings.value("lblfontsize").toInt());
+                                                    crs->setLabelFontSize(settings.value("lblfontsize").toInt()); };
+            if (settings.contains("tickfontsize")) { cls->setTickLabelFontSize(settings.value("tickfontsize").toInt());
+                                                     crs->setTickLabelFontSize(settings.value("tickfontsize").toInt()); };
+            if (settings.contains("font")) { cls->setFontFamily(settings.value("font").toString());
+                                             crs->setFontFamily(settings.value("font").toString()); };
+        settings.endGroup();
+        
+
+        settings.beginGroup("LineChartStyle");
+            if (settings.contains("width")) { cls->setTraceLineWidth(settings.value("width").toInt()); };
+            if (settings.contains("fillopacity")) { cls->setTraceFillOpacity(settings.value("fillopacity").toInt()); };
+            if (settings.contains("gradient")) { cls->setTraceFillGradient(settings.value("gradient").toBool()); };
+            if (settings.contains("grid")) { cls->setGrid(settings.value("grid").toBool()); };
+            if (settings.contains("normalization")) { cls->setNormalization(static_cast<ROIVert::NORMALIZATION>(settings.value("normalization").toInt())); };
+            if (settings.contains("matchy")) { rois->setMatchYAxes(settings.value("matchy").toBool()); };
+
+        settings.endGroup();
+        
+        settings.beginGroup("RidgeChartStyle");
+            if (settings.contains("width")) { crs->setTraceLineWidth(settings.value("width").toInt()); };
+            if (settings.contains("fillopacity")) { crs->setTraceFillOpacity(settings.value("fillopacity").toInt()); };
+            if (settings.contains("gradient")) { crs->setTraceFillGradient(settings.value("gradient").toBool()); };
+            if (settings.contains("grid")) { crs->setGrid(settings.value("grid").toBool()); };
+            if (settings.contains("overlap")) { traceview->getRidgeChart().offset = settings.value("overlap").toFloat(); };
+        settings.endGroup();
+    settings.endGroup();
 }
-void Roivert::resetLayout() {
+
+void Roivert::resetSettings() {
+    // reset core styles:
+    auto rs{ rois->getCoreROIStyle() };
+    auto cls{ traceview->getCoreLineChartStyle() };
+    auto crs{ traceview->getCoreRidgeChartStyle() };
+    *rs = ROIStyle();
+    *cls = ChartStyle();
+    *crs = ChartStyle();
+    rois->setMatchYAxes(false);
+    traceview->getRidgeChart().offset = .5;
+
+    // use stylewindow to apply:
+    stylewindow->loadSettings();
+    stylewindow->ROIStyleChange();
+    stylewindow->ChartStyleChange();
+    stylewindow->LineChartStyleChange();
+    stylewindow->RidgeChartStyleChange();
+    stylewindow->RidgeOverlapChange();
+    stylewindow->LineMatchyChange();
+
+    // Reset layout:
     // Dock all dockables in default position
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
     addDockWidget(Qt::RightDockWidgetArea, w_imgData);

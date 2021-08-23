@@ -4,21 +4,21 @@
 #include <QDebug>
 
 struct ChartStyle::pimpl {
-    QColor backgroundcolor{ Qt::black };
-    QColor axiscolor{ Qt::white };
+    QColor backgroundcolor{ Qt::white };
+    QColor axiscolor{ Qt::black };
     int axislinewidth{ 1 };
     bool grid = false;
     int labelfontsize{ 12 };
     int tickfontsize{ 10 };
     QString fontfamily{ "Arial" };
 
-    int tracelinewidth{ 3 };
+    int tracelinewidth{ 2 };
     int tracefillopacity{ 55 };
-    bool tracefillgradient{ false };
+    bool tracefillgradient{ true };
     QColor linecolor{ Qt::red };
     QColor fillcolor{ Qt::red };
 
-    bool dobackbrush;
+    bool dobackbrush{ false };
     ROIVert::NORMALIZATION normalization{ ROIVert::NORMALIZATION::NONE };
     
     ROIVert::LIMITSTYLE limitstyle{ ROIVert::LIMITSTYLE::AUTO };
