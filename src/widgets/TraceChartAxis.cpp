@@ -112,29 +112,22 @@ void TraceChartAxis::setExtents(const double& min, const double& max) {
 std::tuple<double, double> TraceChartAxis::getExtents() const  noexcept {
     return impl->extents;
 }
-std::tuple<double, double> TraceChartAxis::getLimits() const {
-    double min{ 0 };
-    double max{ 0 };
-        
+std::tuple<double, double> TraceChartAxis::getLimits() const {    
     switch (getLimitStyle())
     {
     case ROIVert::LIMITSTYLE::AUTO:
-        min = impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front();
-        max = impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back();
-        break;
+        return{ impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front(),
+                impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back() };
     case ROIVert::LIMITSTYLE::TIGHT:
-        min = std::get<0>(impl->extents);
-        max = std::get<1>(impl->extents);
-        break;
+        return impl->extents;
     case ROIVert::LIMITSTYLE::MANAGED:
-        min = std::get<0>(impl->manuallimits);
-        max = std::get<1>(impl->manuallimits);
-        break;
-    default:
-        break;
+        if (impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE) {
+            return { 0., 1. };
+        }
+        return impl->manuallimits;
     }    
 
-    return std::make_tuple(min, max);
+    return { 0., 1. };
 }
 
 void TraceChartAxis::setLabel(const QString & Label) {
@@ -191,14 +184,8 @@ void TraceChartAxis::updateLayout() {
         impl->tickvalues = getNiceTicksLimits(extmin, extmax, impl->maxnticks);
     }
 
-    if (getLimitStyle() == ROIVert::LIMITSTYLE::AUTO) {
-        impl->tightleft = (extmin - impl->tickvalues.front()) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
-        impl->tightright = (impl->tickvalues.back() - extmax) / (extmax - extmin) > .05;//&& impl->tickvalues.size() > 3;
-    }
-    else {
-        impl->tightleft = true;
-        impl->tightright = true;
-    }
+    impl->tightleft = (extmin - impl->tickvalues.front()) / (extmax - extmin) > .05;
+    impl->tightright = (impl->tickvalues.back() - extmax) / (extmax - extmin) > .05;
         
     // cast to string for tickstrings
     impl->tickstrings.clear();

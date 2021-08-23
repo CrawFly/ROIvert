@@ -1,29 +1,34 @@
-STYLING 
-    Initialization and Serialization
-        [] store and load styling widget    (use core styles?)
-                    
-            
-            
 playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** 
-
-settings storage, check compat vs previous release
-    reset settings key shortcut
-
-validate json files before importing (important because import is unsafe)
-add json version
     
     
+JSON IO:
+    validate json files before importing (important because import is unsafe)
+    add json version field
+    
+Move palette to file
+    Consider a button to automatically use palette for all rois, particularly if i end up with multiple
+    
+    
+    
+
     
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
+    Cleanup [] DisplaySettings, [] toolwindows, [] videocontroller, [] videodata and bring into the fold
         
-        
-    MOVE AND CLEAN FINAL REMAINING NONSENSE
-    DELETE ORPHAN FILES
+    Static analysis, hunt for messes, hunt for consts
+    Cleanup folder
     
-BIG TIDY PUSH
+Remainging Tidy pushes:
+    todos, comments, etc.
+    
 RELEASE PUSH
+    [] fresh vm
+    [] git repo cleanup
+    [] license
+    [] install files
+    
 DOC:
     [] release notes
     [] videos

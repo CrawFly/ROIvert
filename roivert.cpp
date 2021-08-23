@@ -397,6 +397,11 @@ void Roivert::resetSettings() {
     *rs = ROIStyle();
     *cls = ChartStyle();
     *crs = ChartStyle();
+    
+    crs->setDoBackBrush(true);
+    crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
+    crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+
     rois->setMatchYAxes(false);
     traceview->getRidgeChart().offset = .5;
 
