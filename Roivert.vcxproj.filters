@@ -30,9 +30,6 @@
     <ClCompile Include="roivert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="videocontroller.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="videodata.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -111,12 +108,12 @@
     <ClCompile Include="src\widgets\RGBWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\VideoControllerWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="roivert.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="videocontroller.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="toolwindows.h">
@@ -174,6 +171,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\RGBWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\VideoControllerWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

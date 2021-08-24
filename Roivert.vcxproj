@@ -139,7 +139,7 @@
     </ClCompile>
     <ClCompile Include="src\TraceView.cpp" />
     <ClCompile Include="src\widgets\TraceChartWidget.cpp" />
-    <ClCompile Include="videocontroller.cpp" />
+    <ClCompile Include="src\widgets\VideoControllerWidget.cpp" />
     <ClCompile Include="videodata.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -154,6 +154,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="include\widgets\VideoControllerWidget.h" />
     <QtMoc Include="include\dockwindows\StyleWindow.h" />
     <QtMoc Include="include\widgets\TraceChartWidget.h" />
     <QtMoc Include="include\TraceView.h" />
@@ -180,7 +181,6 @@
     <ClInclude Include="resource.h" />
     <QtMoc Include="videodata.h" />
     <QtMoc Include="toolwindows.h" />
-    <QtMoc Include="videocontroller.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Roivert.rc" />

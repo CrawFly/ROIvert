@@ -1,10 +1,5 @@
 playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** 
     
-    
-JSON IO:
-    validate json files before importing (important because import is unsafe)
-    add json version field
-    
 Move palette to file
     Consider a button to automatically use palette for all rois, particularly if i end up with multiple
     
@@ -20,8 +15,11 @@ REFACTOR PUSH
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder
     
-Remainging Tidy pushes:
+Remaining Tidy pushes:
+    more tooltips
     todos, comments, etc.
+    
+
     
 RELEASE PUSH
     [] fresh vm

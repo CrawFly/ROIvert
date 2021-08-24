@@ -2,7 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_roivert.h"
-#include "videocontroller.h"
+#include "widgets/VideoControllerWidget.h"
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
 #include "videodata.h"
@@ -37,7 +37,7 @@ private:
 
 
     Ui::RoivertClass ui;
-    VideoController *vidctrl;
+    VideoControllerWidget *vidctrl;
     VideoData* viddata;
     tool::imgData* t_imgData;
     tool::imgSettings* t_imgSettings;

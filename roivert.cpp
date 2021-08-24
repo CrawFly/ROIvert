@@ -84,7 +84,7 @@ Roivert::Roivert(QWidget* parent)
     
     
     // Contols:
-    vidctrl = new VideoController(rightLayoutWidget);
+    vidctrl = new VideoControllerWidget(rightLayoutWidget);
     rightLayout->addWidget(vidctrl);
     gridLayout->addWidget(rightLayoutWidget);
 
@@ -130,7 +130,7 @@ void Roivert::doConnect() {
     connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
 
     // when timer or manual change of frame, initiate draw
-    connect(vidctrl, &VideoController::frameChanged, this, &Roivert::changeFrame);
+    connect(vidctrl, &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
 
     // framerate change (simple) fan out to vidctrl and traceview
     connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
@@ -150,7 +150,7 @@ void Roivert::doConnect() {
     connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
 
     // clicked the dff button, update contrast widget
-    connect(vidctrl, &VideoController::dffToggle, this, &Roivert::updateContrastWidget);
+    connect(vidctrl, &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
 
 
 
@@ -183,16 +183,15 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     imageview->setEnabled(true);
     t_io->setEnabled(true);
 
-    //traceview->setTimeLimits(0, viddata->getNFrames() / vidctrl->getFrameRate());
-    updateContrastWidget(vidctrl->dff());
+    updateContrastWidget(vidctrl->isDff());
 }
 void Roivert::changeFrame(const size_t frame)
 {
     if (frame > 0 && frame <= viddata->getNFrames())
     { 
         cv::Mat thisframe;
-        thisframe = viddata->get(vidctrl->dff(),dispSettings.getProjectionMode(),frame-1);
-        cv::Mat proc = dispSettings.getImage(thisframe, vidctrl->dff());
+        thisframe = viddata->get(vidctrl->isDff(),dispSettings.getProjectionMode(),frame-1);
+        cv::Mat proc = dispSettings.getImage(thisframe, vidctrl->isDff());
         // todo: consider moving fmt to dispSettings
         const QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
         QImage qimg(proc.data,proc.cols,proc.rows,proc.step,fmt);
@@ -269,10 +268,10 @@ void Roivert::updateContrastWidget(bool isDff) {
 }
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
-    dispSettings.setContrast(vidctrl->dff(), settings.Contrast);
+    dispSettings.setContrast(vidctrl->isDff(), settings.Contrast);
     
     dispSettings.setProjectionMode(settings.projectionType);
-    if (settings.projectionType > 0) { vidctrl->setStop(); }
+    if (settings.projectionType > 0) { vidctrl->stop(); }
     vidctrl->setEnabled(settings.projectionType == 0);
 
     dispSettings.setColormap(settings.cmap);

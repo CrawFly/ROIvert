@@ -169,9 +169,7 @@ void FileIO::exportROIs(QString filename) const {
         msg.setText(tr("No traces to export."));
         msg.exec();
         return;
-    }
-    // todo: file export/import needs to somehow use pixel subset...
-    
+    }    
     QFile file(filename);
     bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!openable) {
