@@ -1,3 +1,10 @@
+Consider (for toolwindow refactor:
+    could the abstraction include the dockwindow? Does anything have to change?
+        Two solutions here:
+            1. the tool isa dockwindow, and it contains the widget
+            2. the tool isa widget and it spawns a parent...awkward...any advantage?
+            
+
 Move palette to file
  Consider a button to automatically use palette for all rois, particularly if i end up with multiple
  Organize other resources, I have icons is there anything else?
@@ -10,7 +17,7 @@ REFACTOR PUSH
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
        
-    Cleanup [] DisplaySettings, [] toolwindows, and bring into the fold
+    Cleanup [] toolwindows, and bring into the fold
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder

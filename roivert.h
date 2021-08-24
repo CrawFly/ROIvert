@@ -47,9 +47,7 @@ private:
     QDockWidget* w_imgData;
     QDockWidget* w_imgSettings;
     QDockWidget* w_io;
-    QDockWidget* w_charts;
-    QDockWidget* w_stylewindow;
-    
+    QDockWidget* w_charts;    
 
     DisplaySettings dispSettings;
 

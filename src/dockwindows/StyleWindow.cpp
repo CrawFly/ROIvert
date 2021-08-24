@@ -1,17 +1,18 @@
 #include "dockwindows/StyleWindow.h"
 
-#include <QTabWidget>
-#include <QGridLayout>
+#include <QDebug>
+
 #include <QBoxLayout>
-#include <QFormLayout>
-#include <QLabel>
+#include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QFontDatabase>
+#include <QFormLayout>
+#include <QGridLayout>
+#include <QLabel>
 #include <QSlider>
 #include <QSpinBox>
-#include <QDoubleSpinBox>
-#include <QCheckBox>
-#include <QDebug>
+#include <QTabWidget>
 
 #include "ROI/ROIs.h"
 #include "TraceView.h"
@@ -20,9 +21,7 @@
 #include "widgets/RGBWidget.h"
 #include "widgets/TraceChartWidget.h"
 
-
-
-struct StyleWindow::pimpl{
+struct StyleWindow::pimpl {
     QTabWidget* tab = new QTabWidget;
 
     RGBWidget* roicolor = new RGBWidget;
@@ -55,7 +54,7 @@ struct StyleWindow::pimpl{
     ROIs* rois{ nullptr };
     TraceView* traceview{ nullptr };
 
-    void doLayout(){
+    void doLayout() {
         tab->tabBar()->setStyle(new CustomTabStyle);
         tab->setTabPosition(QTabWidget::TabPosition::West);
 
@@ -70,7 +69,7 @@ struct StyleWindow::pimpl{
         tab->setCurrentIndex(0);
     }
 
-    QWidget* ROIColorTab(){
+    QWidget* ROIColorTab() {
         auto ret = new QWidget;
         auto lay = new QVBoxLayout;
         ret->setLayout(lay);
@@ -79,7 +78,7 @@ struct StyleWindow::pimpl{
         lay->addStretch();
         return ret;
     }
-    QWidget* ROIStyleTab(){
+    QWidget* ROIStyleTab() {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -96,7 +95,7 @@ struct StyleWindow::pimpl{
         roiselsize->setSingleStep(1);
 
         roifillopacity->setMinimum(0);
-        roifillopacity->setMaximum(255); 
+        roifillopacity->setMaximum(255);
         roifillopacity->setOrientation(Qt::Horizontal);
         roifillopacity->setPageStep(8);
         roifillopacity->setSingleStep(1);
@@ -106,23 +105,23 @@ struct StyleWindow::pimpl{
         lay->addRow("Fill Opacity", roifillopacity);
         return ret;
     }
-    QWidget* ChartColorTab(){
+    QWidget* ChartColorTab() {
         auto ret = new QWidget;
         auto lay = new QVBoxLayout;
         ret->setLayout(lay);
-        lay->addWidget(new QLabel("Chart Foreground Color:"));
+        lay->addWidget(new QLabel("Chart Foreground:"));
         lay->addWidget(chartforecolor);
-        lay->addWidget(new QLabel("Chart Background Color:"));
+        lay->addWidget(new QLabel("Chart Background:"));
         lay->addWidget(chartbackcolor);
         lay->addStretch(1);
         return ret;
     }
-    QWidget* ChartFontsTab(){
+    QWidget* ChartFontsTab() {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
         QFontDatabase fontdb;
-        for(auto &family : fontdb.families())  {
+        for (auto& family : fontdb.families()) {
             chartfont->addItem(family);
         }
         chartfont->setMinimumWidth(150);
@@ -138,7 +137,7 @@ struct StyleWindow::pimpl{
         return ret;
     }
 
-    QWidget* ChartLineTab(){
+    QWidget* ChartLineTab() {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -147,7 +146,7 @@ struct StyleWindow::pimpl{
         linefill->setMinimum(0);
         linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
-        linenorm->addItems({"None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR"});
+        linenorm->addItems({ "None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR" });
 
         lay->addRow("Line Width:", linewidth);
         lay->addRow("Fill Opacity:", linefill);
@@ -157,7 +156,7 @@ struct StyleWindow::pimpl{
         lay->addRow("Normalization:", linenorm);
         return ret;
     }
-    QWidget* ChartRidgeTab(){
+    QWidget* ChartRidgeTab() {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -177,7 +176,7 @@ struct StyleWindow::pimpl{
         return ret;
     }
 
-    void doConnect(const StyleWindow* const par){
+    void doConnect(const StyleWindow* const par) {
         if (par == nullptr) {
             return;
         }
@@ -250,7 +249,7 @@ struct StyleWindow::pimpl{
         // set gui state from TraceView:
         auto cls{ traceview->getCoreLineChartStyle() };
         auto crs{ traceview->getCoreRidgeChartStyle() };
-        
+
         // General (comes from line)
         if (cls != nullptr) {
             chartbackcolor->setColor(cls->getBackgroundColor());
@@ -274,7 +273,7 @@ struct StyleWindow::pimpl{
             ridgegradient->setChecked(crs->getTraceFillGradient());
             ridgegrid->setChecked(crs->getGrid());
         }
-        ridgeoverlap->setValue(traceview->getRidgeChart().offset*100);
+        ridgeoverlap->setValue(traceview->getRidgeChart().offset * 100);
     }
     void loadFromROIs() {
         auto style = rois->getCoreROIStyle();
@@ -288,10 +287,9 @@ struct StyleWindow::pimpl{
     bool isLoading{ false };
 };
 
-StyleWindow::StyleWindow(QWidget *parent) : QWidget(parent)
+StyleWindow::StyleWindow(QWidget* parent) : QDockWidget(parent)
 {
-    auto lay = new QGridLayout(this);
-    lay->addWidget(impl->tab);
+    this->setWidget(impl->tab);
     impl->doLayout();
     impl->doConnect(this);
 }
@@ -304,7 +302,7 @@ void StyleWindow::ROIColorChange() {
         }
     }
 }
-void StyleWindow::ROIStyleChange(){
+void StyleWindow::ROIStyleChange() {
     impl->updateROIStyle(impl->rois->getCoreROIStyle());
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
@@ -313,7 +311,7 @@ void StyleWindow::ROIStyleChange(){
     }
 
 }
-void StyleWindow::ChartStyleChange(){
+void StyleWindow::ChartStyleChange() {
     impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
 
@@ -330,9 +328,9 @@ void StyleWindow::ChartStyleChange(){
 
     }
 }
-void StyleWindow::LineChartStyleChange(){
+void StyleWindow::LineChartStyleChange() {
     impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
-    
+
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
@@ -341,9 +339,9 @@ void StyleWindow::LineChartStyleChange(){
         impl->rois->updateLineChartStyle(ind);
     }
 }
-void StyleWindow::RidgeChartStyleChange(){
+void StyleWindow::RidgeChartStyleChange() {
     impl->updateRidgeChartStyle(impl->traceview->getCoreRidgeChartStyle());
-    
+
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto& ind : inds) {
@@ -354,7 +352,7 @@ void StyleWindow::RidgeChartStyleChange(){
 }
 void StyleWindow::RidgeOverlapChange() {
     if (!impl->isLoading) {
-        impl->traceview->getRidgeChart().offset = static_cast<float>(impl->ridgeoverlap->value())/100.;
+        impl->traceview->getRidgeChart().offset = static_cast<float>(impl->ridgeoverlap->value()) / 100.;
         impl->traceview->getRidgeChart().updateOffsets();
     }
 }
@@ -368,16 +366,13 @@ void StyleWindow::selectionChange(std::vector<size_t> inds) {
         impl->roicolor->setEnabled(true);
     }
 }
-
 void StyleWindow::setROIs(ROIs* rois) {
     impl->rois = rois;
     connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
 }
-
 void StyleWindow::setTraceView(TraceView* traceview) {
     impl->traceview = traceview;
 }
-
 void StyleWindow::loadSettings() {
     if (impl->traceview != nullptr && impl->rois != nullptr) {
         impl->isLoading = true;
@@ -386,7 +381,30 @@ void StyleWindow::loadSettings() {
         impl->isLoading = false;
     }
 }
-
 void StyleWindow::LineMatchyChange() {
     impl->rois->setMatchYAxes(impl->linematchy->isChecked());
 }
+
+
+
+QSize CustomTabStyle::sizeFromContents(ContentsType type, const QStyleOption* option,
+    const QSize& size, const QWidget* widget) const {
+    QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
+    if (type == QStyle::CT_TabBarTab) {
+        s.transpose();
+    }
+    return s;
+}
+
+void CustomTabStyle::drawControl(ControlElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget) const {
+    if (element == CE_TabBarTabLabel) {
+        if (const QStyleOptionTab* tab = qstyleoption_cast<const QStyleOptionTab*>(option)) {
+            QStyleOptionTab opt(*tab);
+            opt.shape = QTabBar::RoundedNorth;
+            QProxyStyle::drawControl(element, &opt, painter, widget);
+            return;
+        }
+    }
+    QProxyStyle::drawControl(element, option, painter, widget);
+}
+

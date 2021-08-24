@@ -19,7 +19,6 @@ namespace {
     }
 }
 
-
 imgData::imgData(QWidget *parent)
 {
     QVBoxLayout *topLay = new QVBoxLayout(this);

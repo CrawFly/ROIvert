@@ -65,13 +65,11 @@ Roivert::Roivert(QWidget* parent)
     w_io->setVisible(false);
 
     stylewindow = new StyleWindow(this);
-    w_stylewindow = new QDockWidget();
-    w_stylewindow->setWindowTitle("Color and Style");
-    w_stylewindow->setObjectName("WStyle");
-    w_stylewindow->setWidget(stylewindow);
+    stylewindow->setWindowTitle("Color and Style");
+    stylewindow->setObjectName("WStyle");
 
-    addDockWidget(Qt::RightDockWidgetArea, w_stylewindow);
-    w_stylewindow->setVisible(false);
+    addDockWidget(Qt::RightDockWidgetArea, stylewindow);
+    stylewindow->setVisible(false);
     //todo: set initial style
 
     // Right Side:
@@ -254,8 +252,8 @@ void Roivert::makeToolbar() {
     w_io->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
     ui.mainToolBar->addAction(w_io->toggleViewAction());
     
-    w_stylewindow->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
-    ui.mainToolBar->addAction(w_stylewindow->toggleViewAction());
+    stylewindow->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
+    ui.mainToolBar->addAction(stylewindow->toggleViewAction());
 
     ui.mainToolBar->setFloatable(false);
     ui.mainToolBar->toggleViewAction()->setVisible(false);
@@ -424,13 +422,13 @@ void Roivert::resetSettings() {
     addDockWidget(Qt::RightDockWidgetArea, w_imgData);
     addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
     addDockWidget(Qt::RightDockWidgetArea, w_io);
-    addDockWidget(Qt::RightDockWidgetArea, w_stylewindow);
+    addDockWidget(Qt::RightDockWidgetArea, stylewindow);
 
     w_charts->setFloating(false);
     w_imgData->setFloating(false);
     w_imgSettings->setFloating(false);
     w_io->setFloating(false);
-    w_stylewindow->setFloating(false);
+    stylewindow->setFloating(false);
 
     // Set dockables to visible off (except file loader)
     w_charts->setVisible(true);
@@ -438,7 +436,7 @@ void Roivert::resetSettings() {
 
     w_imgSettings->setVisible(false);
     w_io->setVisible(false);
-    w_stylewindow->setVisible(false);
+    stylewindow->setVisible(false);
 
     // Put toolbar at left
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
