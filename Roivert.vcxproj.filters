@@ -30,10 +30,10 @@
     <ClCompile Include="roivert.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="videodata.cpp">
+    <ClCompile Include="src\VideoData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="displaysettings.cpp">
+    <ClCompile Include="src\DisplaySettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="toolwindows.cpp">
@@ -119,7 +119,7 @@
     <QtMoc Include="toolwindows.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="videodata.h">
+    <QtMoc Include="include\VideoData.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ColormapPickWidget.h">
@@ -181,7 +181,7 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="displaysettings.h">
+    <ClInclude Include="include\DisplaySettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="roivertcore.h">

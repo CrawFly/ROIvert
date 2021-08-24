@@ -13,7 +13,7 @@
 #include "qspinbox.h"
 #include "qdockwidget.h"
 #include "qprogressdialog.h"
-#include "displaysettings.h"
+#include "DisplaySettings.h"
 #include "qtextstream.h"
 #include "qactiongroup.h"
 #include "qmessagebox.h"
@@ -32,7 +32,8 @@ Roivert::Roivert(QWidget* parent)
 
     //todo: megarefactor!
     ui.setupUi(this);
-    viddata = new VideoData();
+    viddata = new VideoData(); //todo: this can be uniqueptr
+
 
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
 
@@ -239,7 +240,7 @@ void Roivert::makeToolbar() {
     ui.mainToolBar->addSeparator();
     connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
     {
-        ROIVert::SHAPE shp{act->property("Shape").toInt()  };
+        ROIVert::SHAPE shp{act->property("Shape").toInt() };
         rois->setROIShape(shp);
     });
 

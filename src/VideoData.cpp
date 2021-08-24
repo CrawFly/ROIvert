@@ -1,4 +1,4 @@
-#include "videodata.h"
+#include "VideoData.h"
 #include "qdebug.h"
 
 #include <QFile>

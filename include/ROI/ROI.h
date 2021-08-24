@@ -3,7 +3,7 @@
 #include "ROIStyle.h"
 #include "ROITrace.h"
 #include "TraceView.h"
-#include "videodata.h"
+#include "VideoData.h"
 #include "ChartStyle.h"
 
 struct ROI {

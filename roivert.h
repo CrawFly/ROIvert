@@ -6,7 +6,7 @@
 #include "opencv2/opencv.hpp"
 #include "toolwindows.h"
 #include "videodata.h"
-#include "displaysettings.h"
+#include "DisplaySettings.h"
 #include "roivertcore.h"
 #include "ImageView.h"
 #include "ROI/ROIs.h"
@@ -15,7 +15,6 @@
 
 class TraceView;
 class QStringList;
-
 
 class Roivert : public QMainWindow
 {

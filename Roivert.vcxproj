@@ -126,7 +126,7 @@
     <ClCompile Include="src\widgets\ColormapPickWidget.cpp" />
     <ClCompile Include="src\widgets\ProjectionPickWidget.cpp" />
     <ClCompile Include="src\widgets\ColorPickWidget.cpp" />
-    <ClCompile Include="displaysettings.cpp" />
+    <ClCompile Include="src\DisplaySettings.cpp" />
     <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp" />
     <ClCompile Include="src\widgets\TraceChartAxis.cpp" />
     <ClCompile Include="src\widgets\TraceChartSeries.cpp" />
@@ -140,7 +140,7 @@
     <ClCompile Include="src\TraceView.cpp" />
     <ClCompile Include="src\widgets\TraceChartWidget.cpp" />
     <ClCompile Include="src\widgets\VideoControllerWidget.cpp" />
-    <ClCompile Include="videodata.cpp">
+    <ClCompile Include="src\VideoData.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
@@ -177,9 +177,9 @@
     <QtMoc Include="include\ROI\ROITrace.h" />
     <QtMoc Include="include\widgets\RGBWidget.h" />
     <ClInclude Include="roivertcore.h" />
-    <ClInclude Include="displaysettings.h" />
+    <ClInclude Include="include\DisplaySettings.h" />
     <ClInclude Include="resource.h" />
-    <QtMoc Include="videodata.h" />
+    <QtMoc Include="include\VideoData.h" />
     <QtMoc Include="toolwindows.h" />
   </ItemGroup>
   <ItemGroup>

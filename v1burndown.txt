@@ -3,17 +3,20 @@ Move palette to file
  Organize other resources, I have icons is there anything else?
  
 Line chart minimum height option
-    
+
+convenience black/white buttons for RGB widget
+
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
        
-    Cleanup [] DisplaySettings, [] toolwindows, [] videodata and bring into the fold
+    Cleanup [] DisplaySettings, [] toolwindows, and bring into the fold
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder
     
 Remaining Tidy pushes:
+    instrument debugger?
     more tooltips
     todos, comments, etc.
         make default chart window undocked

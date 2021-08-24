@@ -70,11 +70,8 @@ TraceView::TraceView(QWidget* parent) : QWidget(parent) {
     impl->doLayout();
 }
 
-TraceView::~TraceView() {};
+TraceView::~TraceView() = default;
     
-void TraceView::setTimeLimits(float min, float max) {
-
-}
 void TraceView::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");

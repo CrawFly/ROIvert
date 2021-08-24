@@ -15,7 +15,6 @@ public:
     TraceView(QWidget* parent = nullptr);
     ~TraceView();
     
-    void setTimeLimits(float min, float max);
     
     //QVBoxLayout& getLineChartLayout();
     void addLineChart(TraceChartWidget*);

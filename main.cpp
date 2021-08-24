@@ -12,7 +12,9 @@ int main(int argc, char *argv[])
     QPixmap pixmap("C:\\Users\\dbulk\\OneDrive\\Documents\\qtprojects\\Roivert\\greenking_splash.png");
     QSplashScreen splash(pixmap);
     splash.show();
-
+    
+    // todo: roivert construction currently shows the child windows, which means they pop up before the splash is gone
+    //      break these out of constructor?
     Roivert w;
     
     QTimer t;

@@ -2,7 +2,7 @@
 #include <QObject>
 #include "ImageView.h"
 #include "TraceView.h"
-#include "videodata.h"
+#include "VideoData.h"
 #include "ROIVertEnums.h"
 #include "ROIStyle.h"
 #include "ChartStyle.h"

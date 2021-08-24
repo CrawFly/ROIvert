@@ -24,17 +24,7 @@ namespace ROIVert {
     };
 
     static QString dffstring() {
-        return(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
-    }
-
-    static QVector<QColor> colors() {
-        QVector<QColor>ret = {
-        QColor("#2264A5"),
-        QColor("#F75C03"),
-        QColor("#F1C40F"),
-        QColor("#D90368"),
-        QColor("#00CC66")
-        };
-        return ret;
+        //return(QString::fromWCharArray(L"\x03B4\xD835\xDC53/\xD835\xDC53"));
+        return "df/f";
     }
 }

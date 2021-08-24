@@ -1,7 +1,7 @@
 #include "roi\ROITrace.h"
 #include <QDebug>
 
-#include "videodata.h"
+#include "VideoData.h"
 #include "ROIVertEnums.h"
 #include "TraceView.h"
 #include "widgets\TraceChartWidget.h"
