@@ -29,6 +29,7 @@
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
 {
+
     //todo: megarefactor!
     ui.setupUi(this);
     viddata = new VideoData();
@@ -122,6 +123,9 @@ Roivert::Roivert(QWidget* parent)
     
     restoreSettings();    
     stylewindow->loadSettings();
+
+    
+    
 }
 void Roivert::doConnect() {
     // todo: most of this could be eradicated by just passing some pointers around...is that better? worse?
