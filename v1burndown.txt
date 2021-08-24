@@ -1,16 +1,14 @@
-playSPEED CHECK, I THINK I CAN DO BETTER NOW?   ** 
-    
 Move palette to file
-    Consider a button to automatically use palette for all rois, particularly if i end up with multiple
-    
-    
-    
-
+ Consider a button to automatically use palette for all rois, particularly if i end up with multiple
+ Organize other resources, I have icons is there anything else?
+ 
+Line chart minimum height option
     
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
-    Cleanup [] DisplaySettings, [] toolwindows, [] videocontroller, [] videodata and bring into the fold
+       
+    Cleanup [] DisplaySettings, [] toolwindows, [] videodata and bring into the fold
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder
@@ -18,7 +16,8 @@ REFACTOR PUSH
 Remaining Tidy pushes:
     more tooltips
     todos, comments, etc.
-    
+        make default chart window undocked
+        
 
     
 RELEASE PUSH
