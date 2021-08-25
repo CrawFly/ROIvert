@@ -137,10 +137,10 @@ void VideoControllerWidget::pimpl::initWidgets() {
     sliScrub->setSingleStep(1);
     sliScrub->setPageStep(1);
 
-    cmdBack->setIcon(QIcon(":/icons/icons/vid_back.png"));
-    cmdPlay->setIcon(QIcon(":/icons/icons/vid_play.png"));
-    cmdForw->setIcon(QIcon(":/icons/icons/vid_forward.png"));
-    cmdLoop->setIcon(QIcon(":/icons/icons/vid_repeat.png"));
+    cmdBack->setIcon(QIcon(":/icons/vid_back.png"));
+    cmdPlay->setIcon(QIcon(":/icons/vid_play.png"));
+    cmdForw->setIcon(QIcon(":/icons/vid_forward.png"));
+    cmdLoop->setIcon(QIcon(":/icons/vid_repeat.png"));
     cmdPlay->setCheckable(true);
     cmdLoop->setCheckable(true);
 

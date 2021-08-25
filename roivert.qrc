@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/icons">
+    <qresource prefix="/">
         <file>icons/GreenCrown.png</file>
         <file>icons/vid_back.png</file>
         <file>icons/vid_play.png</file>
@@ -15,5 +15,6 @@
         <file>icons/t_Charts.png</file>
         <file>icons/t_io.png</file>
         <file>icons/t_Colors.png</file>
+        <file>splash.png</file>
     </qresource>
 </RCC>

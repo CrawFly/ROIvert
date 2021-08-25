@@ -113,7 +113,7 @@ Roivert::Roivert(QWidget* parent)
     connect(actResetSettings, &QAction::triggered, this, &Roivert::resetSettings);
     addAction(actResetSettings);
     
-    setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     resize(800, 900);
     
     restoreSettings();    
@@ -221,10 +221,10 @@ void Roivert::makeToolbar() {
 
     QActionGroup* ROIGroup = new QActionGroup(this);
 
-    QAction* actROIEllipse = new QAction(QIcon(":/icons/icons/ROIEllipse.png"), "", ROIGroup);
-    QAction* actROIPoly = new QAction(QIcon(":/icons/icons/ROIPoly.png"), "", ROIGroup);
-    QAction* actROIRect = new QAction(QIcon(":/icons/icons/ROIRect.png"), "", ROIGroup);
-    QAction* actROISelect = new QAction(QIcon(":/icons/icons/ROISelect.png"), "", ROIGroup);
+    QAction* actROIEllipse = new QAction(QIcon(":/icons/ROIEllipse.png"), "", ROIGroup);
+    QAction* actROIPoly = new QAction(QIcon(":/icons/ROIPoly.png"), "", ROIGroup);
+    QAction* actROIRect = new QAction(QIcon(":/icons/ROIRect.png"), "", ROIGroup);
+    QAction* actROISelect = new QAction(QIcon(":/icons/ROISelect.png"), "", ROIGroup);
 
     actROIEllipse->setCheckable(true);
     actROIPoly->setCheckable(true);
@@ -254,16 +254,16 @@ void Roivert::makeToolbar() {
     });
 
     // add dockables...
-    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
+    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
     ui.mainToolBar->addAction(imagedatawidget->toggleViewAction());
-    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgSettings.png"));
+    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
     ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
-    w_charts->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Charts.png"));
+    w_charts->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
     ui.mainToolBar->addAction(w_charts->toggleViewAction());
-    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
+    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
     ui.mainToolBar->addAction(fileiowidget->toggleViewAction());
     
-    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
+    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
     ui.mainToolBar->addAction(stylewidget->toggleViewAction());
 
     ui.mainToolBar->setFloatable(false);

@@ -77,7 +77,7 @@ FileIO::~FileIO() = default;
 void FileIO::exportTraces(QString filename, bool includeheader, bool includetime) const {
     // exportTraces needs rewrite, should be easier now (as it's a mat!)
     QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
     
     const auto ntraces = impl->rois->getNROIs();
@@ -132,7 +132,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
 }
 void FileIO::importROIs(QString filename) const {
     QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
     
     QFile file(filename);
@@ -162,7 +162,7 @@ void FileIO::importROIs(QString filename) const {
 void FileIO::exportROIs(QString filename) const {
 
     QMessageBox msg;
-    msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+    msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
     auto ntraces = impl->rois->getNROIs();
     if (impl->rois == nullptr || ntraces < 1) {
@@ -195,7 +195,7 @@ void FileIO::exportCharts(QString filename, int width, int height, int quality, 
         auto ncharts = impl->rois->getNROIs();
         if (impl->rois == nullptr || ncharts < 1) {
             QMessageBox msg;
-            msg.setWindowIcon(QIcon(":/icons/icons/GreenCrown.png"));
+            msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
             msg.setIcon(QMessageBox::Warning);
             msg.setText(tr("No charts to export."));
             msg.exec();
