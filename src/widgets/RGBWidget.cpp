@@ -52,4 +52,5 @@ void RGBWidget::setColor(const QColor &clr){
     impl->rgb[1].first->setValue(clr.green());
     impl->rgb[2].first->setValue(clr.blue());
     this->blockSignals(false);
+    emit colorChanged(getColor());
 }

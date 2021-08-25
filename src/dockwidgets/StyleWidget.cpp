@@ -10,6 +10,8 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QLabel>
+#include <QToolButton>
+
 #include <QSlider>
 #include <QSpinBox>
 #include <QTabWidget>
@@ -109,9 +111,44 @@ struct StyleWidget::pimpl {
         auto ret = new QWidget;
         auto lay = new QVBoxLayout;
         ret->setLayout(lay);
-        lay->addWidget(new QLabel("Chart Foreground:"));
+
+        {
+            auto rowlay1 = new QHBoxLayout;
+            auto rowlay2 = new QHBoxLayout;
+            auto black = new QToolButton;
+            auto white = new QToolButton;
+            rowlay2->addWidget(black);
+            rowlay2->addWidget(white);
+
+            black->setStyleSheet("background-color: black; border: gray; border-style: outset; border-width: 1px;");
+            white->setStyleSheet("background-color: white; border: gray; border-style: outset; border-width: 1px;");
+            rowlay1->addWidget(new QLabel("Chart Foreground:"));
+            rowlay1->addLayout(rowlay2);
+            lay->addLayout(rowlay1);
+            connect(black, &QToolButton::clicked, black, [=] {chartforecolor->setColor(Qt::black); });
+            connect(white, &QToolButton::clicked, white, [=] {chartforecolor->setColor(Qt::white); });
+        }
+        
         lay->addWidget(chartforecolor);
-        lay->addWidget(new QLabel("Chart Background:"));
+        
+
+        
+        {
+            auto rowlay1 = new QHBoxLayout;
+            auto rowlay2 = new QHBoxLayout;
+            auto black = new QToolButton;
+            auto white = new QToolButton;
+            rowlay2->addWidget(black);
+            rowlay2->addWidget(white);
+            black->setStyleSheet("background-color: black; border: gray; border-style: outset; border-width: 1px;");
+            white->setStyleSheet("background-color: white; border: gray; border-style: outset; border-width: 1px;");
+            rowlay1->addWidget(new QLabel("Chart Background:"));
+            rowlay1->addLayout(rowlay2);
+            lay->addLayout(rowlay1);
+            connect(black, &QToolButton::clicked, black, [=] {chartbackcolor->setColor(Qt::black); });
+            connect(white, &QToolButton::clicked, white, [=] {chartbackcolor->setColor(Qt::white); });
+        }
+        
         lay->addWidget(chartbackcolor);
         lay->addStretch(1);
         return ret;

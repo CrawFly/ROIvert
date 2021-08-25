@@ -17,6 +17,9 @@ int main(int argc, char *argv[])
     Roivert w;
     
     QTimer t;
-    t.singleShot(1500, [&] { w.show(); splash.finish(&w); });
+
+    // todo: delay @ 1500 for ship
+    int delay = 1;
+    t.singleShot(delay, [&] { w.show(); splash.finish(&w); });
     return a.exec();
 }
