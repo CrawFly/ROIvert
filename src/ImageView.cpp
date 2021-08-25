@@ -2,6 +2,7 @@
 #include <QGraphicsPixmapItem>
 #include <QScrollBar>
 #include <QMouseEvent>
+#include <QDebug>
 
 #include "ZoomPan.h"
 
@@ -29,6 +30,8 @@ void ImageView::setImage(const QImage& image) {
     
     if (impl->imgsize != image.size()) {
         impl->imgsize = image.size();
+        impl->scene->setSceneRect(QRect(0, 0, impl->imgsize.width(), impl->imgsize.height()));
+        
         fitInView(impl->pix, Qt::KeepAspectRatio);
         emit imageSizeUpdated(impl->imgsize);
     }

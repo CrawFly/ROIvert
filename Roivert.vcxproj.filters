@@ -36,9 +36,6 @@
     <ClCompile Include="src\DisplaySettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="toolwindows.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\widgets\ColorPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,7 +99,7 @@
     <ClCompile Include="src\FileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dockwindows\StyleWindow.cpp">
+    <ClCompile Include="src\dockwidgets\StyleWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\widgets\RGBWidget.cpp">
@@ -111,12 +108,18 @@
     <ClCompile Include="src\widgets\VideoControllerWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\dockwidgets\FileIOWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dockwidgets\ImageSettingsWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dockwidgets\ImageDataWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="roivert.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="toolwindows.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\VideoData.h">
@@ -167,13 +170,22 @@
     <QtMoc Include="include\ChartStyle.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\dockwindows\StyleWindow.h">
+    <QtMoc Include="include\dockwidgets\StyleWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\RGBWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\VideoControllerWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\dockwidgets\FileIOWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\dockwidgets\ImageSettingsWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\dockwidgets\ImageDataWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -40,37 +40,33 @@ Roivert::Roivert(QWidget* parent)
     QGridLayout* gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
-    t_imgData = new tool::imgData(this);
-    w_imgData = new QDockWidget();
-    w_imgData->setWidget(t_imgData);
-    w_imgData->setWindowTitle("Image Data");
-    w_imgData->setObjectName("WImageData");
-    addDockWidget(Qt::RightDockWidgetArea, w_imgData);
+    imagedatawidget = new ImageDataWidget(this);
+    imagedatawidget->setWindowTitle("Image Data");
+    imagedatawidget->setObjectName("WImageData");
+    addDockWidget(Qt::RightDockWidgetArea, imagedatawidget);
+    imagedatawidget->setContentsEnabled(true);
+    imagedatawidget->setVisible(false);
 
-    t_imgSettings = new tool::imgSettings(this);
-    w_imgSettings = new QDockWidget();
-    w_imgSettings->setWidget(t_imgSettings);
-    w_imgSettings->setWindowTitle("Image Settings");
-    w_imgSettings->setObjectName("WImageSettings");
-    addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
-    w_imgSettings->setVisible(false);
+    imagesettingswidget = new ImageSettingsWidget(this);
+    imagesettingswidget->setWindowTitle("Image Settings");
+    imagesettingswidget->setObjectName("WImageSettings");
+    addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget);
+    imagesettingswidget->setContentsEnabled(false);
+    imagesettingswidget->setVisible(false);
 
-    t_io = new tool::fileIO(this);
-    w_io = new QDockWidget();
-    w_io->setWidget(t_io);
-    w_io->setWindowTitle("Import/Export");
-    w_io->setObjectName("WImportExport");
-    addDockWidget(Qt::RightDockWidgetArea, w_io);
-    t_io->setEnabled(false);
-    w_io->setVisible(false);
+    fileiowidget = new FileIOWidget(this);
+    fileiowidget->setWindowTitle("Import/Export");
+    fileiowidget->setObjectName("WImportExport");
+    addDockWidget(Qt::RightDockWidgetArea, fileiowidget);
+    fileiowidget->setContentsEnabled(false);
+    fileiowidget->setVisible(false);
 
-    stylewindow = new StyleWindow(this);
-    stylewindow->setWindowTitle("Color and Style");
-    stylewindow->setObjectName("WStyle");
-
-    addDockWidget(Qt::RightDockWidgetArea, stylewindow);
-    stylewindow->setVisible(false);
-    //todo: set initial style
+    stylewidget = new StyleWidget(this);
+    stylewidget->setWindowTitle("Color and Style");
+    stylewidget->setObjectName("WStyle");
+    addDockWidget(Qt::RightDockWidgetArea, stylewidget);
+    stylewidget->setVisible(false);
+    stylewidget->setContentsEnabled(false);
 
     // Right Side:
     QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
@@ -100,8 +96,8 @@ Roivert::Roivert(QWidget* parent)
     
     // ROIs container
     rois = new ROIs(imageview, traceview, viddata);
-    stylewindow->setROIs(rois);
-    stylewindow->setTraceView(traceview);
+    stylewidget->setROIs(rois);
+    stylewidget->setTraceView(traceview);
 
 
     // File IO
@@ -121,7 +117,7 @@ Roivert::Roivert(QWidget* parent)
     resize(800, 900);
     
     restoreSettings();    
-    stylewindow->loadSettings();
+    stylewidget->loadSettings();
 
     
     
@@ -130,27 +126,27 @@ void Roivert::doConnect() {
     // todo: most of this could be eradicated by just passing some pointers around...is that better? worse?
 
     // imgdata tool load button hit, initiates loading the video
-    connect(t_imgData, &tool::imgData::fileLoadRequested, this, &Roivert::loadVideo);
+    connect(imagedatawidget, &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
 
     // when timer or manual change of frame, initiate draw
     connect(vidctrl, &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
 
     // framerate change (simple) fan out to vidctrl and traceview
-    connect(t_imgData, &tool::imgData::frameRateChanged, this, &Roivert::frameRateChanged);
+    connect(imagedatawidget, &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
 
     // mostly destined for displaysettings, change in smoothing/contrast etc.
-    connect(t_imgSettings, &tool::imgSettings::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
+    connect(imagesettingswidget, &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
         
     // todo: (consider) give tool::fileio interface a ptr to fileio so it can call directly
     // File IO:
-    connect(t_io, &tool::fileIO::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
-    connect(t_io, &tool::fileIO::exportROIs, this, [=](QString fn) {fileio->exportROIs(fn); });
-    connect(t_io, &tool::fileIO::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
-    connect(t_io, &tool::fileIO::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
+    connect(fileiowidget, &FileIOWidget::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
+    connect(fileiowidget, &FileIOWidget::exportROIs, this, [=](QString fn) {fileio->exportROIs(fn); });
+    connect(fileiowidget, &FileIOWidget::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
+    connect(fileiowidget, &FileIOWidget::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
     
 
     // progress for loading
-    connect(viddata, &VideoData::loadProgress, t_imgData, &tool::imgData::setProgBar);
+    connect(viddata, &VideoData::loadProgress, imagedatawidget, &ImageDataWidget::setProgBar);
 
     // clicked the dff button, update contrast widget
     connect(vidctrl, &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
@@ -160,7 +156,7 @@ void Roivert::doConnect() {
 }
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     // Confirm load if rois exist:
     if (rois->getNROIs() > 0) {
         // rois exist:
@@ -175,18 +171,20 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     }
 
     viddata->load(fileList, dsTime, dsSpace);
-    t_imgData->setProgBar(-1);
+
+    imagedatawidget->setProgBar(-1);
     vidctrl->setNFrames(viddata->getNFrames());
     vidctrl->setFrameRate(frameRate / dsTime);
     viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
-    t_imgData->fileLoadCompleted(viddata->getNFrames(), viddata->getHeight(), viddata->getWidth());
-    
+
     vidctrl->setEnabled(true);
-    t_imgSettings->setEnabled(true);
+    imagesettingswidget->setContentsEnabled(true);
     imageview->setEnabled(true);
-    t_io->setEnabled(true);
+    stylewidget->setContentsEnabled(true);
+    fileiowidget->setContentsEnabled(true);
 
     updateContrastWidget(vidctrl->isDff());
+    QGuiApplication::restoreOverrideCursor();
 }
 void Roivert::changeFrame(const size_t frame)
 {
@@ -243,17 +241,17 @@ void Roivert::makeToolbar() {
     });
 
     // add dockables...
-    w_imgData->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
-    ui.mainToolBar->addAction(w_imgData->toggleViewAction());
-    w_imgSettings->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgSettings.png"));
-    ui.mainToolBar->addAction(w_imgSettings->toggleViewAction());
+    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgData.png"));
+    ui.mainToolBar->addAction(imagedatawidget->toggleViewAction());
+    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_ImgSettings.png"));
+    ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
     w_charts->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Charts.png"));
     ui.mainToolBar->addAction(w_charts->toggleViewAction());
-    w_io->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
-    ui.mainToolBar->addAction(w_io->toggleViewAction());
+    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_io.png"));
+    ui.mainToolBar->addAction(fileiowidget->toggleViewAction());
     
-    stylewindow->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
-    ui.mainToolBar->addAction(stylewindow->toggleViewAction());
+    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/icons/t_Colors.png"));
+    ui.mainToolBar->addAction(stylewidget->toggleViewAction());
 
     ui.mainToolBar->setFloatable(false);
     ui.mainToolBar->toggleViewAction()->setVisible(false);
@@ -262,12 +260,11 @@ void Roivert::makeToolbar() {
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
     const ROIVert::contrast c = dispSettings.getContrast(isDff);
-    t_imgSettings->setContrast(c);
+    imagesettingswidget->setContrast(c);
 
-    // todo: consider taking same approach as I did with dispSettings, storing raw and dff in [0] and [1] and using bool to address...
     std::vector<float> hist; 
     viddata->getHistogram(isDff, hist);
-    t_imgSettings->setHistogram(hist);
+    imagesettingswidget->setHistogram(hist);
 }
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
@@ -408,35 +405,35 @@ void Roivert::resetSettings() {
     traceview->getRidgeChart().offset = .5;
 
     // use stylewindow to apply:
-    stylewindow->loadSettings();
-    stylewindow->ROIStyleChange();
-    stylewindow->ChartStyleChange();
-    stylewindow->LineChartStyleChange();
-    stylewindow->RidgeChartStyleChange();
-    stylewindow->RidgeOverlapChange();
-    stylewindow->LineMatchyChange();
+    stylewidget->loadSettings();
+    stylewidget->ROIStyleChange();
+    stylewidget->ChartStyleChange();
+    stylewidget->LineChartStyleChange();
+    stylewidget->RidgeChartStyleChange();
+    stylewidget->RidgeOverlapChange();
+    stylewidget->LineMatchyChange();
 
     // Reset layout:
     // Dock all dockables in default position
     addDockWidget(Qt::BottomDockWidgetArea, w_charts);
-    addDockWidget(Qt::RightDockWidgetArea, w_imgData);
-    addDockWidget(Qt::RightDockWidgetArea, w_imgSettings);
-    addDockWidget(Qt::RightDockWidgetArea, w_io);
-    addDockWidget(Qt::RightDockWidgetArea, stylewindow);
+    addDockWidget(Qt::RightDockWidgetArea, imagedatawidget);
+    addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget);
+    addDockWidget(Qt::RightDockWidgetArea, fileiowidget);
+    addDockWidget(Qt::RightDockWidgetArea, stylewidget);
 
     w_charts->setFloating(false);
-    w_imgData->setFloating(false);
-    w_imgSettings->setFloating(false);
-    w_io->setFloating(false);
-    stylewindow->setFloating(false);
+    imagedatawidget->setFloating(false);
+    imagesettingswidget->setFloating(false);
+    fileiowidget->setFloating(false);
+    stylewidget->setFloating(false);
 
     // Set dockables to visible off (except file loader)
     w_charts->setVisible(true);
-    w_imgData->setVisible(true);
+    imagedatawidget->setVisible(true);
 
-    w_imgSettings->setVisible(false);
-    w_io->setVisible(false);
-    stylewindow->setVisible(false);
+    imagesettingswidget->setVisible(false);
+    fileiowidget->setVisible(false);
+    stylewidget->setVisible(false);
 
     // Put toolbar at left
     addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);

@@ -110,6 +110,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\dockwidgets\ImageDataWidget.cpp" />
+    <ClCompile Include="src\dockwidgets\ImageSettingsWidget.cpp" />
+    <ClCompile Include="src\dockwidgets\FileIOWidget.cpp" />
     <ClCompile Include="src\FileIO.cpp" />
     <ClCompile Include="src\ChartStyle.cpp" />
     <ClCompile Include="src\widgets\RGBWidget.cpp" />
@@ -130,13 +133,7 @@
     <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp" />
     <ClCompile Include="src\widgets\TraceChartAxis.cpp" />
     <ClCompile Include="src\widgets\TraceChartSeries.cpp" />
-    <ClCompile Include="src\dockwindows\StyleWindow.cpp" />
-    <ClCompile Include="toolwindows.cpp">
-      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
-      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
-      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
-      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
-    </ClCompile>
+    <ClCompile Include="src\dockwidgets\StyleWidget.cpp" />
     <ClCompile Include="src\TraceView.cpp" />
     <ClCompile Include="src\widgets\TraceChartWidget.cpp" />
     <ClCompile Include="src\widgets\VideoControllerWidget.cpp" />
@@ -155,7 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\widgets\VideoControllerWidget.h" />
-    <QtMoc Include="include\dockwindows\StyleWindow.h" />
+    <QtMoc Include="include\dockwidgets\StyleWidget.h" />
     <QtMoc Include="include\widgets\TraceChartWidget.h" />
     <QtMoc Include="include\TraceView.h" />
     <QtMoc Include="include\ZoomPan.h" />
@@ -167,6 +164,9 @@
     <QtMoc Include="include\widgets\ContrastWidget.h" />
     <QtMoc Include="include\ImageView.h" />
     <QtMoc Include="include\ChartStyle.h" />
+    <QtMoc Include="include\dockwidgets\FileIOWidget.h" />
+    <QtMoc Include="include\dockwidgets\ImageSettingsWidget.h" />
+    <QtMoc Include="include\dockwidgets\ImageDataWidget.h" />
     <ClInclude Include="include\FileIO.h" />
     <ClInclude Include="include\ROIVertEnums.h" />
     <ClInclude Include="include\ROI\ROI.h" />
@@ -180,7 +180,6 @@
     <ClInclude Include="include\DisplaySettings.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="include\VideoData.h" />
-    <QtMoc Include="toolwindows.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Roivert.rc" />

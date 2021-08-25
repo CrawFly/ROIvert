@@ -6,14 +6,15 @@
 class ROIs;
 class TraceView;
 
-class StyleWindow : public QDockWidget
+class StyleWidget : public QDockWidget
 {
     Q_OBJECT
     public:
-        explicit StyleWindow(QWidget* parent);
+        explicit StyleWidget(QWidget* parent = nullptr);
         void setROIs(ROIs* rois);
         void setTraceView(TraceView* traceview);
         void loadSettings();
+        void setContentsEnabled(bool);
 
     public slots:
         void selectionChange(std::vector<size_t> inds);

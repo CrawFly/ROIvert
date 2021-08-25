@@ -1,4 +1,4 @@
-#include "dockwindows/StyleWindow.h"
+#include "dockwidgets/StyleWidget.h"
 
 #include <QDebug>
 
@@ -21,7 +21,7 @@
 #include "widgets/RGBWidget.h"
 #include "widgets/TraceChartWidget.h"
 
-struct StyleWindow::pimpl {
+struct StyleWidget::pimpl {
     QTabWidget* tab = new QTabWidget;
 
     RGBWidget* roicolor = new RGBWidget;
@@ -176,32 +176,32 @@ struct StyleWindow::pimpl {
         return ret;
     }
 
-    void doConnect(const StyleWindow* const par) {
+    void doConnect(const StyleWidget* const par) {
         if (par == nullptr) {
             return;
         }
-        connect(roicolor, &RGBWidget::colorChanged, par, &StyleWindow::ROIColorChange);
-        connect(roilinewidth, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
-        connect(roiselsize, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
-        connect(roifillopacity, &QSlider::valueChanged, par, &StyleWindow::ROIStyleChange);
-        connect(chartforecolor, &RGBWidget::colorChanged, par, &StyleWindow::ChartStyleChange);
-        connect(chartbackcolor, &RGBWidget::colorChanged, par, &StyleWindow::ChartStyleChange);
-        connect(chartfont, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWindow::ChartStyleChange);
-        connect(chartlabelfontsize, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::ChartStyleChange);
-        connect(charttickfontsize, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::ChartStyleChange);
+        connect(roicolor, &RGBWidget::colorChanged, par, &StyleWidget::ROIColorChange);
+        connect(roilinewidth, &QSlider::valueChanged, par, &StyleWidget::ROIStyleChange);
+        connect(roiselsize, &QSlider::valueChanged, par, &StyleWidget::ROIStyleChange);
+        connect(roifillopacity, &QSlider::valueChanged, par, &StyleWidget::ROIStyleChange);
+        connect(chartforecolor, &RGBWidget::colorChanged, par, &StyleWidget::ChartStyleChange);
+        connect(chartbackcolor, &RGBWidget::colorChanged, par, &StyleWidget::ChartStyleChange);
+        connect(chartfont, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWidget::ChartStyleChange);
+        connect(chartlabelfontsize, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWidget::ChartStyleChange);
+        connect(charttickfontsize, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWidget::ChartStyleChange);
 
-        connect(linewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::LineChartStyleChange);
-        connect(linefill, &QSlider::valueChanged, par, &StyleWindow::LineChartStyleChange);
-        connect(linegradient, &QCheckBox::stateChanged, par, &StyleWindow::LineChartStyleChange);
-        connect(linegrid, &QCheckBox::stateChanged, par, &StyleWindow::LineChartStyleChange);
-        connect(linematchy, &QCheckBox::stateChanged, par, &StyleWindow::LineMatchyChange);
-        connect(linenorm, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWindow::LineChartStyleChange);
+        connect(linewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWidget::LineChartStyleChange);
+        connect(linefill, &QSlider::valueChanged, par, &StyleWidget::LineChartStyleChange);
+        connect(linegradient, &QCheckBox::stateChanged, par, &StyleWidget::LineChartStyleChange);
+        connect(linegrid, &QCheckBox::stateChanged, par, &StyleWidget::LineChartStyleChange);
+        connect(linematchy, &QCheckBox::stateChanged, par, &StyleWidget::LineMatchyChange);
+        connect(linenorm, QOverload<int>::of(&QComboBox::currentIndexChanged), par, &StyleWidget::LineChartStyleChange);
 
-        connect(ridgewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWindow::RidgeChartStyleChange);
-        connect(ridgegradient, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
-        connect(ridgefill, &QSlider::valueChanged, par, &StyleWindow::RidgeChartStyleChange);
-        connect(ridgegrid, &QCheckBox::stateChanged, par, &StyleWindow::RidgeChartStyleChange);
-        connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWindow::RidgeOverlapChange);
+        connect(ridgewidth, QOverload<int>::of(&QSpinBox::valueChanged), par, &StyleWidget::RidgeChartStyleChange);
+        connect(ridgegradient, &QCheckBox::stateChanged, par, &StyleWidget::RidgeChartStyleChange);
+        connect(ridgefill, &QSlider::valueChanged, par, &StyleWidget::RidgeChartStyleChange);
+        connect(ridgegrid, &QCheckBox::stateChanged, par, &StyleWidget::RidgeChartStyleChange);
+        connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWidget::RidgeOverlapChange);
     }
 
     void updateROIStyle(ROIStyle* style) {
@@ -287,13 +287,13 @@ struct StyleWindow::pimpl {
     bool isLoading{ false };
 };
 
-StyleWindow::StyleWindow(QWidget* parent) : QDockWidget(parent)
+StyleWidget::StyleWidget(QWidget* parent) : QDockWidget(parent)
 {
     this->setWidget(impl->tab);
     impl->doLayout();
     impl->doConnect(this);
 }
-void StyleWindow::ROIColorChange() {
+void StyleWidget::ROIColorChange() {
     if (impl->rois) {
         auto inds = impl->rois->getSelected();
         for (auto& ind : inds) {
@@ -302,7 +302,7 @@ void StyleWindow::ROIColorChange() {
         }
     }
 }
-void StyleWindow::ROIStyleChange() {
+void StyleWidget::ROIStyleChange() {
     impl->updateROIStyle(impl->rois->getCoreROIStyle());
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
@@ -311,7 +311,7 @@ void StyleWindow::ROIStyleChange() {
     }
 
 }
-void StyleWindow::ChartStyleChange() {
+void StyleWidget::ChartStyleChange() {
     impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
 
@@ -328,7 +328,7 @@ void StyleWindow::ChartStyleChange() {
 
     }
 }
-void StyleWindow::LineChartStyleChange() {
+void StyleWidget::LineChartStyleChange() {
     impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
 
     std::vector<size_t> inds(impl->rois->getNROIs());
@@ -339,7 +339,7 @@ void StyleWindow::LineChartStyleChange() {
         impl->rois->updateLineChartStyle(ind);
     }
 }
-void StyleWindow::RidgeChartStyleChange() {
+void StyleWidget::RidgeChartStyleChange() {
     impl->updateRidgeChartStyle(impl->traceview->getCoreRidgeChartStyle());
 
     std::vector<size_t> inds(impl->rois->getNROIs());
@@ -350,13 +350,13 @@ void StyleWindow::RidgeChartStyleChange() {
     }
     impl->traceview->getRidgeChart().update();
 }
-void StyleWindow::RidgeOverlapChange() {
+void StyleWidget::RidgeOverlapChange() {
     if (!impl->isLoading) {
         impl->traceview->getRidgeChart().offset = static_cast<float>(impl->ridgeoverlap->value()) / 100.;
         impl->traceview->getRidgeChart().updateOffsets();
     }
 }
-void StyleWindow::selectionChange(std::vector<size_t> inds) {
+void StyleWidget::selectionChange(std::vector<size_t> inds) {
     if (inds.empty()) {
         impl->roicolor->setEnabled(false);
     }
@@ -366,14 +366,14 @@ void StyleWindow::selectionChange(std::vector<size_t> inds) {
         impl->roicolor->setEnabled(true);
     }
 }
-void StyleWindow::setROIs(ROIs* rois) {
+void StyleWidget::setROIs(ROIs* rois) {
     impl->rois = rois;
-    connect(rois, &ROIs::selectionChanged, this, &StyleWindow::selectionChange);
+    connect(rois, &ROIs::selectionChanged, this, &StyleWidget::selectionChange);
 }
-void StyleWindow::setTraceView(TraceView* traceview) {
+void StyleWidget::setTraceView(TraceView* traceview) {
     impl->traceview = traceview;
 }
-void StyleWindow::loadSettings() {
+void StyleWidget::loadSettings() {
     if (impl->traceview != nullptr && impl->rois != nullptr) {
         impl->isLoading = true;
         impl->loadFromTV();
@@ -381,8 +381,12 @@ void StyleWindow::loadSettings() {
         impl->isLoading = false;
     }
 }
-void StyleWindow::LineMatchyChange() {
+void StyleWidget::LineMatchyChange() {
     impl->rois->setMatchYAxes(impl->linematchy->isChecked());
+}
+
+void StyleWidget::setContentsEnabled(bool onoff) {
+    impl->tab->setEnabled(onoff);
 }
 
 
