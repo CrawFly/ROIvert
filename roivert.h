@@ -54,7 +54,7 @@ private:
     void frameRateChanged(double frameRate);
     void makeToolbar();
     void updateContrastWidget(bool isDff);
-    void selecttoolfromkey(int key);
+    void selecttool(int);
     void restoreSettings();
     void resetSettings();
 

@@ -70,7 +70,6 @@ TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget* p
         setStyle(style);
     }   
 
-    //setContentsMargins(11, 11, 11, 11);
     setContentsMargins(0, 0, 0, 0); // these margins are in the layout
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
     

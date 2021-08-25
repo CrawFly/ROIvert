@@ -1,23 +1,10 @@
-Consider (for toolwindow refactor:
-    could the abstraction include the dockwindow? Does anything have to change?
-        Two solutions here:
-            1. the tool isa dockwindow, and it contains the widget
-            2. the tool isa widget and it spawns a parent...awkward...any advantage?
-            
-
-Move palette to file
- Consider a button to automatically use palette for all rois, particularly if i end up with multiple
- Organize other resources, I have icons is there anything else?
- 
 Line chart minimum height option
-
-convenience black/white buttons for RGB widget
+Convenience black/white buttons for RGB widget
 
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
-       
-    Cleanup [] toolwindows, and bring into the fold
+        - honestly could consider moving a lot of the qt junk into object scope
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder

@@ -152,7 +152,18 @@ void Roivert::doConnect() {
     connect(vidctrl, &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
 
 
+    connect(imageview, &ImageView::keyPressed, this, [=](int key, Qt::KeyboardModifiers mod) {
+        if (mod == Qt::KeyboardModifier::NoModifier){
+            if (key >= Qt::Key_1 && key <= Qt::Key_4) {
+                selecttool(key - Qt::Key_1);
+            }
+            else if (key >= Qt::Key_5 && key <= Qt::Key_9) {
+                selecttool(key - Qt::Key_1 + 1);
+            }
 
+        }
+    });
+    
 }
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
@@ -186,6 +197,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     updateContrastWidget(vidctrl->isDff());
     QGuiApplication::restoreOverrideCursor();
 }
+
 void Roivert::changeFrame(const size_t frame)
 {
     if (frame > 0 && frame <= viddata->getNFrames())
@@ -204,6 +216,7 @@ void Roivert::frameRateChanged(double frameRate){
     viddata->setFrameRate(frameRate / viddata->getdsTime()); // duplicated for convenience
     rois->updateROITraces();
 }
+
 void Roivert::makeToolbar() {
 
     QActionGroup* ROIGroup = new QActionGroup(this);
@@ -279,15 +292,12 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
     vidctrl->forceUpdate();
 }
-void Roivert::selecttoolfromkey(int key) {
-    //todo: enable this
-    const int item = key - Qt::Key_1;
+void Roivert::selecttool(int item) {
     if (item >= 0 && item < ui.mainToolBar->actions().size()) {
         QAction* act = ui.mainToolBar->actions()[item];
-        act->activate(QAction::Trigger);
+        if (act) { act->activate(QAction::Trigger); }
     }
 }
-
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
     settings.setValue("version", 1.f);
@@ -336,6 +346,7 @@ void Roivert::closeEvent(QCloseEvent* event) {
     settings.endGroup();
     QMainWindow::closeEvent(event);
 }
+
 void Roivert::restoreSettings()
 {
     QSettings settings("Neuroph", "ROIVert");
@@ -387,7 +398,6 @@ void Roivert::restoreSettings()
         settings.endGroup();
     settings.endGroup();
 }
-
 void Roivert::resetSettings() {
     // reset core styles:
     auto rs{ rois->getCoreROIStyle() };
@@ -443,3 +453,4 @@ void Roivert::resetSettings() {
     // Set window size
     resize(800, 900);
 }
+

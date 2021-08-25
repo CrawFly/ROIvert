@@ -32,7 +32,7 @@ struct TraceView::pimpl {
         scrollAreaParent->setContentsMargins(0, 0, 0, 0);
         lineChartLayout->setContentsMargins(0, 0, 0, 0);
         lineChartLayout->setSpacing(10);
-        lineChartLayout->setMargin(0);
+        lineChartLayout->setMargin(10);
 
         tabRidgeLine->setLayout(ridgeLayout);
         ridgeLayout->addWidget(ridgeChart.get());
