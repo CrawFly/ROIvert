@@ -11,20 +11,27 @@
 #include "DisplaySettings.h"
 #include "FileIO.h"
 #include "ImageView.h"
+
+#include "ResetDialog.h"
+
 #include "ROI/ROIs.h"
 #include "ROI/ROIStyle.h"
 #include "ROIVertEnums.h"
+
 #include "dockwidgets/ImageDataWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/FileIOWidget.h"
 #include "dockwidgets/TraceViewWidget.h"
+
 #include "videodata.h"
 #include "widgets/VideoControllerWidget.h"
 #include "widgets/TraceChartWidget.h"
 
+
+
 struct Roivert::pimpl {
-    Ui::RoivertClass ui; // todo: this is doing next to nothing, can we just drop it now?
+    Ui::RoivertClass ui;
 
 
     std::unique_ptr<QVBoxLayout> toplayout{ nullptr };
@@ -42,75 +49,21 @@ struct Roivert::pimpl {
     std::unique_ptr<ROIs> rois{ nullptr };
     std::unique_ptr<FileIO> fileio{ nullptr };
     
+    std::unique_ptr<QActionGroup> ROIGroup{ nullptr }; 
+    std::unique_ptr<QAction> actROIEllipse{ nullptr }; 
+    std::unique_ptr<QAction> actROIPoly{ nullptr };       
+    std::unique_ptr<QAction> actROIRect{ nullptr };       
+    std::unique_ptr<QAction> actROISelect{ nullptr };     
+
+
     DisplaySettings dispSettings;
 
-    void makeObjects(Roivert* par) {
-        ui.setupUi(par);
-        toplayout = std::make_unique<QVBoxLayout>(ui.centralWidget);
-        viddata = std::make_unique<VideoData>(par);
-        
-        imagedatawidget = std::make_unique<ImageDataWidget>(par);
-        imagesettingswidget = std::make_unique<ImageSettingsWidget>(par);
-        stylewidget = std::make_unique<StyleWidget>(par);
-        fileiowidget = std::make_unique<FileIOWidget>(par);
-        traceviewwidget = std::make_unique<TraceViewWidget>(par);
+    void layout();
+    void initDockWidgets(Roivert* par);
+    void setWidgetParams();
+    void makeObjects(Roivert* par);
+    void makeToolbar(Roivert* par);
 
-        vidctrl = std::make_unique<VideoControllerWidget>(par);
-        imageview = std::make_unique<ImageView>(par);
-
-        rois = std::make_unique<ROIs>(imageview.get(), traceviewwidget.get(), viddata.get());
-        fileio = std::make_unique<FileIO>(rois.get(), traceviewwidget.get(), viddata.get());
-
-    }
-
-    void setWidgetParams() {
-        imagedatawidget->setWindowTitle("Image Data");
-        imagedatawidget->setContentsEnabled(true);
-        imagedatawidget->setVisible(false);
-
-        imagesettingswidget->setWindowTitle("Image Settings");
-        imagesettingswidget->setContentsEnabled(false);
-        imagesettingswidget->setVisible(false);
-        
-        fileiowidget->setWindowTitle("Import/Export");
-        fileiowidget->setContentsEnabled(false);
-        fileiowidget->setVisible(false);
-    
-        stylewidget->setWindowTitle("Color and Style");
-        stylewidget->setVisible(false);
-        stylewidget->setContentsEnabled(false);
-
-        traceviewwidget->setWindowTitle("Charts");
-        traceviewwidget->setVisible(false);
-
-        toplayout->setContentsMargins(0, 0, 0, 0);
-
-        imageview->setEnabled(false);
-
-        assert(rois != nullptr);
-        assert(traceviewwidget != nullptr);
-        stylewidget->setROIs(rois.get());
-        stylewidget->setTraceView(traceviewwidget.get());
-    }
-
-    void initDockWidgets(Roivert* par) {
-        par->addDockWidget(Qt::RightDockWidgetArea, imagedatawidget.get());
-        par->addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget.get());
-        par->addDockWidget(Qt::RightDockWidgetArea, fileiowidget.get());
-        par->addDockWidget(Qt::RightDockWidgetArea, stylewidget.get());
-        par->addDockWidget(Qt::BottomDockWidgetArea, traceviewwidget.get());
-
-        imagedatawidget->setObjectName("imagedatawidget");
-        imagesettingswidget->setObjectName("imagesettingswidget");
-        fileiowidget->setObjectName("fileiowidget");
-        stylewidget->setObjectName("stylewidget");
-        traceviewwidget->setObjectName("traceviewwidget");
-    }
-
-    void layout() {
-        toplayout->addWidget(imageview.get());
-        toplayout->addWidget(vidctrl.get());
-    }
 };
 
 
@@ -125,20 +78,12 @@ Roivert::Roivert(QWidget* parent)
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
     setDockNestingEnabled(true);
 
-    doConnect();    // todo: probably move to impl
-    makeToolbar();  // todo: definitely move to impl
-
-    // Action that resets window state:
-    QAction* actResetSettings = new QAction(tr("Reset Layout"));
-    actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
-    connect(actResetSettings, &QAction::triggered, this, &Roivert::resetSettings);
-    addAction(actResetSettings);
-    
+    doConnect();    // todo: consider move to impl
+    impl->makeToolbar(this);  
+        
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     resize(800, 900);
     
-    restoreSettings();    
-    impl->stylewidget->loadSettings();
 }
 
 Roivert::~Roivert() = default;
@@ -161,25 +106,17 @@ void Roivert::doConnect() {
 
     // clicked the dff button, update contrast widget
     connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
-
-
-    connect(impl->imageview.get(), &ImageView::keyPressed, this, [=](int key, Qt::KeyboardModifiers mod) {
-        if (mod == Qt::KeyboardModifier::NoModifier){
-            if (key >= Qt::Key_1 && key <= Qt::Key_4) {
-                selecttool(key - Qt::Key_1);
-            }
-            else if (key >= Qt::Key_5 && key <= Qt::Key_9) {
-                selecttool(key - Qt::Key_1 + 1);
-            }
-
-        }
-    });
+       
+    // Action that resets window state:
+    QAction* actResetSettings = new QAction(tr("Reset Layout"));
+    actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
+    connect(actResetSettings, &QAction::triggered, this, &Roivert::resetSettings);
+    addAction(actResetSettings);    
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
     // Confirm load if rois exist:
-    //todo: can we ask and convert the sizes?
     if (impl->rois->getNROIs() > 0) {
         // rois exist:
         QMessageBox msg;
@@ -229,58 +166,6 @@ void Roivert::frameRateChanged(double frameRate){
     impl->rois->updateROITraces();
 }
 
-void Roivert::makeToolbar() {
-    QActionGroup* ROIGroup = new QActionGroup(this);
-
-    QAction* actROIEllipse = new QAction(QIcon(":/icons/ROIEllipse.png"), "", ROIGroup);
-    QAction* actROIPoly = new QAction(QIcon(":/icons/ROIPoly.png"), "", ROIGroup);
-    QAction* actROIRect = new QAction(QIcon(":/icons/ROIRect.png"), "", ROIGroup);
-    QAction* actROISelect = new QAction(QIcon(":/icons/ROISelect.png"), "", ROIGroup);
-
-    actROIEllipse->setCheckable(true);
-    actROIPoly->setCheckable(true);
-    actROIRect->setCheckable(true);
-    actROISelect->setCheckable(true);
-
-    actROIEllipse->setChecked(true);
-    impl->rois->setROIShape(ROIVert::SHAPE::ELLIPSE);
-
-    actROIEllipse->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::ELLIPSE));
-    actROIPoly->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::POLYGON));
-    actROIRect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::RECTANGLE));
-    actROISelect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::SELECT));
-
-    actROIEllipse->setToolTip(tr("Draw ellipse ROIs"));
-    actROIPoly->setToolTip(tr("Draw polygon ROIs"));
-    actROIRect->setToolTip(tr("Draw rectangle ROIs"));
-    actROISelect->setToolTip(tr("Select ROIs"));
-
-
-    impl->ui.mainToolBar->addActions(ROIGroup->actions());
-    impl->ui.mainToolBar->addSeparator();
-    connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
-    {
-        ROIVert::SHAPE shp{act->property("Shape").toInt() };
-        impl->rois->setROIShape(shp);
-    });
-
-    // add dockables...
-    impl->imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
-    impl->ui.mainToolBar->addAction(impl->imagedatawidget->toggleViewAction());
-    impl->imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
-    impl->ui.mainToolBar->addAction(impl->imagesettingswidget->toggleViewAction());
-    impl->traceviewwidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
-    impl->ui.mainToolBar->addAction(impl->traceviewwidget->toggleViewAction());
-    impl->fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
-    impl->ui.mainToolBar->addAction(impl->fileiowidget->toggleViewAction());
-    
-    impl->stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
-    impl->ui.mainToolBar->addAction(impl->stylewidget->toggleViewAction());
-
-    impl->ui.mainToolBar->setFloatable(false);
-    impl->ui.mainToolBar->toggleViewAction()->setVisible(false);
-    addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
-}
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
     const ROIVert::contrast c = impl->dispSettings.getContrast(isDff);
@@ -303,12 +188,8 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
     impl->vidctrl->forceUpdate();
 }
-void Roivert::selecttool(int item) {
-    if (item >= 0 && item < impl->ui.mainToolBar->actions().size()) {
-        QAction* act = impl->ui.mainToolBar->actions()[item];
-        if (act) { act->activate(QAction::Trigger); }
-    }
-}
+
+
 void Roivert::closeEvent(QCloseEvent* event) {
     QSettings settings("Neuroph", "ROIVert");
     settings.setValue("version", 1.f);
@@ -357,12 +238,8 @@ void Roivert::closeEvent(QCloseEvent* event) {
     
     QMainWindow::closeEvent(event);
 }
-
 void Roivert::restoreSettings()
 {
-    //resetSettings();
-
-
     QSettings settings("Neuroph", "ROIVert");
 
     auto a = settings.value("geometry").toByteArray();
@@ -412,59 +289,212 @@ void Roivert::restoreSettings()
             if (settings.contains("overlap")) { impl->traceviewwidget->getRidgeChart().offset = settings.value("overlap").toFloat(); };
         settings.endGroup();
     settings.endGroup();
+    impl->stylewidget->loadSettings();
 }
 void Roivert::resetSettings() {
-    // reset core styles:
-    auto rs{ impl->rois->getCoreROIStyle() };
-    auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
-    auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
-    *rs = ROIStyle();
-    *cls = ChartStyle();
-    *crs = ChartStyle();
+    ResetDialog a;
+    a.exec();
+    if (a.result() != QDialog::Accepted) {
+        return;
+    }
+
+    auto doreset = a.getResult();
+
+    if (doreset.testBit(static_cast<int>(ROIVert::RESET::WINDOW))) {
+        impl->traceviewwidget->setFloating(false);
+        impl->imagedatawidget->setFloating(false);
+        impl->imagesettingswidget->setFloating(false);
+        impl->fileiowidget->setFloating(false);
+        impl->stylewidget->setFloating(false);
+        
+        impl->traceviewwidget->setVisible(false);
+        impl->imagedatawidget->setVisible(true);
+        impl->imagesettingswidget->setVisible(false);
+        impl->fileiowidget->setVisible(false);
+        impl->stylewidget->setVisible(false);
+        
+        addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
+        addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
+        addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
+        addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
+        addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
+
+        addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
+        qApp->processEvents(QEventLoop::AllEvents);
+        resize(800, 900);
+    }
+
+    if (doreset.testBit(static_cast<int>(ROIVert::RESET::ROISTYLE))) {
+        auto rs{ impl->rois->getCoreROIStyle() };
+        *rs = ROIStyle();
+        impl->stylewidget->loadSettings();
+        impl->stylewidget->ROIStyleChange();
+    }
     
-    crs->setDoBackBrush(true);
-    crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
-    crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    if (doreset.testBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE))) {
+        auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
+        auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
+        *cls = ChartStyle();
+        *crs = ChartStyle();
+        crs->setDoBackBrush(true);
+        crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
+        crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+        impl->rois->setMatchYAxes(false);
+        impl->traceviewwidget->getRidgeChart().offset = .5;
 
-    impl->rois->setMatchYAxes(false);
-    impl->traceviewwidget->getRidgeChart().offset = .5;
+        impl->stylewidget->loadSettings();
+        impl->stylewidget->ChartStyleChange();
+        impl->stylewidget->LineChartStyleChange();
+        impl->stylewidget->RidgeChartStyleChange();
+        impl->stylewidget->RidgeOverlapChange();
+        impl->stylewidget->LineMatchyChange();
 
-    // use stylewindow to apply:
-    impl->stylewidget->loadSettings();
-    impl->stylewidget->ROIStyleChange();
-    impl->stylewidget->ChartStyleChange();
-    impl->stylewidget->LineChartStyleChange();
-    impl->stylewidget->RidgeChartStyleChange();
-    impl->stylewidget->RidgeOverlapChange();
-    impl->stylewidget->LineMatchyChange();
-
-    // Reset layout:
-    // Dock all dockables in default position
-    addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
-    addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
-    addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
-    addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
-    addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
-
-    impl->traceviewwidget->setFloating(false);
-    impl->imagedatawidget->setFloating(false);
-    impl->imagesettingswidget->setFloating(false);
-    impl->fileiowidget->setFloating(false);
-    impl->stylewidget->setFloating(false);
-
-    // Set dockables to visible off (except file loader)
-    impl->imagedatawidget->setVisible(true);
-    
-    impl->imagesettingswidget->setVisible(false);
-    impl->fileiowidget->setVisible(false);
-    impl->stylewidget->setVisible(false);
-
-    // Put toolbar at left
-    addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
-
-    qApp->processEvents(QEventLoop::AllEvents);
-
-    // Set window size
-    resize(800, 900);
+    }
+    if (doreset.testBit(static_cast<int>(ROIVert::RESET::ROICOLOR))) {
+        if (impl->rois) {
+            std::vector<size_t> inds(impl->rois->getNROIs());
+            std::iota(inds.begin(), inds.end(), 0);
+            ROIPalette pal;
+            for (auto& ind : inds) {
+                auto thisStyle = impl->rois->getROIStyle(ind);
+                thisStyle->setColor(pal.getPaletteColor(ind));
+            }
+        }
+    }
 }
 
+
+
+
+
+void Roivert::pimpl::makeObjects(Roivert* par) {
+    ui.setupUi(par);
+    toplayout = std::make_unique<QVBoxLayout>(ui.centralWidget);
+    viddata = std::make_unique<VideoData>(par);
+        
+    imagedatawidget = std::make_unique<ImageDataWidget>(par);
+    imagesettingswidget = std::make_unique<ImageSettingsWidget>(par);
+    stylewidget = std::make_unique<StyleWidget>(par);
+    fileiowidget = std::make_unique<FileIOWidget>(par);
+    traceviewwidget = std::make_unique<TraceViewWidget>(par);
+
+    vidctrl = std::make_unique<VideoControllerWidget>(par);
+    imageview = std::make_unique<ImageView>(par);
+
+    rois = std::make_unique<ROIs>(imageview.get(), traceviewwidget.get(), viddata.get());
+    fileio = std::make_unique<FileIO>(rois.get(), traceviewwidget.get(), viddata.get());
+
+    ROIGroup = std::make_unique<QActionGroup>(par);
+    actROIEllipse = std::make_unique<QAction>(QIcon(":/icons/ROIEllipse.png"), "", ROIGroup.get());
+    actROIPoly = std::make_unique<QAction>(QIcon(":/icons/ROIPoly.png"), "", ROIGroup.get());
+    actROIRect = std::make_unique<QAction>(QIcon(":/icons/ROIRect.png"), "", ROIGroup.get());
+    actROISelect = std::make_unique<QAction>(QIcon(":/icons/ROISelect.png"), "", ROIGroup.get());
+}
+
+void Roivert::pimpl::setWidgetParams() {
+    imagedatawidget->setWindowTitle("Image Data");
+    imagedatawidget->setContentsEnabled(true);
+    imagedatawidget->setVisible(false);
+
+    imagesettingswidget->setWindowTitle("Image Settings");
+    imagesettingswidget->setContentsEnabled(false);
+    imagesettingswidget->setVisible(false);
+        
+    fileiowidget->setWindowTitle("Import/Export");
+    fileiowidget->setContentsEnabled(false);
+    fileiowidget->setVisible(false);
+    
+    stylewidget->setWindowTitle("Color and Style");
+    stylewidget->setVisible(false);
+    stylewidget->setContentsEnabled(false);
+
+    traceviewwidget->setWindowTitle("Charts");
+    traceviewwidget->setVisible(false);
+
+    toplayout->setContentsMargins(0, 0, 0, 0);
+
+    imageview->setEnabled(false);
+    vidctrl->setEnabled(false);
+
+    assert(rois != nullptr);
+    assert(traceviewwidget != nullptr);
+    stylewidget->setROIs(rois.get());
+    stylewidget->setTraceView(traceviewwidget.get());
+}
+
+void Roivert::pimpl::initDockWidgets(Roivert* par) {
+    par->addDockWidget(Qt::RightDockWidgetArea, imagedatawidget.get());
+    par->addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget.get());
+    par->addDockWidget(Qt::RightDockWidgetArea, fileiowidget.get());
+    par->addDockWidget(Qt::RightDockWidgetArea, stylewidget.get());
+    par->addDockWidget(Qt::BottomDockWidgetArea, traceviewwidget.get());
+
+    imagedatawidget->setObjectName("imagedatawidget");
+    imagesettingswidget->setObjectName("imagesettingswidget");
+    fileiowidget->setObjectName("fileiowidget");
+    stylewidget->setObjectName("stylewidget");
+    traceviewwidget->setObjectName("traceviewwidget");
+}
+
+void Roivert::pimpl::layout() {
+    toplayout->addWidget(imageview.get());
+    toplayout->addWidget(vidctrl.get());
+}
+
+void Roivert::pimpl::makeToolbar(Roivert* par) {
+    actROIEllipse->setCheckable(true);
+    actROIPoly->setCheckable(true);
+    actROIRect->setCheckable(true);
+    actROISelect->setCheckable(true);
+
+    actROIEllipse->setChecked(true);
+    rois->setROIShape(ROIVert::SHAPE::ELLIPSE);
+
+    actROIEllipse->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::ELLIPSE));
+    actROIPoly->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::POLYGON));
+    actROIRect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::RECTANGLE));
+    actROISelect->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::SELECT));
+
+    actROIEllipse->setToolTip(tr("Draw ellipse ROIs"));
+    actROIPoly->setToolTip(tr("Draw polygon ROIs"));
+    actROIRect->setToolTip(tr("Draw rectangle ROIs"));
+    actROISelect->setToolTip(tr("Select ROIs"));
+
+    actROIEllipse->setShortcut(Qt::Key_1);
+    actROIPoly->setShortcut(Qt::Key_2);
+    actROIRect->setShortcut(Qt::Key_3);
+    actROISelect->setShortcut(Qt::Key_4);
+    
+
+    ui.mainToolBar->addActions(ROIGroup->actions());
+    ui.mainToolBar->addSeparator();
+
+    connect(ROIGroup.get(), &QActionGroup::triggered, par, [&](QAction* act)
+    {
+        ROIVert::SHAPE shp{act->property("Shape").toInt() };
+        rois->setROIShape(shp);
+    });
+
+
+    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
+    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
+    traceviewwidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
+    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
+    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
+    
+    ui.mainToolBar->addAction(imagedatawidget->toggleViewAction());
+    ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
+    ui.mainToolBar->addAction(traceviewwidget->toggleViewAction());
+    ui.mainToolBar->addAction(fileiowidget->toggleViewAction());
+    ui.mainToolBar->addAction(stylewidget->toggleViewAction());
+
+    imagedatawidget->toggleViewAction()->setShortcut(Qt::Key_5);
+    imagesettingswidget->toggleViewAction()->setShortcut(Qt::Key_6);
+    traceviewwidget->toggleViewAction()->setShortcut(Qt::Key_7);
+    fileiowidget->toggleViewAction()->setShortcut(Qt::Key_8);
+    stylewidget->toggleViewAction()->setShortcut(Qt::Key_9);
+
+    ui.mainToolBar->setFloatable(false);
+    ui.mainToolBar->toggleViewAction()->setVisible(false);
+    par->addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+}

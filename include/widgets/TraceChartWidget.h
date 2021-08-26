@@ -82,7 +82,7 @@ public:
     void setStyle(const ChartStyle&) noexcept;
 
     bool polyContains(const QPointF&);
-    void setHighlighted(bool); // todo: highlighted means double thickness lines? What if there are no lines?
+    void setHighlighted(bool);
         
     void updatePoly();
 private:

@@ -12,6 +12,7 @@ class Roivert : public QMainWindow
 public:
     Roivert(QWidget *parent = Q_NULLPTR);
     ~Roivert();
+    void restoreSettings();
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
@@ -27,10 +28,7 @@ private:
 
     void doConnect();
     void frameRateChanged(double frameRate);
-    void makeToolbar();
     void updateContrastWidget(bool isDff);
-    void selecttool(int);
-    void restoreSettings();
     void resetSettings();
 
 };

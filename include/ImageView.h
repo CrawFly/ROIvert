@@ -13,7 +13,7 @@ public:
 
 signals:
     void mouseMoved(QPointF,bool);
-    void mousePressed(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);  // todo: evaluate whether this is the better approach to interacting with children
+    void mousePressed(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
     void keyPressed(int key, Qt::KeyboardModifiers mod);
     void imageSizeUpdated(QSize);
 

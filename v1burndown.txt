@@ -1,16 +1,12 @@
-Line chart minimum height option
-Tiff multipage detection and load
-Make it so you can choose a projection in df/f mode
-
-
+Tiff multipage detection and load [high]
+Make it so you can choose a projection in df/f mode [medium]
+Line chart minimum height option [low]
 
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
-        - make sure all NEWs are Qt managed, ugh
-        
-    honestly could consider moving a lot of the qt junk into object scope
-        ...
-        
+        - mostly done, a few methods that could be pimpl'd
+        - could follow the pattern in ROIVert.cpp to make things more memory safe, more organized.
+        - would sortof like to reCaps Roivert to ROIVert
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder
