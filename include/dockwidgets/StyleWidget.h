@@ -4,7 +4,7 @@
 #include <QStyleOption>
 
 class ROIs;
-class TraceView;
+class TraceViewWidget;
 
 class StyleWidget : public QDockWidget
 {
@@ -12,7 +12,7 @@ class StyleWidget : public QDockWidget
     public:
         explicit StyleWidget(QWidget* parent = nullptr);
         void setROIs(ROIs* rois);
-        void setTraceView(TraceView* traceview);
+        void setTraceView(TraceViewWidget* traceview);
         void loadSettings();
         void setContentsEnabled(bool);
 

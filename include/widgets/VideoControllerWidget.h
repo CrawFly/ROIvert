@@ -5,7 +5,9 @@ class VideoControllerWidget : public QWidget
     Q_OBJECT
 
 public:
-    VideoControllerWidget(QWidget *parent);
+    VideoControllerWidget(QWidget *parent = nullptr);
+    ~VideoControllerWidget();
+
     bool isDff() const;
     void toggleDff(bool checked) const; // todo: move to private (not impl)
     void forceUpdate();

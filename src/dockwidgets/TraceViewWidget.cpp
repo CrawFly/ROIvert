@@ -1,4 +1,4 @@
-#include "TraceView.h"
+#include "dockwidgets/TraceViewWidget.h"
 #include <QBoxLayout>
 #include <QTabWidget>
 #include <QScrollArea>
@@ -8,7 +8,7 @@
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
 
-struct TraceView::pimpl {
+struct TraceViewWidget::pimpl {
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
@@ -60,7 +60,11 @@ private:
 };
 
 
-TraceView::TraceView(QWidget* parent) : QWidget(parent) {
+TraceViewWidget::TraceViewWidget(QWidget* parent) : QDockWidget(parent) {
+    auto contents = new QWidget;
+    this->setWidget(contents);
+    contents->setLayout(impl->topGridLayout.get());
+
     impl->coreRidgeStyle->setDoBackBrush(true);
     impl->coreRidgeStyle->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
     impl->coreRidgeStyle->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
@@ -70,9 +74,9 @@ TraceView::TraceView(QWidget* parent) : QWidget(parent) {
     impl->doLayout();
 }
 
-TraceView::~TraceView() = default;
+TraceViewWidget::~TraceViewWidget() = default;
     
-void TraceView::addLineChart(TraceChartWidget* chart) {
+void TraceViewWidget::addLineChart(TraceChartWidget* chart) {
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
 
@@ -83,23 +87,23 @@ void TraceView::addLineChart(TraceChartWidget* chart) {
 
     impl->scrollToWidget(chart);
 }
-void TraceView::scrollToChart(TraceChartWidget* w) {
+void TraceViewWidget::scrollToChart(TraceChartWidget* w) {
     impl->scrollToWidget(w);
 }
-RidgeLineWidget& TraceView::getRidgeChart() noexcept {
+RidgeLineWidget& TraceViewWidget::getRidgeChart() noexcept {
     return *(impl->ridgeChart);
 }
 
-ChartStyle* TraceView::getCoreRidgeChartStyle() const noexcept {
+ChartStyle* TraceViewWidget::getCoreRidgeChartStyle() const noexcept {
     return impl->coreRidgeStyle.get();
 }
-ChartStyle* TraceView::getCoreLineChartStyle() const noexcept {
+ChartStyle* TraceViewWidget::getCoreLineChartStyle() const noexcept {
     return impl->coreLineStyle.get();
 }
-void TraceView::keyPressEvent(QKeyEvent* event) {
+void TraceViewWidget::keyPressEvent(QKeyEvent* event) {
     emit keyPressed(event->key(), event->modifiers());
 }
 
-void TraceView::mousePressEvent(QMouseEvent* event) {
+void TraceViewWidget::mousePressEvent(QMouseEvent* event) {
     emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
 }

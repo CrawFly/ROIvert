@@ -1,5 +1,5 @@
 #pragma once
-#include <QWidget>
+#include <QDockWidget>
 
 class QVBoxLayout;
 class TraceChartWidget;
@@ -7,13 +7,13 @@ class TraceChartSeries;
 class RidgeLineWidget;
 class ChartStyle;
 
-class TraceView : public QWidget
+class TraceViewWidget : public QDockWidget
 {
     Q_OBJECT
 
 public:
-    TraceView(QWidget* parent = nullptr);
-    ~TraceView();
+    TraceViewWidget(QWidget* parent = nullptr);
+    ~TraceViewWidget();
     
     
     //QVBoxLayout& getLineChartLayout();

@@ -2,13 +2,13 @@
 #include "ROIShape.h"
 #include "ROIStyle.h"
 #include "ROITrace.h"
-#include "TraceView.h"
+#include "dockwidgets/TraceViewWidget.h"
 #include "VideoData.h"
 #include "ChartStyle.h"
 
 struct ROI {
     ROI(QGraphicsScene* scene,
-        TraceView* tView,
+        TraceViewWidget* tView,
         VideoData* vdata,
         ROIVert::SHAPE shp,
         QSize imgsize,

@@ -17,11 +17,12 @@
 #include <QTabWidget>
 
 #include "ROI/ROIs.h"
-#include "TraceView.h"
+
 #include "ROI/ROIStyle.h"
 #include "ChartStyle.h"
 #include "widgets/RGBWidget.h"
 #include "widgets/TraceChartWidget.h"
+#include "dockwidgets/TraceViewWidget.h"
 
 struct StyleWidget::pimpl {
     QTabWidget* tab = new QTabWidget;
@@ -54,7 +55,7 @@ struct StyleWidget::pimpl {
 
 
     ROIs* rois{ nullptr };
-    TraceView* traceview{ nullptr };
+    TraceViewWidget* traceview{ nullptr };
 
     void doLayout() {
         tab->tabBar()->setStyle(new CustomTabStyle);
@@ -399,7 +400,9 @@ void StyleWidget::selectionChange(std::vector<size_t> inds) {
     }
     else {
         auto style = impl->rois->getROIStyle(inds.back());
+        impl->roicolor->blockSignals(true);
         impl->roicolor->setColor(style->getLineColor());
+        impl->roicolor->blockSignals(false);
         impl->roicolor->setEnabled(true);
     }
 }
@@ -407,7 +410,7 @@ void StyleWidget::setROIs(ROIs* rois) {
     impl->rois = rois;
     connect(rois, &ROIs::selectionChanged, this, &StyleWidget::selectionChange);
 }
-void StyleWidget::setTraceView(TraceView* traceview) {
+void StyleWidget::setTraceView(TraceViewWidget* traceview) {
     impl->traceview = traceview;
 }
 void StyleWidget::loadSettings() {

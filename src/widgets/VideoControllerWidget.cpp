@@ -62,6 +62,9 @@ VideoControllerWidget::VideoControllerWidget(QWidget* parent) : QWidget(parent){
     connect(&impl->timer, &QTimer::timeout, this, &VideoControllerWidget::timestep );
 
 }
+
+VideoControllerWidget::~VideoControllerWidget() = default;
+
 void VideoControllerWidget::forceUpdate() {
     impl->sliScrub->setValue(impl->currframe);
     impl->updateTimeLabel();

@@ -75,7 +75,7 @@
     <ClCompile Include="src\ROI\ROIStyle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\TraceView.cpp">
+    <ClCompile Include="src\dockwidgets\TraceViewWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ROI\ROITrace.cpp">
@@ -158,7 +158,7 @@
     <QtMoc Include="include\ROI\ROIStyle.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="include\TraceView.h">
+    <QtMoc Include="include\dockwidgets\TraceViewWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\ROI\ROITrace.h">

@@ -47,10 +47,11 @@ QColor RGBWidget::getColor() const {
 }
 
 void RGBWidget::setColor(const QColor &clr){
+    auto isblocked = this->signalsBlocked();
     this->blockSignals(true);
     impl->rgb[0].first->setValue(clr.red());
     impl->rgb[1].first->setValue(clr.green());
     impl->rgb[2].first->setValue(clr.blue());
-    this->blockSignals(false);
+    this->blockSignals(isblocked);
     emit colorChanged(getColor());
 }

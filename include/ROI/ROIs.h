@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
 #include "ImageView.h"
-#include "TraceView.h"
+#include "dockwidgets/TraceViewWidget.h"
 #include "VideoData.h"
 #include "ROIVertEnums.h"
 #include "ROIStyle.h"
@@ -16,7 +16,7 @@ class ROIs : public QObject
     Q_OBJECT
 
 public:
-    ROIs(ImageView*, TraceView*, VideoData*);
+    ROIs(ImageView*, TraceViewWidget*, VideoData*);
     ~ROIs();
 
     std::vector<size_t> getSelected() const noexcept;

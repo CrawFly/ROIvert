@@ -134,7 +134,7 @@
     <ClCompile Include="src\widgets\TraceChartAxis.cpp" />
     <ClCompile Include="src\widgets\TraceChartSeries.cpp" />
     <ClCompile Include="src\dockwidgets\StyleWidget.cpp" />
-    <ClCompile Include="src\TraceView.cpp" />
+    <ClCompile Include="src\dockwidgets\TraceViewWidget.cpp" />
     <ClCompile Include="src\widgets\TraceChartWidget.cpp" />
     <ClCompile Include="src\widgets\VideoControllerWidget.cpp" />
     <ClCompile Include="src\VideoData.cpp">
@@ -154,7 +154,7 @@
     <QtMoc Include="include\widgets\VideoControllerWidget.h" />
     <QtMoc Include="include\dockwidgets\StyleWidget.h" />
     <QtMoc Include="include\widgets\TraceChartWidget.h" />
-    <QtMoc Include="include\TraceView.h" />
+    <QtMoc Include="include\dockwidgets\TraceViewWidget.h" />
     <QtMoc Include="include\ZoomPan.h" />
     <QtMoc Include="include\widgets\ContrastWidgetImpl.h" />
     <QtMoc Include="include\widgets\SmoothingPickWidget.h" />

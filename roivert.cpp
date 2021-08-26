@@ -1,9 +1,20 @@
 // What a MESS! this clearly needs a detailed pass
 
+#include "roivert.h"
+
 #include <QDebug>
 
+#include "ui_roivert.h"
+#include "videodata.h"
+#include "widgets/VideoControllerWidget.h"
+#include "dockwidgets/ImageDataWidget.h"
+#include "dockwidgets/ImageSettingsWidget.h"
+#include "dockwidgets/StyleWidget.h"
+#include "dockwidgets/FileIOWidget.h"
+#include "dockwidgets/TraceViewWidget.h"
+#include "ROI/ROIs.h"
+#include "FileIO.h"
 
-#include "roivert.h"
 
 #include "qboxlayout.h"
 #include "qpushbutton.h"
@@ -19,94 +30,137 @@
 #include "qmessagebox.h"
 #include "qsettings.h"
 #include <QGraphicsLayout>
-#include "TraceView.h"
 #include "opencv2/opencv.hpp"
 #include "ROIVertEnums.h"
 #include <QStringList>
 #include "ROI/ROIStyle.h"
 #include "widgets/TraceChartWidget.h"
 
+/*
+* A note about memory in ROIVert:
+*   Leaks aren't a big concern for many of the widgets and other members in ROIVert, as their lifetime starts and ends with ROIVert.
+*   Nonetheless, it seems prudent to try to recover allocated memory in a normal fashion. 
+*   HOWEVER, the picture is muddied by Qt's ownership rules:
+*       A QObject's that has children will automatically delete each child during destruction.
+* 
+*   One might just create all parented QObjects (all QWidgets) with new, but this is unsettling: it means paying close attention to whether 
+*   each member is managed by Qt or not.
+*   One might make everything a unique_ptr (or keep things on the stack) relying on scope to address deletion. But this introduces a bug:
+*       - if an object's parent is created first, and the object is created second, everything is fine: the child is destructed, Qt removes 
+*       it from the parent, and when the parent is destructed everything is fine.
+*       - but if an object is created first, and then the parent, a problem is raised. The parent is destructed first, causing the child to 
+*       destructed, but the unique_ptr remains. When the variable goes out of scope, the destructor is called a second time. 
+*   
+*  I don't see threeish solutions: 
+*       - pay attention to ownership, creating objects which Qt will manage with new
+*       - pay attention to order, always creating parents before children, use unique_ptr's broadly (or stack)
+*       - create as a unique_ptr, but release upon parenting...but this means that the unique ptr will be nullptr. 
+* 
+*  ROIVert was initially written with the first approach, which had no real functional issues, but may have created undetected memory leaks.
+*  ROIVert 1.0 moves toward the second option, with the hopes of locking down leaks.
+*/
+
+struct Roivert::pimpl {
+    Ui::RoivertClass ui; // todo: this is doing next to nothing, can we just drop it now?
+
+
+    std::unique_ptr<QVBoxLayout> toplayout{ nullptr };
+
+    std::unique_ptr<VideoData> viddata{ nullptr };
+    std::unique_ptr<ImageDataWidget> imagedatawidget{ nullptr };
+    std::unique_ptr<ImageSettingsWidget> imagesettingswidget{ nullptr };
+    std::unique_ptr<StyleWidget> stylewidget{ nullptr };
+    std::unique_ptr<FileIOWidget> fileiowidget{ nullptr };
+    std::unique_ptr<TraceViewWidget> traceviewwidget{ nullptr };
+
+    std::unique_ptr<ImageView> imageview{ nullptr };
+    std::unique_ptr<VideoControllerWidget> vidctrl{ nullptr };
+
+    std::unique_ptr<ROIs> rois{ nullptr };
+    std::unique_ptr<FileIO> fileio{ nullptr };
+    
+    DisplaySettings dispSettings;
+
+    void makeObjects(Roivert* par) {
+        ui.setupUi(par);
+        toplayout = std::make_unique<QVBoxLayout>(ui.centralWidget);
+        viddata = std::make_unique<VideoData>(par);
+        
+        imagedatawidget = std::make_unique<ImageDataWidget>(par);
+        imagesettingswidget = std::make_unique<ImageSettingsWidget>(par);
+        stylewidget = std::make_unique<StyleWidget>(par);
+        fileiowidget = std::make_unique<FileIOWidget>(par);
+        traceviewwidget = std::make_unique<TraceViewWidget>(par);
+
+        vidctrl = std::make_unique<VideoControllerWidget>(par);
+        imageview = std::make_unique<ImageView>(par);
+
+        rois = std::make_unique<ROIs>(imageview.get(), traceviewwidget.get(), viddata.get());
+        fileio = std::make_unique<FileIO>(rois.get(), traceviewwidget.get(), viddata.get());
+
+    }
+
+    void setWidgetParams() {
+        imagedatawidget->setWindowTitle("Image Data");
+        imagedatawidget->setContentsEnabled(true);
+        imagedatawidget->setVisible(false);
+
+        imagesettingswidget->setWindowTitle("Image Settings");
+        imagesettingswidget->setContentsEnabled(false);
+        imagesettingswidget->setVisible(false);
+        
+        fileiowidget->setWindowTitle("Import/Export");
+        fileiowidget->setContentsEnabled(false);
+        fileiowidget->setVisible(false);
+    
+        stylewidget->setWindowTitle("Color and Style");
+        stylewidget->setVisible(false);
+        stylewidget->setContentsEnabled(false);
+
+        traceviewwidget->setWindowTitle("Charts");
+        traceviewwidget->setVisible(false);
+
+        toplayout->setContentsMargins(0, 0, 0, 0);
+
+        imageview->setEnabled(false);
+
+
+    }
+
+    void initDockWidgets(Roivert* par) {
+        par->addDockWidget(Qt::RightDockWidgetArea, imagedatawidget.get());
+        par->addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget.get());
+        par->addDockWidget(Qt::RightDockWidgetArea, fileiowidget.get());
+        par->addDockWidget(Qt::RightDockWidgetArea, stylewidget.get());
+        par->addDockWidget(Qt::BottomDockWidgetArea, traceviewwidget.get());
+    }
+
+    void layout() {
+        toplayout->addWidget(imageview.get());
+        toplayout->addWidget(vidctrl.get());
+    }
+};
+
+
 Roivert::Roivert(QWidget* parent)
     : QMainWindow(parent)
 {
-
-    //todo: megarefactor!
-    ui.setupUi(this);
-    viddata = new VideoData(); //todo: this can be uniqueptr
-
+    impl->makeObjects(this);
+    impl->initDockWidgets(this);
+    impl->setWidgetParams();
+    impl->layout();
 
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
-
-    QGridLayout* gridLayout = new QGridLayout(ui.centralWidget); // top level layout that makes everything stretch-to-fit
     setDockNestingEnabled(true);
 
-    imagedatawidget = new ImageDataWidget(this);
-    imagedatawidget->setWindowTitle("Image Data");
-    imagedatawidget->setObjectName("WImageData");
-    addDockWidget(Qt::RightDockWidgetArea, imagedatawidget);
-    imagedatawidget->setContentsEnabled(true);
-    imagedatawidget->setVisible(false);
-
-    imagesettingswidget = new ImageSettingsWidget(this);
-    imagesettingswidget->setWindowTitle("Image Settings");
-    imagesettingswidget->setObjectName("WImageSettings");
-    addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget);
-    imagesettingswidget->setContentsEnabled(false);
-    imagesettingswidget->setVisible(false);
-
-    fileiowidget = new FileIOWidget(this);
-    fileiowidget->setWindowTitle("Import/Export");
-    fileiowidget->setObjectName("WImportExport");
-    addDockWidget(Qt::RightDockWidgetArea, fileiowidget);
-    fileiowidget->setContentsEnabled(false);
-    fileiowidget->setVisible(false);
-
-    stylewidget = new StyleWidget(this);
-    stylewidget->setWindowTitle("Color and Style");
-    stylewidget->setObjectName("WStyle");
-    addDockWidget(Qt::RightDockWidgetArea, stylewidget);
-    stylewidget->setVisible(false);
-    stylewidget->setContentsEnabled(false);
-
-    // Right Side:
-    QWidget* rightLayoutWidget = new QWidget(ui.centralWidget);
-    QVBoxLayout* rightLayout = new QVBoxLayout(rightLayoutWidget);
-    rightLayout->setContentsMargins(0, 0, 0, 0);
-
-    // Image Viewer:
-    imageview = new ImageView(rightLayoutWidget);
-    imageview->setEnabled(false);
-    rightLayout->addWidget(imageview);
-    
-    
-    // Contols:
-    vidctrl = new VideoControllerWidget(rightLayoutWidget);
-    rightLayout->addWidget(vidctrl);
-    gridLayout->addWidget(rightLayoutWidget);
-
-    // Trace Viewer
-    w_charts = new QDockWidget;
-    w_charts->setWindowTitle("Charts");
-    traceview = new TraceView(this);
-
-    w_charts->setObjectName("WCharts");
-    w_charts->setWidget(traceview);
-    addDockWidget(Qt::BottomDockWidgetArea, w_charts);
-
-    
     // ROIs container
-    rois = new ROIs(imageview, traceview, viddata);
-    stylewidget->setROIs(rois);
-    stylewidget->setTraceView(traceview);
-
+    impl->stylewidget->setROIs(impl->rois.get());
+    impl->stylewidget->setTraceView(impl->traceviewwidget.get());
 
     // File IO
-    fileio = new FileIO(rois, traceview, viddata);
 
     doConnect();
-
     makeToolbar();
-
     // Action that resets window state:
     QAction* actResetSettings = new QAction(tr("Reset Layout"));
     actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
@@ -117,42 +171,32 @@ Roivert::Roivert(QWidget* parent)
     resize(800, 900);
     
     restoreSettings();    
-    stylewidget->loadSettings();
-
-    
-    
+    impl->stylewidget->loadSettings();
 }
+
+Roivert::~Roivert() = default;
+
 void Roivert::doConnect() {
-    // todo: most of this could be eradicated by just passing some pointers around...is that better? worse?
-
-    // imgdata tool load button hit, initiates loading the video
-    connect(imagedatawidget, &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
-
-    // when timer or manual change of frame, initiate draw
-    connect(vidctrl, &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
-
-    // framerate change (simple) fan out to vidctrl and traceview
-    connect(imagedatawidget, &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
-
-    // mostly destined for displaysettings, change in smoothing/contrast etc.
-    connect(imagesettingswidget, &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
+    connect(impl->imagedatawidget.get(), &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
+    connect(impl->vidctrl.get(), &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
+    connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
+    connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
         
-    // todo: (consider) give tool::fileio interface a ptr to fileio so it can call directly
-    // File IO:
-    connect(fileiowidget, &FileIOWidget::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {fileio->exportTraces(fn, dohdr, dotime); });
-    connect(fileiowidget, &FileIOWidget::exportROIs, this, [=](QString fn) {fileio->exportROIs(fn); });
-    connect(fileiowidget, &FileIOWidget::importROIs, this, [=](QString fn) {fileio->importROIs(fn); });
-    connect(fileiowidget, &FileIOWidget::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {fileio->exportCharts(fn,width,height,quality,ridge); });
+    // todo: (consider) give fileiowidget interface a ptr to fileio so it can call directly
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, this, [=](QString fn, bool dohdr, bool dotime) {impl->fileio->exportTraces(fn, dohdr, dotime); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, this, [=](QString fn) {impl->fileio->exportROIs(fn); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, this, [=](QString fn) {impl->fileio->importROIs(fn); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge) {impl->fileio->exportCharts(fn,width,height,quality,ridge); });
     
 
     // progress for loading
-    connect(viddata, &VideoData::loadProgress, imagedatawidget, &ImageDataWidget::setProgBar);
+    connect(impl->viddata.get(), &VideoData::loadProgress, impl->imagedatawidget.get(), &ImageDataWidget::setProgBar);
 
     // clicked the dff button, update contrast widget
-    connect(vidctrl, &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
+    connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
 
 
-    connect(imageview, &ImageView::keyPressed, this, [=](int key, Qt::KeyboardModifiers mod) {
+    connect(impl->imageview.get(), &ImageView::keyPressed, this, [=](int key, Qt::KeyboardModifiers mod) {
         if (mod == Qt::KeyboardModifier::NoModifier){
             if (key >= Qt::Key_1 && key <= Qt::Key_4) {
                 selecttool(key - Qt::Key_1);
@@ -163,13 +207,12 @@ void Roivert::doConnect() {
 
         }
     });
-    
 }
+
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
-    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     // Confirm load if rois exist:
-    if (rois->getNROIs() > 0) {
+    if (impl->rois->getNROIs() > 0) {
         // rois exist:
         QMessageBox msg;
         msg.setText(tr("Existing ROIs will be removed when loading a new file, continue?"));
@@ -178,43 +221,44 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
         if (ret == QMessageBox::Cancel) {
             return;
         }
-        rois->deleteAllROIs();
+        impl->rois->deleteAllROIs();
     }
+    
+    QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    impl->viddata->load(fileList, dsTime, dsSpace);
 
-    viddata->load(fileList, dsTime, dsSpace);
+    impl->imagedatawidget->setProgBar(-1);
+    impl->vidctrl->setNFrames(impl->viddata->getNFrames());
+    impl->vidctrl->setFrameRate(frameRate / dsTime);
+    impl->viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
 
-    imagedatawidget->setProgBar(-1);
-    vidctrl->setNFrames(viddata->getNFrames());
-    vidctrl->setFrameRate(frameRate / dsTime);
-    viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
+    impl->vidctrl->setEnabled(true);
+    impl->imagesettingswidget->setContentsEnabled(true);
+    impl->imageview->setEnabled(true);
+    impl->stylewidget->setContentsEnabled(true);
+    impl->fileiowidget->setContentsEnabled(true);
 
-    vidctrl->setEnabled(true);
-    imagesettingswidget->setContentsEnabled(true);
-    imageview->setEnabled(true);
-    stylewidget->setContentsEnabled(true);
-    fileiowidget->setContentsEnabled(true);
-
-    updateContrastWidget(vidctrl->isDff());
+    updateContrastWidget(impl->vidctrl->isDff());
     QGuiApplication::restoreOverrideCursor();
 }
 
 void Roivert::changeFrame(const size_t frame)
 {
-    if (frame > 0 && frame <= viddata->getNFrames())
+    if (frame > 0 && frame <= impl->viddata->getNFrames())
     { 
         cv::Mat thisframe;
-        thisframe = viddata->get(vidctrl->isDff(),dispSettings.getProjectionMode(),frame-1);
-        cv::Mat proc = dispSettings.getImage(thisframe, vidctrl->isDff());
+        thisframe = impl->viddata->get(impl->vidctrl->isDff(),impl->dispSettings.getProjectionMode(),frame-1);
+        cv::Mat proc = impl->dispSettings.getImage(thisframe, impl->vidctrl->isDff());
         // todo: consider moving fmt to dispSettings
-        const QImage::Format fmt = dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
+        const QImage::Format fmt = impl->dispSettings.useCmap() ? QImage::Format_BGR888 : QImage::Format_Grayscale8;
         QImage qimg(proc.data,proc.cols,proc.rows,proc.step,fmt);
-        imageview->setImage(qimg);
+        impl->imageview->setImage(qimg);
     }
  }
 void Roivert::frameRateChanged(double frameRate){
-    vidctrl->setFrameRate(frameRate / viddata->getdsTime());
-    viddata->setFrameRate(frameRate / viddata->getdsTime()); // duplicated for convenience
-    rois->updateROITraces();
+    impl->vidctrl->setFrameRate(frameRate / impl->viddata->getdsTime());
+    impl->viddata->setFrameRate(frameRate / impl->viddata->getdsTime()); // duplicated for convenience
+    impl->rois->updateROITraces();
 }
 
 void Roivert::makeToolbar() {
@@ -232,7 +276,7 @@ void Roivert::makeToolbar() {
     actROISelect->setCheckable(true);
 
     actROIEllipse->setChecked(true);
-    rois->setROIShape(ROIVert::SHAPE::ELLIPSE);
+    impl->rois->setROIShape(ROIVert::SHAPE::ELLIPSE);
 
     actROIEllipse->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::ELLIPSE));
     actROIPoly->setProperty("Shape", static_cast<int>(ROIVert::SHAPE::POLYGON));
@@ -245,56 +289,56 @@ void Roivert::makeToolbar() {
     actROISelect->setToolTip(tr("Select ROIs"));
 
 
-    ui.mainToolBar->addActions(ROIGroup->actions());
-    ui.mainToolBar->addSeparator();
+    impl->ui.mainToolBar->addActions(ROIGroup->actions());
+    impl->ui.mainToolBar->addSeparator();
     connect(ROIGroup, &QActionGroup::triggered, this, [&](QAction* act)
     {
         ROIVert::SHAPE shp{act->property("Shape").toInt() };
-        rois->setROIShape(shp);
+        impl->rois->setROIShape(shp);
     });
 
     // add dockables...
-    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
-    ui.mainToolBar->addAction(imagedatawidget->toggleViewAction());
-    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
-    ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
-    w_charts->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
-    ui.mainToolBar->addAction(w_charts->toggleViewAction());
-    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
-    ui.mainToolBar->addAction(fileiowidget->toggleViewAction());
+    impl->imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
+    impl->ui.mainToolBar->addAction(impl->imagedatawidget->toggleViewAction());
+    impl->imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
+    impl->ui.mainToolBar->addAction(impl->imagesettingswidget->toggleViewAction());
+    impl->traceviewwidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
+    impl->ui.mainToolBar->addAction(impl->traceviewwidget->toggleViewAction());
+    impl->fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
+    impl->ui.mainToolBar->addAction(impl->fileiowidget->toggleViewAction());
     
-    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
-    ui.mainToolBar->addAction(stylewidget->toggleViewAction());
+    impl->stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
+    impl->ui.mainToolBar->addAction(impl->stylewidget->toggleViewAction());
 
-    ui.mainToolBar->setFloatable(false);
-    ui.mainToolBar->toggleViewAction()->setVisible(false);
-    addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+    impl->ui.mainToolBar->setFloatable(false);
+    impl->ui.mainToolBar->toggleViewAction()->setVisible(false);
+    addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
 }
 void Roivert::updateContrastWidget(bool isDff) {
     // this sets histogram and contrast on the widget:
-    const ROIVert::contrast c = dispSettings.getContrast(isDff);
-    imagesettingswidget->setContrast(c);
+    const ROIVert::contrast c = impl->dispSettings.getContrast(isDff);
+    impl->imagesettingswidget->setContrast(c);
 
     std::vector<float> hist; 
-    viddata->getHistogram(isDff, hist);
-    imagesettingswidget->setHistogram(hist);
+    impl->viddata->getHistogram(isDff, hist);
+    impl->imagesettingswidget->setHistogram(hist);
 }
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings) {
     
-    dispSettings.setContrast(vidctrl->isDff(), settings.Contrast);
+    impl->dispSettings.setContrast(impl->vidctrl->isDff(), settings.Contrast);
     
-    dispSettings.setProjectionMode(settings.projectionType);
-    if (settings.projectionType > 0) { vidctrl->stop(); }
-    vidctrl->setEnabled(settings.projectionType == 0);
+    impl->dispSettings.setProjectionMode(settings.projectionType);
+    if (settings.projectionType > 0) { impl->vidctrl->stop(); }
+    impl->vidctrl->setEnabled(settings.projectionType == 0);
 
-    dispSettings.setColormap(settings.cmap);
-    dispSettings.setSmoothing(settings.Smoothing);
+    impl->dispSettings.setColormap(settings.cmap);
+    impl->dispSettings.setSmoothing(settings.Smoothing);
     
-    vidctrl->forceUpdate();
+    impl->vidctrl->forceUpdate();
 }
 void Roivert::selecttool(int item) {
-    if (item >= 0 && item < ui.mainToolBar->actions().size()) {
-        QAction* act = ui.mainToolBar->actions()[item];
+    if (item >= 0 && item < impl->ui.mainToolBar->actions().size()) {
+        QAction* act = impl->ui.mainToolBar->actions()[item];
         if (act) { act->activate(QAction::Trigger); }
     }
 }
@@ -305,7 +349,7 @@ void Roivert::closeEvent(QCloseEvent* event) {
     settings.setValue("windowState", saveState());
 
     // todo: store style info and chart colors
-    const auto rs{ rois->getCoreROIStyle() };
+    const auto rs{ impl->rois->getCoreROIStyle() };
     settings.beginGroup("Style");
         settings.beginGroup("ROIStyle");
             settings.setValue("linewidth", rs->getPen().style()==Qt::NoPen ? 0 : rs->getPen().width());
@@ -314,8 +358,8 @@ void Roivert::closeEvent(QCloseEvent* event) {
         settings.endGroup();
     
         
-        auto cls{ traceview->getCoreLineChartStyle() };
-        auto crs{ traceview->getCoreRidgeChartStyle() };
+        auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
+        auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
 
         settings.beginGroup("ChartStyle");
             settings.setValue("back", cls->getBackgroundColor().name());
@@ -332,7 +376,7 @@ void Roivert::closeEvent(QCloseEvent* event) {
             settings.setValue("gradient", cls->getTraceFillGradient());
             settings.setValue("grid", cls->getGrid());
             settings.setValue("normalization", static_cast<int>(cls->getNormalization()));
-            settings.setValue("matchy", rois->getMatchYAxes());
+            settings.setValue("matchy", impl->rois->getMatchYAxes());
         settings.endGroup();
         
         settings.beginGroup("RidgeChartStyle");
@@ -340,7 +384,7 @@ void Roivert::closeEvent(QCloseEvent* event) {
             settings.setValue("fillopacity", crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
             settings.setValue("gradient", crs->getTraceFillGradient());
             settings.setValue("grid", crs->getGrid());
-            settings.setValue("overlap", traceview->getRidgeChart().offset);
+            settings.setValue("overlap", impl->traceviewwidget->getRidgeChart().offset);
         settings.endGroup();
 
     settings.endGroup();
@@ -354,12 +398,12 @@ void Roivert::restoreSettings()
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
 
-    auto cls{ traceview->getCoreLineChartStyle() };
-    auto crs{ traceview->getCoreRidgeChartStyle() };
+    auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
+    auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
 
     settings.beginGroup("Style");
         settings.beginGroup("ROIStyle");
-            auto rs = rois->getCoreROIStyle();
+            auto rs = impl->rois->getCoreROIStyle();
             if (settings.contains("linewidth")) { rs->setLineWidth(settings.value("linewidth").toInt()); };
             if (settings.contains("selsize")) { rs->setSelectorSize(settings.value("selsize").toInt()); };
             if (settings.contains("fillopacity")) { rs->setFillOpacity(settings.value("fillopacity").toInt()); };
@@ -385,7 +429,7 @@ void Roivert::restoreSettings()
             if (settings.contains("gradient")) { cls->setTraceFillGradient(settings.value("gradient").toBool()); };
             if (settings.contains("grid")) { cls->setGrid(settings.value("grid").toBool()); };
             if (settings.contains("normalization")) { cls->setNormalization(static_cast<ROIVert::NORMALIZATION>(settings.value("normalization").toInt())); };
-            if (settings.contains("matchy")) { rois->setMatchYAxes(settings.value("matchy").toBool()); };
+            if (settings.contains("matchy")) { impl->rois->setMatchYAxes(settings.value("matchy").toBool()); };
 
         settings.endGroup();
         
@@ -394,15 +438,15 @@ void Roivert::restoreSettings()
             if (settings.contains("fillopacity")) { crs->setTraceFillOpacity(settings.value("fillopacity").toInt()); };
             if (settings.contains("gradient")) { crs->setTraceFillGradient(settings.value("gradient").toBool()); };
             if (settings.contains("grid")) { crs->setGrid(settings.value("grid").toBool()); };
-            if (settings.contains("overlap")) { traceview->getRidgeChart().offset = settings.value("overlap").toFloat(); };
+            if (settings.contains("overlap")) { impl->traceviewwidget->getRidgeChart().offset = settings.value("overlap").toFloat(); };
         settings.endGroup();
     settings.endGroup();
 }
 void Roivert::resetSettings() {
     // reset core styles:
-    auto rs{ rois->getCoreROIStyle() };
-    auto cls{ traceview->getCoreLineChartStyle() };
-    auto crs{ traceview->getCoreRidgeChartStyle() };
+    auto rs{ impl->rois->getCoreROIStyle() };
+    auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
+    auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
     *rs = ROIStyle();
     *cls = ChartStyle();
     *crs = ChartStyle();
@@ -411,42 +455,41 @@ void Roivert::resetSettings() {
     crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
     crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
 
-    rois->setMatchYAxes(false);
-    traceview->getRidgeChart().offset = .5;
+    impl->rois->setMatchYAxes(false);
+    impl->traceviewwidget->getRidgeChart().offset = .5;
 
     // use stylewindow to apply:
-    stylewidget->loadSettings();
-    stylewidget->ROIStyleChange();
-    stylewidget->ChartStyleChange();
-    stylewidget->LineChartStyleChange();
-    stylewidget->RidgeChartStyleChange();
-    stylewidget->RidgeOverlapChange();
-    stylewidget->LineMatchyChange();
+    impl->stylewidget->loadSettings();
+    impl->stylewidget->ROIStyleChange();
+    impl->stylewidget->ChartStyleChange();
+    impl->stylewidget->LineChartStyleChange();
+    impl->stylewidget->RidgeChartStyleChange();
+    impl->stylewidget->RidgeOverlapChange();
+    impl->stylewidget->LineMatchyChange();
 
     // Reset layout:
     // Dock all dockables in default position
-    addDockWidget(Qt::BottomDockWidgetArea, w_charts);
-    addDockWidget(Qt::RightDockWidgetArea, imagedatawidget);
-    addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget);
-    addDockWidget(Qt::RightDockWidgetArea, fileiowidget);
-    addDockWidget(Qt::RightDockWidgetArea, stylewidget);
+    addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
 
-    w_charts->setFloating(false);
-    imagedatawidget->setFloating(false);
-    imagesettingswidget->setFloating(false);
-    fileiowidget->setFloating(false);
-    stylewidget->setFloating(false);
+    impl->traceviewwidget->setFloating(false);
+    impl->imagedatawidget->setFloating(false);
+    impl->imagesettingswidget->setFloating(false);
+    impl->fileiowidget->setFloating(false);
+    impl->stylewidget->setFloating(false);
 
     // Set dockables to visible off (except file loader)
-    w_charts->setVisible(true);
-    imagedatawidget->setVisible(true);
+    impl->imagedatawidget->setVisible(true);
 
-    imagesettingswidget->setVisible(false);
-    fileiowidget->setVisible(false);
-    stylewidget->setVisible(false);
+    impl->imagesettingswidget->setVisible(false);
+    impl->fileiowidget->setVisible(false);
+    impl->stylewidget->setVisible(false);
 
     // Put toolbar at left
-    addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+    addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
 
     qApp->processEvents(QEventLoop::AllEvents);
 

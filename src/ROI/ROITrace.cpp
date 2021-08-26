@@ -3,14 +3,14 @@
 
 #include "VideoData.h"
 #include "ROIVertEnums.h"
-#include "TraceView.h"
+#include "dockwidgets/TraceViewWidget.h"
 #include "widgets\TraceChartWidget.h"
 #include "opencv2/opencv.hpp"
 #include "ChartStyle.h"
 
 struct ROITrace::pimpl {
     VideoData* videodata;
-    TraceView* traceview;
+    TraceViewWidget* traceview;
 
     cv::Mat TraceData;
     std::unique_ptr<TraceChartWidget> TraceChart;
@@ -29,7 +29,7 @@ struct ROITrace::pimpl {
 };
 
 
-ROITrace::ROITrace(TraceView* tv, VideoData* vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
+ROITrace::ROITrace(TraceViewWidget* tv, VideoData* vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
     impl->init(ridgestyle, linestyle);
     impl->videodata = vd;
     impl->traceview = tv;

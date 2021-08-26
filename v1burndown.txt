@@ -1,10 +1,16 @@
 Line chart minimum height option
-Convenience black/white buttons for RGB widget
+Tiff multipage detection and load
+Make it so you can choose a projection in df/f mode
+
+
 
 REFACTOR PUSH   
     BIG CLEANUP IN ROIVERT.CPP
         - make sure all NEWs are Qt managed, ugh
-        - honestly could consider moving a lot of the qt junk into object scope
+        
+    honestly could consider moving a lot of the qt junk into object scope
+        ...
+        
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder

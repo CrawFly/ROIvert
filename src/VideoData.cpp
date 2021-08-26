@@ -36,7 +36,7 @@ struct VideoData::pimpl {
 };
 
 
-VideoData::VideoData() = default;
+VideoData::VideoData(QObject* parent) : QObject(parent) {}
 VideoData::~VideoData() = default;
 
 

@@ -15,7 +15,7 @@
 
 struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
-    TraceView* traceview{ nullptr };
+    TraceViewWidget* traceview{ nullptr };
     VideoData* videodata{ nullptr };
 
     std::vector<std::unique_ptr<ROI>> rois; // todo: consider whether ROI could be a unique_ptr?
@@ -241,7 +241,7 @@ struct ROIs::pimpl {
 };
 
 
-ROIs::ROIs(ImageView* iView, TraceView* tView, VideoData* vData) {
+ROIs::ROIs(ImageView* iView, TraceViewWidget* tView, VideoData* vData) {
     impl->scene = iView->scene();
     impl->imgsize = iView->getImageSize();
     impl->traceview = tView;
@@ -258,8 +258,8 @@ ROIs::ROIs(ImageView* iView, TraceView* tView, VideoData* vData) {
     connect(iView, &ImageView::imageSizeUpdated, this, &ROIs::imageSizeUpdate);
 
     // connect with trace view
-    connect(tView, &TraceView::chartClicked, this, &ROIs::chartClick);
-    connect(tView, &TraceView::keyPressed, this, &ROIs::keyPress);
+    connect(tView, &TraceViewWidget::chartClicked, this, &ROIs::chartClick);
+    connect(tView, &TraceViewWidget::keyPressed, this, &ROIs::keyPress);
 
 }
 ROIs::~ROIs() = default;

@@ -2,7 +2,7 @@
 #include <QObject>
 #include <QRect>
 class VideoData;
-class TraceView;
+class TraceViewWidget;
 class ChartStyle;
 class TraceChartWidget;
 class TraceChartSeries;
@@ -17,7 +17,7 @@ class ROITrace : public QObject
     Q_OBJECT
 
 public:
-    ROITrace(TraceView*, VideoData*, std::shared_ptr<ChartStyle>, std::shared_ptr<ChartStyle>);
+    ROITrace(TraceViewWidget*, VideoData*, std::shared_ptr<ChartStyle>, std::shared_ptr<ChartStyle>);
     ~ROITrace();
     void update();
 

@@ -2,7 +2,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-ROI::ROI(QGraphicsScene* scene, TraceView* tView, VideoData* videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle& rstyle) {
+ROI::ROI(QGraphicsScene* scene, TraceViewWidget* tView, VideoData* videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle& rstyle) {
     
     roistyle = std::make_unique<ROIStyle>(rstyle);
 

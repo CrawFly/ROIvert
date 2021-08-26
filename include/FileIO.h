@@ -1,12 +1,12 @@
 #pragma once
 #include "ROI/ROIs.h"
-#include "TraceView.h"
+#include "dockwidgets/TraceViewWidget.h"
 #include "VideoData.h"
 
 class FileIO
 {
 public:
-    FileIO(ROIs*, TraceView*, VideoData*);
+    FileIO(ROIs*, TraceViewWidget*, VideoData*);
     ~FileIO();
     void exportTraces(QString filename, bool includeheader, bool includetime) const;
     void importROIs(QString filename) const;

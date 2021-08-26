@@ -54,7 +54,7 @@ static bool validateROIsJson(QJsonObject json, QSize maxsize) {
 
 struct FileIO::pimpl {
     ROIs* rois{ nullptr };
-    TraceView* traceview{ nullptr };
+    TraceViewWidget* traceview{ nullptr };
     VideoData* videodata{ nullptr };
 
     QSize getMaxSize() {
@@ -67,7 +67,7 @@ struct FileIO::pimpl {
     }
 };
 
-FileIO::FileIO(ROIs* rois, TraceView* traceview, VideoData* videodata) {
+FileIO::FileIO(ROIs* rois, TraceViewWidget* traceview, VideoData* videodata) {
     impl->rois = rois;
     impl->traceview = traceview;
     impl->videodata = videodata;

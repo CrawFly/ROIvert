@@ -13,7 +13,7 @@ class VideoData : public QObject
     Q_OBJECT
 
 public:
-    VideoData();
+    VideoData(QObject* parent = nullptr);
     ~VideoData();
 
     enum class projection { MIN, MAX, MEAN, SUM };
