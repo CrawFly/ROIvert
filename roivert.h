@@ -1,11 +1,8 @@
 #pragma once
 
 #include <QtWidgets/QMainWindow>
-#include "DisplaySettings.h"
 #include "roivertcore.h"
-#include "ImageView.h"
 
-class TraceViewWidget;
 class QStringList;
 
 class Roivert : public QMainWindow

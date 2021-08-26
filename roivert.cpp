@@ -1,64 +1,27 @@
 // What a MESS! this clearly needs a detailed pass
 
 #include "roivert.h"
+#include "ui_roivert.h"
 
 #include <QDebug>
+#include <QBoxLayout>
+#include <QSettings>
+#include <QMessageBox>
 
-#include "ui_roivert.h"
-#include "videodata.h"
-#include "widgets/VideoControllerWidget.h"
+#include "DisplaySettings.h"
+#include "FileIO.h"
+#include "ImageView.h"
+#include "ROI/ROIs.h"
+#include "ROI/ROIStyle.h"
+#include "ROIVertEnums.h"
 #include "dockwidgets/ImageDataWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/FileIOWidget.h"
 #include "dockwidgets/TraceViewWidget.h"
-#include "ROI/ROIs.h"
-#include "FileIO.h"
-
-
-#include "qboxlayout.h"
-#include "qpushbutton.h"
-#include "qtoolbox.h"
-#include "qformlayout.h"
-#include "qcheckbox.h"
-#include "qspinbox.h"
-#include "qdockwidget.h"
-#include "qprogressdialog.h"
-#include "DisplaySettings.h"
-#include "qtextstream.h"
-#include "qactiongroup.h"
-#include "qmessagebox.h"
-#include "qsettings.h"
-#include <QGraphicsLayout>
-#include "opencv2/opencv.hpp"
-#include "ROIVertEnums.h"
-#include <QStringList>
-#include "ROI/ROIStyle.h"
+#include "videodata.h"
+#include "widgets/VideoControllerWidget.h"
 #include "widgets/TraceChartWidget.h"
-
-/*
-* A note about memory in ROIVert:
-*   Leaks aren't a big concern for many of the widgets and other members in ROIVert, as their lifetime starts and ends with ROIVert.
-*   Nonetheless, it seems prudent to try to recover allocated memory in a normal fashion. 
-*   HOWEVER, the picture is muddied by Qt's ownership rules:
-*       A QObject's that has children will automatically delete each child during destruction.
-* 
-*   One might just create all parented QObjects (all QWidgets) with new, but this is unsettling: it means paying close attention to whether 
-*   each member is managed by Qt or not.
-*   One might make everything a unique_ptr (or keep things on the stack) relying on scope to address deletion. But this introduces a bug:
-*       - if an object's parent is created first, and the object is created second, everything is fine: the child is destructed, Qt removes 
-*       it from the parent, and when the parent is destructed everything is fine.
-*       - but if an object is created first, and then the parent, a problem is raised. The parent is destructed first, causing the child to 
-*       destructed, but the unique_ptr remains. When the variable goes out of scope, the destructor is called a second time. 
-*   
-*  I don't see threeish solutions: 
-*       - pay attention to ownership, creating objects which Qt will manage with new
-*       - pay attention to order, always creating parents before children, use unique_ptr's broadly (or stack)
-*       - create as a unique_ptr, but release upon parenting...but this means that the unique ptr will be nullptr. 
-* 
-*  ROIVert was initially written with the first approach, which had no real functional issues, but may have created undetected memory leaks.
-*  ROIVert 1.0 moves toward the second option, with the hopes of locking down leaks.
-*/
 
 struct Roivert::pimpl {
     Ui::RoivertClass ui; // todo: this is doing next to nothing, can we just drop it now?
@@ -124,7 +87,10 @@ struct Roivert::pimpl {
 
         imageview->setEnabled(false);
 
-
+        assert(rois != nullptr);
+        assert(traceviewwidget != nullptr);
+        stylewidget->setROIs(rois.get());
+        stylewidget->setTraceView(traceviewwidget.get());
     }
 
     void initDockWidgets(Roivert* par) {
@@ -133,6 +99,12 @@ struct Roivert::pimpl {
         par->addDockWidget(Qt::RightDockWidgetArea, fileiowidget.get());
         par->addDockWidget(Qt::RightDockWidgetArea, stylewidget.get());
         par->addDockWidget(Qt::BottomDockWidgetArea, traceviewwidget.get());
+
+        imagedatawidget->setObjectName("imagedatawidget");
+        imagesettingswidget->setObjectName("imagesettingswidget");
+        fileiowidget->setObjectName("fileiowidget");
+        stylewidget->setObjectName("stylewidget");
+        traceviewwidget->setObjectName("traceviewwidget");
     }
 
     void layout() {
@@ -153,14 +125,9 @@ Roivert::Roivert(QWidget* parent)
     setStyleSheet("QMainWindow::separator { background-color: #bbb; width: 1px; height: 1px; }");
     setDockNestingEnabled(true);
 
-    // ROIs container
-    impl->stylewidget->setROIs(impl->rois.get());
-    impl->stylewidget->setTraceView(impl->traceviewwidget.get());
+    doConnect();    // todo: probably move to impl
+    makeToolbar();  // todo: definitely move to impl
 
-    // File IO
-
-    doConnect();
-    makeToolbar();
     // Action that resets window state:
     QAction* actResetSettings = new QAction(tr("Reset Layout"));
     actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
@@ -212,6 +179,7 @@ void Roivert::doConnect() {
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
 {
     // Confirm load if rois exist:
+    //todo: can we ask and convert the sizes?
     if (impl->rois->getNROIs() > 0) {
         // rois exist:
         QMessageBox msg;
@@ -262,7 +230,6 @@ void Roivert::frameRateChanged(double frameRate){
 }
 
 void Roivert::makeToolbar() {
-
     QActionGroup* ROIGroup = new QActionGroup(this);
 
     QAction* actROIEllipse = new QAction(QIcon(":/icons/ROIEllipse.png"), "", ROIGroup);
@@ -348,7 +315,6 @@ void Roivert::closeEvent(QCloseEvent* event) {
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
 
-    // todo: store style info and chart colors
     const auto rs{ impl->rois->getCoreROIStyle() };
     settings.beginGroup("Style");
         settings.beginGroup("ROIStyle");
@@ -388,13 +354,18 @@ void Roivert::closeEvent(QCloseEvent* event) {
         settings.endGroup();
 
     settings.endGroup();
+    
     QMainWindow::closeEvent(event);
 }
 
 void Roivert::restoreSettings()
 {
+    //resetSettings();
+
+
     QSettings settings("Neuroph", "ROIVert");
 
+    auto a = settings.value("geometry").toByteArray();
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
 
@@ -483,7 +454,7 @@ void Roivert::resetSettings() {
 
     // Set dockables to visible off (except file loader)
     impl->imagedatawidget->setVisible(true);
-
+    
     impl->imagesettingswidget->setVisible(false);
     impl->fileiowidget->setVisible(false);
     impl->stylewidget->setVisible(false);

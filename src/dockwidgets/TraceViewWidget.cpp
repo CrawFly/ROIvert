@@ -70,7 +70,6 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) : QDockWidget(parent) {
     impl->coreRidgeStyle->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
     impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
-    setLayout(impl->topGridLayout.get());
     impl->doLayout();
 }
 
