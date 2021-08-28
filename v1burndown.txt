@@ -1,5 +1,7 @@
 Line chart minimum height option [low]
 
+Push to new model of no pointers? lot's of work without a lot of payout...
+
 
 Static analysis, hunt for messes, hunt for constables
     
@@ -101,4 +103,5 @@ Known Issues:
         - At the beginning of the load process for multi-page tiff files the progress bar won't move. However multipage tiff files load far faster than their multi-file equivalents. After the frst part of the load process, progress will display normally.
         - Multi-page tiff files must be loaded into memory in their entirety before downsampling time/space. This means downsampling will have little effect on load-time performance, and the computer must have sufficient memory to hold the entire file during load.
         - Multi-page loading with temporal downsampling may produce one additional/fewer frame than multi-file loading with the same dataset.
+
 

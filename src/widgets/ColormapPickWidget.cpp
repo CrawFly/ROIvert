@@ -18,7 +18,7 @@ namespace {
         std::vector<QPixmap> res;
         res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));
 
-        for each (auto map in CmapTypes) {
+        for (auto& map : CmapTypes) {
             cv::Mat thismap(cv_cmap.size(), cv_cmap.type());
             cv::applyColorMap(cv_cmap, thismap, map);
             res.push_back(QPixmap::fromImage(QImage(thismap.data, thismap.size().width, thismap.size().height, thismap.step, QImage::Format_BGR888)));
@@ -29,12 +29,12 @@ namespace {
     const std::vector<cv::ColormapTypes> cmaps{ cv::COLORMAP_DEEPGREEN , cv::COLORMAP_HOT , cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE };
 }
 
-ColormapPickWidget::ColormapPickWidget(QWidget* parent) noexcept : QWidget(parent) {
-    cmbColormap = new QComboBox;
-    QVBoxLayout* lay = new QVBoxLayout;
+ColormapPickWidget::ColormapPickWidget(QWidget* parent) : QWidget(parent) {
+    auto lay{ std::make_unique<QVBoxLayout>() };
+    cmbColormap = std::make_unique<QComboBox>();
 
     std::vector<QPixmap> c = getColormapPixmaps(cmaps);
-    for each (auto mapimage in c) {
+    for (auto& mapimage : c) {
         cmbColormap->addItem("");
         cmbColormap->setItemData(cmbColormap->count() - 1, mapimage, Qt::DecorationRole);
     }
@@ -44,21 +44,25 @@ ColormapPickWidget::ColormapPickWidget(QWidget* parent) noexcept : QWidget(paren
     sz.setHeight(20);
     cmbColormap->setIconSize(sz);
 
-    lay->addWidget(cmbColormap);
-    setLayout(lay);
+    lay->addWidget(cmbColormap.get());
+    setLayout(lay.release());
 
-    connect(cmbColormap, QOverload<int>::of(&QComboBox::activated), this, &ColormapPickWidget::colormapChanged);
+    connect(cmbColormap.get(), QOverload<int>::of(&QComboBox::activated), this, &ColormapPickWidget::colormapChanged);
 }
-int ColormapPickWidget::getColormap() {
-    // Note that the int returned here is an enum:
-    //  if it's -1 that means don't colormap
-    //  otherwise it means use the enum
+int ColormapPickWidget::getColormap() const {
+    // If return is -1 that means don't colormap
+    // Otherwise interpret as enum
     const int cmapIndex = cmbColormap->currentIndex();
-    if (cmapIndex == 0) { return(-1); }
-    else { return(cmaps[cmapIndex - 1]); }
+    if (cmapIndex == 0) { 
+        return(-1); 
+    }
+    else { 
+        const size_t ind = cmapIndex - 1;
+        return(cmaps[ind]); 
+    }
 }
 
-void ColormapPickWidget::setColormap(int cmapID) noexcept { 
+void ColormapPickWidget::setColormap(int cmapID) { 
     // if cmapID matches one of our enums we set it, set the combo box
     size_t cmbInd = 0;
     for (size_t i = 0; i < cmaps.size(); i++) {

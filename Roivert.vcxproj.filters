@@ -36,9 +36,6 @@
     <ClCompile Include="src\DisplaySettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\widgets\ColorPickWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\widgets\ProjectionPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -129,9 +126,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ColormapPickWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="include\widgets\ColorPickWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ContrastWidget.h">

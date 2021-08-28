@@ -7,29 +7,29 @@ class ChartStyle : public QObject {
     Q_OBJECT
 public:
     ChartStyle();
-    ChartStyle& operator=(const ChartStyle&);
+    ChartStyle& operator=(const ChartStyle&) noexcept;
     ChartStyle(const ChartStyle&);
     ~ChartStyle();
     
-    void connectToROIStyle(ROIStyle*);
+    void connectToROIStyle(const ROIStyle*);
 
     // Charts
-    void setBackgroundColor(QColor);
+    void setBackgroundColor(QColor) noexcept;
     QColor getBackgroundColor() const noexcept;
 
     // Axes
-    void setAxisColor(QColor);
-    void setAxisLineWidth(int);
-    void setGrid(bool);
+    void setAxisColor(QColor) noexcept;
+    void setAxisLineWidth(int) noexcept;
+    void setGrid(bool) noexcept;
     
-    void setLabelFontSize(int);
-    void setTickLabelFontSize(int);
-    void setFontFamily(QString);
+    void setLabelFontSize(int) noexcept;
+    void setTickLabelFontSize(int) noexcept;
+    void setFontFamily(QString) noexcept;
     QFont getLabelFont();
     QFont getTickLabelFont();
     QFontMetrics getLabelFontMetrics();
     QFontMetrics getTickLabelFontMetrics();
-    void setLimitStyle(ROIVert::LIMITSTYLE);
+    void setLimitStyle(ROIVert::LIMITSTYLE) noexcept;
     ROIVert::LIMITSTYLE getLimitStyle() const noexcept;
 
 
@@ -38,14 +38,14 @@ public:
 
     
     // Traces
-    void setTraceLineWidth(int);
-    void setTraceFillOpacity(int);
-    void setTraceFillGradient(bool);
-    void setDoBackBrush(bool);
+    void setTraceLineWidth(int) noexcept;
+    void setTraceFillOpacity(int) noexcept;
+    void setTraceFillGradient(bool) noexcept;
+    void setDoBackBrush(bool) noexcept;
     bool getDoBackBrush() const noexcept;
     QPen getTracePen() const;
     QBrush getTraceBrush() const;
-    void setNormalization(ROIVert::NORMALIZATION);
+    void setNormalization(ROIVert::NORMALIZATION) noexcept;
     ROIVert::NORMALIZATION getNormalization() const noexcept;
     bool getTraceFillGradient() const noexcept;
 

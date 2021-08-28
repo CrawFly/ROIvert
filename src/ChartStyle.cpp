@@ -28,7 +28,8 @@ ChartStyle::ChartStyle() = default;
 
 ChartStyle::~ChartStyle() {}
 
-ChartStyle& ChartStyle::operator=(const ChartStyle& that) {
+
+ChartStyle& ChartStyle::operator=(const ChartStyle& that) noexcept {
     if (this != &that) {
         *(impl) = *(that.impl);
     }
@@ -42,7 +43,7 @@ ChartStyle::ChartStyle(const ChartStyle& that) {
 }
 
 // Charts
-void ChartStyle::setBackgroundColor(QColor c) {
+void ChartStyle::setBackgroundColor(QColor c) noexcept {
     impl->backgroundcolor = c;
     
 }
@@ -51,28 +52,28 @@ QColor ChartStyle::getBackgroundColor() const noexcept {
 }
 
 // Axes
-void ChartStyle::setAxisColor(QColor c) {
+void ChartStyle::setAxisColor(QColor c) noexcept {
     impl->axiscolor = c;
     
 }
-void ChartStyle::setAxisLineWidth(int w) {
+void ChartStyle::setAxisLineWidth(int w) noexcept{
     impl->axislinewidth = w;
     
 }
-void ChartStyle::setGrid(bool onoff) {
+void ChartStyle::setGrid(bool onoff) noexcept {
     impl->grid = onoff;
     
 }
-void ChartStyle::setLabelFontSize(int fs) {
+void ChartStyle::setLabelFontSize(int fs) noexcept {
     impl->labelfontsize = fs;
     
 }
-void ChartStyle::setTickLabelFontSize(int fs) {
+void ChartStyle::setTickLabelFontSize(int fs) noexcept {
     impl->tickfontsize = fs;
     
 }
 
-void ChartStyle::setFontFamily(QString font) {
+void ChartStyle::setFontFamily(QString font) noexcept {
     impl->fontfamily = font;
     
 }
@@ -104,15 +105,15 @@ bool ChartStyle::getGrid() const noexcept {
     return impl->grid;
 }
 // Traces
-void ChartStyle::setTraceLineWidth(int w) {
+void ChartStyle::setTraceLineWidth(int w) noexcept {
     impl->tracelinewidth = w;
     
 }
-void ChartStyle::setTraceFillOpacity(int o) {
+void ChartStyle::setTraceFillOpacity(int o) noexcept {
     impl->tracefillopacity = o;
     
 }
-void ChartStyle::setTraceFillGradient(bool onoff) {
+void ChartStyle::setTraceFillGradient(bool onoff) noexcept {
     impl->tracefillgradient = onoff;
     
 }
@@ -145,10 +146,12 @@ QBrush ChartStyle::getTraceBrush() const {
     return brush;
 }
 
-void ChartStyle::connectToROIStyle(ROIStyle* r) {
-    connect(r, &ROIStyle::StyleChanged, this, &ChartStyle::ROIStyleChanged);
-    impl->linecolor = r->getLineColor();
-    impl->fillcolor = r->getFillColor();
+void ChartStyle::connectToROIStyle(const ROIStyle* r) {
+    if (r != nullptr) {
+        connect(r, &ROIStyle::StyleChanged, this, &ChartStyle::ROIStyleChanged);
+        impl->linecolor = r->getLineColor();
+        impl->fillcolor = r->getFillColor();
+    }   
 }
 
 void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
@@ -157,17 +160,17 @@ void ChartStyle::ROIStyleChanged(const ROIStyle& r) {
     emit ColorChange();
 }
 
-void ChartStyle::setDoBackBrush(bool yesno)  { impl->dobackbrush = yesno; }
+void ChartStyle::setDoBackBrush(bool yesno) noexcept { impl->dobackbrush = yesno; }
 bool ChartStyle::getDoBackBrush() const noexcept { return impl->dobackbrush; };
 
-void ChartStyle::setNormalization(ROIVert::NORMALIZATION normalization) {
+void ChartStyle::setNormalization(ROIVert::NORMALIZATION normalization) noexcept {
     impl->normalization = normalization;
 }
 ROIVert::NORMALIZATION ChartStyle::getNormalization() const noexcept {
     return impl->normalization;
 }
 
-void ChartStyle::setLimitStyle(ROIVert::LIMITSTYLE limitstyle) {
+void ChartStyle::setLimitStyle(ROIVert::LIMITSTYLE limitstyle) noexcept {
     impl->limitstyle = limitstyle;
 }
 ROIVert::LIMITSTYLE ChartStyle::getLimitStyle() const noexcept {
