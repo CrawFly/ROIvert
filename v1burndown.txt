@@ -1,15 +1,7 @@
-Make it so you can choose a projection in df/f mode [medium]
-    [ add a toggle ]
-    [ link the toggles ]
-    [ make sure triggers are right ]
 Line chart minimum height option [low]
 
 
-
-REFACTOR PUSH
-        
-    Static analysis, hunt for messes, hunt for consts
-    Cleanup folder
+Static analysis, hunt for messes, hunt for constables
     
 Remaining Tidy pushes:
     instrument debugger?
