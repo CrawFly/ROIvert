@@ -14,6 +14,10 @@ class ImageSettingsWidget : public QDockWidget
 
     signals:
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
+        void dffToggled(bool);
+    
+    public slots:
+        void dffToggle(bool);
 
     private:
         struct pimpl;

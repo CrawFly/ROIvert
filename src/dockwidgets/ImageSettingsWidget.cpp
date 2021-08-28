@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QLabel>
+#include <QPushButton>
 
 #include "widgets/ContrastWidget.h"
 #include "widgets/ProjectionPickWidget.h"
@@ -22,8 +23,13 @@ struct ImageSettingsWidget::pimpl {
     ProjectionPickWidget* projection = new ProjectionPickWidget;
     ColormapPickWidget* colormap = new ColormapPickWidget;;
     SmoothingPickWidget* Wsmoothing = new SmoothingPickWidget;
+    QPushButton* dffToggle = new QPushButton;
 
     void init() {
+        dffToggle->setText("df/f");
+        dffToggle->setCheckable(true);
+        dffToggle->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
         contrast->setMaximumHeight(300);
         contrast->setMaximumWidth(300);
         projection->setMaximumWidth(280);
@@ -37,7 +43,16 @@ struct ImageSettingsWidget::pimpl {
         topLay->addWidget(new QLabel(tr("Contrast:")));
         topLay->addWidget(contrast);
         addVSep(topLay);
-        topLay->addWidget(new QLabel(tr("Projection:")));
+
+        
+        {
+            auto lay = new QHBoxLayout;
+            lay->addWidget(new QLabel(tr("Projection:")));
+            lay->addStretch(0);
+            lay->addWidget(dffToggle);
+            topLay->addLayout(lay);
+        }
+
         topLay->addWidget(projection);
         addVSep(topLay);
         topLay->addWidget(new QLabel(tr("Colormap:")));
@@ -78,6 +93,7 @@ ImageSettingsWidget::ImageSettingsWidget(QWidget* parent) : QDockWidget(parent) 
     connect(impl->projection, &ProjectionPickWidget::projectionChanged, this, lam);
     connect(impl->colormap, &ColormapPickWidget::colormapChanged, this, lam);
     connect(impl->Wsmoothing, &SmoothingPickWidget::smoothingChanged, this, lam);
+    connect(impl->dffToggle, &QPushButton::clicked, this, &ImageSettingsWidget::dffToggled);
 }
 ImageSettingsWidget::~ImageSettingsWidget() = default;
 
@@ -89,7 +105,10 @@ void ImageSettingsWidget::setHistogram(std::vector<float> &data){
 void ImageSettingsWidget::setContrast(ROIVert::contrast c){
     impl->contrast->setContrast(c);
 }
-
 void ImageSettingsWidget::setContentsEnabled(bool onoff) {
     impl->contents->setEnabled(onoff);
+}
+
+void ImageSettingsWidget::dffToggle(bool onoff) {
+    impl->dffToggle->setChecked(onoff);
 }

@@ -96,8 +96,15 @@ void VideoControllerWidget::start() {
 bool VideoControllerWidget::isDff() const { return impl->isDff(); }
 void VideoControllerWidget::toggleDff(bool checked) const { 
     emit frameChanged(getCurrFrame());
-    emit dffToggle(checked);
+    emit dffToggled(checked);
 }
+
+void VideoControllerWidget::dffToggle(const bool& isdff) {
+    impl->cmdDff->setChecked(isdff);
+    toggleDff(isdff);
+}
+
+
 void VideoControllerWidget::decFrame() { setFrame(getCurrFrame() - 1); }
 void VideoControllerWidget::incFrame() { setFrame(getCurrFrame() + 1); }
 size_t VideoControllerWidget::getCurrFrame() const noexcept { return impl->currframe; }

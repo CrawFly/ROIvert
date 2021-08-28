@@ -43,3 +43,70 @@ quick look at export video
 What does this look like if i try to build in gnu or something...on linux? How about port to Qt and use vs, with assumption that this would make it easier to build on mac? didn't I have something like this once before?
 
 
+Features:
+    - OUR FIRST RELEASE
+        - This is the first (pre)release of ROIVert.
+        - The release adds several features over alpha versions and cleans up the code to make it more portable, sharable, extensible.
+        - All of ROIVert's dependencies are now available under LGPL or MIT licenses, allowing for freedom in ROIVert's choice of license. 
+        - Current plans are to release ROIVert under the MIT license and the GitHub repo will be made public at that time. Until then, source code is available upon request.
+
+    - New Charting System
+        - The new charting system removes dependencies on QtCharts.
+        - The new system is more tailored to ROIVert's needs, making it faster and able to provide more compelling data visualizations.
+        - A ridgeline chart has been added.
+        - Various controls for chart aesthetics have been added, including fonts, colors, fill, etc.
+        - New normalization controls and y-axis matching have been added. Normalization doesn't effect the shape of the curve, just the scale reported on the y axis.
+    
+    - Tool tips 
+        - Tool tips have been added throughout the system.
+        - The tooltips support translation, ROIVert just needs an indiviudal to translate to provide multi-lingual software.
+
+    ROIs styling
+        - ROIs (and their corresponding charts) are multi-color by default.
+        - The colors are drawn from a palette which tries to make adjacent colors distinct.
+        - Colors are adjustable.
+        - Selection is indicated with new 'selecters' for ROIs and a thicker line in charts (or an opaque fill for charts with no line and semitransparent fills).
+        - ROIs can be filled with a semi-transparent face. This was designed for an effect where ROIs have no outline and a mostly transparent fill.
+
+    ROI editing
+        - ROIs are editable. 
+        - Edits show up immediately on mouse-up in the chart window.
+        - Multiple ROIs can be selected at once (for deleting, or changing the color).
+
+    Performance/timing
+        - The approach to timing of display of frames has been reworked. The video's framerate now more closely matches the requested speed (including the multiplier), particularly at high speeds. 
+        - Many improvements to ROIVert's performance
+
+    Multi-page Tiff files:
+        - ROIVert now supports loading of multi-page tiff files.
+        - Multipage tiff files don't support the same level of status updates, but are far faster to load.
+
+    File settings reloaded from the last session
+        - The settings in the Image Data window will be reloaded from the last session on startup.
+        - All of the color and styling options (other than ROI Color, which is defined per-roi) are also loaded at startup.
+
+    Reset dialog:
+        - A new 'reset' dialog box allows reset of various confiugrations in ROIVert.
+
+    New mechanism for polygonal ROIs
+        - Polygonal ROIs are now closed by clicking on the vertex where they were started.
+
+    - Many minor changes, including:
+        - The delta's representing delta-f have been replaced by 'd'.
+        - Contrast display representation has been reworked extensively.
+        - The export format for ROIs has been moved from xml to json, which lends itself better to growth. * note old ROIVert exports are not compatible with the new system. 
+        - Added a dff toggle button to the Image Settings window in the projection section. This button is linked to the button in the video controls, but remains accessible when a projection is displayed.
+        - Various cleanup of layouts in dockable windows.
+
+
+
+Known Issues:
+    - Clicking just outside of an ROI can cause it to be selected (within a pixel or two). This is only noticeable when very zoomed in.
+    - Artifacts can temporarily appear when one of the little selection boxes for an ROI touches the border on the edge of the image. These artifacts will be cleaned up when adding/editing the ROI is completed.
+    - Precision issues with chart tick labels: you may occassionally see a poor approximation in a chart tick label, e.g. 1E-4 instead of 0. 
+
+    Multi-page Tiff Files
+        - At the beginning of the load process for multi-page tiff files the progress bar won't move. However multipage tiff files load far faster than their multi-file equivalents. After the frst part of the load process, progress will display normally.
+        - Multi-page tiff files must be loaded into memory in their entirety before downsampling time/space. This means downsampling will have little effect on load-time performance, and the computer must have sufficient memory to hold the entire file during load.
+        - Multi-page loading with temporal downsampling may produce one additional/fewer frame than multi-file loading with the same dataset.
+

@@ -105,7 +105,10 @@ void Roivert::doConnect() {
     connect(impl->viddata.get(), &VideoData::loadProgress, impl->imagedatawidget.get(), &ImageDataWidget::setProgBar);
 
     // clicked the dff button, update contrast widget
-    connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggle, this, &Roivert::updateContrastWidget);
+    connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, this, &Roivert::updateContrastWidget);
+    connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggle);
+    connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggled, impl->vidctrl.get(), &VideoControllerWidget::dffToggle);
+
        
     // Action that resets window state:
     QAction* actResetSettings = new QAction(tr("Reset Layout"));

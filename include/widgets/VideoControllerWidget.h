@@ -20,9 +20,13 @@ public:
     
     void start();
     void stop();
+
 signals:
     void frameChanged(const size_t& frame) const;
-    void dffToggle(const bool& isdff) const;
+    void dffToggled(const bool& isdff) const;
+
+public slots:
+    void dffToggle(const bool& isdff);
 
 private:
     struct pimpl;
