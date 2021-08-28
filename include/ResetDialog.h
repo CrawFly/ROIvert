@@ -7,7 +7,8 @@ namespace ROIVert {
         WINDOW,
         ROICOLOR,
         ROISTYLE,
-        CHARTSTYLE
+        CHARTSTYLE,
+        IMAGEDATA
     };
 }
 
@@ -16,7 +17,8 @@ class ResetDialog : public QDialog
 public:
     ResetDialog(QWidget* parent = nullptr);
     QBitArray getResult();
+
 private:
-    QBitArray res = QBitArray(4);
+    QBitArray res = QBitArray(5);
 };
 

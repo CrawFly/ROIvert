@@ -18,7 +18,7 @@ public:
 
     enum class projection { MIN, MAX, MEAN, SUM };
 
-    void load(QStringList filelist, int dst, int dss);
+    void load(QStringList filelist, int dst, int dss, bool isfolder);
     cv::Mat get(bool isDff, int projmode, size_t framenum) const;
     void getHistogram(bool isDff, std::vector<float>& histogram) const noexcept;
     

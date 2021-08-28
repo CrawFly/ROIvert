@@ -18,16 +18,19 @@ ResetDialog::ResetDialog(QWidget* parent) : QDialog(parent) {
     auto chkROIColor = new QCheckBox("ROI Colors", this);
     auto chkROIStyle = new QCheckBox("ROI Style", this);
     auto chkChartStyle = new QCheckBox("Chart Style", this);
+    auto chkImageData = new QCheckBox("Image Data", this);
 
     chkWindow->setToolTip(tr("This will reset the default window layout. Windows will be docked and set to the default positions and size"));
     chkROIColor->setToolTip(tr("This will select colors for each ROI from the default palette."));
     chkROIStyle->setToolTip(tr("This will reset the ROI style options (e.g. line width)"));
     chkChartStyle->setToolTip(tr("This will reset all chart display settings"));
+    chkImageData->setToolTip(tr("This will reset image data settings like file name, frame rate, etc."));
 
     lay->addWidget(chkWindow);
     lay->addWidget(chkROIColor);
     lay->addWidget(chkROIStyle);
     lay->addWidget(chkChartStyle);
+    lay->addWidget(chkImageData);
 
     lay->addSpacing(20);
 
@@ -45,6 +48,7 @@ ResetDialog::ResetDialog(QWidget* parent) : QDialog(parent) {
         res.setBit(static_cast<int>(ROIVert::RESET::ROICOLOR), chkROIColor->isChecked());
         res.setBit(static_cast<int>(ROIVert::RESET::ROISTYLE), chkROIStyle->isChecked());
         res.setBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE), chkChartStyle->isChecked());
+        res.setBit(static_cast<int>(ROIVert::RESET::IMAGEDATA), chkImageData->isChecked());
         accept();
     });
 

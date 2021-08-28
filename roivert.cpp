@@ -114,7 +114,7 @@ void Roivert::doConnect() {
     addAction(actResetSettings);    
 }
 
-void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace)
+void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
 {
     // Confirm load if rois exist:
     if (impl->rois->getNROIs() > 0) {
@@ -130,7 +130,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     }
     
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    impl->viddata->load(fileList, dsTime, dsSpace);
+    impl->viddata->load(fileList, dsTime, dsSpace, isfolder);
 
     impl->imagedatawidget->setProgBar(-1);
     impl->vidctrl->setNFrames(impl->viddata->getNFrames());
@@ -196,6 +196,8 @@ void Roivert::closeEvent(QCloseEvent* event) {
     settings.setValue("geometry", saveGeometry());
     settings.setValue("windowState", saveState());
 
+    impl->imagedatawidget->storesettings(settings);
+
     const auto rs{ impl->rois->getCoreROIStyle() };
     settings.beginGroup("Style");
         settings.beginGroup("ROIStyle");
@@ -245,6 +247,8 @@ void Roivert::restoreSettings()
     auto a = settings.value("geometry").toByteArray();
     restoreGeometry(settings.value("geometry").toByteArray());
     restoreState(settings.value("windowState").toByteArray());
+
+    impl->imagedatawidget->loadsettings(settings);
 
     auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
     auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
@@ -323,14 +327,12 @@ void Roivert::resetSettings() {
         qApp->processEvents(QEventLoop::AllEvents);
         resize(800, 900);
     }
-
     if (doreset.testBit(static_cast<int>(ROIVert::RESET::ROISTYLE))) {
         auto rs{ impl->rois->getCoreROIStyle() };
         *rs = ROIStyle();
         impl->stylewidget->loadSettings();
         impl->stylewidget->ROIStyleChange();
     }
-    
     if (doreset.testBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE))) {
         auto cls{ impl->traceviewwidget->getCoreLineChartStyle() };
         auto crs{ impl->traceviewwidget->getCoreRidgeChartStyle() };
@@ -361,10 +363,10 @@ void Roivert::resetSettings() {
             }
         }
     }
+    if (doreset.testBit(static_cast<int>(ROIVert::RESET::IMAGEDATA))) {
+        impl->imagedatawidget->resetsettings();
+    }
 }
-
-
-
 
 
 void Roivert::pimpl::makeObjects(Roivert* par) {

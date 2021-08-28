@@ -42,9 +42,7 @@ struct TraceViewWidget::pimpl {
         scrollArea->ensureWidgetVisible(w);
     }
 private:
-    // todo: I'd like these all to be unique_ptrs...but I end up with a crash on close presumably because of a double delete?
-    // note that Qt will delete all of these as long as everything is parented...which it *should* be
-    // (for whatever reason the three public uniqueptrs are fine(?)
+    // todo: make these all unique?
 
     QTabWidget* tab{ new QTabWidget };
     QWidget* tabLine{ new QWidget };

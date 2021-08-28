@@ -20,8 +20,9 @@ struct VideoData::pimpl {
     void dffNativeToOrig(double& val);
     cv::Mat calcDffDouble(const cv::Mat& frame);
     cv::Mat calcDffNative(const cv::Mat& frame);
-
+    
     void readframe(size_t filenum);
+    void readmulti(const QString& filename);
     void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
 
     QStringList files;
@@ -40,23 +41,31 @@ VideoData::VideoData(QObject* parent) : QObject(parent) {}
 VideoData::~VideoData() = default;
 
 
-void VideoData::load(QStringList filelist, int dst, int dss){
+void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder){
     if (filelist.empty()) { return; } // should clear? This is just failsafe so i think i'm okay
+    
     impl->files.clear();
+    impl->dsTime = dst;
+    impl->dsSpace = dss;
     impl->files.reserve(filelist.size() / dst);
     for (int i = 0; i < filelist.size(); i+=dst) {
         impl->files.push_back(filelist[i]);
     }
-    impl->dsTime = dst;
-    impl->dsSpace = dss;
-
     impl->init();
-    for (size_t i = 0; i < getNFrames(); ++i) {
-        impl->readframe(i);
-        impl->accum(impl->data[0][i],false);
-        emit loadProgress((100 - (50)) * static_cast<float>(i) / getNFrames());
+
+    if (isfolder)
+    {
+        for (size_t i = 0; i < getNFrames(); ++i) {
+            impl->readframe(i);
+            impl->accum(impl->data[0][i],false);
+            emit loadProgress((100 - (50)) * static_cast<float>(i) / getNFrames());
+        }
     }
-   
+    else {
+        impl->readmulti(filelist[0]);
+        emit loadProgress(50);
+    }
+        
     impl->complete();
 
     for (size_t i = 0; i < getNFrames(); i++) {
@@ -91,7 +100,6 @@ void VideoData::pimpl::init() {
     data[1].clear();
     data[1].resize(files.size());
     if (files.empty()) { return; };
-
 
     cv::Mat first = cv::imread(files[0].toLocal8Bit().constData(), cv::IMREAD_GRAYSCALE);
     if (first.depth() == CV_8U) { bitdepth = 8; }
@@ -188,6 +196,26 @@ void VideoData::pimpl::readframe(size_t ind) {
 
     data[0][ind]=image;
 }
+void VideoData::pimpl::readmulti(const QString& filename) {
+    std::string fn = filename.toLocal8Bit().constData();
+    std::vector<cv::Mat> tallstack;
+    cv::imreadmulti(fn, tallstack, cv::IMREAD_GRAYSCALE);
+    
+    int cnt = 0;
+    int mod = dsTime;
+    data[0].resize(tallstack.size() / dsTime);
+    std::copy_if(tallstack.begin(), tallstack.end(), data[0].begin(), [&cnt, &mod](cv::Mat fr)->bool { return ++cnt % mod == 0;  });
+    
+    for (auto& image : data[0]) {
+        if (dsSpace > 1) {
+            cv::resize(image, image, image.size()/dsSpace, 0, 0, cv::INTER_NEAREST);
+        }
+        accum(image, false);
+    }
+    nframes = data[0].size();
+    data[1].resize(nframes);
+}
+
 void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     // thin wrapper on opencv calchist
     constexpr int chnl = 0;
@@ -198,36 +226,6 @@ void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool a
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
 
-
-/*
-void VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask, const size_t row,cv::Mat &traces) {
-    //todo: trying to kill this code, so remove it if I'm successful
-
-    if (traces.empty()) {
-        traces = cv::Mat(1, getNFrames(), CV_64FC1);
-    }
-
-    const int n = traces.size().height;
-    if (row > n) {
-        // Append n-row rows
-        cv::Mat newrows = cv::Mat::zeros(row - n, traces.size().width, traces.type());
-        traces.push_back(newrows);
-    }
-
-    for (size_t i = 0; i < getNFrames(); ++i) {
-        cv::Mat boundedRaw = get(false, 0, i)(cvbb);
-        cv::Mat boundedMu = get(false, 3, i)(cvbb);
-        
-        boundedRaw.convertTo(boundedRaw, CV_64FC1);
-        boundedMu.convertTo(boundedMu, CV_64FC1);
-
-        cv::Mat boundedDff = (boundedRaw - boundedMu) / boundedMu;
-        double mu = cv::mean(boundedDff, mask)[0];
-
-        traces.at<double>(row - 1, i) = mu;
-    }
-}
-*/
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
     auto res = cv::Mat(1, getNFrames(), CV_32FC1);
     if (cvbb.width <= 0 || cvbb.height <= 0) {

@@ -15,7 +15,7 @@ public:
     void restoreSettings();
 
 public slots:
-    void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace);
+    void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder);
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
     

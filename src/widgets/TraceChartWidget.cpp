@@ -283,7 +283,6 @@ void TraceChartWidget::pimpl::paint_axes(QPainter & painter, const int& left) {
         
     if (xaxis->getVisible()) {
         xaxis->setZero(plotbox.left(), plotbox.bottom() + axlegapv);
-        // todo: this is moot now that i'm just passing plotbox?
         xaxis->setLength(plotbox.width()); 
         xaxis->setPlotBox(plotbox);
         xaxis->paint(painter);

@@ -1,4 +1,3 @@
-Tiff multipage detection and load [high]
 Make it so you can choose a projection in df/f mode [medium]
 Line chart minimum height option [low]
 
@@ -35,7 +34,7 @@ DOC:
         - CLICKING WHEN VERY ZOOMED IN CAN SELECT ROIS BY CLICKING A PIXEL OR TWO OUTSIDE OF THEM
         - ARTIFACTS ON THE EDGE OF THE IMAGE IF SELECTION HANDLE GOES OUTSIDE OF THE IMAGE, SHOULD DISAPPEAR ON MOUSEUP
         - occasionally may see a 1E-04 in place of a zero in a line chart?
-        
+        - no progress bar with multipage, and downsampling time doesn't improve load speed, but load speed is WAYYY faster
     
 ---
 when this is all done i really want to implify and simplify roivert, and make everything smartptr

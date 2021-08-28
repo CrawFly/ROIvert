@@ -324,7 +324,6 @@ std::vector<size_t> ROIs::getSelected() const noexcept {
 };
 
 ROIStyle* ROIs::getROIStyle(size_t ind) const noexcept {
-    // todo: eval whether this is needed...
     if (ind > impl->rois.size()) {
         return nullptr;
     }
@@ -332,7 +331,6 @@ ROIStyle* ROIs::getROIStyle(size_t ind) const noexcept {
 }
 
 void ROIs::setColorBySelect(bool yesno) {
-    // todo: eval whether this is needed...or if a more general approach is warranted./..
     impl->coreStyle.setColorBySelected(yesno);
     for (auto &r : impl->rois) {
         r->roistyle->setColorBySelected(yesno);
