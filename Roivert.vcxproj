@@ -147,9 +147,9 @@
     <ClCompile Include="src\ZoomPan.cpp" />
     <QtRcc Include="roivert.qrc" />
     <QtUic Include="roivert.ui" />
-    <QtMoc Include="roivert.h" />
-    <ClCompile Include="roivert.cpp" />
-    <ClCompile Include="main.cpp" />
+    <QtMoc Include="include\roivert.h" />
+    <ClCompile Include="src\roivert.cpp" />
+    <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\widgets\VideoControllerWidget.h" />
@@ -178,7 +178,7 @@
     <QtMoc Include="include\ROI\ROITrace.h" />
     <QtMoc Include="include\widgets\RGBWidget.h" />
     <ClInclude Include="include\ResetDialog.h" />
-    <ClInclude Include="roivertcore.h" />
+    <ClInclude Include="include\roivertcore.h" />
     <ClInclude Include="include\DisplaySettings.h" />
     <ClInclude Include="resource.h" />
     <QtMoc Include="include\VideoData.h" />

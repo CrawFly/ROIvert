@@ -22,7 +22,7 @@ struct VideoData::pimpl {
     cv::Mat calcDffNative(const cv::Mat& frame);
     
     void readframe(size_t filenum);
-    void readmulti(const QString& filename);
+    void readmulti(const QString& filename, VideoData* par);
     void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
 
     QStringList files;
@@ -62,7 +62,7 @@ void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder){
         }
     }
     else {
-        impl->readmulti(filelist[0]);
+        impl->readmulti(filelist[0], this);
         emit loadProgress(50);
     }
         
@@ -196,26 +196,33 @@ void VideoData::pimpl::readframe(size_t ind) {
 
     data[0][ind]=image;
 }
-void VideoData::pimpl::readmulti(const QString& filename) {
+void VideoData::pimpl::readmulti(const QString& filename, VideoData* par) {
     std::string fn = filename.toLocal8Bit().constData();
     std::vector<cv::Mat> tallstack;
+    
+    emit par->loadProgress( 1.f  );
+
     cv::imreadmulti(fn, tallstack, cv::IMREAD_GRAYSCALE);
     
-    int cnt = 0;
-    int mod = dsTime;
-    data[0].resize(tallstack.size() / dsTime);
-    std::copy_if(tallstack.begin(), tallstack.end(), data[0].begin(), [&cnt, &mod](cv::Mat fr)->bool { return ++cnt % mod == 0;  });
-    
+    {
+        int cnt = 0;
+        int mod = dsTime;
+        data[0].resize(tallstack.size() / dsTime);
+        std::copy_if(tallstack.begin(), tallstack.end(), data[0].begin(), [&cnt, &mod](cv::Mat fr)->bool { return ++cnt % mod == 0;  });
+    }
+
+    float cnt = 0;
     for (auto& image : data[0]) {
         if (dsSpace > 1) {
             cv::resize(image, image, image.size()/dsSpace, 0, 0, cv::INTER_NEAREST);
         }
         accum(image, false);
+        emit par->loadProgress( 50.f * (++cnt / data[0].size()) );
     }
+
     nframes = data[0].size();
     data[1].resize(nframes);
 }
-
 void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum) {
     // thin wrapper on opencv calchist
     constexpr int chnl = 0;
@@ -225,7 +232,6 @@ void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool a
 
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
-
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {
     auto res = cv::Mat(1, getNFrames(), CV_32FC1);
     if (cvbb.width <= 0 || cvbb.height <= 0) {

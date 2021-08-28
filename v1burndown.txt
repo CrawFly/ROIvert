@@ -1,11 +1,12 @@
 Make it so you can choose a projection in df/f mode [medium]
+    [ add a toggle ]
+    [ link the toggles ]
+    [ make sure triggers are right ]
 Line chart minimum height option [low]
 
-REFACTOR PUSH   
-    BIG CLEANUP IN ROIVERT.CPP
-        - mostly done, a few methods that could be pimpl'd
-        - could follow the pattern in ROIVert.cpp to make things more memory safe, more organized.
-        - would sortof like to reCaps Roivert to ROIVert
+
+
+REFACTOR PUSH
         
     Static analysis, hunt for messes, hunt for consts
     Cleanup folder
