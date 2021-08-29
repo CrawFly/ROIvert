@@ -16,6 +16,7 @@ signals:
     void exportCharts(QString filename, int width, int height, int quality, bool ridge);
 
 private:
-    QWidget* contents;
+    struct pimpl;
+    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
 };
 

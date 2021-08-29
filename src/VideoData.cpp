@@ -7,9 +7,14 @@
 #include "ROIVertEnums.h"
 
 
+/*
+static void debugHistogram(cv::Mat* histogram, size_t ind = 0) {
+    for (size_t i = 0; i < 255; ++i) {
+        qDebug() << histogram[ind].at<float>(i);
+    }
+}
 
-
-
+*/
 
 struct VideoData::pimpl {
 
@@ -65,7 +70,8 @@ void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder){
         impl->readmulti(filelist[0], this);
         emit loadProgress(50);
     }
-        
+
+
     impl->complete();
 
     for (size_t i = 0; i < getNFrames(); i++) {
@@ -73,6 +79,7 @@ void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder){
         impl->accum(impl->data[1][i], true);
         emit loadProgress(50 + 50 * (float)i / getNFrames());
     }
+    
 }
 
 
@@ -86,7 +93,12 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const {
     return impl->data[isDff][framenum];
 }
 
-void VideoData::getHistogram(bool isDff, std::vector<float>& h) const noexcept { impl->histogram[isDff].copyTo(h); }
+void VideoData::getHistogram(bool isDff, std::vector<float>& h) const noexcept {
+    //debugHistogram(impl->histogram, isDff);
+
+    impl->histogram[isDff].copyTo(h); 
+
+}
 int VideoData::getWidth() const noexcept { return impl->width; }
 int VideoData::getHeight() const noexcept { return impl->height; }
 size_t VideoData::getNFrames() const noexcept { return impl->nframes; }
@@ -229,7 +241,7 @@ void VideoData::pimpl::calcHist(const cv::Mat* frame, cv::Mat& histogram, bool a
     constexpr int histsize = 256;
     const float range[] = { 0, static_cast<float>(pow(2,bitdepth)) + 1 }; //the upper boundary is exclusive
     const float* histRange = { range };
-
+    
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
 cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const {

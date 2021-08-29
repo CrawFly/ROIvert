@@ -37,7 +37,7 @@ static bool validateROIsJson(QJsonObject json, QSize maxsize) {
         if (jverts.size() < 2) {
             return false;
         }
-        for (auto& vert : jverts) {
+        for (const auto& vert : jverts) {
             auto arr{ vert.toArray() };
             if (arr.size() != 2) {
                 return false;
@@ -57,7 +57,7 @@ struct FileIO::pimpl {
     TraceViewWidget* traceview{ nullptr };
     VideoData* videodata{ nullptr };
 
-    QSize getMaxSize() {
+    QSize getMaxSize() const noexcept {
         QSize ret;
         if (videodata) {
             ret.setWidth(videodata->getWidth() * videodata->getdsSpace());
@@ -93,7 +93,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
 
     // need time minmax
     const auto tmax = impl->videodata->getTMax();
-    auto nframes = impl->videodata->getNFrames();
+    const auto nframes = impl->videodata->getNFrames();
 
     QFile file(filename);
     const bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
@@ -136,7 +136,7 @@ void FileIO::importROIs(QString filename) const {
     msg.setIcon(QMessageBox::Warning);
     
     QFile file(filename);
-    bool openable = file.open(QFile::ReadOnly);
+    const bool openable = file.open(QFile::ReadOnly);
     if (!openable || impl->rois == nullptr) {
         msg.setText(tr("Error reading the ROI file."));
         msg.exec();
@@ -149,7 +149,7 @@ void FileIO::importROIs(QString filename) const {
     // can the doc be validated first?
     auto json = loadDoc.object();
     
-    bool isok = validateROIsJson(json, impl->getMaxSize());
+    const bool isok = validateROIsJson(json, impl->getMaxSize());
     if (!isok) {
         msg.setText(tr("Error reading the ROI file."));
         msg.exec();
@@ -164,14 +164,14 @@ void FileIO::exportROIs(QString filename) const {
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
-    auto ntraces = impl->rois->getNROIs();
+    const auto ntraces = impl->rois->getNROIs();
     if (impl->rois == nullptr || ntraces < 1) {
         msg.setText(tr("No traces to export."));
         msg.exec();
         return;
     }    
     QFile file(filename);
-    bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
+    const bool openable = file.open(QFile::WriteOnly | QFile::Truncate);
     if (!openable) {
         msg.setText(tr("Could not write to this file, is it open in another program?"));
         msg.exec();
@@ -192,7 +192,7 @@ void FileIO::exportCharts(QString filename, int width, int height, int quality, 
         impl->traceview->getRidgeChart().saveAsImage(filename, width, height, quality);
     }
     else {        
-        auto ncharts = impl->rois->getNROIs();
+        const size_t ncharts = impl->rois->getNROIs();
         if (impl->rois == nullptr || ncharts < 1) {
             QMessageBox msg;
             msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));

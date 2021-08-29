@@ -2,11 +2,6 @@
 #include <QWidget>
 #include "roivertcore.h"
 
-namespace ContrastWidgetImpl {
-    class ContrastChart;
-}
-class QDoubleSpinBox;
-
 
 class ContrastWidget : public QWidget {
     Q_OBJECT
@@ -24,8 +19,6 @@ signals:
     void contrastChanged(ROIVert::contrast minmaxgamma);
 
 private:
-    ContrastWidgetImpl::ContrastChart* chart;
-    QDoubleSpinBox* spinMin;
-    QDoubleSpinBox* spinGamma;
-    QDoubleSpinBox* spinMax;
+    struct pimpl;
+    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
 };

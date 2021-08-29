@@ -26,12 +26,11 @@ public:
     void setColormap(int cmapint) noexcept;
     const bool useCmap() const noexcept;
 
-    void setSmoothing(ROIVert::smoothing);
+    void setSmoothing(ROIVert::smoothing) noexcept;
 
     cv::Mat getImage(cv::Mat raw, bool isDff);
 
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
-
 };

@@ -3,13 +3,13 @@
 struct DisplaySettings::pimpl {
     ROIVert::contrast contrast[2] = { {0.,1.,1.}, {0.,1.,1.} };
     cv::Mat lut[2] = { cv::Mat(1, 256, CV_8U), cv::Mat(1, 256, CV_8U) };
-    int projectionmode = 0; // 0 means no projection
-    bool usecolormap = false;
-    cv::ColormapTypes colormap;
+    int projectionmode{ 0 }; // 0 means no projection
+    bool usecolormap{ false };
+    cv::ColormapTypes colormap{ cv::ColormapTypes::COLORMAP_BONE };
     smoothingtype smoothing = smoothingtype::NONE;
-    int smoothsize;
-    double smoothsigma;
-    double smoothsigmaI;
+    int smoothsize{ 0 };
+    double smoothsigma{ 0 };
+    double smoothsigmaI{ 0 };
 
     void updateLut(const bool isDff);
     bool hasContrast(const bool isDff) const noexcept;
@@ -37,10 +37,8 @@ void DisplaySettings::setColormap(int cmapint) noexcept {
     }
 }
 const bool DisplaySettings::useCmap() const noexcept { return impl->usecolormap; }
-cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff) {
-    return impl->getImage(raw, isDff);
-}
-void DisplaySettings::setSmoothing(ROIVert::smoothing s) {
+cv::Mat DisplaySettings::getImage(cv::Mat raw, bool isDff) { return impl->getImage(raw, isDff); }
+void DisplaySettings::setSmoothing(ROIVert::smoothing s) noexcept {
     int smoothtype;
     std::tie(smoothtype, impl->smoothsize, impl->smoothsigma, impl->smoothsigmaI) = s;
     impl->smoothing = static_cast<smoothingtype>(smoothtype);
@@ -49,13 +47,14 @@ void DisplaySettings::setSmoothing(ROIVert::smoothing s) {
 // **** pimpl ****
 void DisplaySettings::pimpl::updateLut(const bool isDff) {
     uchar* ptr = lut[isDff].ptr();
-    
-    double m = std::get<0>(contrast[isDff]);
-    double rng = std::get<1>(contrast[isDff]) - m;
-    double g = std::get<2>(contrast[isDff]);
+    if (ptr == nullptr) { return; }
+
+    const double m = std::get<0>(contrast[isDff]);
+    const double rng = std::get<1>(contrast[isDff]) - m;
+    const double g = std::get<2>(contrast[isDff]);
 
     for (int i = 0; i < 256; ++i) {
-        double val = pow((i / 255. - m) / rng, g) * 255.;
+        const double val = pow((i / 255. - m) / rng, g) * 255.;
         ptr[i] = cv::saturate_cast<uchar>(val);
     }
 }

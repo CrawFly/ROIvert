@@ -1,10 +1,17 @@
 /**
  * \class  ContrastWidgetImpl.h
  *
- * \brief  Implementation classes used by ContrastWidget
+ * \brief  Implementation helperes used by ContrastWidget
  *
  * \author neuroph
 */
+
+// todo: this needs a rewrite, several aspects could be handled much better now! 
+//      - doesn't really need a graphicsview, could do this all more cleanly in a paint
+//      - overabstraction of these classes
+//      - could consider using the chart widget here
+
+
 #pragma once
 #include <QGraphicsLineItem>
 #include <QGraphicsView>

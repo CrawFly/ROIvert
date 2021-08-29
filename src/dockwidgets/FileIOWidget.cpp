@@ -8,100 +8,116 @@
 #include <QLabel>
 #include <QDir>
 #include <QFileDialog>
+#include <QFormLayout>
+
+
+struct FileIOWidget::pimpl {
+    QWidget contents;
+    QVBoxLayout lay;
+    QFormLayout layChartParams;
+
+    QLabel lblTraces{ tr("Traces") };
+    QLabel lblCharts{ tr("Charts") };
+    QLabel lblROIs{ tr("ROIs") };
+
+
+    QCheckBox chkHeader{ tr("Include Header") };
+    QCheckBox chkTime{ tr("Include Time Column") };
+    QPushButton cmdExpTraces{ tr("Export Traces") };
+    
+    QSpinBox spinChartWidth;
+    QSpinBox spinChartHeight;
+    QSpinBox spinChartQuality;
+
+    QPushButton cmdExpCharts{ tr("Export Lines") };
+    QPushButton cmdExpRidge{ tr("Export Ridge") };
+
+    QPushButton cmdImpROIs{ tr("Import ROIs") };
+    QPushButton cmdExpROIs{ tr("Export ROIs") };
+
+    void init() {
+        chkHeader.setChecked(true);
+        chkTime.setChecked(true);
+        cmdExpTraces.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+        spinChartWidth.setMinimum(0);
+        spinChartWidth.setMaximum(10000);
+        spinChartWidth.setValue(1600); 
+    
+        spinChartHeight.setMinimum(0);
+        spinChartHeight.setMaximum(10000);
+        spinChartHeight.setValue(600);
+    
+        spinChartQuality.setMinimum(10);
+        spinChartQuality.setMaximum(100);
+        spinChartQuality.setValue(100);
+        
+        spinChartWidth.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+        spinChartHeight.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+        spinChartQuality.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
+
+        
+        cmdImpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        cmdExpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+    }
+    void doLayout() {
+        contents.setLayout(&lay);
+        lay.addWidget(&lblTraces);
+        lay.addWidget(&chkHeader);
+        lay.addWidget(&chkTime);
+        lay.addWidget(&cmdExpTraces);
+
+        {QFrame* line = new QFrame; line->setFrameStyle(QFrame::HLine); lay.addWidget(line); }
+
+        lay.addWidget(&lblCharts);
+        {
+            auto templay = std::make_unique<QHBoxLayout>();
+            auto templbl = std::make_unique<QLabel>(" x ");
+            templay->addWidget(&spinChartWidth);
+            templay->addWidget(templbl.release());
+            templay->addWidget(&spinChartHeight);
+            templay->addStretch();
+            layChartParams.addRow(tr("Dimensions"), templay.release());
+        } 
+        {
+            auto templay = std::make_unique<QHBoxLayout>();
+            templay->addWidget(&spinChartQuality);
+            templay->addStretch();
+            layChartParams.addRow(tr("Quality"), templay.release());
+        }
+
+        lay.addLayout(&layChartParams);
+        {
+            auto templay = std::make_unique<QHBoxLayout>();
+            templay->addWidget(&cmdExpCharts);
+            templay->addWidget(&cmdExpRidge);
+            templay->addStretch(1);
+            lay.addLayout(templay.release());
+        }
+        
+        {QFrame* line = new QFrame; line->setFrameStyle(QFrame::HLine); lay.addWidget(line); }
+
+        
+        lay.addWidget(&lblROIs);
+        {
+            auto templay = std::make_unique<QHBoxLayout>();
+            templay->addWidget(&cmdImpROIs);
+            templay->addWidget(&cmdExpROIs);
+            templay->addStretch(1);
+            lay.addLayout(templay.release());
+        }
+    }
+
+};
 
 FileIOWidget::FileIOWidget(QWidget* parent)  : QDockWidget(parent) {
+    setWidget(&impl->contents);
 
-    contents = new QWidget;
-    this->setWidget(contents);
-    QVBoxLayout* lay = new QVBoxLayout;
-    contents->setLayout(lay);
-
-    QCheckBox* chkHeader = new QCheckBox("Include Header");
-    chkHeader->setChecked(true);
-    QCheckBox* chkTime = new QCheckBox("Include Time Column");
-    chkTime->setChecked(true);
-    QHBoxLayout* optLay = new QHBoxLayout;
-    optLay->addStretch(1);
-    QPushButton* cmdExpTraces = new QPushButton("Export Traces");
-    cmdExpTraces->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    lay->addWidget(new QLabel("Traces"));
-    lay->addWidget(chkHeader);
-    lay->addWidget(chkTime);
-    lay->addLayout(optLay);
-    lay->addWidget(cmdExpTraces);
-
-    {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        lay->addWidget(line);
-    }
+    impl->init();
+    impl->doLayout();
 
 
-    lay->addWidget(new QLabel("Charts"));
-    QSpinBox* spinChartWidth = new QSpinBox;
-    QSpinBox* spinChartHeight = new QSpinBox;
-    QSpinBox* spinChartQuality = new QSpinBox;
-
-    spinChartWidth->setMinimum(0);
-    spinChartWidth->setMaximum(10000);
-    spinChartWidth->setValue(1600); 
-    
-    spinChartHeight->setMinimum(0);
-    spinChartHeight->setMaximum(10000);
-    spinChartHeight->setValue(600);
-    
-    spinChartQuality->setMinimum(10);
-    spinChartQuality->setMaximum(100);
-    spinChartQuality->setValue(100);
-
-    spinChartWidth->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-    spinChartHeight->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-    spinChartQuality->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
-
-
-    QGridLayout* layChartParams = new QGridLayout;
-
-    layChartParams->addWidget(new QLabel("Dimensions:"),0,0);
-    layChartParams->addWidget(spinChartWidth,0,1);
-    layChartParams->addWidget(new QLabel(" x "),0,2);
-    layChartParams->addWidget(spinChartHeight,0,3);
-    layChartParams->setAlignment(Qt::AlignLeft);
-    layChartParams->addWidget(new QLabel("Quality:"),1,0);
-    layChartParams->addWidget(spinChartQuality,1,1);
-
-    QHBoxLayout* layChartButs = new QHBoxLayout;
-    QPushButton* cmdExpCharts = new QPushButton("Export Lines", this);
-    QPushButton* cmdExpRidge = new QPushButton("Export Ridge", this);
-
-    //cmdExpCharts->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    layChartButs->addWidget(cmdExpCharts);
-    layChartButs->addWidget(cmdExpRidge);
-    layChartButs->addStretch(1);
-
-    lay->addLayout(layChartParams);
-    lay->addLayout(layChartButs);
-    {
-        QFrame* line = new QFrame;
-        line->setFrameStyle(QFrame::HLine);
-        lay->addWidget(line);
-    }
-
-    lay->addWidget(new QLabel("ROIs"));
-    QPushButton* cmdImpROIs = new QPushButton("Import ROIs");
-    QPushButton* cmdExpROIs = new QPushButton("Export ROIs");
-    QHBoxLayout* layroi = new QHBoxLayout;
-    
-    layroi->addWidget(cmdImpROIs);
-    layroi->addWidget(cmdExpROIs);
-    layroi->addStretch(1);
-    lay->addLayout(layroi);
-
-    cmdImpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    cmdExpROIs->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    
-    lay->addStretch(1);
-
-    connect(cmdExpTraces, &QPushButton::clicked, this, [=]()
+    connect(&impl->cmdExpTraces, &QPushButton::clicked, this, [=]()
         {
             QString initpath = QDir::currentPath();
             if (!windowFilePath().isEmpty()) { initpath = windowFilePath(); }
@@ -109,12 +125,12 @@ FileIOWidget::FileIOWidget(QWidget* parent)  : QDockWidget(parent) {
             if (!filename.isEmpty()) {
                 windowFilePath() = QFileInfo(filename).absolutePath();
                 
-                emit exportTraces(filename, chkHeader->isChecked(), chkTime->isChecked());
+                emit exportTraces(filename, impl->chkHeader.isChecked(), impl->chkTime.isChecked());
             }
         }
     );
 
-    connect(cmdExpROIs, &QPushButton::clicked, this, [=]()
+    connect(&impl->cmdExpROIs, &QPushButton::clicked, this, [=]()
     {
         QString initpath = QDir::currentPath();
         if (!windowFilePath().isEmpty()) { initpath = windowFilePath(); }
@@ -126,7 +142,7 @@ FileIOWidget::FileIOWidget(QWidget* parent)  : QDockWidget(parent) {
     }
     );
 
-    connect(cmdImpROIs, &QPushButton::clicked, this, [=]()
+    connect(&impl->cmdImpROIs, &QPushButton::clicked, this, [=]()
     {
         QString initpath = QDir::currentPath();
         if (!windowFilePath().isEmpty()) { initpath = windowFilePath(); }
@@ -138,32 +154,30 @@ FileIOWidget::FileIOWidget(QWidget* parent)  : QDockWidget(parent) {
     }
     );
 
-    connect(cmdExpCharts, &QPushButton::clicked, this, [=]()
+    connect(&impl->cmdExpCharts, &QPushButton::clicked, this, [=]()
     {
         QString initpath = QDir::currentPath();
         if (!windowFilePath().isEmpty()) { initpath = windowFilePath(); }
         QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
         if (!filename.isEmpty()) {
             setWindowFilePath(QFileInfo(filename).absolutePath());
-            emit exportCharts(filename, spinChartWidth->value(), spinChartHeight->value(), spinChartQuality->value(), false);
+            emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), false);
         }
     }
     );
 
-    connect(cmdExpRidge, &QPushButton::clicked, this, [=]()
+    connect(&impl->cmdExpRidge, &QPushButton::clicked, this, [=]()
     {
         QString initpath = QDir::currentPath();
         if (!windowFilePath().isEmpty()) { initpath = windowFilePath(); }
         QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
         if (!filename.isEmpty()) {
             setWindowFilePath(QFileInfo(filename).absolutePath());
-            emit exportCharts(filename, spinChartWidth->value(), spinChartHeight->value(), spinChartQuality->value(), true);
+            emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), true);
         }
     }
     );
 }
 void FileIOWidget::setContentsEnabled(bool onoff) {
-    if (contents) {
-        contents->setEnabled(onoff);
-    }
+    impl->contents.setEnabled(onoff);
 }
