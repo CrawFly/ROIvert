@@ -29,7 +29,6 @@ struct ROIs::pimpl
 
     void pushROI(QPoint pos)
     {
-        //todo: more careful work for style needed here...
         ROIStyle rs = coreStyle;
         rs.setColor(pal.getPaletteColor(rois.size()));
 

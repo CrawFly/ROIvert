@@ -1,19 +1,20 @@
-Line chart minimum height option [low]
-
-Push to new model of no pointers? lot's of work without a lot of payout...
-
-
-Static analysis, hunt for messes, hunt for constables
-    
 Remaining Tidy pushes:
     instrument debugger?
-    more tooltips
-    todos, comments, etc.
-        make default chart window undocked
+    more tooltips?
+    make default chart window undocked?
         
-
-    
 RELEASE PUSH
+    [] take a shot at a qt build
+From hello opencv
+    INCLUDEPATH += D:\opencv\build\include
+    LIBS += D:\opencv-build\bin\libopencv_core440.dll
+    LIBS += D:\opencv-build\bin\libopencv_highgui440.dll
+    LIBS += D:\opencv-build\bin\libopencv_imgcodecs440.dll
+    LIBS += D:\opencv-build\bin\libopencv_imgproc440.dll
+    LIBS += D:\opencv-build\bin\libopencv_features2d440.dll
+    LIBS += D:\opencv-build\bin\libopencv_calib3d440.dll
+
+
     [] fresh vm
     [] git repo cleanup
     [] license
@@ -36,7 +37,18 @@ when this is all done i really want to implify and simplify roivert, and make ev
 quick look at export video
 What does this look like if i try to build in gnu or something...on linux? How about port to Qt and use vs, with assumption that this would make it easier to build on mac? didn't I have something like this once before?
 
+What does the website look like:
+    Header video
+    Description/Features
+    Download
+    Documentation (wiki?)
+    Release Notes
+    
 
+
+
+
+---
 Features:
     - OUR FIRST RELEASE
         - This is the first (pre)release of ROIVert.

@@ -48,7 +48,7 @@ struct TraceViewWidget::pimpl
     }
 
 private:
-    // todo: make these all unique?
+    // todo: make these all unique/scoped (be careful with order)
 
     QTabWidget *tab{new QTabWidget};
     QWidget *tabLine{new QWidget};

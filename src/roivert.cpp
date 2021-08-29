@@ -91,14 +91,13 @@ void Roivert::doConnect()
     connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
 
-    // todo: (consider) give fileiowidget interface a ptr to fileio so it can call directly
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, this, [=](QString fn, bool dohdr, bool dotime)
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, [=](QString fn, bool dohdr, bool dotime)
             { impl->fileio->exportTraces(fn, dohdr, dotime); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, this, [=](QString fn)
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, [=](QString fn)
             { impl->fileio->exportROIs(fn); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, this, [=](QString fn)
+    connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, [=](QString fn)
             { impl->fileio->importROIs(fn); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, this, [=](QString fn, int width, int height, int quality, bool ridge)
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, [=](QString fn, int width, int height, int quality, bool ridge)
             { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
 
     // progress for loading
