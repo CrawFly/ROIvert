@@ -8,21 +8,23 @@
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
 
-struct TraceViewWidget::pimpl {
+struct TraceViewWidget::pimpl
+{
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
-    
+
     std::shared_ptr<ChartStyle> coreRidgeStyle = std::make_shared<ChartStyle>();
     std::shared_ptr<ChartStyle> coreLineStyle = std::make_shared<ChartStyle>();
 
-    void doLayout() {
+    void doLayout()
+    {
         topGridLayout->addWidget(tab);
-        
+
         tab->addTab(tabLine, "Line");
         tab->addTab(tabRidgeLine, "Ridge");
         //tab->addTab(tabImage, "Image");
-        
+
         tabLine->setLayout(scrollAreaParent);
         scrollAreaParent->addWidget(scrollArea);
         scrollAreaContent->setLayout(lineChartLayout.get());
@@ -38,27 +40,28 @@ struct TraceViewWidget::pimpl {
         ridgeLayout->addWidget(ridgeChart.get());
     }
 
-    void scrollToWidget(QWidget* w) {
+    void scrollToWidget(QWidget *w)
+    {
         scrollArea->ensureWidgetVisible(w);
     }
+
 private:
     // todo: make these all unique?
 
-    QTabWidget* tab{ new QTabWidget };
-    QWidget* tabLine{ new QWidget };
-    QWidget* tabRidgeLine{ new QWidget };
-    QWidget* tabImage{ new QWidget };
+    QTabWidget *tab{new QTabWidget};
+    QWidget *tabLine{new QWidget};
+    QWidget *tabRidgeLine{new QWidget};
+    QWidget *tabImage{new QWidget};
 
-    QGridLayout* scrollAreaParent{ new QGridLayout };
-    QWidget* scrollAreaContent{ new QWidget };
-    QScrollArea* scrollArea{ new QScrollArea };
+    QGridLayout *scrollAreaParent{new QGridLayout};
+    QWidget *scrollAreaContent{new QWidget};
+    QScrollArea *scrollArea{new QScrollArea};
 
-    QGridLayout* ridgeLayout{ new QGridLayout };
-
+    QGridLayout *ridgeLayout{new QGridLayout};
 };
 
-
-TraceViewWidget::TraceViewWidget(QWidget* parent) : QDockWidget(parent) {
+TraceViewWidget::TraceViewWidget(QWidget *parent) : QDockWidget(parent)
+{
     auto contents = new QWidget;
     this->setWidget(contents);
     contents->setLayout(impl->topGridLayout.get());
@@ -72,35 +75,42 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) : QDockWidget(parent) {
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
-    
-void TraceViewWidget::addLineChart(TraceChartWidget* chart) {
+
+void TraceViewWidget::addLineChart(TraceChartWidget *chart)
+{
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
 
     // This extremely aggressive double update is required to ensure that the scroll area
-    // is up to date before scrolling to the new chart. 
+    // is up to date before scrolling to the new chart.
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
     impl->scrollToWidget(chart);
 }
-void TraceViewWidget::scrollToChart(TraceChartWidget* w) {
+void TraceViewWidget::scrollToChart(TraceChartWidget *w)
+{
     impl->scrollToWidget(w);
 }
-RidgeLineWidget& TraceViewWidget::getRidgeChart() noexcept {
+RidgeLineWidget &TraceViewWidget::getRidgeChart() noexcept
+{
     return *(impl->ridgeChart);
 }
 
-ChartStyle* TraceViewWidget::getCoreRidgeChartStyle() const noexcept {
+ChartStyle *TraceViewWidget::getCoreRidgeChartStyle() const noexcept
+{
     return impl->coreRidgeStyle.get();
 }
-ChartStyle* TraceViewWidget::getCoreLineChartStyle() const noexcept {
+ChartStyle *TraceViewWidget::getCoreLineChartStyle() const noexcept
+{
     return impl->coreLineStyle.get();
 }
-void TraceViewWidget::keyPressEvent(QKeyEvent* event) {
+void TraceViewWidget::keyPressEvent(QKeyEvent *event)
+{
     emit keyPressed(event->key(), event->modifiers());
 }
 
-void TraceViewWidget::mousePressEvent(QMouseEvent* event) {
-    emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
+void TraceViewWidget::mousePressEvent(QMouseEvent *event)
+{
+    emit chartClicked(nullptr, std::vector<TraceChartSeries *>(), event->modifiers());
 }

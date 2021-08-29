@@ -8,9 +8,10 @@
 #include "opencv2/opencv.hpp"
 #include "ChartStyle.h"
 
-struct ROITrace::pimpl {
-    VideoData* videodata;
-    TraceViewWidget* traceview;
+struct ROITrace::pimpl
+{
+    VideoData *videodata;
+    TraceViewWidget *traceview;
 
     cv::Mat TraceData;
     std::unique_ptr<TraceChartWidget> TraceChart;
@@ -19,7 +20,8 @@ struct ROITrace::pimpl {
 
     double xmin, xmax;
 
-    void init(std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
+    void init(std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle)
+    {
         TraceChart = std::make_unique<TraceChartWidget>(linestyle);
         LineSeries = std::make_shared<TraceChartSeries>(linestyle);
         RidgeSeries = std::make_shared<TraceChartSeries>(ridgestyle);
@@ -28,8 +30,8 @@ struct ROITrace::pimpl {
     std::shared_ptr<ChartStyle> chartstyle;
 };
 
-
-ROITrace::ROITrace(TraceViewWidget* tv, VideoData* vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) {
+ROITrace::ROITrace(TraceViewWidget *tv, VideoData *vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle)
+{
     impl->init(ridgestyle, linestyle);
     impl->videodata = vd;
     impl->traceview = tv;
@@ -44,8 +46,10 @@ ROITrace::ROITrace(TraceViewWidget* tv, VideoData* vd, std::shared_ptr<ChartStyl
     connect(linestyle.get(), &ChartStyle::ColorChange, this, &ROITrace::update);
 }
 
-ROITrace::~ROITrace() {
-    if (impl->traceview) {
+ROITrace::~ROITrace()
+{
+    if (impl->traceview)
+    {
         impl->traceview->getRidgeChart().removeSeries(impl->RidgeSeries);
         impl->traceview->getRidgeChart().updateOffsets();
         impl->traceview->getRidgeChart().updateExtents();
@@ -53,20 +57,24 @@ ROITrace::~ROITrace() {
     }
 }
 
-void ROITrace::updateTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> pts) {
+void ROITrace::updateTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> pts)
+{
     impl->TraceData = impl->videodata->computeTrace(s, bb, pts);
     update();
 }
-std::vector<float> ROITrace::getTrace() const {
+std::vector<float> ROITrace::getTrace() const
+{
     auto numel = impl->TraceData.size().width;
-    
+
     std::vector<float> out(numel, 0.);
-    for (size_t i = 0; i < numel; ++i) {
+    for (size_t i = 0; i < numel; ++i)
+    {
         out[i] = impl->TraceData.at<float>(i);
     }
     return out;
 }
-void ROITrace::update() {
+void ROITrace::update()
+{
     impl->LineSeries->setXMax(impl->videodata->getTMax());
     impl->LineSeries->setData(impl->TraceData);
     impl->TraceChart->updateExtents();
@@ -79,6 +87,6 @@ void ROITrace::update() {
     impl->traceview->getRidgeChart().update();
 }
 
-TraceChartWidget* ROITrace::getTraceChart() const noexcept { return impl->TraceChart.get(); }
-TraceChartSeries* ROITrace::getLineSeries() const noexcept { return impl->LineSeries.get();  }
-TraceChartSeries* ROITrace::getRidgeSeries() const noexcept { return impl->RidgeSeries.get(); }
+TraceChartWidget *ROITrace::getTraceChart() const noexcept { return impl->TraceChart.get(); }
+TraceChartSeries *ROITrace::getLineSeries() const noexcept { return impl->LineSeries.get(); }
+TraceChartSeries *ROITrace::getRidgeSeries() const noexcept { return impl->RidgeSeries.get(); }

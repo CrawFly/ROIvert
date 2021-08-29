@@ -5,29 +5,32 @@
 
 #include "roivertcore.h"
 
-enum class proj {
+enum class proj
+{
     NONE = 0,
     MIN = 1,
     MAX = 2,
     MEAN = 3
 };
 
-struct ProjectionPickWidget::pimpl {
+struct ProjectionPickWidget::pimpl
+{
     QButtonGroup projection;
     QGridLayout layout;
-    QPushButton butNone{ tr("None") };
-    QPushButton butMean{ "Mean" };
-    QPushButton butMin{ tr("Min") };
-    QPushButton butMax{ tr("Max") };
+    QPushButton butNone{tr("None")};
+    QPushButton butMean{"Mean"};
+    QPushButton butMin{tr("Min")};
+    QPushButton butMax{tr("Max")};
 
-    void init() {
+    void init()
+    {
         butNone.setCheckable(true);
         butNone.setChecked(true);
         butNone.setToolTip(tr("Show individual frames."));
 
         butMean.setCheckable(true);
         butMean.setToolTip(tr("Show pixel-wise average across frames (undefined for ") + ROIVert::dffstring() + ".");
-    
+
         butMin.setCheckable(true);
         butNone.setToolTip(tr("Show pixel-wise minimum across frames."));
 
@@ -40,7 +43,8 @@ struct ProjectionPickWidget::pimpl {
         projection.addButton(&butMax, static_cast<int>(proj::MAX));
     }
 
-    void doLayout() {
+    void doLayout()
+    {
         layout.setSpacing(0);
         layout.addWidget(&butNone, 0, 0);
         layout.addWidget(&butMean, 0, 1);
@@ -49,8 +53,8 @@ struct ProjectionPickWidget::pimpl {
     }
 };
 
-
-ProjectionPickWidget::ProjectionPickWidget(QWidget* parent) : QWidget(parent) {
+ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent)
+{
     impl->init();
     impl->doLayout();
     setLayout(&impl->layout);
@@ -58,4 +62,4 @@ ProjectionPickWidget::ProjectionPickWidget(QWidget* parent) : QWidget(parent) {
     connect(&impl->projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
 }
 int ProjectionPickWidget::getProjection() const noexcept { return impl->projection.checkedId(); }
-void ProjectionPickWidget::setProjection(int projid) { impl->projection.button(projid)->setChecked(true);}
+void ProjectionPickWidget::setProjection(int projid) { impl->projection.button(projid)->setChecked(true); }

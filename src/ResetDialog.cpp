@@ -4,7 +4,8 @@
 #include <QBoxLayout>
 #include <QLabel>
 
-ResetDialog::ResetDialog(QWidget* parent) : QDialog(parent) {
+ResetDialog::ResetDialog(QWidget *parent) : QDialog(parent)
+{
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     setWindowFlags(Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
     setWindowTitle("ROIVert Reset");
@@ -43,22 +44,24 @@ ResetDialog::ResetDialog(QWidget* parent) : QDialog(parent) {
     ok->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     hlay->addStretch();
 
-    connect(ok, &QPushButton::clicked, this, [=] {
-        res.setBit(static_cast<int>(ROIVert::RESET::WINDOW), chkWindow->isChecked());
-        res.setBit(static_cast<int>(ROIVert::RESET::ROICOLOR), chkROIColor->isChecked());
-        res.setBit(static_cast<int>(ROIVert::RESET::ROISTYLE), chkROIStyle->isChecked());
-        res.setBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE), chkChartStyle->isChecked());
-        res.setBit(static_cast<int>(ROIVert::RESET::IMAGEDATA), chkImageData->isChecked());
-        accept();
-    });
+    connect(ok, &QPushButton::clicked, this, [=]
+            {
+                res.setBit(static_cast<int>(ROIVert::RESET::WINDOW), chkWindow->isChecked());
+                res.setBit(static_cast<int>(ROIVert::RESET::ROICOLOR), chkROIColor->isChecked());
+                res.setBit(static_cast<int>(ROIVert::RESET::ROISTYLE), chkROIStyle->isChecked());
+                res.setBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE), chkChartStyle->isChecked());
+                res.setBit(static_cast<int>(ROIVert::RESET::IMAGEDATA), chkImageData->isChecked());
+                accept();
+            });
 
     connect(cancel, &QPushButton::clicked, this, &QDialog::reject);
 
     ok->setDefault(true);
-    
+
     hlay->addWidget(cancel);
     hlay->addWidget(ok);
 }
-QBitArray ResetDialog::getResult() {
+QBitArray ResetDialog::getResult()
+{
     return res;
 }

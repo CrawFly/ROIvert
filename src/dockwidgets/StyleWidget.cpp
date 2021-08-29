@@ -24,40 +24,41 @@
 #include "widgets/TraceChartWidget.h"
 #include "dockwidgets/TraceViewWidget.h"
 
-struct StyleWidget::pimpl {
-    QTabWidget* tab = new QTabWidget;
+struct StyleWidget::pimpl
+{
+    QTabWidget *tab = new QTabWidget;
 
-    RGBWidget* roicolor = new RGBWidget;
+    RGBWidget *roicolor = new RGBWidget;
 
-    QSlider* roilinewidth = new QSlider;
-    QSlider* roiselsize = new QSlider;
-    QSlider* roifillopacity = new QSlider;
+    QSlider *roilinewidth = new QSlider;
+    QSlider *roiselsize = new QSlider;
+    QSlider *roifillopacity = new QSlider;
 
-    RGBWidget* chartforecolor = new RGBWidget;
-    RGBWidget* chartbackcolor = new RGBWidget;
+    RGBWidget *chartforecolor = new RGBWidget;
+    RGBWidget *chartbackcolor = new RGBWidget;
 
-    QComboBox* chartfont = new QComboBox;
-    QSpinBox* chartlabelfontsize = new QSpinBox;
-    QSpinBox* charttickfontsize = new QSpinBox;
+    QComboBox *chartfont = new QComboBox;
+    QSpinBox *chartlabelfontsize = new QSpinBox;
+    QSpinBox *charttickfontsize = new QSpinBox;
 
-    QSpinBox* linewidth = new QSpinBox;
-    QSlider* linefill = new QSlider;
-    QCheckBox* linegradient = new QCheckBox;
-    QCheckBox* linegrid = new QCheckBox;
-    QCheckBox* linematchy = new QCheckBox;
-    QComboBox* linenorm = new QComboBox;
+    QSpinBox *linewidth = new QSpinBox;
+    QSlider *linefill = new QSlider;
+    QCheckBox *linegradient = new QCheckBox;
+    QCheckBox *linegrid = new QCheckBox;
+    QCheckBox *linematchy = new QCheckBox;
+    QComboBox *linenorm = new QComboBox;
 
-    QSpinBox* ridgewidth = new QSpinBox;
-    QSlider* ridgefill = new QSlider;
-    QCheckBox* ridgegradient = new QCheckBox;
-    QCheckBox* ridgegrid = new QCheckBox;
-    QSlider* ridgeoverlap = new QSlider;
+    QSpinBox *ridgewidth = new QSpinBox;
+    QSlider *ridgefill = new QSlider;
+    QCheckBox *ridgegradient = new QCheckBox;
+    QCheckBox *ridgegrid = new QCheckBox;
+    QSlider *ridgeoverlap = new QSlider;
 
+    ROIs *rois{nullptr};
+    TraceViewWidget *traceview{nullptr};
 
-    ROIs* rois{ nullptr };
-    TraceViewWidget* traceview{ nullptr };
-
-    void doLayout() {
+    void doLayout()
+    {
         tab->tabBar()->setStyle(new CustomTabStyle);
         tab->setTabPosition(QTabWidget::TabPosition::West);
 
@@ -72,7 +73,8 @@ struct StyleWidget::pimpl {
         tab->setCurrentIndex(0);
     }
 
-    QWidget* ROIColorTab() {
+    QWidget *ROIColorTab()
+    {
         auto ret = new QWidget;
         auto lay = new QVBoxLayout;
         ret->setLayout(lay);
@@ -81,7 +83,8 @@ struct StyleWidget::pimpl {
         lay->addStretch();
         return ret;
     }
-    QWidget* ROIStyleTab() {
+    QWidget *ROIStyleTab()
+    {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -108,7 +111,8 @@ struct StyleWidget::pimpl {
         lay->addRow("Fill Opacity", roifillopacity);
         return ret;
     }
-    QWidget* ChartColorTab() {
+    QWidget *ChartColorTab()
+    {
         auto ret = new QWidget;
         auto lay = new QVBoxLayout;
         ret->setLayout(lay);
@@ -126,14 +130,14 @@ struct StyleWidget::pimpl {
             rowlay1->addWidget(new QLabel("Chart Foreground:"));
             rowlay1->addLayout(rowlay2);
             lay->addLayout(rowlay1);
-            connect(black, &QToolButton::clicked, black, [=] {chartforecolor->setColor(Qt::black); });
-            connect(white, &QToolButton::clicked, white, [=] {chartforecolor->setColor(Qt::white); });
+            connect(black, &QToolButton::clicked, black, [=]
+                    { chartforecolor->setColor(Qt::black); });
+            connect(white, &QToolButton::clicked, white, [=]
+                    { chartforecolor->setColor(Qt::white); });
         }
-        
-        lay->addWidget(chartforecolor);
-        
 
-        
+        lay->addWidget(chartforecolor);
+
         {
             auto rowlay1 = new QHBoxLayout;
             auto rowlay2 = new QHBoxLayout;
@@ -146,20 +150,24 @@ struct StyleWidget::pimpl {
             rowlay1->addWidget(new QLabel("Chart Background:"));
             rowlay1->addLayout(rowlay2);
             lay->addLayout(rowlay1);
-            connect(black, &QToolButton::clicked, black, [=] {chartbackcolor->setColor(Qt::black); });
-            connect(white, &QToolButton::clicked, white, [=] {chartbackcolor->setColor(Qt::white); });
+            connect(black, &QToolButton::clicked, black, [=]
+                    { chartbackcolor->setColor(Qt::black); });
+            connect(white, &QToolButton::clicked, white, [=]
+                    { chartbackcolor->setColor(Qt::white); });
         }
-        
+
         lay->addWidget(chartbackcolor);
         lay->addStretch(1);
         return ret;
     }
-    QWidget* ChartFontsTab() {
+    QWidget *ChartFontsTab()
+    {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
         QFontDatabase fontdb;
-        for (auto& family : fontdb.families()) {
+        for (auto &family : fontdb.families())
+        {
             chartfont->addItem(family);
         }
         chartfont->setMinimumWidth(150);
@@ -175,7 +183,8 @@ struct StyleWidget::pimpl {
         return ret;
     }
 
-    QWidget* ChartLineTab() {
+    QWidget *ChartLineTab()
+    {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -184,7 +193,7 @@ struct StyleWidget::pimpl {
         linefill->setMinimum(0);
         linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
-        linenorm->addItems({ "None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR" });
+        linenorm->addItems({"None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR"});
 
         lay->addRow("Line Width:", linewidth);
         lay->addRow("Fill Opacity:", linefill);
@@ -194,7 +203,8 @@ struct StyleWidget::pimpl {
         lay->addRow("Normalization:", linenorm);
         return ret;
     }
-    QWidget* ChartRidgeTab() {
+    QWidget *ChartRidgeTab()
+    {
         auto ret = new QWidget;
         auto lay = new QFormLayout;
         ret->setLayout(lay);
@@ -214,8 +224,10 @@ struct StyleWidget::pimpl {
         return ret;
     }
 
-    void doConnect(const StyleWidget* const par) {
-        if (par == nullptr) {
+    void doConnect(const StyleWidget *const par)
+    {
+        if (par == nullptr)
+        {
             return;
         }
         connect(roicolor, &RGBWidget::colorChanged, par, &StyleWidget::ROIColorChange);
@@ -242,8 +254,10 @@ struct StyleWidget::pimpl {
         connect(ridgeoverlap, &QSlider::valueChanged, par, &StyleWidget::RidgeOverlapChange);
     }
 
-    void updateROIStyle(ROIStyle* style) {
-        if (!isLoading) {
+    void updateROIStyle(ROIStyle *style)
+    {
+        if (!isLoading)
+        {
             auto selsize = roiselsize->value() > 0 ? roiselsize->value() : -15;
             style->blockSignals(true);
             style->setSelectorSize(selsize);
@@ -253,8 +267,10 @@ struct StyleWidget::pimpl {
             emit style->StyleChanged(*style);
         }
     }
-    void updateChartStyle(ChartStyle* style) {
-        if (!isLoading) {
+    void updateChartStyle(ChartStyle *style)
+    {
+        if (!isLoading)
+        {
             style->setBackgroundColor(chartbackcolor->getColor());
             style->setAxisColor(chartforecolor->getColor());
             style->setLabelFontSize(chartlabelfontsize->value());
@@ -263,18 +279,21 @@ struct StyleWidget::pimpl {
         }
     }
 
-    void updateLineChartStyle(ChartStyle* style) {
-        if (!isLoading) {
+    void updateLineChartStyle(ChartStyle *style)
+    {
+        if (!isLoading)
+        {
             style->setTraceLineWidth(linewidth->value());
             style->setTraceFillOpacity(linefill->value());
             style->setTraceFillGradient(linegradient->isChecked());
             style->setGrid(linegrid->isChecked());
             style->setNormalization(static_cast<ROIVert::NORMALIZATION>(linenorm->currentIndex()));
-
         }
     }
-    void updateRidgeChartStyle(ChartStyle* style) {
-        if (!isLoading) {
+    void updateRidgeChartStyle(ChartStyle *style)
+    {
+        if (!isLoading)
+        {
             style->setTraceLineWidth(ridgewidth->value());
             style->setTraceFillOpacity(ridgefill->value());
             style->setTraceFillGradient(ridgegradient->isChecked());
@@ -282,14 +301,15 @@ struct StyleWidget::pimpl {
         }
     }
 
-
-    void loadFromTV() {
+    void loadFromTV()
+    {
         // set gui state from TraceView:
-        auto cls{ traceview->getCoreLineChartStyle() };
-        auto crs{ traceview->getCoreRidgeChartStyle() };
+        auto cls{traceview->getCoreLineChartStyle()};
+        auto crs{traceview->getCoreRidgeChartStyle()};
 
         // General (comes from line)
-        if (cls != nullptr) {
+        if (cls != nullptr)
+        {
             chartbackcolor->setColor(cls->getBackgroundColor());
             chartforecolor->setColor(cls->getAxisPen().color());
             chartlabelfontsize->setValue(cls->getLabelFont().pointSize());
@@ -305,7 +325,8 @@ struct StyleWidget::pimpl {
         }
 
         // Ridge:
-        if (crs != nullptr) {
+        if (crs != nullptr)
+        {
             ridgewidth->setValue(crs->getTracePen().style() == Qt::NoPen ? 0 : crs->getTracePen().width());
             ridgefill->setValue(crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
             ridgegradient->setChecked(crs->getTraceFillGradient());
@@ -313,43 +334,50 @@ struct StyleWidget::pimpl {
         }
         ridgeoverlap->setValue(traceview->getRidgeChart().offset * 100);
     }
-    void loadFromROIs() {
+    void loadFromROIs()
+    {
         auto style = rois->getCoreROIStyle();
-        if (style != nullptr) {
+        if (style != nullptr)
+        {
             roilinewidth->setValue(style->getPen().style() == Qt::NoPen ? 0 : style->getPen().width());
             roiselsize->setValue(style->getSelectorSize());
             roifillopacity->setValue(style->getBrush().style() == Qt::NoBrush ? 0 : style->getBrush().color().alpha());
         }
         linematchy->setChecked(rois->getMatchYAxes());
     }
-    bool isLoading{ false };
+    bool isLoading{false};
 };
 
-StyleWidget::StyleWidget(QWidget* parent) : QDockWidget(parent)
+StyleWidget::StyleWidget(QWidget *parent) : QDockWidget(parent)
 {
     this->setWidget(impl->tab);
     impl->doLayout();
     impl->doConnect(this);
 }
-void StyleWidget::ROIColorChange() {
-    if (impl->rois) {
+void StyleWidget::ROIColorChange()
+{
+    if (impl->rois)
+    {
         auto inds = impl->rois->getSelected();
-        for (auto& ind : inds) {
+        for (auto &ind : inds)
+        {
             auto thisStyle = impl->rois->getROIStyle(ind);
             thisStyle->setColor(impl->roicolor->getColor());
         }
     }
 }
-void StyleWidget::ROIStyleChange() {
+void StyleWidget::ROIStyleChange()
+{
     impl->updateROIStyle(impl->rois->getCoreROIStyle());
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
-    for (auto& ind : inds) {
+    for (auto &ind : inds)
+    {
         impl->updateROIStyle(impl->rois->getROIStyle(ind));
     }
-
 }
-void StyleWidget::ChartStyleChange() {
+void StyleWidget::ChartStyleChange()
+{
     impl->updateChartStyle(impl->traceview->getCoreLineChartStyle());
     impl->updateChartStyle(impl->traceview->getRidgeChart().getStyle());
 
@@ -357,48 +385,57 @@ void StyleWidget::ChartStyleChange() {
 
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
-    for (auto& ind : inds) {
+    for (auto &ind : inds)
+    {
         impl->updateChartStyle(impl->rois->getLineChartStyle(ind));
         impl->rois->updateLineChartStyle(ind);
 
         impl->updateChartStyle(impl->rois->getRidgeChartStyle(ind));
         impl->rois->updateRidgeChartStyle(ind);
-
     }
 }
-void StyleWidget::LineChartStyleChange() {
+void StyleWidget::LineChartStyleChange()
+{
     impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
 
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
-    for (auto& ind : inds) {
+    for (auto &ind : inds)
+    {
         auto style = impl->rois->getLineChartStyle(ind);
         impl->updateLineChartStyle(style);
         impl->rois->updateLineChartStyle(ind);
     }
 }
-void StyleWidget::RidgeChartStyleChange() {
+void StyleWidget::RidgeChartStyleChange()
+{
     impl->updateRidgeChartStyle(impl->traceview->getCoreRidgeChartStyle());
 
     std::vector<size_t> inds(impl->rois->getNROIs());
     std::iota(inds.begin(), inds.end(), 0);
-    for (auto& ind : inds) {
+    for (auto &ind : inds)
+    {
         auto style = impl->rois->getRidgeChartStyle(ind);
         impl->updateRidgeChartStyle(style);
     }
     impl->traceview->getRidgeChart().update();
 }
-void StyleWidget::RidgeOverlapChange() {
-    if (!impl->isLoading) {
+void StyleWidget::RidgeOverlapChange()
+{
+    if (!impl->isLoading)
+    {
         impl->traceview->getRidgeChart().offset = static_cast<float>(impl->ridgeoverlap->value()) / 100.;
         impl->traceview->getRidgeChart().updateOffsets();
     }
 }
-void StyleWidget::selectionChange(std::vector<size_t> inds) {
-    if (inds.empty()) {
+void StyleWidget::selectionChange(std::vector<size_t> inds)
+{
+    if (inds.empty())
+    {
         impl->roicolor->setEnabled(false);
     }
-    else {
+    else
+    {
         auto style = impl->rois->getROIStyle(inds.back());
         impl->roicolor->blockSignals(true);
         impl->roicolor->setColor(style->getLineColor());
@@ -406,43 +443,52 @@ void StyleWidget::selectionChange(std::vector<size_t> inds) {
         impl->roicolor->setEnabled(true);
     }
 }
-void StyleWidget::setROIs(ROIs* rois) {
+void StyleWidget::setROIs(ROIs *rois)
+{
     impl->rois = rois;
     connect(rois, &ROIs::selectionChanged, this, &StyleWidget::selectionChange);
 }
-void StyleWidget::setTraceView(TraceViewWidget* traceview) {
+void StyleWidget::setTraceView(TraceViewWidget *traceview)
+{
     impl->traceview = traceview;
 }
-void StyleWidget::loadSettings() {
-    if (impl->traceview != nullptr && impl->rois != nullptr) {
+void StyleWidget::loadSettings()
+{
+    if (impl->traceview != nullptr && impl->rois != nullptr)
+    {
         impl->isLoading = true;
         impl->loadFromTV();
         impl->loadFromROIs();
         impl->isLoading = false;
     }
 }
-void StyleWidget::LineMatchyChange() {
+void StyleWidget::LineMatchyChange()
+{
     impl->rois->setMatchYAxes(impl->linematchy->isChecked());
 }
 
-void StyleWidget::setContentsEnabled(bool onoff) {
+void StyleWidget::setContentsEnabled(bool onoff)
+{
     impl->tab->setEnabled(onoff);
 }
 
-
-
-QSize CustomTabStyle::sizeFromContents(ContentsType type, const QStyleOption* option,
-    const QSize& size, const QWidget* widget) const {
+QSize CustomTabStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
+                                       const QSize &size, const QWidget *widget) const
+{
     QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
-    if (type == QStyle::CT_TabBarTab) {
+    if (type == QStyle::CT_TabBarTab)
+    {
         s.transpose();
     }
     return s;
 }
 
-void CustomTabStyle::drawControl(ControlElement element, const QStyleOption* option, QPainter* painter, const QWidget* widget) const {
-    if (element == CE_TabBarTabLabel) {
-        if (const QStyleOptionTab* tab = qstyleoption_cast<const QStyleOptionTab*>(option)) {
+void CustomTabStyle::drawControl(ControlElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
+{
+    if (element == CE_TabBarTabLabel)
+    {
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option))
+        {
             QStyleOptionTab opt(*tab);
             opt.shape = QTabBar::RoundedNorth;
             QProxyStyle::drawControl(element, &opt, painter, widget);
@@ -451,4 +497,3 @@ void CustomTabStyle::drawControl(ControlElement element, const QStyleOption* opt
     }
     QProxyStyle::drawControl(element, option, painter, widget);
 }
-

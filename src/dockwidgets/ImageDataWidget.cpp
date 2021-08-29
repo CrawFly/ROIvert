@@ -15,8 +15,8 @@
 #include <QSpinBox>
 #include <QStyleOption>
 
-
-struct ImageDataWidget::pimpl {
+struct ImageDataWidget::pimpl
+{
     QWidget contents;
     QVBoxLayout vlay;
     QFormLayout formlay;
@@ -32,12 +32,13 @@ struct ImageDataWidget::pimpl {
 
     QRadioButton optFolder;
     QRadioButton optFile;
-    
+
     QCompleter completer;
     QFileSystemModel fsmodel_folder;
     QFileSystemModel fsmodel_file;
 
-    void init() {
+    void init()
+    {
         {
             // * QFileSystemModel doesn't respond well when changing filter, so just create two models
             fsmodel_folder.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
@@ -103,18 +104,19 @@ struct ImageDataWidget::pimpl {
         }
     }
 
-    void layout() {
+    void layout()
+    {
         contents.setLayout(&vlay);
         vlay.addLayout(&formlay);
-        
+
         {
             QVBoxLayout *lay = new QVBoxLayout;
             lay->addWidget(&optFolder);
             lay->addWidget(&optFile);
-            formlay.addRow("Dataset Type:",lay);
+            formlay.addRow("Dataset Type:", lay);
         }
         formlay.addRow(new QLabel(" "));
-        
+
         {
             QHBoxLayout *lay = new QHBoxLayout;
             lay->addWidget(&txtFilePath);
@@ -127,7 +129,7 @@ struct ImageDataWidget::pimpl {
         formlay.addRow(tr("Frame Rate:"), &spinFrameRate);
         formlay.addRow(tr("Frame Subset:"), &spinDownTime);
         formlay.addRow(tr("Pixel Subset:"), &spinDownSpace);
-        
+
         formlay.addRow(new QLabel(" "));
         {
             QHBoxLayout *lay = new QHBoxLayout;
@@ -137,78 +139,97 @@ struct ImageDataWidget::pimpl {
 
             vlay.addLayout(lay);
         }
-        
+
         vlay.addWidget(&progBar);
         vlay.addStretch();
     }
 
-    void browse(ImageDataWidget* par) {
+    void browse(ImageDataWidget *par)
+    {
         const bool isfile = optFile.isChecked();
 
         QString initpath = QDir::currentPath();
         QString currpath = txtFilePath.text();
-        if (!currpath.isEmpty()) {
+        if (!currpath.isEmpty())
+        {
             initpath = QFileInfo(currpath).absolutePath();
         }
 
-
         QString fileName = QFileDialog::getOpenFileName(par,
-            isfile ? tr("Select a Multi-Page Tiff File") : tr("Select a Tiff File in the Dataset"),
-            initpath,
-            tr("Tiff Files (*.tif *.tiff)"));
+                                                        isfile ? tr("Select a Multi-Page Tiff File") : tr("Select a Tiff File in the Dataset"),
+                                                        initpath,
+                                                        tr("Tiff Files (*.tif *.tiff)"));
 
-        if (!fileName.isEmpty()) {
-            if (isfile) {
+        if (!fileName.isEmpty())
+        {
+            if (isfile)
+            {
                 txtFilePath.setText(QDir::toNativeSeparators(fileName));
             }
-            else {
+            else
+            {
                 auto fp = QFileInfo(fileName).absolutePath();
                 fp = QDir::toNativeSeparators(fp);
                 txtFilePath.setText(fp);
             }
         }
     }
-    
-    void filePathChanged(const QString& filepath) {
+
+    void filePathChanged(const QString &filepath)
+    {
         cmdLoad.setEnabled(false);
 
-        if (optFile.isChecked()) {
-            if (QFileInfo(filepath).isFile() && (QFileInfo(filepath).suffix().toLower() == "tif" || QFileInfo(filepath).suffix().toLower() == "tiff")) {
+        if (optFile.isChecked())
+        {
+            if (QFileInfo(filepath).isFile() && (QFileInfo(filepath).suffix().toLower() == "tif" || QFileInfo(filepath).suffix().toLower() == "tiff"))
+            {
                 cmdLoad.setEnabled(true);
             }
         }
-        else if (QFileInfo(filepath).isDir()) {
-            QStringList fl = QDir(filepath).entryList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
-            if (fl.size() > 0) { 
-                cmdLoad.setEnabled(true); 
+        else if (QFileInfo(filepath).isDir())
+        {
+            QStringList fl = QDir(filepath).entryList(QStringList() << "*.tif"
+                                                                    << "*.tiff",
+                                                      QDir::Files);
+            if (fl.size() > 0)
+            {
+                cmdLoad.setEnabled(true);
             }
         }
     }
 
-    void load(ImageDataWidget* par) {
+    void load(ImageDataWidget *par)
+    {
         bool isfolder = optFolder.isChecked();
         QStringList filelist;
-        if (isfolder) {
-            QFileInfoList fileinfolist = QDir(txtFilePath.text()).entryInfoList(QStringList() << "*.tif" << "*.tiff", QDir::Files);
-            for (auto &filename:fileinfolist) {
+        if (isfolder)
+        {
+            QFileInfoList fileinfolist = QDir(txtFilePath.text()).entryInfoList(QStringList() << "*.tif"
+                                                                                              << "*.tiff",
+                                                                                QDir::Files);
+            for (auto &filename : fileinfolist)
+            {
                 filelist << filename.absoluteFilePath();
             }
         }
-        else {
-            filelist = QStringList({ txtFilePath.text() });
+        else
+        {
+            filelist = QStringList({txtFilePath.text()});
         }
-        
-        
+
         emit par->fileLoadRequested(filelist, spinFrameRate.value(), spinDownTime.value(), spinDownSpace.value(), isfolder);
     }
 
-    void optfilefolder() {
-        if (optFile.isChecked()) {
+    void optfilefolder()
+    {
+        if (optFile.isChecked())
+        {
             lblFilePath.setText(tr("File Name:"));
             completer.setModel(&fsmodel_file);
             txtFilePath.setToolTip(tr("Path to a multi-page tiff file"));
         }
-        else {
+        else
+        {
             lblFilePath.setText(tr("File Path:"));
             completer.setModel(&fsmodel_folder);
             txtFilePath.setToolTip(tr("Path to a folder that contains a dataset (i.e. tiff files)"));
@@ -219,26 +240,34 @@ struct ImageDataWidget::pimpl {
     }
 };
 
-ImageDataWidget::ImageDataWidget(QWidget* parent) : QDockWidget(parent) {
+ImageDataWidget::ImageDataWidget(QWidget *parent) : QDockWidget(parent)
+{
     this->setWidget(&impl->contents);
     impl->init();
     impl->layout();
 
-    connect(&impl->cmdBrowseFilePath, &QPushButton::clicked, [=] { impl->browse(this); });
-    connect(&impl->txtFilePath, &QLineEdit::textChanged, [=](const QString& filepath) { impl->filePathChanged(filepath); });
-    connect(&impl->cmdLoad, &QPushButton::clicked, [=] { impl->load(this); });
+    connect(&impl->cmdBrowseFilePath, &QPushButton::clicked, [=]
+            { impl->browse(this); });
+    connect(&impl->txtFilePath, &QLineEdit::textChanged, [=](const QString &filepath)
+            { impl->filePathChanged(filepath); });
+    connect(&impl->cmdLoad, &QPushButton::clicked, [=]
+            { impl->load(this); });
     connect(&impl->spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ImageDataWidget::frameRateChanged);
-    connect(&impl->optFile, &QRadioButton::toggled, [=] { impl->optfilefolder(); });
-    connect(&impl->optFolder, &QRadioButton::toggled, [=] { impl->optfilefolder(); });
-
+    connect(&impl->optFile, &QRadioButton::toggled, [=]
+            { impl->optfilefolder(); });
+    connect(&impl->optFolder, &QRadioButton::toggled, [=]
+            { impl->optfilefolder(); });
 }
 
-void ImageDataWidget::setContentsEnabled(bool onoff) {
+void ImageDataWidget::setContentsEnabled(bool onoff)
+{
     impl->contents.setEnabled(onoff);
 }
 
-void ImageDataWidget::setProgBar(int val) {
-    if (val >= 0 && val <= impl->progBar.maximum()) {
+void ImageDataWidget::setProgBar(int val)
+{
+    if (val >= 0 && val <= impl->progBar.maximum())
+    {
         impl->progBar.setVisible(true);
         impl->progBar.setValue(val);
         return;
@@ -246,9 +275,8 @@ void ImageDataWidget::setProgBar(int val) {
     impl->progBar.setVisible(false);
 }
 
-
-
-void ImageDataWidget::storesettings(QSettings& settings) const {
+void ImageDataWidget::storesettings(QSettings &settings) const
+{
     settings.beginGroup("ImageData");
     settings.setValue("filepath", impl->txtFilePath.text());
     settings.setValue("framerate", impl->spinFrameRate.value());
@@ -257,33 +285,40 @@ void ImageDataWidget::storesettings(QSettings& settings) const {
     settings.setValue("mode", impl->optFile.isChecked() ? "file" : "folder");
     settings.endGroup();
 }
-void ImageDataWidget::loadsettings(QSettings& settings) {
+void ImageDataWidget::loadsettings(QSettings &settings)
+{
     settings.beginGroup("ImageData");
 
-    if (settings.contains("filepath")) {
+    if (settings.contains("filepath"))
+    {
         impl->txtFilePath.setText(settings.value("filepath").toString());
     }
 
-    if (settings.contains("framerate")) {
+    if (settings.contains("framerate"))
+    {
         impl->spinFrameRate.setValue(settings.value("framerate").toDouble());
     }
 
-    if (settings.contains("downtime")) {
+    if (settings.contains("downtime"))
+    {
         impl->spinDownTime.setValue(settings.value("downtime").toInt());
     }
-   
-    if (settings.contains("downspace")) {
+
+    if (settings.contains("downspace"))
+    {
         impl->spinDownSpace.setValue(settings.value("downspace").toInt());
     }
-    
-    if (settings.contains("mode")) {
+
+    if (settings.contains("mode"))
+    {
         impl->optFile.setChecked(settings.value("mode").toString() == "file");
         impl->optfilefolder();
     }
 
     settings.endGroup();
 }
-void ImageDataWidget::resetsettings() {
+void ImageDataWidget::resetsettings()
+{
     impl->txtFilePath.setText("");
     impl->spinFrameRate.setValue(30.);
     impl->spinDownTime.setValue(1);

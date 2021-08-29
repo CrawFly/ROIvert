@@ -9,7 +9,8 @@
 
 #include <QDebug>
 
-struct ContrastWidget::pimpl {
+struct ContrastWidget::pimpl
+{
     ContrastWidgetImpl::ContrastChart chart;
     QDoubleSpinBox spinMin;
     QDoubleSpinBox spinGamma;
@@ -17,7 +18,8 @@ struct ContrastWidget::pimpl {
 
     QVBoxLayout lay;
 
-    void init() {
+    void init()
+    {
         lay.setContentsMargins(QMargins(0, 0, 0, 0));
         chart.setToolTip(tr("A histogram of image data is shown. Slide the minimum/maximum/gamma lines to adjust contrast or set values in the boxes below."));
         spinMin.setSingleStep(.05);
@@ -35,9 +37,10 @@ struct ContrastWidget::pimpl {
         spinGamma.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinGamma.setToolTip(tr("Gamma correction: power-law nonlinearity applied to pixel brightness."));
     }
-    void layout() {
+    void layout()
+    {
         lay.addWidget(&chart);
-        
+
         {
             auto layEdit = std::make_unique<QHBoxLayout>();
             layEdit->addWidget(&spinMin);
@@ -48,16 +51,21 @@ struct ContrastWidget::pimpl {
             lay.addLayout(layEdit.release());
         }
     }
-    void doConnect(ContrastWidget* par) {
-        const auto lamSpin2Chart = [=]() {
-            ROIVert::contrast c{ spinMin.value(), spinMax.value(), spinGamma.value() };
+    void doConnect(ContrastWidget *par)
+    {
+        const auto lamSpin2Chart = [=]()
+        {
+            ROIVert::contrast c{spinMin.value(), spinMax.value(), spinGamma.value()};
             chart.setValues(c);
-            emit par->contrastChanged(c); };
-        
-        const auto lamChart2Spin = [=](ROIVert::contrast c) {
+            emit par->contrastChanged(c);
+        };
+
+        const auto lamChart2Spin = [=](ROIVert::contrast c)
+        {
             spinMin.setValue(std::get<0>(c));
             spinMax.setValue(std::get<1>(c));
-            spinGamma.setValue(std::get<2>(c)); };
+            spinGamma.setValue(std::get<2>(c));
+        };
 
         connect(&spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), lamSpin2Chart);
         connect(&spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), lamSpin2Chart);
@@ -65,9 +73,9 @@ struct ContrastWidget::pimpl {
         connect(&chart, &ContrastWidgetImpl::ContrastChart::contrastChanged, lamChart2Spin);
     }
 };
-    
 
-ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent) {
+ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent)
+{
     setGammaRange(.001, 10.);
     impl->init();
     impl->layout();
