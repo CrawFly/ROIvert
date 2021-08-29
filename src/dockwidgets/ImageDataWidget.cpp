@@ -95,6 +95,7 @@ struct ImageDataWidget::pimpl {
             cmdLoad.setText("Load Files");
             cmdLoad.setEnabled(false);
             cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\n\tFolder is selected and the File Path is not a path containing tiff files\n\tFile is selected and the File Name is not a tiff file"));
+            cmdLoad.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
         }
         {
             progBar.setMaximum(100);
@@ -128,13 +129,21 @@ struct ImageDataWidget::pimpl {
         formlay.addRow(tr("Pixel Subset:"), &spinDownSpace);
         
         formlay.addRow(new QLabel(" "));
-        vlay.addWidget(&cmdLoad);
+        {
+            QHBoxLayout *lay = new QHBoxLayout;
+            lay->addStretch();
+            lay->addWidget(&cmdLoad);
+            lay->addStretch();
+
+            vlay.addLayout(lay);
+        }
+        
         vlay.addWidget(&progBar);
         vlay.addStretch();
     }
 
     void browse(ImageDataWidget* par) {
-        bool isfile = optFile.isChecked();
+        const bool isfile = optFile.isChecked();
 
         QString initpath = QDir::currentPath();
         QString currpath = txtFilePath.text();
@@ -193,7 +202,6 @@ struct ImageDataWidget::pimpl {
         emit par->fileLoadRequested(filelist, spinFrameRate.value(), spinDownTime.value(), spinDownSpace.value(), isfolder);
     }
 
-
     void optfilefolder() {
         if (optFile.isChecked()) {
             lblFilePath.setText(tr("File Name:"));
@@ -216,12 +224,12 @@ ImageDataWidget::ImageDataWidget(QWidget* parent) : QDockWidget(parent) {
     impl->init();
     impl->layout();
 
-    connect(&impl->cmdBrowseFilePath, &QPushButton::clicked, this, [=] { impl->browse(this); });
-    connect(&impl->txtFilePath, &QLineEdit::textChanged, this, [=](const QString& filepath) { impl->filePathChanged(filepath); });
-    connect(&impl->cmdLoad, &QPushButton::clicked, this, [=] { impl->load(this); });
+    connect(&impl->cmdBrowseFilePath, &QPushButton::clicked, [=] { impl->browse(this); });
+    connect(&impl->txtFilePath, &QLineEdit::textChanged, [=](const QString& filepath) { impl->filePathChanged(filepath); });
+    connect(&impl->cmdLoad, &QPushButton::clicked, [=] { impl->load(this); });
     connect(&impl->spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ImageDataWidget::frameRateChanged);
-    connect(&impl->optFile, &QRadioButton::toggled, this, [=] { impl->optfilefolder(); });
-    connect(&impl->optFolder, &QRadioButton::toggled, this, [=] { impl->optfilefolder(); });
+    connect(&impl->optFile, &QRadioButton::toggled, [=] { impl->optfilefolder(); });
+    connect(&impl->optFolder, &QRadioButton::toggled, [=] { impl->optfilefolder(); });
 
 }
 

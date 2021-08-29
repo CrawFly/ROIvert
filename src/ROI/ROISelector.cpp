@@ -27,7 +27,7 @@ void ROISelector::setVertices(const QVector<QPoint> verts){
     impl->verts = verts;
 }
 
-void ROISelector::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget){
+void ROISelector::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) {
     const double scale = scene()->views()[0]->transform().m11();
     const double sz = impl->sz / scale;
     

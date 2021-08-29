@@ -55,6 +55,8 @@ struct Roivert::pimpl {
     std::unique_ptr<QAction> actROIRect{ nullptr };       
     std::unique_ptr<QAction> actROISelect{ nullptr };     
 
+    std::unique_ptr<QAction> actReset{ nullptr };
+
 
     DisplaySettings dispSettings;
 
@@ -110,11 +112,8 @@ void Roivert::doConnect() {
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggled, impl->vidctrl.get(), &VideoControllerWidget::dffToggle);
 
        
-    // Action that resets window state:
-    QAction* actResetSettings = new QAction(tr("Reset Layout"));
-    actResetSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
-    connect(actResetSettings, &QAction::triggered, this, &Roivert::resetSettings);
-    addAction(actResetSettings);    
+    
+    connect(impl->actReset.get(), &QAction::triggered, this, &Roivert::resetSettings);
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
@@ -394,6 +393,10 @@ void Roivert::pimpl::makeObjects(Roivert* par) {
     actROIPoly = std::make_unique<QAction>(QIcon(":/icons/ROIPoly.png"), "", ROIGroup.get());
     actROIRect = std::make_unique<QAction>(QIcon(":/icons/ROIRect.png"), "", ROIGroup.get());
     actROISelect = std::make_unique<QAction>(QIcon(":/icons/ROISelect.png"), "", ROIGroup.get());
+
+    actReset = std::make_unique<QAction>(tr("Reset Settings"));
+    actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
+    par->addAction(actReset.get());
 }
 
 void Roivert::pimpl::setWidgetParams() {

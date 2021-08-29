@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     Roivert w;
     QTimer t;
 
-    int delay = 1500;
+    const int delay = 1500;
     t.singleShot(delay, [&] { 
         w.show();  
         w.restoreSettings();    

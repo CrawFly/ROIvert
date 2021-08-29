@@ -17,15 +17,15 @@ struct ROIs::pimpl {
     QGraphicsScene* scene{ nullptr };
     TraceViewWidget* traceview{ nullptr };
     VideoData* videodata{ nullptr };
+    ROIs* par{ nullptr };
 
-    std::vector<std::unique_ptr<ROI>> rois; // todo: consider whether ROI could be a unique_ptr?
+    std::vector<std::unique_ptr<ROI>> rois; 
     ROIPalette pal;
     ROIStyle coreStyle;
-    
     QSize imgsize;
-    std::vector<size_t> selectedROIs; 
-
+    std::vector<size_t> selectedROIs;
     ROIVert::SHAPE mousemode{ ROIVert::SHAPE::ELLIPSE };
+    bool matchyaxes{ false };
 
     void pushROI(QPoint pos) {
         //todo: more careful work for style needed here...
@@ -48,11 +48,9 @@ struct ROIs::pimpl {
         connect(gObj.get(), &ROIShape::roiEdited, par,  &ROIs::roiEdit);
         connect(tObj->getTraceChart(), &TraceChartWidget::chartClicked, par, &ROIs::chartClick);
     }
-
     bool outofbounds(QPointF pt) const noexcept{
         return !QRectF(0, 0, imgsize.width(), imgsize.height()).contains(pt);
     }
-
     void setSelectedROIs(std::vector<size_t> inds) {
         for (auto& ind : selectedROIs) {
             if (ind < rois.size()) {
@@ -81,7 +79,6 @@ struct ROIs::pimpl {
             emit par->selectionChanged(selectedROIs);
         }
     }
-    
     std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape* r) noexcept{
         for(auto it = rois.begin(); it<rois.end();++it){
             if ((*it)->graphicsShape.get() == r) {
@@ -94,7 +91,6 @@ struct ROIs::pimpl {
         const auto it = find(r);
         return it == rois.end() ? -1 : it - rois.begin();
     }
-
     std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartWidget* chart) noexcept{
         for(auto it = rois.begin(); it<rois.end();++it){
             if ((*it)->Trace->getTraceChart() == chart) {
@@ -108,7 +104,6 @@ struct ROIs::pimpl {
         return it == rois.end() ? -1 : it - rois.begin();
         
     }
-    
     std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartSeries* series) noexcept{
         for(auto it = rois.begin(); it<rois.end();++it){
             if ((*it)->Trace->getRidgeSeries() == series) {
@@ -122,8 +117,6 @@ struct ROIs::pimpl {
         return it == rois.end() ? -1 : it - rois.begin();
 
     }
-
-
     void deleteROIs(std::vector<size_t> inds) {
         // Unselect:
         std::vector<size_t> selected = selectedROIs;
@@ -150,7 +143,6 @@ struct ROIs::pimpl {
         scene->update();
         updateYLimits();
     }
-    
     bool dispatchPressToSelector(QList<QGraphicsItem*> hititems, QPointF mappedpoint) {
         //  there's a very rare bug, where when drawing a poly it doesn't hit itself
         // this only happens on the initial draw, which means it's on the back of the stack
@@ -174,7 +166,6 @@ struct ROIs::pimpl {
         }
         return false;
     }
-
     void selectPress(QList<QGraphicsItem*> hititems, const QMouseEvent* event) {
         const bool isShiftMod = event->modifiers() == Qt::KeyboardModifier::ShiftModifier;
         if (!hititems.isEmpty()) {
@@ -196,10 +187,6 @@ struct ROIs::pimpl {
             }
         }
     }
-
-    ROIs* par{ nullptr };
-
-    bool matchyaxes{ false };
     void setMatchYAxes(bool onoff) {
         if (matchyaxes == onoff) {
             return;
@@ -265,18 +252,10 @@ ROIs::ROIs(ImageView* iView, TraceViewWidget* tView, VideoData* vData) {
 ROIs::~ROIs() = default;
 
 void ROIs::mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint, QMouseEvent* event) {
-    // todo: would be nice to make this live in mousePressFromImage or something like that so that we can 
-    //      also have a version for charts...
-    if (event->button() != Qt::LeftButton || impl->outofbounds(mappedpoint)) {
+    if (event->button() != Qt::LeftButton || impl->outofbounds(mappedpoint) || impl->dispatchPressToSelector(hititems, mappedpoint)) {
         return;
     }
 
-    // Check for a passthrough to an ROI object, in which case return
-    if (impl->dispatchPressToSelector(hititems, mappedpoint)) {
-        return;
-    }
-
-    
     if (impl->mousemode == ROIVert::SHAPE::SELECT) {
         impl->selectPress(hititems, event);
     }
@@ -284,7 +263,6 @@ void ROIs::mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint
         impl->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())));
         impl->setSelectedROIs({ impl->rois.size() - 1 });
     }
-    
 }
 void ROIs::keyPress(int key, Qt::KeyboardModifiers mods){
     if (key == Qt::Key::Key_Delete) {
@@ -423,8 +401,6 @@ void ROIs::exportLineChartImages(std::vector<size_t> inds, QString basename, int
 ROIStyle* ROIs::getCoreROIStyle() const noexcept {
     return &impl->coreStyle;
 }
-
-
 
 ChartStyle* ROIs::getLineChartStyle(size_t ind) const noexcept {
     return impl->rois.at(ind)->linechartstyle.get();

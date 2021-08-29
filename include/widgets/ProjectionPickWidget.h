@@ -8,20 +8,19 @@
 #pragma once
 #include <QWidget>
 
-class QButtonGroup;
-
 class ProjectionPickWidget : public QWidget
 {
     Q_OBJECT
 public:
     explicit ProjectionPickWidget(QWidget* parent = nullptr);
-    int getProjection();
+    int getProjection() const noexcept;
     void setProjection(int projid);
 
 signals:
     void projectionChanged();
 
 private:
-    QButtonGroup* projection;
+    struct pimpl;
+    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
 };
 

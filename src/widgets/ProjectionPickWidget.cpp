@@ -12,42 +12,50 @@ enum class proj {
     MEAN = 3
 };
 
+struct ProjectionPickWidget::pimpl {
+    QButtonGroup projection;
+    QGridLayout layout;
+    QPushButton butNone{ tr("None") };
+    QPushButton butMean{ "Mean" };
+    QPushButton butMin{ tr("Min") };
+    QPushButton butMax{ tr("Max") };
+
+    void init() {
+        butNone.setCheckable(true);
+        butNone.setChecked(true);
+        butNone.setToolTip(tr("Show individual frames."));
+
+        butMean.setCheckable(true);
+        butMean.setToolTip(tr("Show pixel-wise average across frames (undefined for ") + ROIVert::dffstring() + ".");
+    
+        butMin.setCheckable(true);
+        butNone.setToolTip(tr("Show pixel-wise minimum across frames."));
+
+        butMax.setCheckable(true);
+        butNone.setToolTip(tr("Show pixel-wise maximum across frames."));
+
+        projection.addButton(&butNone, static_cast<int>(proj::NONE));
+        projection.addButton(&butMean, static_cast<int>(proj::MEAN));
+        projection.addButton(&butMin, static_cast<int>(proj::MIN));
+        projection.addButton(&butMax, static_cast<int>(proj::MAX));
+    }
+
+    void doLayout() {
+        layout.setSpacing(0);
+        layout.addWidget(&butNone, 0, 0);
+        layout.addWidget(&butMean, 0, 1);
+        layout.addWidget(&butMin, 1, 0);
+        layout.addWidget(&butMax, 1, 1);
+    }
+};
+
+
 ProjectionPickWidget::ProjectionPickWidget(QWidget* parent) : QWidget(parent) {
-    projection = new QButtonGroup;
-    QGridLayout* Lay = new QGridLayout;
+    impl->init();
+    impl->doLayout();
+    setLayout(&impl->layout);
 
-    QPushButton* butNone = new QPushButton("None");
-    butNone->setCheckable(true);
-    butNone->setChecked(true);
-    butNone->setToolTip(tr("Show individual frames."));
-
-    QPushButton* butMean = new QPushButton("Mean");
-    butMean->setCheckable(true);
-    butMean->setToolTip("Show pixel-wise average across frames (undefined for " + ROIVert::dffstring() + ".");
-    
-    QPushButton* butMin = new QPushButton("Min");
-    butMin->setCheckable(true);
-    butNone->setToolTip(tr("Show pixel-wise minimum across frames."));
-
-    QPushButton* butMax = new QPushButton("Max");
-    butMax->setCheckable(true);
-    butNone->setToolTip(tr("Show pixel-wise maximum across frames."));
-
-    projection->addButton(butNone, static_cast<int>(proj::NONE));
-    projection->addButton(butMean, static_cast<int>(proj::MEAN));
-    projection->addButton(butMin, static_cast<int>(proj::MIN));
-    projection->addButton(butMax, static_cast<int>(proj::MAX));
-
-    Lay->addWidget(butNone, 0, 0);
-    Lay->addWidget(butMean, 0, 1);
-    Lay->addWidget(butMin, 1, 0);
-    Lay->addWidget(butMax, 1, 1);
-
-    Lay->setSpacing(0);
-    this->setLayout(Lay);
-
-    
-    connect(projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
+    connect(&impl->projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
 }
-int ProjectionPickWidget::getProjection() {return projection->checkedId();}
-void ProjectionPickWidget::setProjection(int projid) {projection->button(projid)->setChecked(true);}
+int ProjectionPickWidget::getProjection() const noexcept { return impl->projection.checkedId(); }
+void ProjectionPickWidget::setProjection(int projid) { impl->projection.button(projid)->setChecked(true);}

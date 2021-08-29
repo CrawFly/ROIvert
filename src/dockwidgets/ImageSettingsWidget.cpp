@@ -10,10 +10,11 @@
 #include "widgets/SmoothingPickWidget.h"
 
 static void addVSep(QVBoxLayout *lay) {
-    QFrame* line = new QFrame;
-    line->setFrameStyle(QFrame::HLine);
-    lay->addWidget(line);
-
+    if (lay) {
+        QFrame* line = new QFrame;
+        line->setFrameStyle(QFrame::HLine);
+        lay->addWidget(line);
+    }
 }
 
 struct ImageSettingsWidget::pimpl {
@@ -89,11 +90,12 @@ ImageSettingsWidget::ImageSettingsWidget(QWidget* parent) : QDockWidget(parent) 
         emit imgSettingsChanged(newsettings); 
     };
 
-    connect(impl->contrast, &ContrastWidget::contrastChanged, this, lam);
-    connect(impl->projection, &ProjectionPickWidget::projectionChanged, this, lam);
-    connect(impl->colormap, &ColormapPickWidget::colormapChanged, this, lam);
-    connect(impl->Wsmoothing, &SmoothingPickWidget::smoothingChanged, this, lam);
+    connect(impl->contrast, &ContrastWidget::contrastChanged, lam);
+    connect(impl->projection, &ProjectionPickWidget::projectionChanged, lam);
+    connect(impl->colormap, &ColormapPickWidget::colormapChanged, lam);
+    connect(impl->Wsmoothing, &SmoothingPickWidget::smoothingChanged, lam);
     connect(impl->dffToggle, &QPushButton::clicked, this, &ImageSettingsWidget::dffToggled);
+    
 }
 ImageSettingsWidget::~ImageSettingsWidget() = default;
 
