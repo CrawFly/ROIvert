@@ -1,12 +1,14 @@
 #include "dockwidgets/TraceViewWidget.h"
-#include <QBoxLayout>
-#include <QTabWidget>
-#include <QScrollArea>
+
 #include <QApplication>
+#include <QBoxLayout>
 #include <QKeyEvent>
-#include "widgets/TraceChartWidget.h"
+#include <QScrollArea>
+#include <QTabWidget>
+
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
+#include "widgets/TraceChartWidget.h"
 
 struct TraceViewWidget::pimpl
 {

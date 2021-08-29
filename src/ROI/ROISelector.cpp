@@ -1,9 +1,9 @@
-#include "ROI\ROISelector.h"
+#include "ROI/ROISelector.h"
 
-#include <QGraphicsScene>
-#include <QGraphicsView>
 #include <QCursor>
 #include <QDebug>
+#include <QGraphicsScene>
+#include <QGraphicsView>
 
 struct ROISelector::pimpl
 {

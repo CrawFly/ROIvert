@@ -1,6 +1,7 @@
 #include "widgets/ColormapPickWidget.h"
-#include <QFormLayout>
+
 #include <QComboBox>
+#include <QFormLayout>
 #include "opencv2/opencv.hpp"
 
 namespace

@@ -1,15 +1,15 @@
 #include "widgets/VideoControllerWidget.h"
 
+#include <QBoxLayout>
+#include <QDial>
+#include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QSlider>
-#include <QLabel>
-#include <QDial>
-#include <QLineEdit>
-#include <QValidator>
-#include <QBoxLayout>
-#include <QDebug>
 #include <QTime>
 #include <QTimer>
+#include <QValidator>
+#include <QDebug>
 
 struct VideoControllerWidget::pimpl
 {

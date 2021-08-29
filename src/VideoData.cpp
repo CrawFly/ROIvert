@@ -1,9 +1,10 @@
 #include "VideoData.h"
-#include "qdebug.h"
 
+#include <QDebug>
 #include <QFile>
-#include <QStringList>
 #include <QRect>
+#include <QStringList>
+
 #include "ROIVertEnums.h"
 
 struct VideoData::pimpl

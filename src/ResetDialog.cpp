@@ -1,8 +1,9 @@
 #include "ResetDialog.h"
-#include <QPushButton>
-#include <QCheckBox>
+
 #include <QBoxLayout>
+#include <QCheckBox>
 #include <QLabel>
+#include <QPushButton>
 
 ResetDialog::ResetDialog(QWidget *parent) : QDialog(parent)
 {

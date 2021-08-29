@@ -2,13 +2,13 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
-#include <QSPinBox>
-#include <QPushButton>
-#include <QFrame>
-#include <QLabel>
 #include <QDir>
 #include <QFileDialog>
 #include <QFormLayout>
+#include <QFrame>
+#include <QLabel>
+#include <QPushButton>
+#include <QSpinBox>
 
 struct FileIOWidget::pimpl
 {

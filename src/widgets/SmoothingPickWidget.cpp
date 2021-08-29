@@ -1,8 +1,9 @@
 #include "widgets/SmoothingPickWidget.h"
+
 #include <QBoxLayout>
 #include <QComboBox>
-#include <QSpinBox>
 #include <QLabel>
+#include <QSpinBox>
 
 SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
 {

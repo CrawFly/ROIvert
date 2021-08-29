@@ -1,14 +1,15 @@
-#include "ROI\ROIs.h"
+#include "ROI/ROIs.h"
+
 #include <QDebug>
 #include <QGraphicsItem>
-#include <QMouseEvent>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QMouseEvent>
 
-#include "ROI\ROI.h"
-#include "ROI\ROISelector.h"
-#include "ROI\ROIStyle.h"
 #include "ChartStyle.h"
+#include "ROI/ROI.h"
+#include "ROI/ROISelector.h"
+#include "ROI/ROIStyle.h"
 #include "widgets/TraceChartWidget.h"
 
 struct ROIs::pimpl

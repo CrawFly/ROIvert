@@ -1,8 +1,9 @@
 #include "ImageView.h"
-#include <QGraphicsPixmapItem>
-#include <QScrollBar>
-#include <QMouseEvent>
+
 #include <QDebug>
+#include <QGraphicsPixmapItem>
+#include <QMouseEvent>
+#include <QScrollBar>
 
 #include "ZoomPan.h"
 

@@ -1,6 +1,7 @@
 #include "widgets/RGBWidget.h"
-#include <QSlider>
+
 #include <QGridLayout>
+#include <QSlider>
 #include <QSpinBox>
 
 struct RGBWidget::pimpl

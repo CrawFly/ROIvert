@@ -1,15 +1,16 @@
 #include "FileIO.h"
+
 #include <QDebug>
-#include <QMessageBox>
-#include <QIcon>
-#include <QString>
-#include <QObject>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QIcon>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
+#include <QMessageBox>
+#include <QObject>
+#include <QString>
 
 #include "widgets/TraceChartWidget.h"
 

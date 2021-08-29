@@ -1,15 +1,16 @@
-#include "ROI\ROIShape.h"
+#include "ROI/ROIShape.h"
+
+#include <QDebug>
 #include <QGraphicsScene>
 #include <QGraphicsSceneEvent>
-#include <QMouseEvent>
 #include <QGraphicsView>
-#include <QPen>
 #include <QJsonObject>
 #include <QJsonArray>
-#include <QDebug>
+#include <QMouseEvent>
+#include <QPen>
 
-#include "ROI\ROISelector.h"
-#include "ROI\ROIStyle.h"
+#include "ROI/ROISelector.h"
+#include "ROI/ROIStyle.h"
 
 static void clamp_point_to_rect(QPoint &pt, QRect rect)
 {

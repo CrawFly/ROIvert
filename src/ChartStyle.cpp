@@ -1,4 +1,5 @@
 #include "ChartStyle.h"
+
 #include <QFont>
 #include <QFontMetrics>
 #include <QDebug>

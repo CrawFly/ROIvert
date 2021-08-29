@@ -1,4 +1,5 @@
-#include "ROI\ROIStyle.h"
+#include "ROI/ROIStyle.h"
+
 #include <functional>
 
 struct ROIStyle::pimpl

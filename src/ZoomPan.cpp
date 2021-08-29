@@ -1,9 +1,10 @@
 #include "ZoomPan.h"
-#include <QGraphicsView>
-#include <QScrollBar>
-#include <QMouseEvent>
+
 #include <QApplication>
 #include <QDebug>
+#include <QGraphicsView>
+#include <QMouseEvent>
+#include <QScrollBar>
 
 struct ZoomPan::pimpl
 {

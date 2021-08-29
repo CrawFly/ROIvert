@@ -1,13 +1,15 @@
 #include "widgets/ContrastWidget.h"
-#include <QGraphicsScene>
-#include <QPainterPath>
-#include <QApplication>
-#include <QGraphicsSceneMouseEvent>
-#include <QBoxLayout>
-#include "widgets/ContrastWidgetImpl.h"
-#include <QDoubleSpinBox>
 
+#include <QApplication>
+#include <QBoxLayout>
+#include <QDoubleSpinBox>
 #include <QDebug>
+#include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QPainterPath>
+
+#include "widgets/ContrastWidgetImpl.h"
+
 
 struct ContrastWidget::pimpl
 {

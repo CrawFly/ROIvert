@@ -1,28 +1,26 @@
 #include "dockwidgets/StyleWidget.h"
 
-#include <QDebug>
-
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDoubleSpinBox>
+#include <QDebug>
 #include <QFontDatabase>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QLabel>
-#include <QToolButton>
-
 #include <QSlider>
 #include <QSpinBox>
 #include <QTabWidget>
+#include <QToolButton>
 
 #include "ROI/ROIs.h"
 
-#include "ROI/ROIStyle.h"
 #include "ChartStyle.h"
+#include "dockwidgets/TraceViewWidget.h"
+#include "ROI/ROIStyle.h"
 #include "widgets/RGBWidget.h"
 #include "widgets/TraceChartWidget.h"
-#include "dockwidgets/TraceViewWidget.h"
 
 struct StyleWidget::pimpl
 {

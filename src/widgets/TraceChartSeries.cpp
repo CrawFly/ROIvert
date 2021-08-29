@@ -1,9 +1,11 @@
-#include "widgets\TraceChartWidget.h"
+#include "widgets/TraceChartWidget.h"
+
+#include <QDebug>
 #include <QPainter>
 #include <QPainterPath>
-#include <QDebug>
-#include "ChartStyle.h"
 #include "opencv2/opencv.hpp"
+
+#include "ChartStyle.h"
 
 using ROIVert::NORMALIZATION;
 

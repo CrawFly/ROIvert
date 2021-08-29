@@ -1,8 +1,8 @@
-#include "widgets\TraceChartWidget.h"
+#include "widgets/TraceChartWidget.h"
 
-#include <QPainter>
 #include <QDebug>
 #include <QMouseEvent>
+#include <QPainter>
 
 #include "ChartStyle.h"
 

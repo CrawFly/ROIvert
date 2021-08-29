@@ -1,7 +1,10 @@
-#include "widgets\TraceChartWidget.h"
-#include <QPainter>
+#include "widgets/TraceChartWidget.h"
+
 #include <QDebug>
+#include <QPainter>
+
 #include "ChartStyle.h"
+
 namespace
 {
     double niceNum(const double &range, const bool round) noexcept

@@ -1,7 +1,8 @@
 #include "widgets/ProjectionPickWidget.h"
+
+#include <QButtonGroup>
 #include <QGridLayout>
 #include <QPushButton>
-#include <QButtonGroup>
 
 #include "roivertcore.h"
 

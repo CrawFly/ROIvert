@@ -1,12 +1,13 @@
-#include "roi\ROITrace.h"
-#include <QDebug>
+#include "ROI/ROITrace.h"
 
-#include "VideoData.h"
-#include "ROIVertEnums.h"
-#include "dockwidgets/TraceViewWidget.h"
-#include "widgets\TraceChartWidget.h"
+#include <QDebug>
 #include "opencv2/opencv.hpp"
+
 #include "ChartStyle.h"
+#include "dockwidgets/TraceViewWidget.h"
+#include "ROIVertEnums.h"
+#include "VideoData.h"
+#include "widgets/TraceChartWidget.h"
 
 struct ROITrace::pimpl
 {
