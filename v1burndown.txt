@@ -6,6 +6,9 @@ Remaining Tidy pushes:
 RELEASE PUSH
     [] take a shot at a qt build
 From hello opencv
+
+
+
     INCLUDEPATH += D:\opencv\build\include
     LIBS += D:\opencv-build\bin\libopencv_core440.dll
     LIBS += D:\opencv-build\bin\libopencv_highgui440.dll
@@ -14,6 +17,8 @@ From hello opencv
     LIBS += D:\opencv-build\bin\libopencv_features2d440.dll
     LIBS += D:\opencv-build\bin\libopencv_calib3d440.dll
 
+D:\opencv\builds\vs2019_static_64bit\3rdparty\lib\Release
+D:\opencv\builds\vs2019_static_64bit\lib\Release
 
     [] fresh vm
     [] git repo cleanup

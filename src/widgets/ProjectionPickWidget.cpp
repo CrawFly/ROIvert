@@ -42,11 +42,13 @@ struct ProjectionPickWidget::pimpl
         projection.addButton(&butMean, static_cast<int>(proj::MEAN));
         projection.addButton(&butMin, static_cast<int>(proj::MIN));
         projection.addButton(&butMax, static_cast<int>(proj::MAX));
+
     }
 
     void doLayout()
     {
         layout.setSpacing(0);
+        layout.setContentsMargins(0, 0, 0, 0);
         layout.addWidget(&butNone, 0, 0);
         layout.addWidget(&butMean, 0, 1);
         layout.addWidget(&butMin, 1, 0);
@@ -56,10 +58,10 @@ struct ProjectionPickWidget::pimpl
 
 ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent)
 {
+    
     impl->init();
     impl->doLayout();
     setLayout(&impl->layout);
-
     connect(&impl->projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
 }
 int ProjectionPickWidget::getProjection() const noexcept { return impl->projection.checkedId(); }

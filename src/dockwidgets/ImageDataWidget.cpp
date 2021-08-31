@@ -96,7 +96,7 @@ struct ImageDataWidget::pimpl
             cmdLoad.setText("Load Files");
             cmdLoad.setEnabled(false);
             cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\n\tFolder is selected and the File Path is not a path containing tiff files\n\tFile is selected and the File Name is not a tiff file"));
-            cmdLoad.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            cmdLoad.setMaximumWidth(300);
         }
         {
             progBar.setMaximum(100);
@@ -131,14 +131,8 @@ struct ImageDataWidget::pimpl
         formlay.addRow(tr("Pixel Subset:"), &spinDownSpace);
 
         formlay.addRow(new QLabel(" "));
-        {
-            QHBoxLayout *lay = new QHBoxLayout;
-            lay->addStretch();
-            lay->addWidget(&cmdLoad);
-            lay->addStretch();
-
-            vlay.addLayout(lay);
-        }
+        formlay.addRow(&cmdLoad);
+        
 
         vlay.addWidget(&progBar);
         vlay.addStretch();

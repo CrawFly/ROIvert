@@ -4,8 +4,9 @@
 
 TEMPLATE = app
 TARGET = Roivert
-DESTDIR = ./x64/Release
-CONFIG += release
+DESTDIR = ./x64/Debug
+CONFIG += debug
+DEFINES += ROIVERTDEBUG
 LIBS += -lopencv_calib3d440 \
     -lopencv_core440 \
     -lopencv_dnn440 \
@@ -34,7 +35,7 @@ LIBS += -lopencv_calib3d440 \
     -lzlib
 DEPENDPATH += .
 MOC_DIR += .
-OBJECTS_DIR += release
+OBJECTS_DIR += debug
 UI_DIR += .
 RCC_DIR += .
 include(Roivert.pri)

@@ -113,6 +113,8 @@ struct FileIOWidget::pimpl
             templay->addStretch(1);
             lay.addLayout(templay.release());
         }
+        
+        lay.addStretch();
     }
 };
 

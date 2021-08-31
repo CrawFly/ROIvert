@@ -26,7 +26,6 @@ struct ImageSettingsWidget::pimpl
     ContrastWidget *contrast = new ContrastWidget;
     ProjectionPickWidget *projection = new ProjectionPickWidget;
     ColormapPickWidget *colormap = new ColormapPickWidget;
-    ;
     SmoothingPickWidget *Wsmoothing = new SmoothingPickWidget;
     QPushButton *dffToggle = new QPushButton;
 
@@ -38,7 +37,7 @@ struct ImageSettingsWidget::pimpl
 
         contrast->setMaximumHeight(300);
         contrast->setMaximumWidth(300);
-        projection->setMaximumWidth(280);
+        projection->setMaximumWidth(300);
         colormap->setMaximumWidth(300);
         Wsmoothing->setMaximumWidth(300);
     }
@@ -54,8 +53,9 @@ struct ImageSettingsWidget::pimpl
         {
             auto lay = new QHBoxLayout;
             lay->addWidget(new QLabel(tr("Projection:")));
-            lay->addStretch(0);
+            lay->addSpacing(100);
             lay->addWidget(dffToggle);
+            lay->addStretch(1);
             topLay->addLayout(lay);
         }
 
