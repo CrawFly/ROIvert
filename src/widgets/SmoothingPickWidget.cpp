@@ -28,7 +28,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     cmbBlur->addItem("Median");
     cmbBlur->addItem("Gaussian");
     cmbBlur->addItem("Bilateral");
-    cmbBlur->setToolTip(tr("Choose a smoothing method: "
+    cmbBlur->setToolTip(tr("Choose a smoothing method for the display of images (this does not affect charts):"
                            "\n  Box: Take the mean in a moving rectangle."
                            "\n  Median: Take the median in a moving rectangle."
                            "\n  Gaussian: Use a Gaussian kernel to wait the moving average."

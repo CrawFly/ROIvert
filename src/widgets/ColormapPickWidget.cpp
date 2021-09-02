@@ -32,13 +32,14 @@ namespace
 
         return res;
     }
-    const std::vector<cv::ColormapTypes> cmaps{cv::COLORMAP_DEEPGREEN, cv::COLORMAP_HOT, cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE};
+    const std::vector<cv::ColormapTypes> cmaps{cv::COLORMAP_DEEPGREEN, cv::COLORMAP_HOT, cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE, cv::COLORMAP_TURBO, cv::COLORMAP_TWILIGHT, cv::COLORMAP_OCEAN };
 }
 
 ColormapPickWidget::ColormapPickWidget(QWidget *parent) : QWidget(parent)
 {
     auto lay{std::make_unique<QVBoxLayout>()};
     cmbColormap = std::make_unique<QComboBox>();
+    cmbColormap->setToolTip(tr("Choose a colormap for displaying the video"));
 
     std::vector<QPixmap> c = getColormapPixmaps(cmaps);
     for (auto &mapimage : c)

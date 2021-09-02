@@ -33,10 +33,10 @@ struct ProjectionPickWidget::pimpl
         butMean.setToolTip(tr("Show pixel-wise average across frames (undefined for ") + ROIVert::dffstring() + ".");
 
         butMin.setCheckable(true);
-        butNone.setToolTip(tr("Show pixel-wise minimum across frames."));
+        butMin.setToolTip(tr("Show pixel-wise minimum across frames."));
 
         butMax.setCheckable(true);
-        butNone.setToolTip(tr("Show pixel-wise maximum across frames."));
+        butMax.setToolTip(tr("Show pixel-wise maximum across frames."));
 
         projection.addButton(&butNone, static_cast<int>(proj::NONE));
         projection.addButton(&butMean, static_cast<int>(proj::MEAN));

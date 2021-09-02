@@ -169,6 +169,8 @@ struct StyleWidget::pimpl
             chartfont->addItem(family);
         }
         chartfont->setMinimumWidth(150);
+        chartfont->setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy::AdjustToMinimumContentsLength);
+        
 
         chartlabelfontsize->setMinimum(1);
         chartlabelfontsize->setMaximum(72);

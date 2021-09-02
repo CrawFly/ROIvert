@@ -43,14 +43,17 @@ struct FileIOWidget::pimpl
         spinChartWidth.setMinimum(0);
         spinChartWidth.setMaximum(10000);
         spinChartWidth.setValue(1600);
+        spinChartWidth.setToolTip(tr("Width of exported images"));
 
         spinChartHeight.setMinimum(0);
         spinChartHeight.setMaximum(10000);
         spinChartHeight.setValue(600);
+        spinChartWidth.setToolTip(tr("Height of exported images"));
 
         spinChartQuality.setMinimum(10);
         spinChartQuality.setMaximum(100);
         spinChartQuality.setValue(100);
+        spinChartWidth.setToolTip(tr("Quality used for compression of images"));
 
         spinChartWidth.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinChartHeight.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);

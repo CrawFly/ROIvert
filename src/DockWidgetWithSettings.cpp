@@ -11,6 +11,8 @@ DockWidgetWithSettings::DockWidgetWithSettings(QWidget* parent)  : QDockWidget(p
     auto tb = new QToolBar;
     reset = new QAction(QIcon(":/icons/dockreset.png"),"");
     save = new QAction(QIcon(":/icons/docksave.png"),"");
+    reset->setToolTip(tr("Reset settings for this window."));
+    save->setToolTip(tr("Toggle whether settings for this window carried over to the next session."));
     save->setCheckable(true);
     save->setChecked(true);
 

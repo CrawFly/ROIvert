@@ -55,7 +55,9 @@ struct ImageDataWidget::pimpl
 
         {
             optFolder.setText("Folder");
+            optFolder.setToolTip("Select this option if your dataset is made up of several Tiff files with one file for each frame.\nThe files must be in a folder of their own and will be read in alphanumeric order.");
             optFile.setText("Multi-page File");
+            optFolder.setToolTip("Select this option if your data are contained in a single 'multipage' Tiff file.");
             optFolder.setChecked(true);
         }
 
@@ -71,7 +73,6 @@ struct ImageDataWidget::pimpl
             opt.initFrom(&cmdBrowseFilePath);
             opt.rect.setSize(textSize);
             cmdBrowseFilePath.setFixedWidth(cmdBrowseFilePath.style()->sizeFromContents(QStyle::CT_PushButton, &opt, textSize, &cmdBrowseFilePath).width());
-            cmdBrowseFilePath.setToolTip(tr("Open a dialog to select a folder"));
         }
         {
             spinFrameRate.setValue(30);
@@ -86,7 +87,7 @@ struct ImageDataWidget::pimpl
             spinDownTime.setMinimum(1);
             spinDownTime.setMaximum(100);
             spinDownTime.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
-            spinDownTime.setToolTip(tr("Import only every nth frame\n\tNote: the frame rate should reflect the raw value\n\tNote: frame subsets for multipage tiff files do not speed up loading"));
+            spinDownTime.setToolTip(tr("Import only every nth frame\nNote: the frame rate should reflect the raw value\nNote: frame subsets for multipage tiff files do not speed up loading"));
         }
         {
             spinDownSpace.setMinimum(1);
@@ -97,8 +98,8 @@ struct ImageDataWidget::pimpl
         {
             cmdLoad.setText("Load Files");
             cmdLoad.setEnabled(false);
-            cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\n\tFolder is selected and the File Path is not a path containing tiff files\n\tFile is selected and the File Name is not a tiff file"));
-            cmdLoad.setMaximumWidth(300);
+            cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\nFolder is selected and the File Path is not a path containing tiff files\nFile is selected and the File Name is not a tiff file"));
+            cmdLoad.setMaximumWidth(320);
         }
         {
             progBar.setMaximum(100);
@@ -224,12 +225,14 @@ struct ImageDataWidget::pimpl
             lblFilePath.setText(tr("File Name:"));
             completer.setModel(&fsmodel_file);
             txtFilePath.setToolTip(tr("Path to a multi-page tiff file"));
+            cmdBrowseFilePath.setToolTip(tr("Open a dialog to select a file"));
         }
         else
         {
             lblFilePath.setText(tr("File Path:"));
             completer.setModel(&fsmodel_folder);
             txtFilePath.setToolTip(tr("Path to a folder that contains a dataset (i.e. tiff files)"));
+            cmdBrowseFilePath.setToolTip(tr("Open a dialog to select a folder"));
         }
         filePathChanged(txtFilePath.text());
         // change the thing that checks whether to enable the button

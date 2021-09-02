@@ -34,6 +34,7 @@ struct ImageSettingsWidget::pimpl
         dffToggle->setText("df/f");
         dffToggle->setCheckable(true);
         dffToggle->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        dffToggle->setToolTip(tr("Toggle df/f mode, each pixel will be normalized by subtracting, and then dividing by, the average for that pixel over time"));
 
         contrast->setMaximumHeight(300);
         contrast->setMaximumWidth(300);
