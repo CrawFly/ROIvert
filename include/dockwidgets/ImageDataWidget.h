@@ -1,8 +1,9 @@
 #pragma once
-#include <QDockWidget>
+#include "DockWidgetWithSettings.h"
+
 class QSettings;
 
-class ImageDataWidget : public QDockWidget
+class ImageDataWidget : public DockWidgetWithSettings
 {       
 Q_OBJECT
 
@@ -10,9 +11,9 @@ public:
     ImageDataWidget(QWidget *parent = nullptr);
     void setContentsEnabled(bool);
 
-    void storesettings(QSettings& settings) const;
-    void loadsettings(QSettings& settings);
-    void resetsettings();
+    void saveSettings(QSettings& settings) const override;
+    void restoreSettings(QSettings& settings) override;
+    void resetSettings() override;
 
 signals:
     void fileLoadRequested(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, bool isfolder);

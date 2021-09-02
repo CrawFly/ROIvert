@@ -1,12 +1,12 @@
 #pragma once
-#include <QDockWidget>
+#include "DockWidgetWithSettings.h"
 #include <QProxyStyle>
 #include <QStyleOption>
 
 class ROIs;
 class TraceViewWidget;
 
-class StyleWidget : public QDockWidget
+class StyleWidget : public DockWidgetWithSettings
 {
     Q_OBJECT
     public:
@@ -15,7 +15,10 @@ class StyleWidget : public QDockWidget
         void setTraceView(TraceViewWidget* traceview);
         void loadSettings();
         void setContentsEnabled(bool);
-
+        
+        void saveSettings(QSettings& settings) const override;
+        void restoreSettings(QSettings& settings) override;
+        void resetSettings() override;
     public slots:
         void selectionChange(std::vector<size_t> inds);
 

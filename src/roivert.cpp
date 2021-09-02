@@ -12,11 +12,10 @@
 #include "FileIO.h"
 #include "ImageView.h"
 
-#include "ResetDialog.h"
-
 #include "ROI/ROIs.h"
 #include "ROI/ROIStyle.h"
 #include "ROIVertEnums.h"
+#include "ROIVertSettings.h"
 
 #include "dockwidgets/ImageDataWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
@@ -52,8 +51,10 @@ struct Roivert::pimpl
     std::unique_ptr<QAction> actROIPoly{nullptr};
     std::unique_ptr<QAction> actROIRect{nullptr};
     std::unique_ptr<QAction> actROISelect{nullptr};
-
     std::unique_ptr<QAction> actReset{nullptr};
+
+    std::unique_ptr<ROIVertSettings> roivertsettings{ nullptr };
+
 
     DisplaySettings dispSettings;
 
@@ -108,7 +109,8 @@ void Roivert::doConnect()
     connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggle);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggled, impl->vidctrl.get(), &VideoControllerWidget::dffToggle);
 
-    connect(impl->actReset.get(), &QAction::triggered, this, &Roivert::resetSettings);
+
+    connect(impl->actReset.get(), &QAction::triggered, this, &Roivert::setDefaultGeometry);
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
@@ -136,7 +138,8 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     impl->vidctrl->setFrameRate(frameRate / dsTime);
     impl->viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
 
-    impl->vidctrl->setEnabled(true);
+    
+    impl->vidctrl->setEnabled(!impl->imagesettingswidget->isProjectionActive());
     impl->imagesettingswidget->setContentsEnabled(true);
     impl->imageview->setEnabled(true);
     impl->stylewidget->setContentsEnabled(true);
@@ -194,248 +197,40 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings)
     impl->vidctrl->forceUpdate();
 }
 
-void Roivert::closeEvent(QCloseEvent *event)
-{
-    QSettings settings("Neuroph", "ROIVert");
-    settings.setValue("version", 1.f);
-    settings.setValue("geometry", saveGeometry());
-    settings.setValue("windowState", saveState());
-
-    impl->imagedatawidget->storesettings(settings);
-
-    const auto rs{impl->rois->getCoreROIStyle()};
-    settings.beginGroup("Style");
-    settings.beginGroup("ROIStyle");
-    settings.setValue("linewidth", rs->getPen().style() == Qt::NoPen ? 0 : rs->getPen().width());
-    settings.setValue("selsize", rs->getSelectorSize());
-    settings.setValue("fillopacity", rs->getBrush().style() == Qt::NoBrush ? 0 : rs->getBrush().color().alpha());
-    settings.endGroup();
-
-    auto cls{impl->traceviewwidget->getCoreLineChartStyle()};
-    auto crs{impl->traceviewwidget->getCoreRidgeChartStyle()};
-
-    settings.beginGroup("ChartStyle");
-    settings.setValue("back", cls->getBackgroundColor().name());
-    settings.setValue("fore", cls->getAxisPen().color().name());
-    settings.setValue("lblfontsize", cls->getLabelFont().pointSize());
-    settings.setValue("tickfontsize", cls->getTickLabelFont().pointSize());
-    settings.setValue("font", cls->getTickLabelFont().family());
-    settings.endGroup();
-
-    settings.beginGroup("LineChartStyle");
-    settings.setValue("width", cls->getTracePen().style() == Qt::NoPen ? 0 : cls->getTracePen().width());
-    settings.setValue("fillopacity", cls->getTraceBrush().style() == Qt::NoBrush ? 0 : cls->getTraceBrush().color().alpha());
-    settings.setValue("gradient", cls->getTraceFillGradient());
-    settings.setValue("grid", cls->getGrid());
-    settings.setValue("normalization", static_cast<int>(cls->getNormalization()));
-    settings.setValue("matchy", impl->rois->getMatchYAxes());
-    settings.endGroup();
-
-    settings.beginGroup("RidgeChartStyle");
-    settings.setValue("width", crs->getTracePen().style() == Qt::NoPen ? 0 : crs->getTracePen().width());
-    settings.setValue("fillopacity", crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
-    settings.setValue("gradient", crs->getTraceFillGradient());
-    settings.setValue("grid", crs->getGrid());
-    settings.setValue("overlap", impl->traceviewwidget->getRidgeChart().offset);
-    settings.endGroup();
-
-    settings.endGroup();
-
-    QMainWindow::closeEvent(event);
-}
-void Roivert::restoreSettings()
-{
-    QSettings settings("Neuroph", "ROIVert");
-
-    auto a = settings.value("geometry").toByteArray();
-    restoreGeometry(settings.value("geometry").toByteArray());
-    restoreState(settings.value("windowState").toByteArray());
-
-    impl->imagedatawidget->loadsettings(settings);
-
-    auto cls{impl->traceviewwidget->getCoreLineChartStyle()};
-    auto crs{impl->traceviewwidget->getCoreRidgeChartStyle()};
-
-    settings.beginGroup("Style");
-    settings.beginGroup("ROIStyle");
-    auto rs = impl->rois->getCoreROIStyle();
-    if (settings.contains("linewidth"))
-    {
-        rs->setLineWidth(settings.value("linewidth").toInt());
-    };
-    if (settings.contains("selsize"))
-    {
-        rs->setSelectorSize(settings.value("selsize").toInt());
-    };
-    if (settings.contains("fillopacity"))
-    {
-        rs->setFillOpacity(settings.value("fillopacity").toInt());
-    };
-    settings.endGroup();
-
-    settings.beginGroup("ChartStyle");
-    if (settings.contains("back"))
-    {
-        cls->setBackgroundColor(QColor(settings.value("back").toString()));
-        ;
-        crs->setBackgroundColor(QColor(settings.value("back").toString()));
-    };
-    if (settings.contains("fore"))
-    {
-        cls->setAxisColor(QColor(settings.value("fore").toString()));
-        crs->setAxisColor(QColor(settings.value("fore").toString()));
-    };
-    if (settings.contains("lblfontsize"))
-    {
-        cls->setLabelFontSize(settings.value("lblfontsize").toInt());
-        crs->setLabelFontSize(settings.value("lblfontsize").toInt());
-    };
-    if (settings.contains("tickfontsize"))
-    {
-        cls->setTickLabelFontSize(settings.value("tickfontsize").toInt());
-        crs->setTickLabelFontSize(settings.value("tickfontsize").toInt());
-    };
-    if (settings.contains("font"))
-    {
-        cls->setFontFamily(settings.value("font").toString());
-        crs->setFontFamily(settings.value("font").toString());
-    };
-    settings.endGroup();
-
-    settings.beginGroup("LineChartStyle");
-    if (settings.contains("width"))
-    {
-        cls->setTraceLineWidth(settings.value("width").toInt());
-    };
-    if (settings.contains("fillopacity"))
-    {
-        cls->setTraceFillOpacity(settings.value("fillopacity").toInt());
-    };
-    if (settings.contains("gradient"))
-    {
-        cls->setTraceFillGradient(settings.value("gradient").toBool());
-    };
-    if (settings.contains("grid"))
-    {
-        cls->setGrid(settings.value("grid").toBool());
-    };
-    if (settings.contains("normalization"))
-    {
-        cls->setNormalization(static_cast<ROIVert::NORMALIZATION>(settings.value("normalization").toInt()));
-    };
-    if (settings.contains("matchy"))
-    {
-        impl->rois->setMatchYAxes(settings.value("matchy").toBool());
-    };
-
-    settings.endGroup();
-
-    settings.beginGroup("RidgeChartStyle");
-    if (settings.contains("width"))
-    {
-        crs->setTraceLineWidth(settings.value("width").toInt());
-    };
-    if (settings.contains("fillopacity"))
-    {
-        crs->setTraceFillOpacity(settings.value("fillopacity").toInt());
-    };
-    if (settings.contains("gradient"))
-    {
-        crs->setTraceFillGradient(settings.value("gradient").toBool());
-    };
-    if (settings.contains("grid"))
-    {
-        crs->setGrid(settings.value("grid").toBool());
-    };
-    if (settings.contains("overlap"))
-    {
-        impl->traceviewwidget->getRidgeChart().offset = settings.value("overlap").toFloat();
-    };
-    settings.endGroup();
-    settings.endGroup();
-    impl->stylewidget->loadSettings();
-}
-void Roivert::resetSettings()
-{
-    ResetDialog a;
-    a.exec();
-    if (a.result() != QDialog::Accepted)
-    {
-        return;
-    }
-
-    auto doreset = a.getResult();
-
-    if (doreset.testBit(static_cast<int>(ROIVert::RESET::WINDOW)))
-    {
-        impl->traceviewwidget->setFloating(false);
-        impl->imagedatawidget->setFloating(false);
-        impl->imagesettingswidget->setFloating(false);
-        impl->fileiowidget->setFloating(false);
-        impl->stylewidget->setFloating(false);
-
-        impl->traceviewwidget->setVisible(false);
-        impl->imagedatawidget->setVisible(true);
-        impl->imagesettingswidget->setVisible(false);
-        impl->fileiowidget->setVisible(false);
-        impl->stylewidget->setVisible(false);
-
-        addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
-        addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
-        addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
-        addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
-        addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
-
-        addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
-        qApp->processEvents(QEventLoop::AllEvents);
-        resize(800, 900);
-    }
-    if (doreset.testBit(static_cast<int>(ROIVert::RESET::ROISTYLE)))
-    {
-        auto rs{impl->rois->getCoreROIStyle()};
-        *rs = ROIStyle();
-        impl->stylewidget->loadSettings();
-        impl->stylewidget->ROIStyleChange();
-    }
-    if (doreset.testBit(static_cast<int>(ROIVert::RESET::CHARTSTYLE)))
-    {
-        auto cls{impl->traceviewwidget->getCoreLineChartStyle()};
-        auto crs{impl->traceviewwidget->getCoreRidgeChartStyle()};
-        *cls = ChartStyle();
-        *crs = ChartStyle();
-        crs->setDoBackBrush(true);
-        crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
-        crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
-        impl->rois->setMatchYAxes(false);
-        impl->traceviewwidget->getRidgeChart().offset = .5;
-
-        impl->stylewidget->loadSettings();
-        impl->stylewidget->ChartStyleChange();
-        impl->stylewidget->LineChartStyleChange();
-        impl->stylewidget->RidgeChartStyleChange();
-        impl->stylewidget->RidgeOverlapChange();
-        impl->stylewidget->LineMatchyChange();
-    }
-    if (doreset.testBit(static_cast<int>(ROIVert::RESET::ROICOLOR)))
-    {
-        if (impl->rois)
-        {
-            std::vector<size_t> inds(impl->rois->getNROIs());
-            std::iota(inds.begin(), inds.end(), 0);
-            ROIPalette pal;
-            for (auto &ind : inds)
-            {
-                auto thisStyle = impl->rois->getROIStyle(ind);
-                thisStyle->setColor(pal.getPaletteColor(ind));
-            }
-        }
-    }
-    if (doreset.testBit(static_cast<int>(ROIVert::RESET::IMAGEDATA)))
-    {
-        impl->imagedatawidget->resetsettings();
-    }
+void Roivert::closeEvent(QCloseEvent* event) {
+    // todo: call ROIVertSettings::saveSettings();
+    impl->roivertsettings->saveSettings();
 }
 
+void Roivert::setInitialSettings() {
+    impl->roivertsettings->resetSettings();
+    impl->roivertsettings->restoreSettings();
+}
+void Roivert::setDefaultGeometry() {
+    impl->traceviewwidget->setFloating(true);
+    impl->imagedatawidget->setFloating(false);
+    impl->imagesettingswidget->setFloating(false);
+    impl->fileiowidget->setFloating(false);
+    impl->stylewidget->setFloating(false);
+
+    impl->traceviewwidget->setVisible(true);
+    impl->imagedatawidget->setVisible(true);
+    impl->imagesettingswidget->setVisible(false);
+    impl->fileiowidget->setVisible(false);
+    impl->stylewidget->setVisible(false);
+
+    addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
+    addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
+
+    addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
+    qApp->processEvents(QEventLoop::AllEvents);
+
+    //todo: relative to resolution
+    resize(800, 900);
+}
 void Roivert::pimpl::makeObjects(Roivert *par)
 {
     ui.setupUi(par);
@@ -460,9 +255,11 @@ void Roivert::pimpl::makeObjects(Roivert *par)
     actROIRect = std::make_unique<QAction>(QIcon(":/icons/ROIRect.png"), "", ROIGroup.get());
     actROISelect = std::make_unique<QAction>(QIcon(":/icons/ROISelect.png"), "", ROIGroup.get());
 
-    actReset = std::make_unique<QAction>(tr("Reset Settings"));
+    actReset = std::make_unique<QAction>(QIcon(":/icons/dockreset.png"), "");
     actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
     par->addAction(actReset.get());
+    
+    roivertsettings = std::make_unique<ROIVertSettings>(par, imagedatawidget.get(), imagesettingswidget.get(), stylewidget.get(), fileiowidget.get());
 }
 
 void Roivert::pimpl::setWidgetParams()
@@ -569,6 +366,14 @@ void Roivert::pimpl::makeToolbar(Roivert *par)
     traceviewwidget->toggleViewAction()->setShortcut(Qt::Key_7);
     fileiowidget->toggleViewAction()->setShortcut(Qt::Key_8);
     stylewidget->toggleViewAction()->setShortcut(Qt::Key_9);
+
+    {
+        QWidget* empty = new QWidget();
+        empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        ui.mainToolBar->addWidget(empty);
+    }
+    
+    ui.mainToolBar->addAction(actReset.get());
 
     ui.mainToolBar->setFloatable(false);
     ui.mainToolBar->toggleViewAction()->setVisible(false);

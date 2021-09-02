@@ -114,7 +114,10 @@
     <ClCompile Include="src\dockwidgets\ImageDataWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\ResetDialog.cpp">
+    <ClCompile Include="src\ROIVertSettings.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DockWidgetWithSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -208,7 +211,10 @@
     <ClInclude Include="include\FileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\ResetDialog.h">
+    <ClInclude Include="include\ROIVertSettings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\DockWidgetWithSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

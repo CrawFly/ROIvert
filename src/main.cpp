@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     t.singleShot(delay, [&]
                  {
                      w.show();
-                     w.restoreSettings();
+                     w.setInitialSettings();
                      splash.finish(&w);
                  });
 

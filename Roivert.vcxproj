@@ -110,7 +110,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\ResetDialog.cpp" />
+    <ClCompile Include="src\DockWidgetWithSettings.cpp" />
+    <ClCompile Include="src\ROIVertSettings.cpp" />
     <ClCompile Include="src\dockwidgets\ImageDataWidget.cpp" />
     <ClCompile Include="src\dockwidgets\ImageSettingsWidget.cpp" />
     <ClCompile Include="src\dockwidgets\FileIOWidget.cpp" />
@@ -151,6 +152,8 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\DockWidgetWithSettings.h" />
+    <ClInclude Include="include\ROIVertSettings.h" />
     <QtMoc Include="include\widgets\VideoControllerWidget.h" />
     <QtMoc Include="include\dockwidgets\StyleWidget.h" />
     <QtMoc Include="include\widgets\TraceChartWidget.h" />
@@ -175,7 +178,6 @@
     <QtMoc Include="include\ROI\ROIStyle.h" />
     <QtMoc Include="include\ROI\ROITrace.h" />
     <QtMoc Include="include\widgets\RGBWidget.h" />
-    <ClInclude Include="include\ResetDialog.h" />
     <ClInclude Include="include\roivertcore.h" />
     <ClInclude Include="include\DisplaySettings.h" />
     <ClInclude Include="resource.h" />

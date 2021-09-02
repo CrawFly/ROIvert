@@ -45,6 +45,7 @@ struct ImageSettingsWidget::pimpl
     void layout(QVBoxLayout *topLay)
     {
         topLay->setAlignment(Qt::AlignTop);
+        topLay->setContentsMargins(10, 0, 10, 10);
 
         topLay->addWidget(new QLabel(tr("Contrast:")));
         topLay->addWidget(contrast);
@@ -82,10 +83,11 @@ struct ImageSettingsWidget::pimpl
     }
 };
 
-ImageSettingsWidget::ImageSettingsWidget(QWidget *parent) : QDockWidget(parent)
+ImageSettingsWidget::ImageSettingsWidget(QWidget *parent) : DockWidgetWithSettings(parent)
 {
     impl->contents = new QWidget;
-    this->setWidget(impl->contents);
+    toplay.addWidget(impl->contents);
+
     QVBoxLayout *lay = new QVBoxLayout;
     impl->contents->setLayout(lay);
 
@@ -123,4 +125,51 @@ void ImageSettingsWidget::setContentsEnabled(bool onoff)
 void ImageSettingsWidget::dffToggle(bool onoff)
 {
     impl->dffToggle->setChecked(onoff);
+}
+
+
+
+
+void ImageSettingsWidget::saveSettings(QSettings& settings) const {
+
+    settings.beginGroup("ImageSettings");
+    settings.setValue("dorestore", getSettingsStorage());
+    if (getSettingsStorage()) {
+        auto currSettings = impl->updateSettings();
+        settings.setValue("cont0", std::get<0>(currSettings.Contrast));
+        settings.setValue("cont1", std::get<1>(currSettings.Contrast));
+        settings.setValue("cont2", std::get<2>(currSettings.Contrast));
+        settings.setValue("cmap", currSettings.cmap);
+        settings.setValue("proj", currSettings.projectionType);
+
+        settings.setValue("smoothing0",std::get<0>(currSettings.Smoothing));
+        settings.setValue("smoothing1",std::get<1>(currSettings.Smoothing));
+        settings.setValue("smoothing2",std::get<2>(currSettings.Smoothing));
+        settings.setValue("smoothing3",std::get<3>(currSettings.Smoothing));
+    }
+    settings.endGroup();
+}
+void ImageSettingsWidget::restoreSettings(QSettings& settings) {
+    settings.beginGroup("ImageSettings");
+    setSettingsStorage(settings.value("dorestore", true).toBool());
+    if (getSettingsStorage()) {
+        setContrast({ settings.value("cont0", 0.).toFloat(), settings.value("cont1", 1.).toFloat(),settings.value("cont2", 1.).toFloat() });
+        impl->colormap->setColormap(settings.value("cmap").toInt());
+        impl->Wsmoothing->setSmoothing({ settings.value("smoothing0", 0.).toInt(), settings.value("smoothing1", 5).toInt(), settings.value("smoothing2", 0.).toDouble(), settings.value("smoothing3", 0.).toDouble() });
+        impl->projection->setProjection(settings.value("proj", 0).toInt());
+    }
+    settings.endGroup();
+    emit imgSettingsChanged(impl->updateSettings());
+}
+void ImageSettingsWidget::resetSettings() {
+    ROIVert::imgsettings defaultSettings;
+    setContrast(defaultSettings.Contrast);
+    impl->colormap->setColormap(defaultSettings.cmap);
+    impl->Wsmoothing->setSmoothing(defaultSettings.Smoothing);
+    impl->projection->setProjection(0);
+    emit imgSettingsChanged(defaultSettings);
+}
+
+bool ImageSettingsWidget::isProjectionActive() const {
+    return impl->projection->getProjection() > 0;
 }

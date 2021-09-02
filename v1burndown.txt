@@ -1,24 +1,27 @@
+Would like to flesh out a little more of the serialize settings to registry
+    it's really just the contrast, colormap, smoothing settings
+    and a few from io
+
+Better resolution dependence:
+    smaller window at startup
+    smaller selectionhandles
+    make charts popped out
+
+    resize(QDesktopWidget().availableGeometry(this).size() * 0.7);
+    QRect screenSize = desktop.availableGeometry(this); // this is mainwindow
+
+
+
+
 Remaining Tidy pushes:
     instrument debugger?
     more tooltips?
     make default chart window undocked?
         
 RELEASE PUSH
-    [] take a shot at a qt build
-From hello opencv
+    [x] take a shot at a qt build
 
-
-
-    INCLUDEPATH += D:\opencv\build\include
-    LIBS += D:\opencv-build\bin\libopencv_core440.dll
-    LIBS += D:\opencv-build\bin\libopencv_highgui440.dll
-    LIBS += D:\opencv-build\bin\libopencv_imgcodecs440.dll
-    LIBS += D:\opencv-build\bin\libopencv_imgproc440.dll
-    LIBS += D:\opencv-build\bin\libopencv_features2d440.dll
-    LIBS += D:\opencv-build\bin\libopencv_calib3d440.dll
-
-D:\opencv\builds\vs2019_static_64bit\3rdparty\lib\Release
-D:\opencv\builds\vs2019_static_64bit\lib\Release
+    Magic (don't skip the vista theme!) D:\Qt\5.15.0\msvc2019_64\bin\windeployqt.exe Roivert.exe -no-translations --no-svg --no-opengl-sw --no-system-d3d-compiler --no-angle --release
 
     [] fresh vm
     [] git repo cleanup

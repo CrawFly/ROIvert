@@ -1,8 +1,8 @@
 #pragma once
-#include <QDockWidget>
+#include "DockWidgetWithSettings.h"
 #include "roivertcore.h"
 
-class ImageSettingsWidget : public QDockWidget
+class ImageSettingsWidget : public DockWidgetWithSettings
 {
     Q_OBJECT
     public:
@@ -11,7 +11,13 @@ class ImageSettingsWidget : public QDockWidget
         void setHistogram(std::vector<float> &data);
         void setContrast(ROIVert::contrast c);
         void setContentsEnabled(bool);
+        
 
+        void saveSettings(QSettings& settings) const override;
+        void restoreSettings(QSettings& settings) override;
+        void resetSettings() override;
+
+        bool isProjectionActive() const;
     signals:
         void imgSettingsChanged(ROIVert::imgsettings newsettings);
         void dffToggled(bool);

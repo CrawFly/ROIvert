@@ -16,5 +16,7 @@
         <file>icons/t_io.png</file>
         <file>icons/t_Colors.png</file>
         <file>splash.png</file>
+        <file>icons/dockreset.png</file>
+        <file>icons/docksave.png</file>
     </qresource>
 </RCC>

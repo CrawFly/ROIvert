@@ -346,9 +346,9 @@ struct StyleWidget::pimpl
     bool isLoading{false};
 };
 
-StyleWidget::StyleWidget(QWidget *parent) : QDockWidget(parent)
+StyleWidget::StyleWidget(QWidget *parent) : DockWidgetWithSettings(parent)
 {
-    this->setWidget(impl->tab);
+    toplay.addWidget(impl->tab);
     impl->doLayout();
     impl->doConnect(this);
 }
@@ -470,6 +470,131 @@ void StyleWidget::setContentsEnabled(bool onoff)
     impl->tab->setEnabled(onoff);
 }
 
+
+
+void StyleWidget::saveSettings(QSettings& settings) const {
+    
+    settings.beginGroup("Style");
+    settings.setValue("dorestore", getSettingsStorage());
+    if (getSettingsStorage()) {
+        // roi style
+        const auto rs{impl->rois->getCoreROIStyle()};
+        const auto cls{impl->traceview->getCoreLineChartStyle()};
+        const auto crs{impl->traceview->getCoreRidgeChartStyle()};
+
+        settings.setValue("roilinewidth", rs->getPen().style() == Qt::NoPen ? 0 : rs->getPen().width());
+        settings.setValue("roiselsize", rs->getSelectorSize());
+        settings.setValue("roifillopacity", rs->getBrush().style() == Qt::NoBrush ? 0 : rs->getBrush().color().alpha());
+        
+        settings.beginGroup("chartgeneral");
+        settings.setValue("back", cls->getBackgroundColor().name());
+        settings.setValue("fore", cls->getAxisPen().color().name());
+        settings.setValue("lblfontsize", cls->getLabelFont().pointSize());
+        settings.setValue("tickfontsize", cls->getTickLabelFont().pointSize());
+        settings.setValue("font", cls->getTickLabelFont().family());
+        settings.endGroup();
+        
+        settings.beginGroup("chartline");
+        settings.setValue("width", cls->getTracePen().style() == Qt::NoPen ? 0 : cls->getTracePen().width());
+        settings.setValue("fillopacity", cls->getTraceBrush().style() == Qt::NoBrush ? 0 : cls->getTraceBrush().color().alpha());
+        settings.setValue("gradient", cls->getTraceFillGradient());
+        settings.setValue("grid", cls->getGrid());
+        settings.setValue("normalization", static_cast<int>(cls->getNormalization()));
+        settings.setValue("matchy", impl->rois->getMatchYAxes());
+        settings.endGroup();
+
+        settings.beginGroup("chartridge");
+        settings.setValue("width", crs->getTracePen().style() == Qt::NoPen ? 0 : crs->getTracePen().width());
+        settings.setValue("fillopacity", crs->getTraceBrush().style() == Qt::NoBrush ? 0 : crs->getTraceBrush().color().alpha());
+        settings.setValue("gradient", crs->getTraceFillGradient());
+        settings.setValue("grid", crs->getGrid());
+        settings.setValue("overlap", impl->traceview->getRidgeChart().offset);
+        settings.endGroup();
+    }
+    settings.endGroup();
+}
+void StyleWidget::restoreSettings(QSettings& settings) {
+    settings.beginGroup("Style");
+    setSettingsStorage(settings.value("dorestore", true).toBool());
+    if (getSettingsStorage()) {
+        {
+            auto rs = impl->rois->getCoreROIStyle();
+            ROIStyle defrs;
+            auto defrspen = defrs.getPen();
+            auto defrsbrush = defrs.getBrush();
+            rs->setLineWidth(settings.value("roilinewidth", defrspen.style() == Qt::NoPen ? 0 : defrspen.width()).toInt());
+            rs->setSelectorSize(settings.value("roiselsize", defrs.getSelectorSize()).toInt());
+            rs->setFillOpacity(settings.value("roifillopacity", defrsbrush.style() == Qt::NoBrush ? 0 : defrsbrush.color().alpha()).toInt());
+        }
+
+
+        {
+            auto cls{impl->traceview->getCoreLineChartStyle()};
+            auto crs{impl->traceview->getCoreRidgeChartStyle()};
+            ChartStyle defcs;
+            
+            settings.beginGroup("chartgeneral");
+            cls->setBackgroundColor(QColor(settings.value("back", defcs.getBackgroundColor().name()).toString()));
+            crs->setBackgroundColor(QColor(settings.value("back", defcs.getBackgroundColor().name()).toString()));
+            cls->setBackgroundColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
+            crs->setBackgroundColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
+            cls->setLabelFontSize(settings.value("lblfontsize", defcs.getLabelFont().pointSize()).toInt());
+            crs->setLabelFontSize(settings.value("lblfontsize", defcs.getLabelFont().pointSize()).toInt());
+            cls->setLabelFontSize(settings.value("tickfontsize", defcs.getTickLabelFont().pointSize()).toInt());
+            crs->setLabelFontSize(settings.value("tickfontsize", defcs.getTickLabelFont().pointSize()).toInt());
+            cls->setFontFamily(settings.value("font", defcs.getTickLabelFont().family()).toString());
+            crs->setFontFamily(settings.value("font", defcs.getTickLabelFont().family()).toString());
+            settings.endGroup();
+            
+            auto defcspen = defcs.getAxisPen();
+            auto defcsbrush = defcs.getTraceBrush();
+            settings.beginGroup("chartline");
+            cls->setTraceLineWidth(settings.value("width", defcspen.style() == Qt::NoPen ? 0 : defcspen.width()).toInt());
+            cls->setTraceFillOpacity(settings.value("fillopacity", defcsbrush.style() == Qt::NoBrush ? 0 : defcsbrush.color().alpha()).toInt());
+            cls->setTraceFillGradient(settings.value("gradient", defcs.getTraceFillGradient()).toBool());
+            cls->setGrid(settings.value("grid", defcs.getGrid()).toBool());
+            cls->setNormalization(static_cast<ROIVert::NORMALIZATION>(settings.value("normalization", static_cast<int>(defcs.getNormalization())).toInt()));
+            impl->rois->setMatchYAxes(settings.value("matchy", false).toBool());
+            settings.endGroup();
+
+            settings.beginGroup("chartridge");
+            crs->setTraceLineWidth(settings.value("width", defcspen.style() == Qt::NoPen ? 0 : defcspen.width()).toInt());
+            crs->setTraceFillOpacity(settings.value("fillopacity", defcsbrush.style() == Qt::NoBrush ? 0 : defcsbrush.color().alpha()).toInt());
+            crs->setTraceFillGradient(settings.value("gradient", defcs.getTraceFillGradient()).toBool());
+            crs->setGrid(settings.value("grid", defcs.getGrid()).toBool());
+            impl->traceview->getRidgeChart().offset = settings.value("overlap", .5).toFloat();
+            settings.endGroup();
+        }
+    loadSettings();
+    }
+    settings.endGroup();
+
+}
+void StyleWidget::resetSettings() {
+    auto rs{impl->rois->getCoreROIStyle()};
+    auto cls{impl->traceview->getCoreLineChartStyle()};
+    auto crs{impl->traceview->getCoreRidgeChartStyle()};
+    *rs = ROIStyle();
+    *cls = ChartStyle();
+    *crs = ChartStyle();
+    
+    crs->setDoBackBrush(true);
+    crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
+    crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    
+    impl->rois->setMatchYAxes(false);
+    impl->traceview->getRidgeChart().offset = .5;
+
+    loadSettings();
+    ROIStyleChange();
+    ChartStyleChange();
+    LineChartStyleChange();
+    RidgeChartStyleChange();
+    RidgeOverlapChange();
+    LineMatchyChange();
+
+}
+
 QSize CustomTabStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                        const QSize &size, const QWidget *widget) const
 {
@@ -495,3 +620,4 @@ void CustomTabStyle::drawControl(ControlElement element, const QStyleOption *opt
     }
     QProxyStyle::drawControl(element, option, painter, widget);
 }
+

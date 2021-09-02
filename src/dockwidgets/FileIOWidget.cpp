@@ -58,6 +58,8 @@ struct FileIOWidget::pimpl
 
         cmdImpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         cmdExpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+
+        lay.setContentsMargins(10, 0, 10, 10);
     }
     void doLayout()
     {
@@ -118,9 +120,9 @@ struct FileIOWidget::pimpl
     }
 };
 
-FileIOWidget::FileIOWidget(QWidget *parent) : QDockWidget(parent)
+FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent)
 {
-    setWidget(&impl->contents);
+    toplay.addWidget(&impl->contents);
 
     impl->init();
     impl->doLayout();
@@ -204,4 +206,38 @@ FileIOWidget::FileIOWidget(QWidget *parent) : QDockWidget(parent)
 void FileIOWidget::setContentsEnabled(bool onoff)
 {
     impl->contents.setEnabled(onoff);
+}
+
+
+void FileIOWidget::saveSettings(QSettings& settings) const {
+    settings.beginGroup("FileIO");
+    settings.setValue("dorestore", getSettingsStorage());
+    if (getSettingsStorage()) {
+        settings.setValue("header", impl->chkHeader.isChecked());
+        settings.setValue("time", impl->chkTime.isChecked());
+        settings.setValue("chartwidth", impl->spinChartWidth.value());
+        settings.setValue("chartheight", impl->spinChartHeight.value());
+        settings.setValue("chartquality", impl->spinChartQuality.value());
+    }
+    settings.endGroup();
+}
+void FileIOWidget::restoreSettings(QSettings& settings) {
+    
+    settings.beginGroup("FileIO");
+    setSettingsStorage(settings.value("dorestore", true).toBool());
+    if (getSettingsStorage()) {
+        impl->chkHeader.setChecked(settings.value("header",true).toBool());
+        impl->chkTime.setChecked(settings.value("time",true).toBool());
+        impl->spinChartHeight.setValue(settings.value("chartwidth", 600).toInt());
+        impl->spinChartWidth.setValue(settings.value("chartheight", 1600).toInt());
+        impl->spinChartQuality.setValue(settings.value("chartquality", 100).toInt());
+    }
+    settings.endGroup();
+}
+void FileIOWidget::resetSettings() {
+    impl->chkHeader.setChecked(true);
+    impl->chkTime.setChecked(true);
+    impl->spinChartHeight.setValue(600);
+    impl->spinChartWidth.setValue(1600);
+    impl->spinChartQuality.setValue(100);
 }

@@ -15,6 +15,8 @@
 #include <QSpinBox>
 #include <QStyleOption>
 
+#include <QToolBar>
+
 struct ImageDataWidget::pimpl
 {
     QWidget contents;
@@ -102,6 +104,7 @@ struct ImageDataWidget::pimpl
             progBar.setMaximum(100);
             progBar.setVisible(false);
         }
+        vlay.setContentsMargins(10, 0, 10, 10);
     }
 
     void layout()
@@ -234,9 +237,10 @@ struct ImageDataWidget::pimpl
     }
 };
 
-ImageDataWidget::ImageDataWidget(QWidget *parent) : QDockWidget(parent)
+ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(parent)
 {
-    this->setWidget(&impl->contents);
+    toplay.addWidget(&impl->contents);
+
     impl->init();
     impl->layout();
 
@@ -269,54 +273,39 @@ void ImageDataWidget::setProgBar(int val)
     impl->progBar.setVisible(false);
 }
 
-void ImageDataWidget::storesettings(QSettings &settings) const
+void ImageDataWidget::saveSettings(QSettings &settings) const
 {
     settings.beginGroup("ImageData");
-    settings.setValue("filepath", impl->txtFilePath.text());
-    settings.setValue("framerate", impl->spinFrameRate.value());
-    settings.setValue("downtime", impl->spinDownTime.value());
-    settings.setValue("downspace", impl->spinDownSpace.value());
-    settings.setValue("mode", impl->optFile.isChecked() ? "file" : "folder");
+    settings.setValue("dorestore", getSettingsStorage());
+    if (getSettingsStorage()) {
+        settings.setValue("filepath", impl->txtFilePath.text());
+        settings.setValue("framerate", impl->spinFrameRate.value());
+        settings.setValue("downtime", impl->spinDownTime.value());
+        settings.setValue("downspace", impl->spinDownSpace.value());
+        settings.setValue("mode", impl->optFile.isChecked() ? "file" : "folder");
+    }
     settings.endGroup();
 }
-void ImageDataWidget::loadsettings(QSettings &settings)
+void ImageDataWidget::restoreSettings(QSettings &settings)
 {
     settings.beginGroup("ImageData");
-
-    if (settings.contains("filepath"))
-    {
-        impl->txtFilePath.setText(settings.value("filepath").toString());
+    setSettingsStorage(settings.value("dorestore", true).toBool());
+    if (getSettingsStorage()) {
+        impl->txtFilePath.setText(settings.value("filepath", "").toString());
+        impl->spinFrameRate.setValue(settings.value("framerate", 30.).toDouble());
+        impl->spinDownTime.setValue(settings.value("downtime", 1).toInt());
+        impl->spinDownSpace.setValue(settings.value("downspace", 1).toInt());
+        impl->optFile.setChecked(settings.value("mode", "folder").toString() == "file");
     }
-
-    if (settings.contains("framerate"))
-    {
-        impl->spinFrameRate.setValue(settings.value("framerate").toDouble());
-    }
-
-    if (settings.contains("downtime"))
-    {
-        impl->spinDownTime.setValue(settings.value("downtime").toInt());
-    }
-
-    if (settings.contains("downspace"))
-    {
-        impl->spinDownSpace.setValue(settings.value("downspace").toInt());
-    }
-
-    if (settings.contains("mode"))
-    {
-        impl->optFile.setChecked(settings.value("mode").toString() == "file");
-        impl->optfilefolder();
-    }
-
     settings.endGroup();
 }
-void ImageDataWidget::resetsettings()
+void ImageDataWidget::resetSettings()
 {
     impl->txtFilePath.setText("");
     impl->spinFrameRate.setValue(30.);
     impl->spinDownTime.setValue(1);
     impl->spinDownSpace.setValue(1);
-    impl->optFile.setChecked(true);
+    impl->optFolder.setChecked(true);
     impl->optfilefolder();
+    
 }

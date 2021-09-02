@@ -1,7 +1,7 @@
 #pragma once
-#include <QDockWidget>
+#include "DockWidgetWithSettings.h"
 
-class FileIOWidget : public QDockWidget
+class FileIOWidget : public DockWidgetWithSettings
 {    
 Q_OBJECT
 
@@ -9,6 +9,9 @@ public:
     FileIOWidget(QWidget* parent = nullptr);
     void setContentsEnabled(bool);
 
+    void saveSettings(QSettings& settings) const override;
+    void restoreSettings(QSettings& settings) override;
+    void resetSettings() override;
 signals:
     void exportTraces(QString filename, bool doHeader, bool doTimeCol);
     void exportROIs(QString filename);
