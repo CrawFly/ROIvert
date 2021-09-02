@@ -536,8 +536,8 @@ void StyleWidget::restoreSettings(QSettings& settings) {
             settings.beginGroup("chartgeneral");
             cls->setBackgroundColor(QColor(settings.value("back", defcs.getBackgroundColor().name()).toString()));
             crs->setBackgroundColor(QColor(settings.value("back", defcs.getBackgroundColor().name()).toString()));
-            cls->setBackgroundColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
-            crs->setBackgroundColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
+            cls->setAxisColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
+            crs->setAxisColor(QColor(settings.value("fore", defcs.getAxisPen().color().name()).toString()));
             cls->setLabelFontSize(settings.value("lblfontsize", defcs.getLabelFont().pointSize()).toInt());
             crs->setLabelFontSize(settings.value("lblfontsize", defcs.getLabelFont().pointSize()).toInt());
             cls->setLabelFontSize(settings.value("tickfontsize", defcs.getTickLabelFont().pointSize()).toInt());

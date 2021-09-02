@@ -10,7 +10,7 @@ struct ROIStyle::pimpl
 
     int linewidth{3};
     int fillopacity{0};
-    int selsize{12};
+    int selsize{10};
     bool colorbyselected{false};
     bool isSelected{false};
 

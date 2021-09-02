@@ -25,7 +25,6 @@ public:
     
     void scrollToChart(TraceChartWidget*);
 
-
 signals:
     void keyPressed(int key, Qt::KeyboardModifiers mod);
     void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);

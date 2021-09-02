@@ -7,6 +7,7 @@
 #include <QBoxLayout>
 #include <QSettings>
 #include <QMessageBox>
+#include <QDesktopWidget>
 
 #include "DisplaySettings.h"
 #include "FileIO.h"
@@ -63,6 +64,8 @@ struct Roivert::pimpl
     void setWidgetParams();
     void makeObjects(Roivert *par);
     void makeToolbar(Roivert *par);
+
+    QSize screensize{ 3840, 2100 };
 };
 
 Roivert::Roivert(QWidget *parent)
@@ -78,9 +81,9 @@ Roivert::Roivert(QWidget *parent)
 
     doConnect(); // todo: consider move to impl
     impl->makeToolbar(this);
-
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
-    resize(800, 900);
+    
+    impl->screensize = QDesktopWidget().availableGeometry(this).size();
 }
 
 Roivert::~Roivert() = default;
@@ -227,10 +230,18 @@ void Roivert::setDefaultGeometry() {
 
     addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
     qApp->processEvents(QEventLoop::AllEvents);
+    
+    
 
-    //todo: relative to resolution
-    resize(800, 900);
+    auto size = std::min(impl->screensize.width() / 3, 1000);
+    resize(size*1.2, size);
+    impl->traceviewwidget->resize(size * .8, size * .3);
 }
+
+QSize Roivert::getScreenSize() const {
+    return impl->screensize;
+}
+
 void Roivert::pimpl::makeObjects(Roivert *par)
 {
     ui.setupUi(par);

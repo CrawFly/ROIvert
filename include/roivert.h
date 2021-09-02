@@ -13,6 +13,8 @@ public:
     Roivert(QWidget *parent = Q_NULLPTR);
     ~Roivert();
     void setDefaultGeometry();
+    QSize getScreenSize() const;
+
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder);

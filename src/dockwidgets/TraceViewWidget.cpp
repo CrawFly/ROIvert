@@ -1,9 +1,12 @@
 #include "dockwidgets/TraceViewWidget.h"
 
+
 #include <QApplication>
 #include <QBoxLayout>
+#include <QDebug>
 #include <QKeyEvent>
 #include <QScrollArea>
+#include <QSize>
 #include <QTabWidget>
 
 #include "ChartStyle.h"
@@ -47,6 +50,8 @@ struct TraceViewWidget::pimpl
         scrollArea->ensureWidgetVisible(w);
     }
 
+    QSize recsize{ 1000,1000 };
+
 private:
     // todo: make these all unique/scoped (be careful with order)
 
@@ -60,10 +65,13 @@ private:
     QScrollArea *scrollArea{new QScrollArea};
 
     QGridLayout *ridgeLayout{new QGridLayout};
+
+
 };
 
 TraceViewWidget::TraceViewWidget(QWidget *parent) : QDockWidget(parent)
 {
+    
     auto contents = new QWidget;
     this->setWidget(contents);
     contents->setLayout(impl->topGridLayout.get());
@@ -77,6 +85,8 @@ TraceViewWidget::TraceViewWidget(QWidget *parent) : QDockWidget(parent)
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
+
+
 
 void TraceViewWidget::addLineChart(TraceChartWidget *chart)
 {
