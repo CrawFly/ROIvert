@@ -22,6 +22,8 @@ public:
     explicit SmoothingPickWidget(QWidget* parent = nullptr);
     ROIVert::smoothing getSmoothing();
     void setSmoothing(ROIVert::smoothing s);
+    void updateSmothingParamWidgets();
+
 
 signals:
     void smoothingChanged();

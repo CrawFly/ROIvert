@@ -1,30 +1,55 @@
+TODO: Consider adding a recolor button to Style widget
+
+
 RELEASE PUSH
     [x] take a shot at a qt build
-
-    Magic (don't skip the vista theme!) D:\Qt\5.15.0\msvc2019_64\bin\windeployqt.exe Roivert.exe -no-translations --no-svg --no-opengl-sw --no-system-d3d-compiler --no-angle --release
+        builds fine with VS...will take some work with my unique_ptr pimpl model to make it GNU compatible
 
     [] fresh vm
         - needs retry with settings and resolution tweaks
 
     [] git repo cleanup
-    [] license
+        - drop vs files permenantly
+
+    [] license (include it in the setup builder and show it in the setup builder)
+
     [] install files
-    
+    Magic (don't skip the vista theme!) D:\Qt\5.15.0\msvc2019_64\bin\windeployqt.exe Roivert.exe -no-translations --no-svg --no-opengl-sw --no-system-d3d-compiler --no-angle --release
+
 DOC:
-    [] release notes
     [] videos
     [] html
     
+    What do I need doc for?
+        2. Navigating the interface:
+            - DockWidgets
+            - Reset and Save buttons
+
+        4. Drawing ROIs
+            - (each kind)
+            - Editing
+            - Deleting
+            - Selecting (single, multiple, none, all)
+
+
+        5. Image Settings Widget
+            Contrast, Projections, Colormap, smoothing
+        6. Import/Export
+        7. Color and Style
+        A. what is df/f?
+
     
-    KNOWN ISSUES LIST?
-        - CLICKING WHEN VERY ZOOMED IN CAN SELECT ROIS BY CLICKING A PIXEL OR TWO OUTSIDE OF THEM
-        - ARTIFACTS ON THE EDGE OF THE IMAGE IF SELECTION HANDLE GOES OUTSIDE OF THE IMAGE, SHOULD DISAPPEAR ON MOUSEUP
-        - occasionally may see a 1E-04 in place of a zero in a line chart?
-        - no progress bar with multipage, and downsampling time doesn't improve load speed, but load speed is WAYYY faster
-    
+  
 ---
-when this is all done i really want to implify and simplify roivert, and make everything smartptr
-quick look at export video
+Still want to reconsider my various models for qt controls:
+    unique_ptr
+    regular ptr
+    not-ptr
+
+quick look at export video:
+    opencv would be fine for writing tiffs or video files
+    I'd need to overlay the shapes on there, not sure what that looks like or does
+
 What does this look like if i try to build in gnu or something...on linux? How about port to Qt and use vs, with assumption that this would make it easier to build on mac? didn't I have something like this once before?
 
 What does the website look like:

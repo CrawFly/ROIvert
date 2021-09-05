@@ -77,14 +77,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
 
     // set visible params based on smoothing type
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
-            [=](int type)
-            {
-                widgParams->setVisible(type > 0);
-                lblSigma->setVisible(type > 2);
-                spinBlurSigma->setVisible(type > 2);
-                lblSigmaI->setVisible(type > 3);
-                spinBlurSigmaI->setVisible(type > 3);
-            });
+            [=](int) { updateSmothingParamWidgets(); });
 
     // fire signal when anything changes
     //connect(cmbBlur,)
@@ -109,4 +102,13 @@ void SmoothingPickWidget::setSmoothing(ROIVert::smoothing s)
     spinBlurSize->setValue(std::get<1>(s));
     spinBlurSigma->setValue(std::get<2>(s));
     spinBlurSigmaI->setValue(std::get<3>(s));
+}
+
+void SmoothingPickWidget::updateSmothingParamWidgets() {
+    const auto type = cmbBlur->currentIndex();
+    widgParams->setVisible(type > 0);
+    lblSigma->setVisible(type > 2);
+    spinBlurSigma->setVisible(type > 2);
+    lblSigmaI->setVisible(type > 3);
+    spinBlurSigmaI->setVisible(type > 3);
 }

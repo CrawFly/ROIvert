@@ -160,7 +160,9 @@ void ImageSettingsWidget::restoreSettings(QSettings& settings) {
         impl->projection->setProjection(settings.value("proj", 0).toInt());
     }
     settings.endGroup();
+    impl->Wsmoothing->updateSmothingParamWidgets();
     emit imgSettingsChanged(impl->updateSettings());
+    
 }
 void ImageSettingsWidget::resetSettings() {
     ROIVert::imgsettings defaultSettings;
@@ -168,6 +170,8 @@ void ImageSettingsWidget::resetSettings() {
     impl->colormap->setColormap(defaultSettings.cmap);
     impl->Wsmoothing->setSmoothing(defaultSettings.Smoothing);
     impl->projection->setProjection(0);
+    
+    impl->Wsmoothing->updateSmothingParamWidgets();
     emit imgSettingsChanged(defaultSettings);
 }
 

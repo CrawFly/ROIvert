@@ -1,5 +1,5 @@
 #include "DockWidgetWithSettings.h"
-#include <QToolBar>;
+#include <QToolBar>
 
 
 DockWidgetWithSettings::DockWidgetWithSettings(QWidget* parent)  : QDockWidget(parent)
