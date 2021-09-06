@@ -8,13 +8,15 @@ class ContrastWidget : public QWidget {
 public:
     explicit ContrastWidget(QWidget* parent = nullptr);
 
-    // These are all passthru to chart
     void setContrast(ROIVert::contrast c);
     ROIVert::contrast getContrast();
     void setHistogram(QVector<float> y);
     void setHistogramColor(QColor c);
     void setLineColor(QColor c);
     void setGammaRange(qreal mingamma, qreal maxgamma);
+    
+    void spin2Chart();
+    void chart2Spin(ROIVert::contrast c);
 signals:
     void contrastChanged(ROIVert::contrast minmaxgamma);
 

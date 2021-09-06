@@ -176,6 +176,7 @@ void Roivert::updateContrastWidget(bool isDff)
 {
     // this sets histogram and contrast on the widget:
     const ROIVert::contrast c = impl->dispSettings.getContrast(isDff);
+
     impl->imagesettingswidget->setContrast(c);
 
     std::vector<float> hist;
@@ -208,6 +209,8 @@ void Roivert::closeEvent(QCloseEvent* event) {
 void Roivert::setInitialSettings() {
     impl->roivertsettings->resetSettings();
     impl->roivertsettings->restoreSettings();
+    impl->vidctrl->setEnabled(false);
+    
 }
 void Roivert::setDefaultGeometry() {
     impl->traceviewwidget->setFloating(true);
@@ -249,7 +252,7 @@ void Roivert::pimpl::makeObjects(Roivert *par)
     viddata = std::make_unique<VideoData>(par);
 
     imagedatawidget = std::make_unique<ImageDataWidget>(par);
-    imagesettingswidget = std::make_unique<ImageSettingsWidget>(par);
+    imagesettingswidget = std::make_unique<ImageSettingsWidget>(par, &dispSettings);
     stylewidget = std::make_unique<StyleWidget>(par);
     fileiowidget = std::make_unique<FileIOWidget>(par);
     traceviewwidget = std::make_unique<TraceViewWidget>(par);

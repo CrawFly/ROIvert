@@ -41,7 +41,6 @@ struct ROIVertSettings::pimpl {
     }
     void resetsettings() {
         // needs bitmask with default reset everything
-        
         roivert->setDefaultGeometry();
         imagedatawidget->resetSettings();
         imagesettingswidget->resetSettings();

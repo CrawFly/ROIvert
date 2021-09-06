@@ -78,15 +78,17 @@ namespace ContrastWidgetImpl {
         void setHistogramColor(QColor clr, qreal linewidth = 2, bool dogradfill = true);
         void setLineColor(QColor clr, qreal linewidth = 3);
 
-        void setValues(ROIVert::contrast minmaxgamma);
+        void setValues(ROIVert::contrast minmaxgamma, bool silent = false);
         ROIVert::contrast getValues();
 
         void setGammaRange(qreal mingamma, qreal maxgamma);
+
     signals:
         void contrastChanged(ROIVert::contrast minmaxgamma);
 
     protected:
         void resizeEvent(QResizeEvent* event) override;
+
     private:
         QGraphicsPathItem* HistPath;
         VertLine* minline;

@@ -5,9 +5,6 @@ RELEASE PUSH
     [x] take a shot at a qt build
         builds fine with VS...will take some work with my unique_ptr pimpl model to make it GNU compatible
 
-    [] fresh vm
-        - needs retry with settings and resolution tweaks
-
     [] git repo cleanup
         - drop vs files permenantly
 

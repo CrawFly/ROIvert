@@ -55,6 +55,29 @@ struct ContrastWidget::pimpl
     }
 
 
+    void spin2Chart() {
+        qDebug() << "spin2Chart";
+        ROIVert::contrast c{spinMin.value(), spinMax.value(), spinGamma.value()};
+        chart.setValues(c);
+        emit par->contrastChanged(c);
+    }
+    void chart2Spin(ROIVert::contrast c) {
+        qDebug() << "chart2Spin";
+        spinMin.setValue(std::get<0>(c));
+        spinMax.setValue(std::get<1>(c));
+        spinGamma.setValue(std::get<2>(c));
+    }
+
+
+    void doConnect(ContrastWidget *par)
+    {
+        /*
+        connect(&spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &spin2Chart);
+        connect(&spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,  &spin2Chart);
+        connect(&spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &spin2Chart);
+        connect(&chart, &ContrastWidgetImpl::ContrastChart::contrastChanged, this, &chart2Spin);
+        */
+    }
 };
 
 ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent)
@@ -62,45 +85,16 @@ ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent)
     setGammaRange(.001, 10.);
     impl->init();
     impl->layout();
+    impl->doConnect(this);
     setLayout(&impl->lay);
-
-    connect(&impl->spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
-    connect(&impl->spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,  &ContrastWidget::spin2Chart);
-    connect(&impl->spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
-    connect(&impl->chart, &ContrastWidgetImpl::ContrastChart::contrastChanged, this, &ContrastWidget::chart2Spin);
 }
-
-void ContrastWidget::spin2Chart() {
-    ROIVert::contrast c{impl->spinMin.value(), impl->spinMax.value(), impl->spinGamma.value()};
-    impl->chart.setValues(c, true);
-    emit contrastChanged(c);
-}
-void ContrastWidget::chart2Spin(ROIVert::contrast c) {
-    
-    impl->spinMin.blockSignals(true);
-    impl->spinMax.blockSignals(true);
-    impl->spinGamma.blockSignals(true);
-
-    impl->spinMin.setValue(std::get<0>(c));
-    impl->spinMax.setValue(std::get<1>(c));
-    impl->spinGamma.setValue(std::get<2>(c));
-
-    impl->spinMin.blockSignals(false);
-    impl->spinMax.blockSignals(false);
-    impl->spinGamma.blockSignals(false);
-
-    emit contrastChanged(c);
-
-}
-
 
 ROIVert::contrast ContrastWidget::getContrast() { 
     return impl->chart.getValues(); 
 }
 
 void ContrastWidget::setContrast(ROIVert::contrast c) { 
-    impl->chart.setValues(c, true);
-    chart2Spin(c);
+    impl->chart.setValues(c);
 }
 
 

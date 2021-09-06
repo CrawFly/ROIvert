@@ -45,12 +45,6 @@
     <ClCompile Include="src\widgets\SmoothingPickWidget.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\widgets\ContrastWidget.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\ImageView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -120,6 +114,12 @@
     <ClCompile Include="src\DockWidgetWithSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\widgets\ContrastWidgetImpl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\widgets\ContrastWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="include\roivert.h">
@@ -129,12 +129,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ColormapPickWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="include\widgets\ContrastWidget.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="include\widgets\ContrastWidgetImpl.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\widgets\ProjectionPickWidget.h">
@@ -186,6 +180,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="include\dockwidgets\ImageDataWidget.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\ContrastWidgetImpl.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="include\widgets\ContrastWidget.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

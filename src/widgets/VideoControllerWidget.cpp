@@ -162,6 +162,7 @@ void VideoControllerWidget::pimpl::initWidgets()
 {
     sliScrub->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
     sliScrub->setMinimum(1);
+    sliScrub->setMaximum(1);
     sliScrub->setSingleStep(1);
     sliScrub->setPageStep(1);
 
@@ -263,7 +264,9 @@ size_t VideoControllerWidget::pimpl::nframes() const
 
 void VideoControllerWidget::pimpl::updateTimeLabel()
 {
-    const int ms = 1000 * (currframe - 1) / (framerate);
+    const size_t fr = currframe == 0 ? 0 : currframe - 1;
+
+    const int ms = 1000 * fr / (framerate);
     QTime t(0, 0, 0, 0);
     t = t.addMSecs(ms);
 

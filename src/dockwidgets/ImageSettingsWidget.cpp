@@ -3,7 +3,9 @@
 #include <QBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QDebug>
 
+#include "DisplaySettings.h"
 #include "widgets/ContrastWidget.h"
 #include "widgets/ProjectionPickWidget.h"
 #include "widgets/ColormapPickWidget.h"
@@ -22,6 +24,7 @@ static void addVSep(QVBoxLayout *lay)
 struct ImageSettingsWidget::pimpl
 {
     QWidget *contents;
+    DisplaySettings* dispsettings{ nullptr }; //*** communication is currently through signal/slot, but dispsettings ptr is used for save/load/reset
 
     ContrastWidget *contrast = new ContrastWidget;
     ProjectionPickWidget *projection = new ProjectionPickWidget;
@@ -79,13 +82,14 @@ struct ImageSettingsWidget::pimpl
         payload.projectionType = projection->getProjection();
         payload.cmap = colormap->getColormap();
         payload.Smoothing = Wsmoothing->getSmoothing();
-
+        
         return payload;
     }
 };
 
-ImageSettingsWidget::ImageSettingsWidget(QWidget *parent) : DockWidgetWithSettings(parent)
+ImageSettingsWidget::ImageSettingsWidget(QWidget *parent, DisplaySettings* dispsettings) : DockWidgetWithSettings(parent)
 {
+    impl->dispsettings = dispsettings;
     impl->contents = new QWidget;
     toplay.addWidget(impl->contents);
 
@@ -128,18 +132,22 @@ void ImageSettingsWidget::dffToggle(bool onoff)
     impl->dffToggle->setChecked(onoff);
 }
 
-
-
-
 void ImageSettingsWidget::saveSettings(QSettings& settings) const {
 
     settings.beginGroup("ImageSettings");
     settings.setValue("dorestore", getSettingsStorage());
     if (getSettingsStorage()) {
+        auto rawContrast = impl->dispsettings->getContrast(false);
+        auto dffContrast = impl->dispsettings->getContrast(true);
+        
+        settings.setValue("rawCont0", std::get<0>(rawContrast));
+        settings.setValue("rawCont1", std::get<1>(rawContrast));
+        settings.setValue("rawCont2", std::get<2>(rawContrast));
+        settings.setValue("dffCont0", std::get<0>(dffContrast));
+        settings.setValue("dffCont1", std::get<1>(dffContrast));
+        settings.setValue("dffCont2", std::get<2>(dffContrast));
+        
         auto currSettings = impl->updateSettings();
-        settings.setValue("cont0", std::get<0>(currSettings.Contrast));
-        settings.setValue("cont1", std::get<1>(currSettings.Contrast));
-        settings.setValue("cont2", std::get<2>(currSettings.Contrast));
         settings.setValue("cmap", currSettings.cmap);
         settings.setValue("proj", currSettings.projectionType);
 
@@ -153,8 +161,14 @@ void ImageSettingsWidget::saveSettings(QSettings& settings) const {
 void ImageSettingsWidget::restoreSettings(QSettings& settings) {
     settings.beginGroup("ImageSettings");
     setSettingsStorage(settings.value("dorestore", true).toBool());
+
+
     if (getSettingsStorage()) {
-        setContrast({ settings.value("cont0", 0.).toFloat(), settings.value("cont1", 1.).toFloat(),settings.value("cont2", 1.).toFloat() });
+        //setContrast({ settings.value("cont0", 0.).toFloat(), settings.value("cont1", 1.).toFloat(),settings.value("cont2", 1.).toFloat() });
+        impl->dispsettings->setContrast(false, { settings.value("rawCont0", 0.).toFloat(), settings.value("rawCont1", 1.).toFloat(),settings.value("rawCont2", 1.).toFloat() });
+        impl->dispsettings->setContrast(true, { settings.value("dffCont0", 0.).toFloat(), settings.value("dffCont1", 1.).toFloat(),settings.value("dffCont2", 1.).toFloat() });
+        setContrast(impl->dispsettings->getContrast(false));
+
         impl->colormap->setColormap(settings.value("cmap").toInt());
         impl->Wsmoothing->setSmoothing({ settings.value("smoothing0", 0.).toInt(), settings.value("smoothing1", 5).toInt(), settings.value("smoothing2", 0.).toDouble(), settings.value("smoothing3", 0.).toDouble() });
         impl->projection->setProjection(settings.value("proj", 0).toInt());
@@ -165,8 +179,13 @@ void ImageSettingsWidget::restoreSettings(QSettings& settings) {
     
 }
 void ImageSettingsWidget::resetSettings() {
+
     ROIVert::imgsettings defaultSettings;
+    impl->dispsettings->setContrast(false, defaultSettings.Contrast);
+    impl->dispsettings->setContrast(true, defaultSettings.Contrast);
+
     setContrast(defaultSettings.Contrast);
+
     impl->colormap->setColormap(defaultSettings.cmap);
     impl->Wsmoothing->setSmoothing(defaultSettings.Smoothing);
     impl->projection->setProjection(0);
@@ -174,7 +193,6 @@ void ImageSettingsWidget::resetSettings() {
     impl->Wsmoothing->updateSmothingParamWidgets();
     emit imgSettingsChanged(defaultSettings);
 }
-
 bool ImageSettingsWidget::isProjectionActive() const {
     return impl->projection->getProjection() > 0;
 }

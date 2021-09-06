@@ -1,5 +1,6 @@
 #include "widgets/ContrastWidgetImpl.h"
 
+#include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 
 VertLine::VertLine(QGraphicsScene *scene)
@@ -183,8 +184,9 @@ namespace ContrastWidgetImpl
                 { rightOverlayRect->setRect(val, -1, 2. - val, 3); });
 
         // connect outbound signal:
-        auto lam = [this]
-        { emit contrastChanged(getValues()); }; //connect(minline,&VertLine::changeVal,this,[]
+        auto lam = [this] { 
+            emit contrastChanged(getValues()); 
+        };
         connect(minline, &VertLine::changeVal, this, lam);
         connect(maxline, &VertLine::changeVal, this, lam);
         connect(gamline, &GammaLine::changeVal, this, lam);
@@ -228,12 +230,26 @@ namespace ContrastWidgetImpl
         maxline->setColor(clr, linewidth);
         gamline->setColor(clr, linewidth);
     }
-    void ContrastChart::setValues(ROIVert::contrast minmaxgamma)
+    void ContrastChart::setValues(ROIVert::contrast minmaxgamma, bool silent)
     {
-        // Silent setter
+        
+
+        bool oldblock = signalsBlocked();
+        if (silent) {
+            blockSignals(true);
+        }
+
+        minline->setMax(std::get<1>(minmaxgamma));
+        maxline->setMin(std::get<0>(minmaxgamma));
+
         minline->setX(std::get<0>(minmaxgamma), false);
         maxline->setX(std::get<1>(minmaxgamma), false);
         gamline->setGamma(std::get<2>(minmaxgamma), false);
+
+        if (silent) {
+            blockSignals(oldblock);
+        }
+
     }
     void ContrastChart::setGammaRange(qreal mingamma, qreal maxgamma)
     {
