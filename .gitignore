@@ -8,3 +8,6 @@ install_attempt1.iss
 pre_license.txt
 /nextsteps.txt
 *.vcxproj*
+Roivert.pri
+Roivert.pro
+Roivert.sln
