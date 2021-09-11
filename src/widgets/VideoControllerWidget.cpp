@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QDial>
+#include <QElapsedTimer>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -42,7 +43,7 @@ struct VideoControllerWidget::pimpl
     QPushButton *cmdDff = new QPushButton();
 
     QTimer timer;
-    QTime elapsed;
+    QElapsedTimer elapsed;
     int accumtime{0};
 };
 

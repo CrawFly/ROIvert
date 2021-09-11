@@ -62,7 +62,7 @@ ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent)
     impl->init();
     impl->doLayout();
     setLayout(&impl->layout);
-    connect(&impl->projection, QOverload<int>::of(&QButtonGroup::buttonClicked), this, &ProjectionPickWidget::projectionChanged);
+    connect(&impl->projection, &QButtonGroup::idClicked, this, &ProjectionPickWidget::projectionChanged);
 }
 int ProjectionPickWidget::getProjection() const noexcept { return impl->projection.checkedId(); }
 void ProjectionPickWidget::setProjection(int projid) { impl->projection.button(projid)->setChecked(true); }

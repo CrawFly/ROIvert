@@ -1,21 +1,31 @@
 #include "roivert.h"
 
+#include <QDebug>
 #include <QtWidgets/QApplication>
 #include <QSplashScreen>
 #include <QTimer>
 #include <QDesktopWidget>
 
+#include <QGUIApplication>
+#include <QScreen>
+
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    
+    QRect screenGeometry(0, 0, 1920, 1080);
+    
+    auto screens = QGuiApplication::screens();
+    if (!screens.empty()) {
+        screenGeometry=screens[0]->geometry();
+    }
 
-    QDesktopWidget* desktopWidget = qApp->desktop();
-    QRect screenGeometry = desktopWidget->screenGeometry();
-    int screenWidth = screenGeometry.width();
-    int screenHeight = screenGeometry.height();
+    //QRect screenGeometry = desktopWidget->screenGeometry();
+    const int screenWidth = screenGeometry.width();
+    const int screenHeight = screenGeometry.height();
 
     QPixmap pixmap(":/splash.png");
-    auto sf = 4000/screenWidth;
+    float sf = 4000./screenWidth;
 
     pixmap = pixmap.scaled(pixmap.width()/sf, pixmap.height()/sf);
 

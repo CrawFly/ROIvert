@@ -116,7 +116,7 @@ ImageSettingsWidget::~ImageSettingsWidget() = default;
 void ImageSettingsWidget::setHistogram(std::vector<float> &data)
 {
     // todo: consider whether this should come in as a QVector to avoid the conversion (or vice versa)
-    impl->contrast->setHistogram(QVector<float>::fromStdVector(data));
+    impl->contrast->setHistogram(QVector<float>(data.begin(), data.end()));
 }
 void ImageSettingsWidget::setContrast(ROIVert::contrast c)
 {

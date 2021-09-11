@@ -51,7 +51,7 @@ struct ZoomPan::pimpl
     }
     bool wheelEvent(const QWheelEvent *event)
     {
-        if (QApplication::keyboardModifiers() == mod && event->orientation() == Qt::Vertical)
+        if (QApplication::keyboardModifiers() == mod)
         {
             const double angle = event->angleDelta().y();
             const double factor = pow(zoomfactor, angle);
