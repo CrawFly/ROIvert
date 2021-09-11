@@ -92,7 +92,7 @@ ROIVert needs you! ROIVert was written using the one-guy-in-his-spare-time model
 ## License
 ROIVert is provided under the MIT license.
 
-ROIVert includes dependencies on some other open source libraries (OpenCV and Qt). See [license.txt](./LICENSE.TXT) for more info. 
+ROIVert includes dependencies on some other open source libraries (OpenCV and Qt). See [license.txt](license.txt) for more info. 
 
 The author(s) of ROIVert are not lawyers, and while we can wrap our heads around neuroscience, microscopy, software design and implementation, the requirements of licensing totally elude us. If we've inadvertently violated licensing requirements please contact us at [repo name]@[repo name].net and we'll immediately act to correct it. 
 
