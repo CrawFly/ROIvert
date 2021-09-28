@@ -27,7 +27,7 @@ message(STATUS "    Test Version: ${Qt5Test_VERSION_STRING}")
 
 
 add_library(ROIVertLib "")
-add_executable(ROIVert WIN32 "")
+add_executable(ROIVert WIN32 MACOSX_BUNDLE "")
 add_executable(ROIVertTest "")
 
 # seems like the qrc should be in lib, but it works this way for some reason?
@@ -35,8 +35,15 @@ target_sources(ROIVert
     PRIVATE
         resource.h
         roivert.qrc
-        #Roivert.rc
 )
+
+if(WIN32)
+    target_sources(ROIVert 
+        PRIVATE
+            Roivert.rc
+endif
+
+
 
 add_subdirectory(include)
 add_subdirectory(src)
