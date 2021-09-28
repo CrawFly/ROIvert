@@ -16,6 +16,6 @@ public:
 
 private:
 	struct pimpl;
-	std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 	bool eventFilter(QObject* object, QEvent* event) override;
 };

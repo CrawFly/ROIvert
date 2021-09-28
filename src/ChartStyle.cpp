@@ -26,7 +26,7 @@ struct ChartStyle::pimpl
     ROIVert::LIMITSTYLE limitstyle{ROIVert::LIMITSTYLE::AUTO};
 };
 
-ChartStyle::ChartStyle() = default;
+ChartStyle::ChartStyle() : impl(std::make_unique<pimpl>()) { };
 
 ChartStyle::~ChartStyle() {}
 
@@ -34,14 +34,15 @@ ChartStyle &ChartStyle::operator=(const ChartStyle &that) noexcept
 {
     if (this != &that)
     {
+        impl = std::make_unique<pimpl>();
         *(impl) = *(that.impl);
     }
     return *this;
 }
 
-ChartStyle::ChartStyle(const ChartStyle &that)
+ChartStyle::ChartStyle(const ChartStyle &that) : impl(std::make_unique<pimpl>())
 {
-    if (&that != nullptr && that.impl != nullptr && this != &that)
+    if (that.impl != nullptr && this != &that)
     {
         *(impl) = *(that.impl);
     }

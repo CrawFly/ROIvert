@@ -57,7 +57,7 @@ struct ContrastWidget::pimpl
 
 };
 
-ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent)
+ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     setGammaRange(.001, 10.);
     impl->init();
@@ -69,6 +69,9 @@ ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent)
     connect(&impl->spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
     connect(&impl->chart, &ContrastWidgetImpl::ContrastChart::contrastChanged, this, &ContrastWidget::chart2Spin);
 }
+
+ContrastWidget::~ContrastWidget() { }
+
 
 void ContrastWidget::spin2Chart() {
     ROIVert::contrast c{impl->spinMin.value(), impl->spinMax.value(), impl->spinGamma.value()};

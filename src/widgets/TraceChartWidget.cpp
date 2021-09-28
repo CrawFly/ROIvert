@@ -68,7 +68,8 @@ private:
 };
 
 TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent),
+    impl(std::make_unique<pimpl>())
 {
     if (style)
     {
@@ -79,7 +80,7 @@ TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget *p
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
 }
 
-TraceChartWidget::~TraceChartWidget() = default;
+TraceChartWidget::~TraceChartWidget() { };
 
 void TraceChartWidget::setStyle(std::shared_ptr<ChartStyle> style)
 {

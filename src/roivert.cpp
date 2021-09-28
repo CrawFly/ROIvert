@@ -24,7 +24,7 @@
 #include "dockwidgets/FileIOWidget.h"
 #include "dockwidgets/TraceViewWidget.h"
 
-#include "videodata.h"
+#include "VideoData.h"
 #include "widgets/VideoControllerWidget.h"
 #include "widgets/TraceChartWidget.h"
 
@@ -68,8 +68,8 @@ struct Roivert::pimpl
     QSize screensize{ 3840, 2100 };
 };
 
-Roivert::Roivert(QWidget *parent)
-    : QMainWindow(parent)
+Roivert::Roivert(QWidget *parent) :
+    QMainWindow(parent), impl(std::make_unique<pimpl>())
 {
     impl->makeObjects(this);
     impl->initDockWidgets(this);

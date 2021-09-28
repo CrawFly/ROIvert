@@ -69,7 +69,9 @@ private:
 
 };
 
-TraceViewWidget::TraceViewWidget(QWidget *parent) : QDockWidget(parent)
+TraceViewWidget::TraceViewWidget(QWidget *parent) :
+    QDockWidget(parent),
+    impl(std::make_unique<pimpl>())
 {
     
     auto contents = new QWidget;

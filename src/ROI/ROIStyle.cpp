@@ -24,13 +24,16 @@ struct ROIStyle::pimpl
         return colorbyselected ? (isSelected ? selunselcolors.first : selunselcolors.second) : fillcolor;
     }
 };
-ROIStyle::ROIStyle() {}
+ROIStyle::ROIStyle() : impl(std::make_unique<pimpl>()) { }
+ROIStyle::~ROIStyle() { }
+
 
 // todo: write these copies better....
 ROIStyle &ROIStyle::operator=(const ROIStyle &that)
 {
     if (this != &that)
     {
+        this->impl = std::make_unique<pimpl>();
         this->impl->linecolor = that.impl->linecolor;
         this->impl->fillcolor = that.impl->fillcolor;
         this->impl->linewidth = that.impl->linewidth;
@@ -43,7 +46,7 @@ ROIStyle &ROIStyle::operator=(const ROIStyle &that)
     return *this;
 }
 
-ROIStyle::ROIStyle(const ROIStyle &that)
+ROIStyle::ROIStyle(const ROIStyle &that) : impl(std::make_unique<pimpl>())
 {
     if (this != &that)
     {
@@ -58,7 +61,6 @@ ROIStyle::ROIStyle(const ROIStyle &that)
     emit this->StyleChanged(*this);
 }
 
-ROIStyle::~ROIStyle() = default;
 
 QPen ROIStyle::getPen() const
 {

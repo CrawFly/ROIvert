@@ -33,7 +33,7 @@ struct VideoData::pimpl
     float framerate;
 };
 
-VideoData::VideoData(QObject *parent) : QObject(parent) {}
+VideoData::VideoData(QObject *parent) : QObject(parent), impl(std::make_unique<pimpl>()) {}
 VideoData::~VideoData() = default;
 
 void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder)
@@ -318,6 +318,8 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
         break;
     case ROIVert::SHAPE::ELLIPSE:
         cv::ellipse(mask, cv::Point(w / 2., h / 2.), cv::Size(w / 2., h / 2.), 0., 0., 360., cv::Scalar(255), cv::FILLED);
+        break;
+    case ROIVert::SHAPE::SELECT:
         break;
     case ROIVert::SHAPE::POLYGON:
         std::vector<cv::Point> cVertices;

@@ -9,6 +9,8 @@ Q_OBJECT
 
 public:
     ImageDataWidget(QWidget *parent = nullptr);
+    ~ImageDataWidget();
+    
     void setContentsEnabled(bool);
 
     void saveSettings(QSettings& settings) const override;
@@ -24,5 +26,5 @@ public slots:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };

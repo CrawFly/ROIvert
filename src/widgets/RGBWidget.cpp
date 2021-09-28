@@ -9,7 +9,7 @@ struct RGBWidget::pimpl
     std::vector<std::pair<QSlider *, QSpinBox *>> rgb;
 };
 
-RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent)
+RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     auto grid = new QGridLayout(this);
 
@@ -42,6 +42,8 @@ RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent)
     //this->setMinimumHeight(100);
     this->setFixedHeight(120);
 }
+RGBWidget::~RGBWidget() { }
+
 QColor RGBWidget::getColor() const
 {
     const int r{impl->rgb[0].second->value()};

@@ -87,7 +87,8 @@ struct ImageSettingsWidget::pimpl
     }
 };
 
-ImageSettingsWidget::ImageSettingsWidget(QWidget *parent, DisplaySettings* dispsettings) : DockWidgetWithSettings(parent)
+ImageSettingsWidget::ImageSettingsWidget(QWidget *parent, DisplaySettings* dispsettings) : DockWidgetWithSettings(parent),
+    impl(std::make_unique<pimpl>())
 {
     impl->dispsettings = dispsettings;
     impl->contents = new QWidget;

@@ -96,7 +96,7 @@ private:
     float offset{0};
 };
 
-TraceChartSeries::TraceChartSeries(std::shared_ptr<ChartStyle> style)
+TraceChartSeries::TraceChartSeries(std::shared_ptr<ChartStyle> style) : impl(std::make_unique<pimpl>())
 {
     impl->chartstyle = style;
 }

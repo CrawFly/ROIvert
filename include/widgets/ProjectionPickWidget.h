@@ -13,6 +13,8 @@ class ProjectionPickWidget : public QWidget
     Q_OBJECT
 public:
     explicit ProjectionPickWidget(QWidget* parent = nullptr);
+    ~ProjectionPickWidget();
+    
     int getProjection() const noexcept;
     void setProjection(int projid);
 
@@ -21,6 +23,6 @@ signals:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };
 

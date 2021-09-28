@@ -8,7 +8,8 @@
 #pragma once
 
 #include <QWidget>
-class QComboBox;
+//class QComboBox;
+#include <QComboBox>
 
 class ColormapPickWidget : public QWidget
 {

@@ -20,7 +20,7 @@ public:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 
     void setDefaultGeometry();
 };

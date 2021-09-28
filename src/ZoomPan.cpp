@@ -73,13 +73,13 @@ struct ZoomPan::pimpl
     QPointF targetScenePos, targetViewportPos;
 };
 
-ZoomPan::ZoomPan(QGraphicsView *view) : QObject(view)
+ZoomPan::ZoomPan(QGraphicsView *view) : QObject(view), impl(std::make_unique<pimpl>())
 {
     impl->view = view;
     impl->view->viewport()->installEventFilter(this);
     impl->view->setMouseTracking(true);
 }
-ZoomPan::~ZoomPan() = default;
+ZoomPan::~ZoomPan() { };
 
 void ZoomPan::setZoomFactor(double value) noexcept { impl->zoomfactor = value; }
 bool ZoomPan::eventFilter(QObject *object, QEvent *event)

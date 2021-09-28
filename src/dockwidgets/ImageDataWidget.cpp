@@ -240,7 +240,7 @@ struct ImageDataWidget::pimpl
     }
 };
 
-ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(parent)
+ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
 {
     toplay.addWidget(&impl->contents);
 
@@ -259,6 +259,7 @@ ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(paren
     connect(&impl->optFolder, &QRadioButton::toggled, [=]
             { impl->optfilefolder(); });
 }
+ImageDataWidget::~ImageDataWidget() { }
 
 void ImageDataWidget::setContentsEnabled(bool onoff)
 {

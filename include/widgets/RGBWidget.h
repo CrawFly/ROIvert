@@ -8,6 +8,8 @@ class RGBWidget : public QWidget
     Q_OBJECT
 public:
     explicit RGBWidget(QWidget *parent = nullptr);
+    ~RGBWidget();
+    
     QColor getColor() const;
 
 signals:
@@ -18,5 +20,5 @@ public slots:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };

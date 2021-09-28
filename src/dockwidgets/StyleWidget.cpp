@@ -57,9 +57,12 @@ struct StyleWidget::pimpl
 
     void doLayout()
     {
-        tab->tabBar()->setStyle(new CustomTabStyle);
-        tab->setTabPosition(QTabWidget::TabPosition::West);
-
+        
+        
+        //tab->tabBar()->setStyle(new CustomTabStyle);
+        //tab->setTabPosition(QTabWidget::TabPosition::West);
+        tab->setUsesScrollButtons(true);
+        tab->setElideMode(Qt::ElideNone);
         // add tabs:
         tab->addTab(ROIColorTab(), "ROI Color");
         tab->addTab(ROIStyleTab(), "ROI Style");
@@ -348,12 +351,14 @@ struct StyleWidget::pimpl
     bool isLoading{false};
 };
 
-StyleWidget::StyleWidget(QWidget *parent) : DockWidgetWithSettings(parent)
+StyleWidget::StyleWidget(QWidget *parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
 {
     toplay.addWidget(impl->tab);
     impl->doLayout();
     impl->doConnect(this);
 }
+StyleWidget::~StyleWidget() { }
+
 void StyleWidget::ROIColorChange()
 {
     if (impl->rois)

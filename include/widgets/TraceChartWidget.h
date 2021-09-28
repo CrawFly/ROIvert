@@ -50,7 +50,7 @@ protected:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };
 
 class TraceChartSeries
@@ -87,7 +87,7 @@ public:
     void updatePoly();
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };
 
 class TraceChartAxis
@@ -130,7 +130,7 @@ protected:
     virtual void updateLayout();
     virtual ROIVert::LIMITSTYLE getLimitStyle() const;
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };
 
 class TraceChartHAxis : public TraceChartAxis {

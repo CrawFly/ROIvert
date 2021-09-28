@@ -16,7 +16,9 @@ struct ImageView::pimpl
     std::unique_ptr<ZoomPan> zoomer;
 };
 
-ImageView::ImageView(QWidget *parent) : QGraphicsView(parent)
+ImageView::ImageView(QWidget *parent) :
+    QGraphicsView(parent),
+    impl(std::make_unique<pimpl>())
 {
     setScene(impl->scene);
     setBackgroundBrush(Qt::black);

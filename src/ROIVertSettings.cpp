@@ -50,7 +50,8 @@ struct ROIVertSettings::pimpl {
 };
 
 
-ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsWidget* is, StyleWidget* s, FileIOWidget* fio) {
+ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsWidget* is, StyleWidget* s, FileIOWidget* fio) : impl(std::make_unique<pimpl>())
+{
     impl->roivert = r;
     impl->imagedatawidget = id;
     impl->imagesettingswidget = is;

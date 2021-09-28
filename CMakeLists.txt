@@ -35,7 +35,7 @@ target_sources(ROIVert
     PRIVATE
         resource.h
         roivert.qrc
-        Roivert.rc
+        #Roivert.rc
 )
 
 add_subdirectory(include)

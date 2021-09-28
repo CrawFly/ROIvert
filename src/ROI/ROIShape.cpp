@@ -270,7 +270,7 @@ private:
 ROIShape::ROIShape(QGraphicsScene *scene,
                    ROIVert::SHAPE shp,
                    QSize imgsize,
-                   std::shared_ptr<ROIStyle> style)
+                   std::shared_ptr<ROIStyle> style) : impl(std::make_unique<pimpl>())
 {
 
     impl->init(shp, this, style);
@@ -397,7 +397,7 @@ void ROIShape::read(const QJsonObject &json, int pixelsubset)
     impl->setShapeType(static_cast<ROIVert::SHAPE>(json["type"].toInt()));
     QJsonArray jverts = json["verts"].toArray();
     std::vector<QPoint> vertices;
-    for (auto &vert : jverts)
+    for (const auto &vert : jverts)
     {
         QPoint pt{vert.toArray()[0].toInt(), vert.toArray()[1].toInt()};
         vertices.push_back(pt / pixelsubset);

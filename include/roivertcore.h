@@ -3,7 +3,6 @@
 #include <QVector>
 #include <QColor>
 #include <QRect>
-#include "opencv2/core/types.hpp"
 
 
 namespace ROIVert {

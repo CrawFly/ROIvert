@@ -31,7 +31,7 @@ struct ROITrace::pimpl
     std::shared_ptr<ChartStyle> chartstyle;
 };
 
-ROITrace::ROITrace(TraceViewWidget *tv, VideoData *vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle)
+ROITrace::ROITrace(TraceViewWidget *tv, VideoData *vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) : impl(std::make_unique<pimpl>())
 {
     impl->init(ridgestyle, linestyle);
     impl->videodata = vd;

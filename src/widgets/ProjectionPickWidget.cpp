@@ -56,7 +56,7 @@ struct ProjectionPickWidget::pimpl
     }
 };
 
-ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent)
+ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     
     impl->init();
@@ -64,5 +64,7 @@ ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent)
     setLayout(&impl->layout);
     connect(&impl->projection, &QButtonGroup::idClicked, this, &ProjectionPickWidget::projectionChanged);
 }
+ProjectionPickWidget::~ProjectionPickWidget() { }
+
 int ProjectionPickWidget::getProjection() const noexcept { return impl->projection.checkedId(); }
 void ProjectionPickWidget::setProjection(int projid) { impl->projection.button(projid)->setChecked(true); }

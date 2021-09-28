@@ -79,7 +79,7 @@ struct FileIO::pimpl
     }
 };
 
-FileIO::FileIO(ROIs *rois, TraceViewWidget *traceview, VideoData *videodata)
+FileIO::FileIO(ROIs *rois, TraceViewWidget *traceview, VideoData *videodata) : impl(std::make_unique<pimpl>())
 {
     impl->rois = rois;
     impl->traceview = traceview;

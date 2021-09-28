@@ -11,6 +11,8 @@ class StyleWidget : public DockWidgetWithSettings
     Q_OBJECT
     public:
         explicit StyleWidget(QWidget* parent = nullptr);
+        ~StyleWidget();
+    
         void setROIs(ROIs* rois);
         void setTraceView(TraceViewWidget* traceview);
         void loadSettings();
@@ -32,7 +34,7 @@ class StyleWidget : public DockWidgetWithSettings
 
     private:
         struct pimpl;
-        std::unique_ptr<pimpl>impl = std::make_unique<pimpl>();
+        std::unique_ptr<pimpl> impl;
 };
 
 class CustomTabStyle : public QProxyStyle {

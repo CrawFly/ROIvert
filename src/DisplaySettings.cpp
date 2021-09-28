@@ -17,7 +17,8 @@ struct DisplaySettings::pimpl
     cv::Mat getImage(cv::Mat raw, bool isDff);
 };
 
-DisplaySettings::DisplaySettings()
+DisplaySettings::DisplaySettings() :
+    impl(std::make_unique<pimpl>())
 {
     impl->updateLut(false);
     impl->updateLut(true);

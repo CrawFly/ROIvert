@@ -269,7 +269,7 @@ struct ROIs::pimpl
     }
 };
 
-ROIs::ROIs(ImageView *iView, TraceViewWidget *tView, VideoData *vData)
+ROIs::ROIs(ImageView *iView, TraceViewWidget *tView, VideoData *vData) : impl(std::make_unique<pimpl>())
 {
     impl->scene = iView->scene();
     impl->imgsize = iView->getImageSize();
@@ -447,7 +447,7 @@ std::vector<std::vector<float>> ROIs::getTraces(std::vector<size_t> inds) const
 void ROIs::read(const QJsonObject &json)
 {
     QJsonArray jrois = json["ROIs"].toArray();
-    for (auto &jroi : jrois)
+    for (const auto &jroi : jrois)
     {
         impl->pushROI(QPoint());
         impl->rois.back()->read(jroi.toObject());

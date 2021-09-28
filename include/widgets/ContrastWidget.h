@@ -7,7 +7,8 @@ class ContrastWidget : public QWidget {
     Q_OBJECT
 public:
     explicit ContrastWidget(QWidget* parent = nullptr);
-
+    ~ContrastWidget();
+    
     void setContrast(ROIVert::contrast c);
     ROIVert::contrast getContrast();
     void setHistogram(QVector<float> y);
@@ -22,5 +23,5 @@ signals:
 
 private:
     struct pimpl;
-    std::unique_ptr<pimpl> impl = std::make_unique<pimpl>();
+    std::unique_ptr<pimpl> impl;
 };

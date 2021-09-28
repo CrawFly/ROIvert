@@ -15,14 +15,14 @@ struct ROISelector::pimpl
     double sz = 20.;
 };
 
-ROISelector::ROISelector(ROIShape *par)
+ROISelector::ROISelector(ROIShape *par) : impl(std::make_unique<pimpl>())
 {
     setParentItem(par);
     setCursor(Qt::SizeAllCursor);
     setZValue(1);
 }
 
-ROISelector::~ROISelector() = default;
+ROISelector::~ROISelector() { };
 
 void ROISelector::setVertices(const QVector<QPoint> verts)
 {

@@ -101,7 +101,7 @@ struct TraceChartAxis::pimpl
     }
     std::shared_ptr<ChartStyle> chartstyle;
 };
-TraceChartAxis::TraceChartAxis(std::shared_ptr<ChartStyle> style)
+TraceChartAxis::TraceChartAxis(std::shared_ptr<ChartStyle> style) : impl(std::make_unique<pimpl>())
 {
     setStyle(style);
     updateLayout();

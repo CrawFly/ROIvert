@@ -123,7 +123,7 @@ struct FileIOWidget::pimpl
     }
 };
 
-FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent)
+FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
 {
     toplay.addWidget(&impl->contents);
 
@@ -206,6 +206,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent)
                 }
             });
 }
+FileIOWidget::~FileIOWidget(){ }
+
 void FileIOWidget::setContentsEnabled(bool onoff)
 {
     impl->contents.setEnabled(onoff);

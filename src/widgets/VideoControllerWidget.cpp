@@ -47,7 +47,7 @@ struct VideoControllerWidget::pimpl
     int accumtime{0};
 };
 
-VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent)
+VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     impl->initWidgets();
     impl->layoutWidgets(this);
