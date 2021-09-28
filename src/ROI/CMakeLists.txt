@@ -1,0 +1,9 @@
+target_sources(ROIVertLib
+    PRIVATE
+        ROI.cpp
+        ROISelector.cpp
+        ROIShape.cpp
+        ROIStyle.cpp
+        ROITrace.cpp
+        ROIs.cpp
+)

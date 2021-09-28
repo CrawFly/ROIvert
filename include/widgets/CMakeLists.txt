@@ -1,0 +1,11 @@
+target_sources(ROIVertLib
+    PRIVATE
+        ColormapPickWidget.h
+        ContrastWidget.h
+        ContrastWidgetImpl.h
+        ProjectionPickWidget.h
+        RGBWidget.h
+        SmoothingPickWidget.h
+        TraceChartWidget.h
+        VideoControllerWidget.h
+)

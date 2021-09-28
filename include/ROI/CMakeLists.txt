@@ -1,0 +1,9 @@
+target_sources(ROIVertLib
+    PRIVATE
+        ROI.h
+        ROISelector.h
+        ROIShape.h
+        ROIStyle.h
+        ROITrace.h
+        ROIs.h
+)

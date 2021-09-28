@@ -1,0 +1,14 @@
+target_sources(ROIVertLib
+    PRIVATE
+        ColormapPickWidget.cpp
+        ContrastWidget.cpp
+        ContrastWidgetImpl.cpp
+        ProjectionPickWidget.cpp
+        RGBWidget.cpp
+        RidgeLineWidget.cpp
+        SmoothingPickWidget.cpp
+        TraceChartAxis.cpp
+        TraceChartSeries.cpp
+        TraceChartWidget.cpp
+        VideoControllerWidget.cpp
+)
