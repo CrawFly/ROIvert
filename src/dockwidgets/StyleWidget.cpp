@@ -57,10 +57,11 @@ struct StyleWidget::pimpl
 
     void doLayout()
     {
-        
-        
-        //tab->tabBar()->setStyle(new CustomTabStyle);
-        //tab->setTabPosition(QTabWidget::TabPosition::West);
+    #ifdef _WIN32
+        // ** until this looks right in MacOS
+        tab->tabBar()->setStyle(new CustomTabStyle);
+        tab->setTabPosition(QTabWidget::TabPosition::West);
+    #endif // _WIN32
         tab->setUsesScrollButtons(true);
         tab->setElideMode(Qt::ElideNone);
         // add tabs:

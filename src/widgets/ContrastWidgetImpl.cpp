@@ -137,6 +137,8 @@ namespace ContrastWidgetImpl
         QGraphicsScene *scene = new QGraphicsScene(0, 0, 1, 1);
         setRenderHints(QPainter::Antialiasing);
 
+        scene->setBackgroundBrush(Qt::white);
+
         setScene(scene);
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
