@@ -8,7 +8,7 @@ void tColormapPickWidget::cleanup() {
     widget = nullptr;
 }
 
-void tColormapPickWidget::tColormapPickWidgetSetGet() {
+void tColormapPickWidget::tSetGet() {
     widget->setColormap(21);
     QCOMPARE(widget->getColormap(), 21);
 
@@ -19,7 +19,7 @@ void tColormapPickWidget::tColormapPickWidgetSetGet() {
     QCOMPARE(widget->getColormap(), 11);
 
 }
-void tColormapPickWidget::tColormapPickWidgetClick() {
+void tColormapPickWidget::tComboSelect() {
     auto cmb = widget->findChild<QComboBox*>("cmbColormap");
     cmb->setCurrentIndex(1);
     QCOMPARE(widget->getColormap(), 21);
@@ -27,4 +27,13 @@ void tColormapPickWidget::tColormapPickWidgetClick() {
     QCOMPARE(widget->getColormap(), -1);
     cmb->setCurrentIndex(2);
     QCOMPARE(widget->getColormap(), 11);
+}
+
+void tColormapPickWidget::tSignal() {
+    // this tests that the widget emits when the combo is activated...
+    bool didsend = false;
+    connect(widget, &ColormapPickWidget::colormapChanged, [&]() { didsend = true; });
+    auto cmb = widget->findChild<QComboBox*>("cmbColormap");
+    emit(cmb->activated(1));
+    QVERIFY(didsend);
 }

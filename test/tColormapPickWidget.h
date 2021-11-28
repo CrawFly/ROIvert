@@ -9,8 +9,10 @@ class tColormapPickWidget : public QObject
 private slots:
     void init();
     void cleanup();
-    void tColormapPickWidgetSetGet();
-    void tColormapPickWidgetClick();
+    void tSetGet();
+    void tComboSelect();
+    void tSignal();
+
     
 private:
     ColormapPickWidget* widget = nullptr;
