@@ -153,8 +153,6 @@ QBrush ChartStyle::getTraceBrush() const
         clr.setAlpha(impl->tracefillopacity);
         brush.setColor(clr);
         brush.setStyle(Qt::BrushStyle::SolidPattern);
-
-        //brush.setStyle(Qt::BrushStyle::);
     }
     else
     {

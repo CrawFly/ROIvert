@@ -1,5 +1,8 @@
 target_sources(ROIVertTest
     PRIVATE
-        main.cpp
-        test.h
+        tmain.cpp
+        tChartStyle.cpp
+        tChartStyle.h
+        tColormapPickWidget.cpp
+        tColormapPickWidget.h
 )

@@ -39,6 +39,7 @@ ColormapPickWidget::ColormapPickWidget(QWidget *parent) : QWidget(parent)
 {
     auto lay{std::make_unique<QVBoxLayout>()};
     cmbColormap = std::make_unique<QComboBox>();
+    cmbColormap->setObjectName("cmbColormap");
     cmbColormap->setToolTip(tr("Choose a colormap for displaying the video"));
 
     std::vector<QPixmap> c = getColormapPixmaps(cmaps);

@@ -38,10 +38,11 @@ target_sources(ROIVert
 )
 
 if(WIN32)
-    target_sources(ROIVert 
+    target_sources(ROIVert
         PRIVATE
             Roivert.rc
-endif
+    )
+endif()
 
 
 
