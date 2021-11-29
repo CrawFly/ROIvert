@@ -59,7 +59,7 @@ If you're not interested in the code, and instead want to use ROIVert, we sugges
 &nbsp;&nbsp;
 
 ## How: How to build
-ROIVert currently doesn't have automated tools for makefile generation, but ROIVert's dependencies are simple: ROIVert is built with Qt5 (v1.0beta used 5.15.0) and OpenCV (v1.0beta used OpenCV 440). ROIVert has been built in Windows with MSVC (and built but not successfully linked with MingW), and in linux with GCC. 
+ROIVert relies on a standard CMake build system, but work is in progress to strengthen the CMake files and make ROIVert more easily ported. ROIVert depends on Qt5 (v1.0beta used 5.15.0) and OpenCV (v1.0beta used OpenCV440). Successful prototype builds have been achieved on macOS and linux.
 
 The current plan is to establish a successful build process for MacOS and then work on abstracting some tooling for makefile generation. Early attempts with a CMake based approach were successful in Windows and linux.
 
@@ -68,24 +68,23 @@ If you'd like to build and are having trouble, reach out to [repo name]@[repo na
 &nbsp;&nbsp;
 
 ## When: Release roadmap
-The primary goals for the initial release (over the prototype) were to build in a charting system to release ROIVert from dependencies on charts licensed under GPL. A list of other major changes in ROIVert over the prototype version can be found here [roivert.net](http://roivert.net/releasenotes.html) 
+A list of other major changes in ROIVert over the prototype version can be found at http://roivert.net/releasenotes.html
 
-Our next major targets are: A MacOS build, motion correction for stabalization of the microscopy field.
+Next major feature targets are:
+ - internal: Test framework.
+ - external: Image stabalization, chart aspect ratio.
 
 &nbsp;&nbsp;
 
 ## How: How to get Involved
 ROIVert needs you! ROIVert was written using the one-guy-in-his-spare-time model. We're open to help in all ways, but currently seeking some specific expertise. If you can help please contact us at [repo name]@[repo name].net
 
-- **MacOs Build/Deploy**: ROIVert needs a MacOS Build. A release on Mac is currently our top priority but the authors have no experience with this. A successful linux build was achieved in September 2021 using wsl2 (but no attempts were made to package and release). We think we have all our 'ducks in a row' (modulo a mac to build on and a developer account).
-- **Build System**: As ROIVert moves to multiplatform, we need to work on an automated build system. We've done some protoyping around thsi but could use CMake/QMake/prebuild expertise. 
-- **Image Processing**: ROIVert is targeting image stablization as the primary feature for the next release. OpenCV likely has all the tooling needed, but some expertise will be required for identifying good approaches, parameters, and UI.
-- **Documentation**: We made some quick little tutorials with the 1.0 beta release, but we'd like to do better. We had some trouble setting up a wiki on the ROIVert site. ROIVert needs content creators who can help teach how to be effective using ROIVert. 
- - **Test**: ROIVert was built without tests. The initial prototype was built long before ROIVert was expected to be so broad as a project, and the first release was a bit rushed. Incorporation of a test framework will be essential to ROIVert's ability to grow. 
- - **Architecture**: ROIVert has some weak spots in its architecture, refactoring will be essential to ROIVert's ability to grow. We need some C++ and Qt expertise for this, particularly some folks who are willing to invest time in discussion.
+- **Image Processing**: Image stablization and automatic blob detection are the next big target features for ROIVert. Help is needed at all levels (algorithm, ui design, etc.).
+- **Documentation**: ROIVert needs content creators who can help teach how to be an effective user.
+ - **Test**: ROIVert's test are under development. 
  - **Site**: The [roivert.net](http://www.roivert.net) site needs some actual design! (and some html skills).
  - **Translation**: We'd like to internationalize ROIVert and provide translation of ROIVert's messages. To do this, we need some multi-lingual folks!
- - **$$$$**: ROIVert doesn't need money for profit, but we could use a few things that cost money: apple developer account, a better web host (we use the bottom-of-the-barrel), code signing for Microsoft.
+ - **Code Signing**: ROIVert now can be distributed on macOS (release coming soon), but work is needed to sign ROIVert for Windows.
 
 &nbsp;&nbsp;
  
