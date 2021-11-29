@@ -24,20 +24,23 @@ struct ContrastWidget::pimpl
     {
         lay.setContentsMargins(QMargins(0, 0, 0, 0));
         chart.setToolTip(tr("A histogram of image data is shown. Slide the minimum/maximum/gamma lines to adjust contrast or set values in the boxes below."));
-        spinMin.setSingleStep(.05);
-        spinMax.setValue(0.);
         spinMin.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinMin.setToolTip(tr("Minimum: pixels less than this proportion of the pixel range will be shown as black."));
+        spinMin.setSingleStep(.05);
+        spinMin.setValue(0.);
+        spinMin.setObjectName("spinMin");
 
         spinMax.setSingleStep(.05);
         spinMax.setValue(1.);
         spinMax.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinMax.setToolTip(tr("Maximum value: pixels greater than this proportion of the pixel range will be shown as white."));
-
+        spinMax.setObjectName("spinMax");
+        
         spinGamma.setValue(1.);
         spinGamma.setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
         spinGamma.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinGamma.setToolTip(tr("Gamma correction: power-law nonlinearity applied to pixel brightness."));
+        spinGamma.setObjectName("spinGamma");
     }
     void layout()
     {

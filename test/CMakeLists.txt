@@ -5,4 +5,6 @@ target_sources(ROIVertTest
         tChartStyle.h
         tColormapPickWidget.cpp
         tColormapPickWidget.h
+        tContrastWidget.cpp
+        tContrastWidget.h
 )

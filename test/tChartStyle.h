@@ -8,13 +8,13 @@ class tChartStyle: public QObject
 private slots:
     void init();
     void cleanup();
+
     void tBackground();
     void tFont();
     void tLimits();
     void tTracePen();
     void tBrush();
     void tAxis();
-    
     void tROIStyleLink();
     void tNormalization();
 private:

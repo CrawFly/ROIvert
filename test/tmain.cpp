@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 #include "tChartStyle.h"
 #include "tColormapPickWidget.h"
+#include "tContrastWidget.h"
 #include <iostream>
 
 typedef QObject * (*QConstructor)();
@@ -126,6 +127,7 @@ namespace {
                 line = line.replace("PASS", "\033[32mPASS\033[0m");
                 line = line.replace("FAIL!", "\033[31mFAIL!\033[0m");
                 line = line.replace("INFO", "\033[36mINFO\033[0m");
+                line = line.replace("XFAIL", "\033[33mXFAIL\033[0m");
             }
             if (doFile) {
                 outstream << line << "\n";
@@ -154,6 +156,7 @@ int main(int argc, char** argv)
     TestBank bank;
     bank.addSuite<tChartStyle>();
     bank.addSuite<tColormapPickWidget>();
+    bank.addSuite<tContrastWidget>();
 
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);
