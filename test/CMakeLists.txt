@@ -7,4 +7,6 @@ target_sources(ROIVertTest
         tColormapPickWidget.h
         tContrastWidget.cpp
         tContrastWidget.h
+        tDisplaySettings.cpp
+        tDisplaySettings.h
 )

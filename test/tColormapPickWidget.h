@@ -2,7 +2,6 @@
 #include "QtTest/QtTest"
 #include "widgets/ColormapPickWidget.h"
 
-
 class tColormapPickWidget : public QObject
 {
     Q_OBJECT

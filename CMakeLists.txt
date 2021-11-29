@@ -56,4 +56,4 @@ target_link_libraries(ROIVertTest PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui Qt5::T
 
 target_link_libraries(ROIVertLib PRIVATE ${OpenCV_LIBS})
 target_link_libraries(ROIVert PRIVATE ROIVertLib)
-target_link_libraries(ROIVertTest PRIVATE ROIVertLib)
+target_link_libraries(ROIVertTest PRIVATE ROIVertLib ${OpenCV_LIBS})
