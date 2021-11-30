@@ -9,4 +9,6 @@ target_sources(ROIVertTest
         tContrastWidget.h
         tDisplaySettings.cpp
         tDisplaySettings.h
+        tROIStyle.cpp
+        tROIStyle.h
 )

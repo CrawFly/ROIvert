@@ -98,6 +98,30 @@ void tDisplaySettings::tsmoothing() {
     }    
 }
 
+void tDisplaySettings::tcolormap() {
+    
+    
+    {
+        settings->setColormap(2);
+        cv::Mat cmapped = settings->getImage(mat, false);    
+        auto a = cmapped.at<cv::Vec3b>(1, 1);
+        QCOMPARE(a[0], 238);
+        QCOMPARE(a[1], 255);
+        QCOMPARE(a[2], 18);
+    }
+    
+    {
+        settings->setColormap(3);
+        cv::Mat cmapped = settings->getImage(mat, false);    
+        auto b = cmapped.at<cv::Vec3b>(1, 1);
+        QCOMPARE(b[0], 205);
+        QCOMPARE(b[1], 100);
+        QCOMPARE(b[2], 0);
+    }
+    
+    
+}
+
 void tDisplaySettings::tcombined() {
     settings->setContrast(false, ROIVert::contrast({ .1, .9, .4 }));
     settings->setSmoothing({ (int)smoothingtype::GAUSSIAN, 3, 2, 0 });

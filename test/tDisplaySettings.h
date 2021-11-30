@@ -18,6 +18,7 @@ private slots:
 
     void tcontrast();
     void tsmoothing();
+    void tcolormap();
 
     void tcombined();
 

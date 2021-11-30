@@ -4,6 +4,7 @@
 #include "tColormapPickWidget.h"
 #include "tContrastWidget.h"
 #include "tDisplaySettings.h"
+#include "tROIStyle.h"
 #include <iostream>
 
 typedef QObject * (*QConstructor)();
@@ -159,6 +160,7 @@ int main(int argc, char** argv)
     bank.addSuite<tColormapPickWidget>();
     bank.addSuite<tContrastWidget>();
     bank.addSuite<tDisplaySettings>();
+    bank.addSuite<tROIStyle>();
 
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);

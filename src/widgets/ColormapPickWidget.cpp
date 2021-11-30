@@ -68,11 +68,10 @@ int ColormapPickWidget::getColormap() const
     {
         return (-1);
     }
-    else
-    {
-        const size_t ind = cmapIndex - 1;
-        return (cmaps[ind]);
-    }
+
+    const size_t ind = cmapIndex - 1;
+    return (cmaps[ind]);
+
 }
 
 void ColormapPickWidget::setColormap(int cmapID)

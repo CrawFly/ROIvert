@@ -17,6 +17,8 @@ private slots:
     void tAxis();
     void tROIStyleLink();
     void tNormalization();
+
+    void tCopy();
 private:
     ChartStyle* chartstyle = nullptr;
 };

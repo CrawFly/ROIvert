@@ -115,8 +115,5 @@ cv::Mat DisplaySettings::pimpl::getImage(cv::Mat raw, bool isDff)
         cv::applyColorMap(proc, res, colormap);
         return res;
     }
-    else
-    {
-        return proc;
-    }
+    return proc;
 }
