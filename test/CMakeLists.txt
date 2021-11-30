@@ -11,4 +11,6 @@ target_sources(ROIVertTest
         tDisplaySettings.h
         tROIStyle.cpp
         tROIStyle.h
+        tVideoControllerWidget.cpp
+        tVideoControllerWidget.h
 )
