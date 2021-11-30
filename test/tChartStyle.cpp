@@ -1,4 +1,8 @@
 #include "tChartStyle.h"
+
+#include <QtTest/QtTest>
+#include "ChartStyle.h"
+
 #include "ROI/ROIStyle.h"
 
 void tChartStyle::init() {

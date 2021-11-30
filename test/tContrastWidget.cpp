@@ -1,6 +1,7 @@
 #include <QtTest/QtTest>
 #include <QDoubleSpinBox>
 #include "tContrastWidget.h"
+#include "widgets/ContrastWidget.h"
 #include "roivertcore.h"
 #include "widgets/ContrastWidgetImpl.h"
 

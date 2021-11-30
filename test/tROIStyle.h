@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
-#include "QtTest/QtTest"
-#include "ROI/ROIStyle.h"
+
+class ROIStyle;
 
 class tROIStyle : public QObject
 {

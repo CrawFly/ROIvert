@@ -1,7 +1,7 @@
 #pragma once
 #include <QObject>
-#include "QtTest/QtTest"
-#include "widgets/VideoControllerWidget.h"
+
+class VideoControllerWidget;
 
 class tVideoControllerWidget : public QObject
 {

@@ -1,7 +1,10 @@
 #pragma once
 #include <QObject>
-#include "QtTest/QtTest"
-#include "DisplaySettings.h"
+
+class DisplaySettings;
+namespace cv {
+    class Mat;
+}
 
 class tDisplaySettings : public QObject
 {
@@ -25,6 +28,6 @@ private slots:
 
 private:
     DisplaySettings* settings = nullptr;
-    cv::Mat mat;
+    cv::Mat* mat;
 };
 

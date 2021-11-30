@@ -1,4 +1,6 @@
+#include <QtTest/QtTest>
 #include "tROIStyle.h"
+#include "ROI/ROIStyle.h"
 
 void tROIStyle::init() {
     style = new ROIStyle;

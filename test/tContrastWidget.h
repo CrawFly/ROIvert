@@ -1,6 +1,7 @@
 #pragma once
 #include <QObject>
-#include "widgets/ContrastWidget.h"
+class ContrastWidget;
+
 
 class tContrastWidget : public QObject
 {

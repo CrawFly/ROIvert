@@ -1,4 +1,4 @@
-#include <QtTest>
+#include <QtTest/QtTest>
 #include <QCoreApplication>
 #include "tChartStyle.h"
 #include "tColormapPickWidget.h"

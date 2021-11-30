@@ -1,6 +1,7 @@
 #pragma once
-#include "QtTest/QtTest"
-#include "ChartStyle.h"
+#include <QObject>
+
+class ChartStyle;
 
 class tChartStyle: public QObject
 {

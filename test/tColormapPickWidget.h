@@ -1,6 +1,7 @@
 #pragma once
-#include "QtTest/QtTest"
-#include "widgets/ColormapPickWidget.h"
+#include <QObject>
+
+class ColormapPickWidget;
 
 class tColormapPickWidget : public QObject
 {

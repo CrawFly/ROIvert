@@ -1,4 +1,6 @@
 #include "tColormapPickWidget.h"
+#include "widgets/ColormapPickWidget.h"
+#include <QtTest/QtTest>
 
 void tColormapPickWidget::init() {
     widget = new ColormapPickWidget;
