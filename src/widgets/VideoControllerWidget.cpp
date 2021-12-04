@@ -42,11 +42,11 @@ struct VideoControllerWidget::pimpl
     QLineEdit *txtSpeed = new QLineEdit();
     QPushButton *cmdDff = new QPushButton();
 
+    
     QTimer timer;
     QElapsedTimer elapsed;
     int accumtime{0};
 };
-
 VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     impl->initWidgets();
@@ -64,9 +64,7 @@ VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent),
 
     connect(&impl->timer, &QTimer::timeout, this, &VideoControllerWidget::timestep);
 }
-
 VideoControllerWidget::~VideoControllerWidget() = default;
-
 void VideoControllerWidget::forceUpdate()
 {
     impl->sliScrub->setValue(impl->currframe);
@@ -108,26 +106,17 @@ void VideoControllerWidget::toggleDff(bool checked) const
     emit frameChanged(getCurrFrame());
     emit dffToggled(checked);
 }
-
 void VideoControllerWidget::dffToggle(const bool &isdff)
 {
     impl->cmdDff->setChecked(isdff);
     toggleDff(isdff);
 }
-
 void VideoControllerWidget::decFrame() { setFrame(getCurrFrame() - 1); }
 void VideoControllerWidget::incFrame() { setFrame(getCurrFrame() + 1); }
 size_t VideoControllerWidget::getCurrFrame() const noexcept { return impl->currframe; }
 void VideoControllerWidget::play(const bool &pressed)
 {
-    if (pressed)
-    {
-        start();
-    }
-    else
-    {
-        stop();
-    }
+    pressed ? start() : stop();
 }
 void VideoControllerWidget::timestep()
 {
@@ -158,7 +147,6 @@ void VideoControllerWidget::timestep()
 
 // **** impl **** //
 bool VideoControllerWidget::pimpl::isDff() const { return cmdDff->isChecked(); };
-
 void VideoControllerWidget::pimpl::initWidgets()
 {
     sliScrub->setSizePolicy(QSizePolicy::Policy::Expanding, QSizePolicy::Policy::Fixed);
@@ -205,8 +193,18 @@ void VideoControllerWidget::pimpl::initWidgets()
     cmdDff->setCheckable(true);
 
     timer.setInterval(16);
-}
 
+    // Backdoor for test
+    sliScrub->setObjectName("sliScrub");
+    cmdBack->setObjectName("cmdBack");
+    cmdPlay->setObjectName("cmdPlay");
+    cmdForw->setObjectName("cmdForw");
+    cmdLoop->setObjectName("cmdLoop");
+    dialSpeed->setObjectName("dialSpeed");
+    txtSpeed->setObjectName("txtSpeed");
+    cmdDff->setObjectName("cmdDff");
+    lblTime->setObjectName("lblTime");
+}
 void VideoControllerWidget::pimpl::layoutWidgets(VideoControllerWidget *par)
 {
     QVBoxLayout *layTop = new QVBoxLayout;
@@ -234,7 +232,6 @@ void VideoControllerWidget::pimpl::layoutWidgets(VideoControllerWidget *par)
     layUnder->addLayout(layTxt, 0, 2, Qt::AlignRight);
     layTxt->addWidget(lblTime);
 }
-
 bool VideoControllerWidget::pimpl::setFrame(const size_t &frame)
 {
     if (frame == currframe || frame < 1 || frame > nframes())
@@ -257,12 +254,10 @@ void VideoControllerWidget::pimpl::setSpeed_text()
     float val = txtSpeed->text().toFloat();
     dialSpeed->setValue(log10(val) * 50);
 }
-
 size_t VideoControllerWidget::pimpl::nframes() const
 {
     return sliScrub->maximum();
 }
-
 void VideoControllerWidget::pimpl::updateTimeLabel()
 {
     const size_t fr = currframe == 0 ? 0 : currframe - 1;
@@ -278,6 +273,5 @@ void VideoControllerWidget::pimpl::updateTimeLabel()
     }
     lblTime->setText(t.toString(fmt));
 }
-
 float VideoControllerWidget::pimpl::speedmult() { return txtSpeed->text().toFloat(); }
 int VideoControllerWidget::pimpl::clockrate() { return std::max(1.f, 1000 / (framerate * speedmult())); }

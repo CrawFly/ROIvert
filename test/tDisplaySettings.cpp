@@ -16,6 +16,9 @@ void tDisplaySettings::init() {
 void tDisplaySettings::cleanup() {
     delete settings;
     settings = nullptr;
+}
+
+void tDisplaySettings::cleanupTestCase() {
     delete mat;
     mat = nullptr;
 }

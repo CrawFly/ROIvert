@@ -1,5 +1,6 @@
 #include <QtTest/QtTest>
 #include <QCoreApplication>
+#include <QObject>
 #include "tChartStyle.h"
 #include "tColormapPickWidget.h"
 #include "tContrastWidget.h"
@@ -33,7 +34,9 @@ public:
             for (int i = meta.methodOffset(); i < meta.methodCount(); ++i) {
                 auto thisname = QString::fromLatin1(meta.method(i).name());
                 if (meta.method(i).methodType() == QMetaMethod::MethodType::Slot &&
-                    thisname != "cleanup" && thisname != "init" && thisname != "cleanupTestCase" && thisname != "initTestCase" && thisname != "initTestCase_data") {
+                    thisname != "cleanup" && thisname != "init" && 
+                    thisname != "cleanupTestCase" && thisname != "initTestCase" 
+                    && !thisname.endsWith("_data")) {
                     ret.push_back(suite + "." + thisname);
                 }
             }

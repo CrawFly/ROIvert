@@ -14,6 +14,7 @@ private slots:
     void initTestCase();
     void init();
     void cleanup();
+    void cleanupTestCase();
     
     void tsetgetcontrast();
     void tsetgetprojectionmode();
