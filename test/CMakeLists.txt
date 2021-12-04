@@ -9,6 +9,8 @@ target_sources(ROIVertTest
         tContrastWidget.h
         tDisplaySettings.cpp
         tDisplaySettings.h
+        tMiscSmallWidgets.cpp
+        tMiscSmallWidgets.h
         tROIStyle.cpp
         tROIStyle.h
         tVideoControllerWidget.cpp
