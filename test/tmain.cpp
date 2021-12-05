@@ -8,7 +8,9 @@
 #include "tROIStyle.h"
 #include "tVideoControllerWidget.h"
 #include "tMiscSmallWidgets.h"
+#include "tVideoData.h"
 #include <iostream>
+
 
 typedef QObject * (*QConstructor)();
 
@@ -168,6 +170,7 @@ int main(int argc, char** argv)
     bank.addSuite<tROIStyle>();
     bank.addSuite<tVideoControllerWidget>();
     bank.addSuite<tMiscSmallWidgets>();
+    bank.addSuite<tVideoData>();
 
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);

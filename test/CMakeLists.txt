@@ -15,4 +15,8 @@ target_sources(ROIVertTest
         tROIStyle.h
         tVideoControllerWidget.cpp
         tVideoControllerWidget.h
+        tVideoData.cpp
+        tVideoData.h
+        roiverttestdata.json
+        roiverttestdata.tiff
 )
