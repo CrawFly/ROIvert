@@ -277,10 +277,12 @@ cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const
         return res;
     }
 
+    cv::Mat boundedMu = get(false, 3, 0)(cvbb);
+    cv::bitwise_and(mask, boundedMu > 0, mask);
+
     for (size_t i = 0; i < getNFrames(); ++i)
     {
         cv::Mat boundedRaw = get(false, 0, i)(cvbb);
-        cv::Mat boundedMu = get(false, 3, i)(cvbb);
         boundedRaw.convertTo(boundedRaw, CV_32FC1);
         boundedMu.convertTo(boundedMu, CV_32FC1);
         cv::Mat boundedDff = (boundedRaw - boundedMu) / boundedMu;
