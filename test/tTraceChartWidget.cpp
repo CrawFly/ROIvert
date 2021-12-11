@@ -86,6 +86,8 @@ void tTraceChartWidget::tnormalization() {
     QFETCH(float, ymax);
     
     auto style = std::make_shared<ChartStyle>();
+    
+    style->setNormalization(static_cast<ROIVert::NORMALIZATION>(norm + 1 % 6));
     auto series = makeSeriesHelper(0, 1, { 0.f, 1.f, 2.f, 3.f, 4.f }, style);
     chart->addSeries(series);
 
@@ -222,7 +224,99 @@ void tTraceChartWidget::tclick() {
     QCOMPARE(hitseries.size(), 0);
 }
 
-// todo: saveasimage...feels like it might belong in fileio, needs a file fixture?
-// todo: minimumsizehint...waiting for this until more progress on sizing and AR
-// todo: series, axis, ridgeline
+void tTraceChartWidget::tseriesdata() {
+    // series extents tested elsewhere, test set/get with a swap:
+    auto series1 = makeSeriesHelper(0, 1, { 0.f, 1.f }, defstyle);
+    auto series2 = makeSeriesHelper(2, 3, { 2.f, 3.f }, defstyle);
 
+    cv::Mat data1 = series1->getData();
+    cv::Mat data2 = series2->getData();
+
+    series1->setData(data2);
+    series2->setData(data1);
+    
+    QCOMPARE(series1->getData().at<float>(0), 2.f);
+    QCOMPARE(series1->getData().at<float>(1), 3.f);
+    QCOMPARE(series2->getData().at<float>(0), 0.f);
+    QCOMPARE(series2->getData().at<float>(1), 1.f);
+    
+    // coercion out of float test:
+    cv::Mat dataint(1, 2, CV_8U);
+    dataint.at<uint8_t>(0, 0) = 1;
+    dataint.at<uint8_t>(0, 1) = 2;
+    series1->setData(dataint);
+    QCOMPARE(series1->getData().at<float>(0), 1.f);
+    QCOMPARE(series1->getData().at<float>(1), 2.f);
+}
+void tTraceChartWidget::tseriesextents() {
+    
+    double xmin = 2., xmax = 3.;
+    float ymin = 4., ymax = 5.;
+    auto series = makeSeriesHelper(xmin, xmax, { ymin, ymax, (ymin+ymax)/2.f }, defstyle);
+    
+    QCOMPARE(series->getXMin(), xmin);
+    QCOMPARE(series->getXMax(), xmax);
+    QCOMPARE(series->getYMin(), ymin);
+    QCOMPARE(series->getYMax(), ymax);
+
+    QCOMPARE(series->getExtents(), QRectF(QPointF(xmin, ymin), QPointF(xmax, ymax)));
+}
+
+void tTraceChartWidget::tseriesoffset() {
+    auto series = makeSeriesHelper(0, 1, { 1.f, 2.f }, defstyle);
+    series->setOffset(4.2f);
+    QCOMPARE(series->getOffset(), 4.2f);
+    QCOMPARE(series->getYMin(), 5.2f);
+    QCOMPARE(series->getYMax(), 6.2f);
+}
+
+void tTraceChartWidget::tseriesdegendata() {
+    // absent data for a series:
+    TraceChartSeries nodataseries;
+    QCOMPARE(nodataseries.getYMin(), 0);
+    QCOMPARE(nodataseries.getYMax(), 1);
+
+    auto style = std::make_shared<ChartStyle>();
+    auto novarseries = makeSeriesHelper(0., 1., { 1.5f, 1.5f, 1.5f, 1.5f }, style);
+    QCOMPARE(novarseries->getYMin(), 0.5);
+    QCOMPARE(novarseries->getYMax(), 2.5);
+
+    style->setNormalization(ROIVert::NORMALIZATION::MEDIQR);
+    novarseries->updatePoly();
+    QCOMPARE(novarseries->getYMin(), -1.);
+    QCOMPARE(novarseries->getYMax(), 1.);
+
+    
+    style->setNormalization(ROIVert::NORMALIZATION::ZSCORE);
+    novarseries->updatePoly();
+    QCOMPARE(novarseries->getYMin(), -1.);
+    QCOMPARE(novarseries->getYMax(), 1.);
+    
+    //updatePoly
+}
+
+void tTraceChartWidget::tseriespaint() {
+    // todo: 
+    //  create a window, find the polys, test various style bits and highlighting etc. 
+}
+void tTraceChartWidget::tseriessetstyle() {
+    // todo:
+    //  set style to a different object
+}
+
+// todo axis:
+//  **  think it's worth adding a tick value axx...it's worth it for test here
+//  1. limits stuff
+//  2. labels, labels and layout
+//  3. length, thickeness, margins, spacings (probably need a tlayout at the chart level)
+//  4. something on ticks, MaxNTicks
+// todo: ridgeline
+
+// todo chart: 
+//      test that plotbox accounts for title thickness in paint
+//      saveasimage...feels like it might belong in fileio, needs a file fixture?
+//      minimumsizehint...waiting for this until more progress on sizing and AR
+
+// todo series:
+//      tseriespaint
+//      tseriessetstyle

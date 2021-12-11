@@ -111,6 +111,12 @@ void TraceChartSeries::setData(cv::Mat data)
 {
     impl->setData(data);
 }
+
+cv::Mat TraceChartSeries::getData() const noexcept
+{
+    return impl->data;
+}
+
 void TraceChartSeries::paint(QPainter &painter, const QColor &lineColor, const QColor &fillColor, const QTransform &T, const double &ymin)
 {
     impl->paint(painter, lineColor, fillColor, T, ymin);
@@ -232,6 +238,7 @@ void TraceChartSeries::pimpl::updatePoly()
     path.clear();
     path.addPolygon(p2);
 }
+
 void TraceChartSeries::pimpl::updateYExtents()
 {
     if (normdata.empty())
@@ -258,6 +265,7 @@ void TraceChartSeries::pimpl::setOffset(float off) noexcept
     updateYExtents();
     updatePoly();
 }
+
 float TraceChartSeries::pimpl::getOffset() const noexcept
 {
     return offset;

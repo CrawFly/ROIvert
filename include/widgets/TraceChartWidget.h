@@ -76,8 +76,6 @@ public:
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
     
-    void setStyle(const ChartStyle&) noexcept;
-
     bool polyContains(const QPointF&);
     void setHighlighted(bool);
         

@@ -18,6 +18,13 @@ private slots:
     void ttitle();
     void tantialiasing();
     void tclick();
+    
+    void tseriesdata();
+    void tseriesextents();
+    void tseriesoffset();
+    void tseriesdegendata();
+    void tseriespaint();
+    void tseriessetstyle();
 
 private:
     TraceChartWidget* chart;
