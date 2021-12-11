@@ -23,8 +23,15 @@ private slots:
     void tseriesextents();
     void tseriesoffset();
     void tseriesdegendata();
-    void tseriespaint();
     void tseriessetstyle();
+
+    void taxislimits();
+    void taxisticks();
+    void taxisthickness_data();
+    void taxisthickness();
+
+    void tridgeline();
+
 
 private:
     TraceChartWidget* chart;

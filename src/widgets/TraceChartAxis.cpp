@@ -300,7 +300,7 @@ void TraceChartHAxis::updateLayout()
     TraceChartAxis::updateLayout();
     impl->ticklabelthickness = impl->chartstyle->getTickLabelFontMetrics().height();
 
-    // set the thickness to the sumb of everything:
+    // set the thickness to the sum of everything:
     impl->position.setHeight(impl->thickness());
 }
 void TraceChartHAxis::setLength(const int &length) noexcept
@@ -429,4 +429,9 @@ ROIVert::LIMITSTYLE TraceChartVAxis::getLimitStyle() const
 ROIVert::LIMITSTYLE TraceChartAxis::getLimitStyle() const
 {
     return ROIVert::LIMITSTYLE::AUTO;
+}
+
+std::vector<double> TraceChartAxis::getTickValues() const noexcept
+{
+    return impl->tickvalues;
 }

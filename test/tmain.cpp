@@ -117,6 +117,20 @@ namespace {
         }
         std::cout << std::endl;
     }
+    size_t countsuites(const QMap<QString, QStringList>& testset) {
+        return testset.count();
+    }
+    size_t countcases(const QMap<QString, QStringList>& testset) {
+        size_t ret = 0;
+        for (const auto& s : testset.keys()) {
+            for (const auto& t : testset[s]) {
+                ret++;
+            }
+        }
+        return ret;
+    }
+
+
     void printresults(QFile& source, bool disablepretty, QFile& outfile) {
         bool doFile = !outfile.fileName().isEmpty();
         bool doPretty = !doFile && !disablepretty;
@@ -188,6 +202,9 @@ int main(int argc, char** argv)
     parser.addOption({ {"s", "silent"}, "Silent output (passthrough to Qt Test)" });
     parser.addOption({ {"v", "verbosity"}, "Verbosity (passthrough to Qt Test)", "1|2|s" });
     parser.addOption({ {"d", "disableformatting"}, "Disable pretty formatting (for terminals that don't support ANSI formatting)." });
+    parser.addOption({ {"C", "countsuites"}, "Count the number of test suites." });
+    parser.addOption({ {"c", "countcases"}, "Count the number of test cases." });
+    
     // options:
     parser.process(app);
     if (parser.isSet("h")) {
@@ -208,6 +225,17 @@ int main(int argc, char** argv)
         printcases(testset);
         return 0;
     }
+    
+    if (parser.isSet("C")) {
+        std::cout << "\n" << "Number of Suites: " << countsuites(testset) << std::endl;
+        return 0;
+    }
+    
+    if (parser.isSet("c")) {
+        std::cout << "\n" << "Number of Cases: " << countcases(testset) << std::endl;
+        return 0;
+    }
+    
     // todo: summarize results
     
     QFile tempfile("ROIVertTestResultsTemporaryFile");

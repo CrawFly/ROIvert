@@ -291,32 +291,166 @@ void tTraceChartWidget::tseriesdegendata() {
     novarseries->updatePoly();
     QCOMPARE(novarseries->getYMin(), -1.);
     QCOMPARE(novarseries->getYMax(), 1.);
-    
-    //updatePoly
 }
 
-void tTraceChartWidget::tseriespaint() {
-    // todo: 
-    //  create a window, find the polys, test various style bits and highlighting etc. 
-}
 void tTraceChartWidget::tseriessetstyle() {
-    // todo:
-    //  set style to a different object
+    auto style1 = std::make_shared<ChartStyle>();
+    auto style2 = std::make_shared<ChartStyle>();
+    style1->setNormalization(ROIVert::NORMALIZATION::NONE);
+    style2->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
+
+    auto series = makeSeriesHelper(0, 1, { 1., 100. }, style1);
+    QCOMPARE(series->getYMax(), 100.);
+    
+    series->setStyle(style2);
+    series->updatePoly();
+    QVERIFY(std::abs(series->getYMax() - 1.) < .001);
 }
 
-// todo axis:
-//  **  think it's worth adding a tick value axx...it's worth it for test here
-//  1. limits stuff
-//  2. labels, labels and layout
-//  3. length, thickeness, margins, spacings (probably need a tlayout at the chart level)
-//  4. something on ticks, MaxNTicks
-// todo: ridgeline
+void tTraceChartWidget::taxislimits() {
 
-// todo chart: 
-//      test that plotbox accounts for title thickness in paint
-//      saveasimage...feels like it might belong in fileio, needs a file fixture?
-//      minimumsizehint...waiting for this until more progress on sizing and AR
+    auto style = std::make_shared<ChartStyle>();
+    style->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+    TraceChartVAxis ax(style);
+    ax.setExtents(1., 2.);
+    QCOMPARE(std::get<0>(ax.getExtents()), 1.);
+    QCOMPARE(std::get<1>(ax.getExtents()), 2.);
+    QCOMPARE(std::get<0>(ax.getLimits()), 1.);
+    QCOMPARE(std::get<1>(ax.getLimits()), 2.);
 
-// todo series:
-//      tseriespaint
-//      tseriessetstyle
+    ax.setExtents(-std::sqrt(2), 3.49);
+    QCOMPARE(std::get<0>(ax.getExtents()), -std::sqrt(2));
+    QCOMPARE(std::get<1>(ax.getExtents()), 3.49);
+    QCOMPARE(std::get<0>(ax.getLimits()), -1.5);
+    QCOMPARE(std::get<1>(ax.getLimits()), 3.5);
+
+    style->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    QCOMPARE(std::get<0>(ax.getLimits()), -std::sqrt(2));
+    QCOMPARE(std::get<1>(ax.getLimits()), 3.49);
+    
+    style->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+    ax.setManualLimits(4., 5.);
+    QCOMPARE(std::get<0>(ax.getLimits()), 4.);
+    QCOMPARE(std::get<1>(ax.getLimits()), 5.);
+    
+    
+    style->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
+    QCOMPARE(std::get<0>(ax.getLimits()), 0.);
+    QCOMPARE(std::get<1>(ax.getLimits()), 1.);
+    
+    // ** note that haxis is always auto:
+    TraceChartHAxis hax(style);
+    hax.setExtents(-std::sqrt(2), 3.49);
+    QCOMPARE(std::get<0>(hax.getExtents()), -std::sqrt(2));
+    QCOMPARE(std::get<1>(hax.getExtents()), 3.49);
+    QCOMPARE(std::get<0>(hax.getLimits()), -1.5);
+    QCOMPARE(std::get<1>(hax.getLimits()), 3.5);
+}
+
+void tTraceChartWidget::taxisticks() {
+    auto style = std::make_shared<ChartStyle>();
+    TraceChartVAxis ax(style);
+    ax.setExtents(0, 10.);
+    
+    // the actual ticks will be up to 2 more than the setting...
+    ax.setMaxNTicks(5);
+    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 2., 4., 6., 8., 10.}));
+    ax.setMaxNTicks(11);
+    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}));
+    ax.setMaxNTicks(20);
+    QCOMPARE(ax.getTickValues(), std::vector<double>({0., .5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8., 8.5, 9., 9.5, 10.}));
+    int withdec = ax.getThickness();
+
+    ax.setMaxNTicks(2);
+    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 5., 10.}));
+    int withoutdec = ax.getThickness();
+
+    QVERIFY(withoutdec < withdec);
+}
+
+void tTraceChartWidget::taxisthickness_data() {
+    
+    
+    QTest::addColumn<QString>("font");
+    QTest::addColumn<int>("tickfontsize");
+    QTest::addColumn<int>("lblfontsize");
+    QTest::addColumn<int>("ticklength");
+    QTest::addColumn<int>("labelspacing");
+    QTest::addColumn<int>("ticklabelspacing");
+    QTest::addColumn<int>("tickmarkspacing");
+    QTest::addColumn<QString>("label");
+    QTest::addColumn<int>("exp_h");
+    QTest::addColumn<int>("exp_v");
+
+    QTest::newRow("1") << "Arial" << 5 << 10 << 3 << 1 << 2 << 3 << "ABC" << 45 << 47;
+    QTest::newRow("2") << "Arial" << 10 << 10 << 3 << 1 << 2 << 3 << "ABC" << 55 << 60;
+    QTest::newRow("3") << "Arial" << 5 << 20 << 3 << 1 << 2 << 3 << "ABC" << 67 << 69;
+    QTest::newRow("4") << "Arial" << 10 << 20 << 3 << 1 << 2 << 3 << "ABC" << 77 << 82;
+    QTest::newRow("5") << "Arial" << 5 << 10 << 5 << 7 << 3 << 5 << "ABC" << 56 << 58;
+    QTest::newRow("6") << "Arial" << 10 << 10 << 6 << 9 << 4 << 6 << "ABC" << 71 << 76;
+    QTest::newRow("7") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 86 << 88;
+    QTest::newRow("8") << "Arial" << 10 << 20 << 9 << 10 << 6 << 8 << "ABC" << 101 << 106;
+    QTest::newRow("9") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 86 << 88;
+    QTest::newRow("10") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABCDEFG" << 86 << 88;
+    QTest::newRow("11") << "Courier" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 73 << 81;
+    
+
+}
+
+void tTraceChartWidget::taxisthickness() {
+    // return + ticklength;
+    QFETCH(QString, font);
+    QFETCH(int, tickfontsize);
+    QFETCH(int, lblfontsize);
+    QFETCH(int, ticklength);
+    QFETCH(int, labelspacing);
+    QFETCH(int, ticklabelspacing);
+    QFETCH(int, tickmarkspacing);
+    QFETCH(QString, label);
+
+    auto style = std::make_shared<ChartStyle>();
+    style->setFontFamily(font);
+    style->setTickLabelFontSize(tickfontsize);
+    style->setLabelFontSize(lblfontsize);
+    
+    TraceChartHAxis hax(style);
+    hax.setTickLength(ticklength);
+    hax.setSpacings(labelspacing, ticklabelspacing, tickmarkspacing);
+    hax.setLabel(label);
+
+    TraceChartVAxis vax(style);
+    vax.setTickLength(ticklength);
+    vax.setSpacings(labelspacing, ticklabelspacing, tickmarkspacing);
+    vax.setLabel(label);
+    
+    QFETCH(int, exp_h);
+    QFETCH(int, exp_v);
+    QCOMPARE(hax.getThickness(), exp_h);
+    QCOMPARE(vax.getThickness(), exp_v);
+}
+
+void tTraceChartWidget::tridgeline() {
+    auto ridge = RidgeLineWidget();
+    
+    QCOMPARE(ridge.getYAxis()->getVisible(), false);
+    QCOMPARE(ridge.getXAxis()->getVisible(), true);
+    QCOMPARE(ridge.getXAxis()->getLabel(), "Time (s)");
+
+    ridge.offset = 1.5;
+    auto series1 = makeSeriesHelper(0, 1, { 0.f }, defstyle);
+    ridge.addSeries(series1);
+    auto series2 = makeSeriesHelper(0, 1, { 4.f }, defstyle);
+    ridge.addSeries(series2);
+    auto series3 = makeSeriesHelper(0, 1, { 4.f }, defstyle);
+    ridge.addSeries(series3);
+    ridge.updateOffsets();
+
+    QCOMPARE(series1->getOffset(), 0.);
+    QCOMPARE(series2->getOffset(), -1.5);
+    QCOMPARE(series3->getOffset(), -3.);
+}
+
+// todo:
+// unclear how to test paint in general, other than a snapshot
+// saveasimage...feels like it might belong in fileio, needs a file fixture? But maybe this is the snapshot test?
+// minimumsizehint...waiting for this until more progress on sizing and AR

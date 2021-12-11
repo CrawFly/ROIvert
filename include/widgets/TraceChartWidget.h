@@ -119,6 +119,7 @@ public:
     void setPlotBox(QRect);
     void setManualLimits(qreal min, qreal max);
 
+    std::vector<double> getTickValues() const noexcept;
 
 protected:
     // this updates the tick values, the ticklabelthickness, and the margins. It needs to be called if the font changes or the labels change.
