@@ -184,7 +184,7 @@ void TraceChartWidget::saveAsImage(const QString &filename, int w, int h, int qu
     {
         const auto minsize = impl->estimateMinimumSize();
         setFixedSize(std::max(minsize.width(), w), std::max(minsize.height(), h));
-        // *** consider adding a flag for normalzie fonts...that might be a tad tricky :)
+        // todo: consider adding a flag for normalize fonts...?
     }
     setContentsMargins(0, 0, 0, 0);
 

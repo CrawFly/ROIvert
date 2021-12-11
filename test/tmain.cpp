@@ -5,9 +5,10 @@
 #include "tColormapPickWidget.h"
 #include "tContrastWidget.h"
 #include "tDisplaySettings.h"
-#include "tROIStyle.h"
-#include "tVideoControllerWidget.h"
 #include "tMiscSmallWidgets.h"
+#include "tROIStyle.h"
+#include "tTraceChartWidget.h"
+#include "tVideoControllerWidget.h"
 #include "tVideoData.h"
 #include <iostream>
 
@@ -167,10 +168,11 @@ int main(int argc, char** argv)
     bank.addSuite<tColormapPickWidget>();
     bank.addSuite<tContrastWidget>();
     bank.addSuite<tDisplaySettings>();
-    bank.addSuite<tROIStyle>();
-    bank.addSuite<tVideoControllerWidget>();
     bank.addSuite<tMiscSmallWidgets>();
+    bank.addSuite<tROIStyle>();
+    bank.addSuite<tTraceChartWidget>();
     bank.addSuite<tVideoData>();
+    bank.addSuite<tVideoControllerWidget>();
 
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);

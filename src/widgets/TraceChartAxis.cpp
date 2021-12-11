@@ -109,7 +109,6 @@ TraceChartAxis::TraceChartAxis(std::shared_ptr<ChartStyle> style) : impl(std::ma
 TraceChartAxis::~TraceChartAxis() = default;
 void TraceChartAxis::setStyle(std::shared_ptr<ChartStyle> style)
 {
-
     impl->chartstyle = style == nullptr ? std::make_shared<ChartStyle>() : style;
     updateLayout();
 }

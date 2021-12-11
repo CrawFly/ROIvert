@@ -21,7 +21,6 @@ public:
     ChartStyle* getStyle();
     void updateStyle();
 
-
     void addSeries(std::shared_ptr<TraceChartSeries>);
     void removeSeries(std::shared_ptr<TraceChartSeries>) noexcept;
     std::vector<std::shared_ptr<TraceChartSeries>> getSeries() const;
@@ -39,8 +38,6 @@ public:
     QSize minimumSizeHint() const override;
 
     void updateExtents();
-
-
 signals:
     void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
 
