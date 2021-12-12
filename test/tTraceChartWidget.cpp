@@ -427,6 +427,11 @@ void tTraceChartWidget::taxisthickness() {
     QFETCH(int, exp_v);
     QCOMPARE(hax.getThickness(), exp_h);
     QCOMPARE(vax.getThickness(), exp_v);
+
+    hax.setVisible(false);
+    vax.setVisible(false);
+    QCOMPARE(hax.getThickness(), 0.);
+    QCOMPARE(vax.getThickness(), 0.);
 }
 
 void tTraceChartWidget::tridgeline() {
