@@ -132,7 +132,7 @@ namespace {
     }
 
 
-    void printresults(QFile& source, bool disablepretty, QFile& outfile) {
+    std::array<size_t,3> printresults(QFile& source, bool disablepretty, QFile& outfile) {
         bool doFile = !outfile.fileName().isEmpty();
         bool doPretty = !doFile && !disablepretty;
 
@@ -141,6 +141,8 @@ namespace {
             outstream.setDevice(&outfile);
         }
         
+        std::array<size_t, 3> ret({ 0,0,0 });
+
         QTextStream in(&source);
         while (!in.atEnd())
         {
@@ -148,6 +150,11 @@ namespace {
             if (!line.startsWith("***")) {
                 line = "  " + line;
             }
+
+            ret[0] += line.startsWith("  PASS");
+            ret[1] += line.startsWith("  FAIL");
+            ret[2] += line.startsWith("  XFAIL");
+
             if (doPretty) {
                 line = line.replace("PASS", "\033[32mPASS\033[0m");
                 line = line.replace("FAIL!", "\033[31mFAIL!\033[0m");
@@ -161,6 +168,7 @@ namespace {
                 std::cout << line.toStdString() << "\n";
             }
         }
+        return ret;
     }
 }
 
@@ -252,6 +260,10 @@ int main(int argc, char** argv)
         }
     }
 
+    QElapsedTimer t;
+    t.start();
+    std::array<size_t, 3> totals_case({ 0,0,0 });
+    size_t totalpassed=0, totalfailed=0;
     for (const auto& s : testset.keys()) {
         auto obj = bank.create(s);
         QStringList params = { "" };    // First parameter always blank
@@ -269,9 +281,26 @@ int main(int argc, char** argv)
             std::cerr << "Error reading temporary file.\n";
             return 1;
         }
-        printresults(tempfile, parser.isSet("d"), outfile);
+        std::array<size_t,3> res = printresults(tempfile, parser.isSet("d"), outfile);
+        for (size_t i = 0; i < 3; ++i) {
+            totals_case[i] += res[i];
+        }
+        totalpassed += static_cast<size_t>(res[1] == 0);
+        totalfailed += static_cast<size_t>(res[1] != 0);
+        
         tempfile.close();
     }
+
+    std::cout << "\nSummary\n-------\n"
+        << "Cases Passed:\t\033[32m" << totals_case[0] << "\033[0m\n"
+        << "Cases Failed:\t\033[31m" << totals_case[1] << "\033[0m\n"
+        << "Cases Ignored:\t\033[33m" << totals_case[2] << "\033[0m\n"
+        << "Suites Passed:\t\033[32m" << totalpassed << "\033[0m\n"
+        << "Suites Failed:\t\033[31m" << totalfailed << "\033[0m\n"
+        << "Duration:\t" << (float)t.elapsed()/1000.f << "s\n"
+        << std::endl;
+
+
     if (!outfile.fileName().isEmpty()) {
         outfile.close();
     }    
