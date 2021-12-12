@@ -11,5 +11,6 @@ private slots:
     void tSmoothingPickWidgetSignal();
     void tRGBWidget();
     void tProjectionPickWidget();
+    void tFileIOWidget();
 };
 

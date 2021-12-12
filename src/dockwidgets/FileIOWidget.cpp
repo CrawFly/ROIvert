@@ -62,6 +62,12 @@ struct FileIOWidget::pimpl
         cmdImpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
         cmdExpROIs.setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
+        cmdExpTraces.setObjectName("cmdExpTraces");
+        cmdExpROIs.setObjectName("cmdExpROIs");
+        cmdImpROIs.setObjectName("cmdImpROIs");
+        cmdExpCharts.setObjectName("cmdExpCharts");
+        cmdExpRidge.setObjectName("cmdExpRidge");
+        
         lay.setContentsMargins(10, 0, 10, 10);
     }
     void doLayout()
@@ -137,7 +143,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
                 {
                     initpath = windowFilePath();
                 }
-                QString filename = QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
+                QString filename = testoverride ? QDir::currentPath()  + "/foo.csv" : 
+                    QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
                 if (!filename.isEmpty())
                 {
                     windowFilePath() = QFileInfo(filename).absolutePath();
@@ -153,7 +160,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
                 {
                     initpath = windowFilePath();
                 }
-                QString filename = QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("JavaScript Object Notation (*.json)"));
+                QString filename = testoverride ? QDir::currentPath()  + "/foo.json" : 
+                    QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("JavaScript Object Notation (*.json)"));
                 if (!filename.isEmpty())
                 {
                     windowFilePath() = QFileInfo(filename).absolutePath();
@@ -168,7 +176,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
                 {
                     initpath = windowFilePath();
                 }
-                QString filename = QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("JavaScript Object Notation (*.json)"));
+                QString filename = testoverride ? QDir::currentPath()  + "/foo.json" : 
+                    QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("JavaScript Object Notation (*.json)"));
                 if (!filename.isEmpty())
                 {
                     setWindowFilePath(QFileInfo(filename).absolutePath());
@@ -183,7 +192,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
                 {
                     initpath = windowFilePath();
                 }
-                QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
+                QString filename = testoverride ? QDir::currentPath()  + "/foo.jpeg" : 
+                    QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
                 if (!filename.isEmpty())
                 {
                     setWindowFilePath(QFileInfo(filename).absolutePath());
@@ -198,7 +208,8 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
                 {
                     initpath = windowFilePath();
                 }
-                QString filename = QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
+                QString filename = testoverride ? QDir::currentPath()  + "/foo.jpeg" : 
+                    QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
                 if (!filename.isEmpty())
                 {
                     setWindowFilePath(QFileInfo(filename).absolutePath());

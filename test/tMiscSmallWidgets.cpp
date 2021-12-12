@@ -7,6 +7,7 @@
 #include "widgets/SmoothingPickWidget.h"
 #include "widgets/RGBWidget.h"
 #include "widgets/ProjectionPickWidget.h"
+#include "dockwidgets/FileIOWidget.h"
 
 void tMiscSmallWidgets::tSmoothingPickWidget_data() {
 
@@ -89,4 +90,49 @@ void tMiscSmallWidgets::tProjectionPickWidget()
     
     QCOMPARE(widget->getProjection(), 2);
     QCOMPARE(firecount, 1);
+}
+
+void tMiscSmallWidgets::tFileIOWidget() {
+    FileIOWidget w;
+    w.testoverride = true;
+    {
+        auto cmd = w.findChild<QPushButton*>("cmdExpTraces");
+        QString actfn;
+        connect(&w, &FileIOWidget::exportTraces, [&](QString fn, bool, bool) {actfn = fn; });
+        cmd->click();
+        QCOMPARE(actfn, QDir::currentPath() + "/foo.csv");
+    }
+    {
+        auto cmd = w.findChild<QPushButton*>("cmdExpROIs");
+        QString actfn;
+        connect(&w, &FileIOWidget::exportROIs, [&](QString fn) {actfn = fn; });
+        cmd->click();
+        QCOMPARE(actfn, QDir::currentPath() + "/foo.json");
+    }
+    {
+        auto cmd = w.findChild<QPushButton*>("cmdImpROIs");
+        QString actfn;
+        connect(&w, &FileIOWidget::importROIs, [&](QString fn) {actfn = fn; });
+        cmd->click();
+        QCOMPARE(actfn, QDir::currentPath() + "/foo.json");
+    }
+    {
+        auto cmd = w.findChild<QPushButton*>("cmdExpCharts");
+        QString actfn;
+        bool actisridge = false;
+        connect(&w, &FileIOWidget::exportCharts, [&](QString fn, int, int, int, bool isridge) {actfn = fn; actisridge = isridge; });
+        cmd->click();
+        QCOMPARE(actfn, QDir::currentPath() + "/foo.jpeg");
+        QVERIFY(!actisridge);
+    }
+    
+    {
+        auto cmd = w.findChild<QPushButton*>("cmdExpRidge");
+        QString actfn;
+        bool actisridge = false;
+        connect(&w, &FileIOWidget::exportCharts, [&](QString fn, int, int, int, bool isridge) {actfn = fn; actisridge = isridge; });
+        cmd->click();
+        QCOMPARE(actfn, QDir::currentPath() + "/foo.jpeg");
+        QVERIFY(actisridge);
+    }
 }
