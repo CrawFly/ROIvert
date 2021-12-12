@@ -345,7 +345,6 @@ void ROIs::roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>)
 {
     // need to force an update after an edit completion to clean up artifact pixels outside of image rect.
     impl->scene->update();
-
     impl->updateYLimits();
 }
 
@@ -505,5 +504,4 @@ void ROIs::setMatchYAxes(bool onoff)
 {
     impl->setMatchYAxes(onoff);
 }
-
 bool ROIs::getMatchYAxes() const noexcept { return impl->matchyaxes; }

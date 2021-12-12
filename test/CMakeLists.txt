@@ -11,6 +11,8 @@ target_sources(ROIVertTest
         tDisplaySettings.h
         tMiscSmallWidgets.cpp
         tMiscSmallWidgets.h
+        tROIs.cpp
+        tROIs.h
         tROIStyle.cpp
         tROIStyle.h
         tTraceChartWidget.cpp

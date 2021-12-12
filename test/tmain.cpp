@@ -6,6 +6,7 @@
 #include "tContrastWidget.h"
 #include "tDisplaySettings.h"
 #include "tMiscSmallWidgets.h"
+#include "tROIs.h"
 #include "tROIStyle.h"
 #include "tTraceChartWidget.h"
 #include "tVideoControllerWidget.h"
@@ -183,6 +184,7 @@ int main(int argc, char** argv)
     bank.addSuite<tContrastWidget>();
     bank.addSuite<tDisplaySettings>();
     bank.addSuite<tMiscSmallWidgets>();
+    bank.addSuite<tROIs>();
     bank.addSuite<tROIStyle>();
     bank.addSuite<tTraceChartWidget>();
     bank.addSuite<tVideoData>();

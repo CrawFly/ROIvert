@@ -20,6 +20,7 @@ public:
     ~ROIs();
 
     std::vector<size_t> getSelected() const noexcept;
+
     ROIStyle* getROIStyle(size_t ind) const noexcept;
     ROIStyle* getCoreROIStyle() const noexcept;
 
