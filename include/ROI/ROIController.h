@@ -16,6 +16,10 @@ class ROIController : public QObject {
 public:
     ROIController(ROIs*, TraceViewWidget*, ImageView*);
     ~ROIController();
+    
+    void setSelected(std::vector<size_t>);
+    std::vector<size_t> getSelected() const noexcept;
+    void unselect(std::vector<size_t> inds);
 
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
@@ -26,8 +30,6 @@ public slots:
     void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
 
 private:
-    ROIs* rois;
-    TraceViewWidget* tview;
-    ImageView* iview;
-    ROIVert::SHAPE mousemode{ ROIVert::SHAPE::ELLIPSE };
+    struct pimpl;
+    std::unique_ptr<pimpl> impl;
 };

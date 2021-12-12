@@ -9,10 +9,7 @@
 #include "ImageView.h"
 
 
-// todo: consider moving selected in here
-
 namespace {
-    
     bool outofbounds(const QPointF pt, const QSize& imgsize) noexcept
     {
         return !QRectF(0, 0, imgsize.width(), imgsize.height()).contains(pt);
@@ -22,8 +19,8 @@ namespace {
     {
         //  there's a very rare bug, where when drawing a poly it doesn't hit itself
         // this only happens on the initial draw, which means it's on the back of the stack
-        auto n = rois->getNROIs();
-        ROI* backroi = n > 0 ? rois->getROI(n-1) : nullptr;
+        auto n = rois->size();
+        const ROI* backroi = n > 0 ? &((*rois)[n-1]) : nullptr;
         
         if (backroi && 
             backroi->graphicsShape->getShapeType() == ROIVert::SHAPE::POLYGON &&
@@ -48,9 +45,22 @@ namespace {
         }
         return false;
     }
+}
 
-    void selectPress(QList<QGraphicsItem *> hititems, const QMouseEvent *event, ROIs* rois)
+
+struct ROIController::pimpl
+{
+    pimpl(ROIs* r, TraceViewWidget* t, ImageView* i) : rois(r), tview(t), iview(i) { }
+
+    ROIs* rois;
+    TraceViewWidget* tview;
+    ImageView* iview;
+    ROIVert::SHAPE mousemode{ ROIVert::SHAPE::ELLIPSE };
+    std::vector<size_t> selectedROIs;
+
+    void selectPress(QList<QGraphicsItem *> hititems, const QMouseEvent *event)
     {
+        // this is mouse presses when selecting
         const bool isShiftMod = event->modifiers() == Qt::KeyboardModifier::ShiftModifier;
         if (!hititems.isEmpty())
         {
@@ -62,116 +72,156 @@ namespace {
                 std::vector<size_t> inds = {sel};
                 if (isShiftMod)
                 {
-                    inds = rois->getSelected();
+                    inds = selectedROIs;
                     auto it = std::find(inds.begin(), inds.end(), sel);
                     if (it == inds.end())
                         inds.push_back(sel);
                     else
                         inds.erase(it);
                 }
-                rois->setSelected(inds);
+                setSelected(inds);
             }
             else if (!isShiftMod)
             {
-                rois->setSelected(std::vector<size_t>());
+                setSelected(std::vector<size_t>());
             }
         }
     }
-}
 
-ROIController::ROIController(ROIs* r, TraceViewWidget* t, ImageView* i) : rois(r), tview(t), iview(i) {}
-
-ROIController::~ROIController() {}
-
-void ROIController::keyPress(int key, Qt::KeyboardModifiers mods)
-{
-    if (key == Qt::Key::Key_Delete)
-    {
-        // delete all selected rois
-        auto selrois = rois->getSelected();
-        if (!selrois.empty())
+    void keyPress(int key, Qt::KeyboardModifiers mods) {
+        if (key == Qt::Key::Key_Delete)
         {
-            rois->deleteROIs(selrois);
+            // delete all selected rois
+            auto selrois = selectedROIs;
+            if (!selrois.empty())
+            {
+                rois->deleteROIs(selrois);
+            }
+        }
+        else if (key == Qt::Key::Key_A && mods == Qt::KeyboardModifier::ControlModifier)
+        {
+            // select all
+            std::vector<size_t> inds(rois->size());
+            std::iota(inds.begin(), inds.end(), 0);
+            setSelected(inds);
         }
     }
-    else if (key == Qt::Key::Key_A && mods == Qt::KeyboardModifier::ControlModifier)
-    {
-        // select all
-        std::vector<size_t> inds(rois->getNROIs());
-        std::iota(inds.begin(), inds.end(), 0);
-        rois->setSelected(inds);
-    }
-}
+    void chartClick(TraceChartWidget* chart, std::vector<TraceChartSeries*> series, Qt::KeyboardModifiers mods) {
+        int ind{-1};
 
-void ROIController::chartClick(TraceChartWidget *chart, std::vector<TraceChartSeries *> series, Qt::KeyboardModifiers mods)
-{
-    int ind{-1};
+        if (chart == &tview->getRidgeChart() && !series.empty()) ind = rois->getIndex(series.back());
+        else ind = rois->getIndex(chart);
 
-    if (chart == &tview->getRidgeChart() && !series.empty())
-    {
-        ind = rois->getIndex(series.back());
-    }
-    else
-    {
-        ind = rois->getIndex(chart);
-    }
+        if (ind == -1 && mods == Qt::ShiftModifier) return;
 
-    if (ind == -1 && mods == Qt::ShiftModifier)
-    {
-        return;
-    }
-
-    std::vector<size_t> inds;
-
-    if (ind > -1)
-    {
-        if (mods == Qt::ShiftModifier)
+        std::vector<size_t> inds;
+        if (ind > -1)
         {
-            inds = rois->getSelected();
-            auto it = std::find(inds.begin(), inds.end(), ind);
-            if (it == inds.end())
-                inds.push_back(ind);
+            if (mods == Qt::ShiftModifier)
+            {
+                inds = selectedROIs;
+                auto it = std::find(inds.begin(), inds.end(), ind);
+                if (it == inds.end())
+                    inds.push_back(ind);
+                else
+                    inds.erase(it);
+            }
             else
-                inds.erase(it);
+            {
+                inds.push_back(ind);
+            }
+        }
+        setSelected(inds);
+    }
+    void mousePress(QList<QGraphicsItem*> hititems, const QPointF& mappedpoint, QMouseEvent* event) {
+        if (event->button() != Qt::LeftButton || outofbounds(mappedpoint, iview->getImageSize()) || dispatchPressToSelector(hititems, mappedpoint, rois))
+        {
+            return;
+        }
+
+        if (mousemode == ROIVert::SHAPE::SELECT)
+        {
+            selectPress(hititems, event);
         }
         else
         {
-            inds.push_back(ind);
+            rois->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())), mousemode);
+            setSelected({rois->size() - 1});
         }
     }
-    rois->setSelected(inds);
-}
 
+    void setSelected(std::vector<size_t> inds) {
+        for (auto &ind : selectedROIs)
+        {
+            if (ind < rois->size())
+                (*rois)[ind].setSelected(false);
+        }
+        selectedROIs = inds;
+        for (auto &ind : selectedROIs)
+        {
+            if (ind < rois->size())
+                (*rois)[ind].setSelected(true);
+        }
+        tview->update();
+
+        if (!selectedROIs.empty() && selectedROIs.back() < rois->size())
+        {
+            tview->scrollToChart((*rois)[selectedROIs.back()].Trace->getTraceChart());
+        }
+        emit rois->selectionChanged(selectedROIs);
+    }
+    std::vector<size_t> getSelected() const noexcept {
+        return selectedROIs;
+    }
+    void unselect(std::vector<size_t> inds) {
+        auto sel = selectedROIs;
+        std::sort(sel.begin(), sel.end());
+        std::sort(inds.begin(), inds.end());
+        std::vector<size_t> updatedSelected;
+        std::set_difference(sel.begin(), sel.end(), inds.begin(), inds.end(),
+                            std::inserter(updatedSelected, updatedSelected.begin()));
+        setSelected(updatedSelected);
+    }
+};
+    
+
+ROIController::ROIController(ROIs* r, TraceViewWidget* t, ImageView* i) : impl(std::make_unique<pimpl>(r,t,i)) { }
+ROIController::~ROIController() { }
+
+void ROIController::keyPress(int key, Qt::KeyboardModifiers mods)
+{
+    impl->keyPress(key, mods);
+}
+void ROIController::chartClick(TraceChartWidget *chart, std::vector<TraceChartSeries *> series, Qt::KeyboardModifiers mods)
+{
+    impl->chartClick(chart, series, mods);
+}
 void ROIController::mousePress(QList<QGraphicsItem *> hititems, const QPointF &mappedpoint, QMouseEvent *event)
 {
-    if (event->button() != Qt::LeftButton || outofbounds(mappedpoint, iview->getImageSize()) || dispatchPressToSelector(hititems, mappedpoint, rois))
-    {
-        return;
-    }
-
-    if (mousemode == ROIVert::SHAPE::SELECT)
-    {
-        selectPress(hititems, event, rois);
-    }
-    else
-    {
-        rois->pushROI(QPoint(std::floor(mappedpoint.x()), std::floor(mappedpoint.y())), mousemode);
-        rois->setSelected({rois->getNROIs() - 1});
-    }
+    impl->mousePress(hititems, mappedpoint, event);
 }
 
 void ROIController::setROIShape(ROIVert::SHAPE shp) noexcept
 {
-    mousemode = shp;
+    impl->mousemode = shp;
 }
 void ROIController::imageSizeUpdate(QSize newsize)
 {
-    for (size_t i = 0; i < rois->getNROIs(); ++i) {
-        rois->getROI(i)->graphicsShape->setBoundingRect(QRectF(0., 0., newsize.width(), newsize.height()));
+    for (size_t i = 0; i < impl->rois->size(); ++i) {
+        (*impl->rois)[i].graphicsShape->setBoundingRect(QRectF(0., 0., newsize.width(), newsize.height()));
     }
 }
 void ROIController::roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>)
 {
-    // need to force an update after an edit completion to clean up artifact pixels outside of image rect.
-    rois->update();
+    impl->rois->update();
+}
+
+void ROIController::setSelected(std::vector<size_t> inds) {
+    impl->setSelected(inds);
+}
+std::vector<size_t> ROIController::getSelected() const noexcept {
+    return impl->getSelected();
+}
+void ROIController::unselect(std::vector<size_t> inds) {
+    impl->unselect(inds);
 }

@@ -93,18 +93,18 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
-
-    const auto ntraces = impl->rois->getNROIs();
-    if (impl->rois == nullptr || ntraces < 1)
+    if (impl->rois == nullptr || impl->rois->size() < 1)
     {
         msg.setText(tr("No traces to export."));
         msg.exec();
         return;
     }
 
-    auto inds{std::vector<size_t>(impl->rois->getNROIs())};
-    std::iota(inds.begin(), inds.end(), 0);
-    auto traces{impl->rois->getTraces(inds)};
+    size_t ntraces = impl->rois->size();
+    std::vector<std::vector<float>> traces(ntraces);
+    for (size_t i = 0; i < ntraces; ++i) {
+        traces[i] = (*impl->rois)[i].Trace->getTrace();
+    }
 
     // need time minmax
     const auto tmax = impl->videodata->getTMax();
@@ -127,7 +127,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
         {
             out << "\"Time\",";
         }
-        for (size_t i = 0; i < ntraces - 1; ++i)
+        for (size_t i = 0; i < impl->rois->size() - 1; ++i)
         {
             out << "\"ROI " + QString::number(i + 1) + "\",";
         }
@@ -190,8 +190,7 @@ void FileIO::exportROIs(QString filename) const
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
-    const auto ntraces = impl->rois->getNROIs();
-    if (impl->rois == nullptr || ntraces < 1)
+    if (impl->rois == nullptr || impl->rois->size() < 1)
     {
         msg.setText(tr("No traces to export."));
         msg.exec();
@@ -222,8 +221,7 @@ void FileIO::exportCharts(QString filename, int width, int height, int quality, 
     }
     else
     {
-        const size_t ncharts = impl->rois->getNROIs();
-        if (impl->rois == nullptr || ncharts < 1)
+        if (impl->rois == nullptr || impl->rois->size() < 1)
         {
             QMessageBox msg;
             msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
@@ -232,10 +230,13 @@ void FileIO::exportCharts(QString filename, int width, int height, int quality, 
             msg.exec();
             return;
         }
+        
         const QFileInfo basefile(filename);
         const QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
-        auto inds{std::vector<size_t>(ncharts)};
-        std::iota(inds.begin(), inds.end(), 0);
-        impl->rois->exportLineChartImages(inds, basename, width, height, quality);
+        const QString suffix = basefile.completeSuffix();
+        for (size_t i = 0; i < impl->rois->size(); ++i) {
+            const QString filename(basename + "_" + QString::number(i + 1) + "." + suffix);
+            (*impl->rois)[i].Trace->getTraceChart()->saveAsImage(filename, width, height, quality);
+        }
     }
 }

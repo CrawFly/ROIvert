@@ -4,7 +4,8 @@
 #include "ROI/ROIs.h"
 #include "ROI/ROISelector.h"
 #include "dockwidgets/TraceViewWidget.h"
-
+#include "VideoData.h"
+#include "ImageView.h"
 
 void tROIs::initTestCase() {
     data = new VideoData;

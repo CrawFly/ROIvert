@@ -1,5 +1,5 @@
 #include "ROI/ROI.h"
-
+#include "widgets/TraceChartWidget.h"
 #include <QJsonArray>
 #include <QJsonObject>
 
@@ -23,6 +23,13 @@ ROI::ROI(QGraphicsScene *scene, TraceViewWidget *tView, VideoData *videodata, RO
     pixelsubset = videodata->getdsSpace();
 }
 
+void ROI::setSelected(bool sel) {
+    graphicsShape->setSelectVisible(sel);
+    roistyle->setSelected(sel);
+    Trace->getLineSeries()->setHighlighted(sel);
+    Trace->getRidgeSeries()->setHighlighted(sel);
+    Trace->getTraceChart()->update();
+}
 void ROI::read(const QJsonObject &json)
 {
     QJsonObject jShape = json["shape"].toObject();

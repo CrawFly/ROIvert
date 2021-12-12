@@ -15,6 +15,7 @@
 #include <QToolButton>
 
 #include "ROI/ROIs.h"
+#include "ROI/ROI.h"
 
 #include "ChartStyle.h"
 #include "dockwidgets/TraceViewWidget.h"
@@ -367,7 +368,7 @@ void StyleWidget::ROIColorChange()
         auto inds = impl->rois->getSelected();
         for (auto &ind : inds)
         {
-            auto thisStyle = impl->rois->getROIStyle(ind);
+            auto thisStyle = (*impl->rois)[ind].roistyle.get();
             thisStyle->setColor(impl->roicolor->getColor());
         }
     }
@@ -375,11 +376,11 @@ void StyleWidget::ROIColorChange()
 void StyleWidget::ROIStyleChange()
 {
     impl->updateROIStyle(impl->rois->getCoreROIStyle());
-    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::vector<size_t> inds(impl->rois->size());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto &ind : inds)
     {
-        impl->updateROIStyle(impl->rois->getROIStyle(ind));
+        impl->updateROIStyle((*impl->rois)[ind].roistyle.get());
     }
 }
 void StyleWidget::ChartStyleChange()
@@ -389,39 +390,42 @@ void StyleWidget::ChartStyleChange()
 
     impl->traceview->getRidgeChart().updateStyle();
 
-    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::vector<size_t> inds(impl->rois->size());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto &ind : inds)
     {
-        impl->updateChartStyle(impl->rois->getLineChartStyle(ind));
-        impl->rois->updateLineChartStyle(ind);
-
-        impl->updateChartStyle(impl->rois->getRidgeChartStyle(ind));
-        impl->rois->updateRidgeChartStyle(ind);
+        
+        impl->updateChartStyle((*impl->rois)[ind].linechartstyle.get());
+        (*impl->rois)[ind].Trace->getTraceChart()->updateStyle();
+        
+        impl->updateChartStyle((*impl->rois)[ind].ridgechartstyle.get());
     }
+    impl->traceview->getRidgeChart().updateStyle();
+    impl->rois->update();
 }
 void StyleWidget::LineChartStyleChange()
 {
     impl->updateLineChartStyle(impl->traceview->getCoreLineChartStyle());
 
-    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::vector<size_t> inds(impl->rois->size());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto &ind : inds)
     {
-        auto style = impl->rois->getLineChartStyle(ind);
+        auto style = (*impl->rois)[ind].linechartstyle.get();
         impl->updateLineChartStyle(style);
-        impl->rois->updateLineChartStyle(ind);
+        (*impl->rois)[ind].Trace->getTraceChart()->updateStyle();
     }
+    impl->rois->update();
 }
 void StyleWidget::RidgeChartStyleChange()
 {
     impl->updateRidgeChartStyle(impl->traceview->getCoreRidgeChartStyle());
 
-    std::vector<size_t> inds(impl->rois->getNROIs());
+    std::vector<size_t> inds(impl->rois->size());
     std::iota(inds.begin(), inds.end(), 0);
     for (auto &ind : inds)
     {
-        auto style = impl->rois->getRidgeChartStyle(ind);
+        auto style = (*impl->rois)[ind].ridgechartstyle.get();
         impl->updateRidgeChartStyle(style);
     }
     impl->traceview->getRidgeChart().update();
@@ -442,7 +446,7 @@ void StyleWidget::selectionChange(std::vector<size_t> inds)
     }
     else
     {
-        auto style = impl->rois->getROIStyle(inds.back());
+        auto style = (*impl->rois)[inds.back()].roistyle.get();
         impl->roicolor->blockSignals(true);
         impl->roicolor->setColor(style->getLineColor());
         impl->roicolor->blockSignals(false);

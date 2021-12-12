@@ -119,7 +119,7 @@ void Roivert::doConnect()
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
 {
     // Confirm load if rois exist:
-    if (impl->rois->getNROIs() > 0)
+    if (impl->rois->size() > 0)
     {
         // rois exist:
         QMessageBox msg;

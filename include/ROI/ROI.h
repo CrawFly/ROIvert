@@ -25,6 +25,8 @@ struct ROI {
     
     int pixelsubset;
 
+    void setSelected(bool sel);
+
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
