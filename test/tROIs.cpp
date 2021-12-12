@@ -30,7 +30,9 @@ void tROIs::cleanupTestCase() {
     delete data;
 }
 
+
 namespace {
+    /*
     void addroi(ROIs* r, ROIVert::SHAPE shp, std::vector<QPointF> coords) {
         r->setROIShape(shp);
         QMouseEvent evt(QEvent::Type::MouseButtonPress, QPointF(), Qt::MouseButton::LeftButton, Qt::MouseButtons(), Qt::KeyboardModifier::NoModifier);
@@ -44,10 +46,12 @@ namespace {
 
         }
     }
+    */
 }
 
 void tROIs::taddroi() {
     // Add an roi of each type
+    /*
     addroi(rois, ROIVert::SHAPE::RECTANGLE, { {0,0}, {2,2} });
     QCOMPARE(rois->getNROIs(), 1);
     
@@ -63,6 +67,7 @@ void tROIs::taddroi() {
             qDebug() << "vis" << a->isVisibleTo(item->parentItem());
         }
     }
+    */
 
     //addroi(rois, ROIVert::SHAPE::POLYGON, { {0,0}, {0,2}, {2,0}, {0,0} });
     //QCOMPARE(rois->getNROIs(), 3);
