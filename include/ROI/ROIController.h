@@ -19,7 +19,6 @@ public:
     
     void setSelected(std::vector<size_t>);
     std::vector<size_t> getSelected() const noexcept;
-    void unselect(std::vector<size_t> inds);
 
 public slots:
     void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);

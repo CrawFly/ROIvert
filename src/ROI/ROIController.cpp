@@ -1,4 +1,5 @@
 #include <QMouseEvent>
+#include <QDebug>
 
 #include "ROI/ROIController.h"
 #include "ROI/ROIs.h"
@@ -56,7 +57,6 @@ struct ROIController::pimpl
     TraceViewWidget* tview;
     ImageView* iview;
     ROIVert::SHAPE mousemode{ ROIVert::SHAPE::ELLIPSE };
-    std::vector<size_t> selectedROIs;
 
     void selectPress(QList<QGraphicsItem *> hititems, const QMouseEvent *event)
     {
@@ -72,7 +72,7 @@ struct ROIController::pimpl
                 std::vector<size_t> inds = {sel};
                 if (isShiftMod)
                 {
-                    inds = selectedROIs;
+                    inds = getSelected();
                     auto it = std::find(inds.begin(), inds.end(), sel);
                     if (it == inds.end())
                         inds.push_back(sel);
@@ -92,11 +92,7 @@ struct ROIController::pimpl
         if (key == Qt::Key::Key_Delete)
         {
             // delete all selected rois
-            auto selrois = selectedROIs;
-            if (!selrois.empty())
-            {
-                rois->deleteROIs(selrois);
-            }
+            rois->deleteROIs(getSelected());
         }
         else if (key == Qt::Key::Key_A && mods == Qt::KeyboardModifier::ControlModifier)
         {
@@ -119,7 +115,7 @@ struct ROIController::pimpl
         {
             if (mods == Qt::ShiftModifier)
             {
-                inds = selectedROIs;
+                inds = getSelected();
                 auto it = std::find(inds.begin(), inds.end(), ind);
                 if (it == inds.end())
                     inds.push_back(ind);
@@ -151,36 +147,31 @@ struct ROIController::pimpl
     }
 
     void setSelected(std::vector<size_t> inds) {
-        for (auto &ind : selectedROIs)
-        {
-            if (ind < rois->size())
-                (*rois)[ind].setSelected(false);
+        // could do set difference, but it's easy and fast enough to just unselect and reselect
+        for (size_t i = 0; i < rois->size(); ++i) {
+            (*rois)[i].setSelected(false);
         }
-        selectedROIs = inds;
-        for (auto &ind : selectedROIs)
-        {
-            if (ind < rois->size())
-                (*rois)[ind].setSelected(true);
+        for (auto& i:inds) {
+            if (i < rois->size()) {
+                (*rois)[i].setSelected(true);
+            }
         }
         tview->update();
 
-        if (!selectedROIs.empty() && selectedROIs.back() < rois->size())
+        if (!inds.empty() && inds.back() < rois->size())
         {
-            tview->scrollToChart((*rois)[selectedROIs.back()].Trace->getTraceChart());
+            tview->scrollToChart((*rois)[inds.back()].Trace->getTraceChart());
         }
-        emit rois->selectionChanged(selectedROIs);
+        emit rois->selectionChanged(inds);
     }
     std::vector<size_t> getSelected() const noexcept {
-        return selectedROIs;
-    }
-    void unselect(std::vector<size_t> inds) {
-        auto sel = selectedROIs;
-        std::sort(sel.begin(), sel.end());
-        std::sort(inds.begin(), inds.end());
-        std::vector<size_t> updatedSelected;
-        std::set_difference(sel.begin(), sel.end(), inds.begin(), inds.end(),
-                            std::inserter(updatedSelected, updatedSelected.begin()));
-        setSelected(updatedSelected);
+        auto ret = std::vector<size_t>();
+        for (size_t i = 0; i < rois->size(); ++i) {
+            if ((*rois)[i].getSelected()) {
+                ret.push_back(i);
+            }
+        }
+        return ret;
     }
 };
     
@@ -221,7 +212,4 @@ void ROIController::setSelected(std::vector<size_t> inds) {
 }
 std::vector<size_t> ROIController::getSelected() const noexcept {
     return impl->getSelected();
-}
-void ROIController::unselect(std::vector<size_t> inds) {
-    impl->unselect(inds);
 }

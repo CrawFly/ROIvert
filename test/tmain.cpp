@@ -246,8 +246,6 @@ int main(int argc, char** argv)
         return 0;
     }
     
-    // todo: summarize results
-    
     QFile tempfile("ROIVertTestResultsTemporaryFile");
     filescopeguard fsg(&tempfile);
     

@@ -21,9 +21,7 @@ struct ROIs::pimpl
     TraceViewWidget* traceview{ nullptr };
     VideoData* videodata{ nullptr };
     ImageView* imageview{ nullptr };
-    
     std::unique_ptr<ROIController> roicontroller;
-    ROIs *par{nullptr};
 
     std::vector<std::unique_ptr<ROI>> rois;
     ROIPalette pal;
@@ -64,16 +62,15 @@ struct ROIs::pimpl
         return rois.end();
     }
     
-    void pushROI(QPoint pos, ROIVert::SHAPE shp) {
+    void pushROI(QPoint pos, ROIVert::SHAPE shp, bool isimport = false) {
         ROIStyle rs = coreStyle;
         rs.setColor(pal.getPaletteColor(rois.size()));
 
         rois.push_back(std::make_unique<ROI>(imageview->scene(), traceview, videodata, shp, imageview->getImageSize(), rs));
         
         auto &gObj = rois.back()->graphicsShape;
-        if (!pos.isNull())
+        if (!isimport)
         {
-            // pos should only be NULL for an import push
             gObj->setVertices({pos, pos});
             gObj->setEditingVertex(1);
             gObj->grabMouse();
@@ -83,8 +80,6 @@ struct ROIs::pimpl
 
     void deleteROIs(std::vector<size_t> inds)
     {
-        // Unselect:
-        roicontroller->unselect(inds);
         for (auto &ind : inds)
         {
             rois[ind] = nullptr;
@@ -161,8 +156,6 @@ ROIs::ROIs(ImageView *iView, TraceViewWidget *tView, VideoData *vData) : impl(st
     impl->videodata = vData;
     impl->roicontroller = std::make_unique<ROIController>(this, tView, iView);
 
-    impl->par = this;
-
     connect(&tView->getRidgeChart(), &TraceChartWidget::chartClicked, impl->roicontroller.get(), &ROIController::chartClick);
     connect(iView, &ImageView::mousePressed, impl->roicontroller.get(), &ROIController::mousePress);
     connect(iView, &ImageView::keyPressed, impl->roicontroller.get(), &ROIController::keyPress);
@@ -181,12 +174,17 @@ const ROI& ROIs::operator[](std::size_t idx) const {
 }
 void ROIs::pushROI(QPoint pos, ROIVert::SHAPE shp)
 {
-    impl->pushROI(pos, shp);
+    impl->pushROI(pos, shp, false);
     auto &gObj = impl->rois.back()->graphicsShape;
     auto &tObj = impl->rois.back()->Trace;
     connect(gObj.get(), &ROIShape::roiEdited, tObj.get(), &ROITrace::updateTrace);
     connect(gObj.get(), &ROIShape::roiEdited, impl->roicontroller.get(), &ROIController::roiEdit);
     connect(tObj->getTraceChart(), &TraceChartWidget::chartClicked, impl->roicontroller.get(), &ROIController::chartClick);
+}
+
+
+void ROIs::setSelected(std::vector<size_t> inds) {
+    impl->roicontroller->setSelected(inds);
 }
 
 std::vector<size_t> ROIs::getSelected() const noexcept
@@ -227,7 +225,7 @@ void ROIs::read(const QJsonObject &json)
     QJsonArray jrois = json["ROIs"].toArray();
     for (const auto &jroi : jrois)
     {
-        impl->pushROI(QPoint(), ROIVert::SHAPE::RECTANGLE);
+        impl->pushROI(QPoint(), ROIVert::SHAPE::RECTANGLE, true);
         impl->rois.back()->read(jroi.toObject());
     }
 }

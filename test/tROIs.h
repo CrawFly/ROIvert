@@ -16,6 +16,13 @@ private slots:
     void cleanup();
     void cleanupTestCase();
     void taddroi();
+    void tdeleteroi();
+    
+    void tindexfinders();
+    void tselected();
+    void tmatchy();
+    void tpalettepush();
+    void tchartclicked();
 
 private:
     ROIs* rois;

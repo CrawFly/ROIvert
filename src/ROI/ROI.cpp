@@ -30,6 +30,10 @@ void ROI::setSelected(bool sel) {
     Trace->getRidgeSeries()->setHighlighted(sel);
     Trace->getTraceChart()->update();
 }
+bool ROI::getSelected() {
+    return graphicsShape->isSelectVisible();
+}
+
 void ROI::read(const QJsonObject &json)
 {
     QJsonObject jShape = json["shape"].toObject();

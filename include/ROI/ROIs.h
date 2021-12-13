@@ -36,6 +36,7 @@ public:
     int getIndex(const TraceChartWidget* chart) const;
     int getIndex(const TraceChartSeries* series) const;
 
+    void setSelected(std::vector<size_t>);
     std::vector<size_t> getSelected() const noexcept;
     
     ROIStyle* getCoreROIStyle() const noexcept;
