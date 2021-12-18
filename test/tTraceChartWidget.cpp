@@ -379,20 +379,17 @@ void tTraceChartWidget::taxisthickness_data() {
     QTest::addColumn<int>("ticklabelspacing");
     QTest::addColumn<int>("tickmarkspacing");
     QTest::addColumn<QString>("label");
-    QTest::addColumn<int>("exp_h");
-    QTest::addColumn<int>("exp_v");
-
-    QTest::newRow("1") << "Arial" << 5 << 10 << 3 << 1 << 2 << 3 << "ABC" << 45 << 47;
-    QTest::newRow("2") << "Arial" << 10 << 10 << 3 << 1 << 2 << 3 << "ABC" << 55 << 60;
-    QTest::newRow("3") << "Arial" << 5 << 20 << 3 << 1 << 2 << 3 << "ABC" << 67 << 69;
-    QTest::newRow("4") << "Arial" << 10 << 20 << 3 << 1 << 2 << 3 << "ABC" << 77 << 82;
-    QTest::newRow("5") << "Arial" << 5 << 10 << 5 << 7 << 3 << 5 << "ABC" << 56 << 58;
-    QTest::newRow("6") << "Arial" << 10 << 10 << 6 << 9 << 4 << 6 << "ABC" << 71 << 76;
-    QTest::newRow("7") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 86 << 88;
-    QTest::newRow("8") << "Arial" << 10 << 20 << 9 << 10 << 6 << 8 << "ABC" << 101 << 106;
-    QTest::newRow("9") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 86 << 88;
-    QTest::newRow("10") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABCDEFG" << 86 << 88;
-    QTest::newRow("11") << "Courier" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC" << 73 << 81;
+    QTest::newRow("1") << "Arial" << 5 << 10 << 3 << 1 << 2 << 3 << "ABC";
+    QTest::newRow("2") << "Arial" << 10 << 10 << 3 << 1 << 2 << 3 << "ABC";
+    QTest::newRow("3") << "Arial" << 5 << 20 << 3 << 1 << 2 << 3 << "ABC";
+    QTest::newRow("4") << "Arial" << 10 << 20 << 3 << 1 << 2 << 3 << "ABC";
+    QTest::newRow("5") << "Arial" << 5 << 10 << 5 << 7 << 3 << 5 << "ABC";
+    QTest::newRow("6") << "Arial" << 10 << 10 << 6 << 9 << 4 << 6 << "ABC";
+    QTest::newRow("7") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC";
+    QTest::newRow("8") << "Arial" << 10 << 20 << 9 << 10 << 6 << 8 << "ABC";
+    QTest::newRow("9") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC";
+    QTest::newRow("10") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABCDEFG";
+    QTest::newRow("11") << "Courier" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC";
     
 
 }
@@ -423,8 +420,14 @@ void tTraceChartWidget::taxisthickness() {
     vax.setSpacings(labelspacing, ticklabelspacing, tickmarkspacing);
     vax.setLabel(label);
     
-    QFETCH(int, exp_h);
-    QFETCH(int, exp_v);
+
+    
+    auto tickheight = QFontMetrics(QFont(font, tickfontsize)).height();
+    auto tickwidth = QFontMetrics(QFont(font, tickfontsize)).width("0.9");
+    auto labelheight = QFontMetrics(QFont(font, lblfontsize)).height();
+
+    auto exp_h = tickheight + labelheight + ticklength + labelspacing + ticklabelspacing + tickmarkspacing;
+    auto exp_v = tickwidth + labelheight + ticklength + labelspacing + ticklabelspacing + tickmarkspacing;
     QCOMPARE(hax.getThickness(), exp_h);
     QCOMPARE(vax.getThickness(), exp_v);
 
