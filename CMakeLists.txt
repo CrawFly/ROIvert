@@ -42,6 +42,28 @@ if(WIN32)
         PRIVATE
             Roivert.rc
     )
+
+    get_target_property(cvcoredll_dbg opencv_core IMPORTED_LOCATION_DEBUG)
+    get_target_property(cvimgprocdll_dbg opencv_imgproc IMPORTED_LOCATION_DEBUG)
+    get_target_property(cvimgcodecsdll_dbg opencv_imgcodecs IMPORTED_LOCATION_DEBUG)
+    get_target_property(cvcoredll_rel opencv_core IMPORTED_LOCATION_RELEASE)
+    get_target_property(cvimgprocdll_rel opencv_imgproc IMPORTED_LOCATION_RELEASE)
+    get_target_property(cvimgcodecsdll_rel opencv_imgcodecs IMPORTED_LOCATION_RELEASE)
+
+    add_custom_command(TARGET ROIVert POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Core> $<TARGET_FILE_DIR:ROIVert>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Gui> $<TARGET_FILE_DIR:ROIVert>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Widgets> $<TARGET_FILE_DIR:ROIVert>
+        COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:ROIVert>/platforms/
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::QWindowsIntegrationPlugin> $<TARGET_FILE_DIR:ROIVert>/platforms/
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvcoredll_dbg}>$<$<CONFIG:release>:${cvcoredll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgprocdll_dbg}>$<$<CONFIG:release>:${cvimgprocdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgcodecsdll_dbg}>$<$<CONFIG:release>:${cvimgcodecsdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
+    )
+
+    add_custom_command(TARGET ROIVertTest POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:Qt5::Test> $<TARGET_FILE_DIR:ROIVert>
+    )
 endif()
 
 
