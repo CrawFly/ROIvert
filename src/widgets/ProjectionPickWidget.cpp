@@ -28,15 +28,19 @@ struct ProjectionPickWidget::pimpl
         butNone.setCheckable(true);
         butNone.setChecked(true);
         butNone.setToolTip(tr("Show individual frames."));
+        butNone.setObjectName("butNone");
 
         butMean.setCheckable(true);
         butMean.setToolTip(tr("Show pixel-wise average across frames (undefined for ") + ROIVert::dffstring() + ".");
+        butMean.setObjectName("butMean");
 
         butMin.setCheckable(true);
         butMin.setToolTip(tr("Show pixel-wise minimum across frames."));
+        butMin.setObjectName("butMin");
 
         butMax.setCheckable(true);
         butMax.setToolTip(tr("Show pixel-wise maximum across frames."));
+        butMax.setObjectName("butMax");
 
         projection.addButton(&butNone, static_cast<int>(proj::NONE));
         projection.addButton(&butMean, static_cast<int>(proj::MEAN));

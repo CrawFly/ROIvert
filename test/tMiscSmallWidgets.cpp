@@ -2,12 +2,19 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QButtonGroup>
+#include <QRadioButton>
 #include <QPushButton>
+#include <QCompleter>
+#include <QFileSystemModel>
 #include "tMiscSmallWidgets.h"
 #include "widgets/SmoothingPickWidget.h"
 #include "widgets/RGBWidget.h"
 #include "widgets/ProjectionPickWidget.h"
 #include "dockwidgets/FileIOWidget.h"
+#include "dockwidgets/ImageDataWidget.h"
+#include "dockwidgets/ImageSettingsWidget.h"
+#include "DisplaySettings.h"
+
 
 void tMiscSmallWidgets::tSmoothingPickWidget_data() {
 
@@ -135,4 +142,57 @@ void tMiscSmallWidgets::tFileIOWidget() {
         QCOMPARE(actfn, QDir::currentPath() + "/foo.jpeg");
         QVERIFY(actisridge);
     }
+}
+
+void tMiscSmallWidgets::tImageDataWidget() {
+    ImageDataWidget w;
+
+    auto optFile = w.findChild<QRadioButton*>("optFile");
+    auto optFolder = w.findChild<QRadioButton*>("optFolder");
+    auto completer = w.findChild<QCompleter*>();
+    
+    {
+        optFile->setChecked(true);
+        optFolder->setChecked(false);
+        auto model = dynamic_cast<QFileSystemModel*>(completer->model());
+        QVERIFY(!(model->filter() & QDir::AllDirs));
+        QVERIFY(model->filter() & QDir::Files);
+    }
+    
+    {
+        optFile->setChecked(false);
+        optFolder->setChecked(true);
+        auto model = dynamic_cast<QFileSystemModel*>(completer->model());
+        QVERIFY(model->filter() & QDir::AllDirs);
+        QVERIFY(!(model->filter() & QDir::Files));
+    }
+    
+    bool didfire = false;
+    connect(&w, &ImageDataWidget::frameRateChanged, [&](double) { didfire = true; });
+    auto spinFrameRate = w.findChild<QDoubleSpinBox*>("spinFrameRate");
+    spinFrameRate->valueChanged(42.1);
+    QVERIFY(didfire);
+}
+void tMiscSmallWidgets::tImageSettingsWidget(){
+    DisplaySettings sets;
+    sets.setProjectionMode(3);
+
+    ImageSettingsWidget w(nullptr, &sets);
+
+    int cntr = 0;
+    connect(&w, &ImageSettingsWidget::imgSettingsChanged, [&] {cntr++; });
+    
+    ROIVert::contrast c;
+    w.setContrast(c);
+    QCOMPARE(cntr, 1);
+
+    auto butNone = w.findChild<QPushButton*>("butNone");
+    auto butMean = w.findChild<QPushButton*>("butMean");
+    butMean->click();
+    QVERIFY(w.isProjectionActive());
+    QCOMPARE(cntr, 2);
+    butNone->click();
+    QVERIFY(!w.isProjectionActive());
+    QCOMPARE(cntr, 3);
+    
 }
