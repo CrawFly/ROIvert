@@ -10,9 +10,7 @@
 
 void tROIs::initTestCase() {
     data = new VideoData;
-    QStringList f = { "roiverttestdata.tiff" };
-    auto a = QDir::currentPath();
-
+    QStringList f = { QDir::currentPath() + "/test_resources/roiverttestdata.tiff" };
     data->load(f, 1, 1, false);
     
     tview = new TraceViewWidget;

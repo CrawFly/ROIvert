@@ -17,12 +17,12 @@ void tVideoData::cleanup() {
 }
 
 void tVideoData::loadmultipage(int dst, int dss) {
-    QStringList f = { "roiverttestdata.tiff" };
+    QStringList f = { QDir::currentPath() +  "/test_resources/roiverttestdata.tiff" };
     data->load(f, dst, dss, false);
 }
 
 void tVideoData::loadjsonexpected() {
-    QFile file("roiverttestdata.json");
+    QFile file( QDir::currentPath() + "/test_resources/roiverttestdata.json");
     assert(file.open(QIODevice::ReadOnly));
 
     QByteArray jdata = file.readAll();
@@ -241,7 +241,7 @@ void tVideoData::ttrace() {
 
 
 void tVideoData::tdeadpixel() {
-    QStringList f = { "roiverttestdata_deadpix.tiff" };
+    QStringList f = {  QDir::currentPath() + "/test_resources/roiverttestdata_deadpix.tiff" };
     data->load(f, 1, 1, false);
     auto m = data->get(true, 0, 0);
     auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
@@ -263,7 +263,7 @@ void tVideoData::tmultifile_data() {
 void tVideoData::tmultifile() {
     QStringList f;
     for (size_t i = 0; i < 7; ++i) {
-        f << ("roiverttestdata_mf" + std::to_string(i + 1) + ".tiff").c_str();
+        f << ( QDir::currentPath().toStdString() + "/test_resources/roiverttestdata_mf" + std::to_string(i + 1) + ".tiff").c_str();
     }
     data->load(f, 1, 1, true);
 

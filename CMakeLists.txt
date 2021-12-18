@@ -30,7 +30,7 @@ add_library(ROIVertLib "")
 add_executable(ROIVert WIN32 MACOSX_BUNDLE "")
 add_executable(ROIVertTest "")
 
-# seems like the qrc should be in lib, but it works this way for some reason?
+# todo: Seems like the qrc should be in lib, but it works this way for some reason?
 target_sources(ROIVert 
     PRIVATE
         resource.h
@@ -66,7 +66,7 @@ if(WIN32)
     )
 endif()
 
-
+add_custom_command(TARGET ROIVertTest POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_resources $<TARGET_FILE_DIR:ROIVertTest>/test_resources)
 
 add_subdirectory(include)
 add_subdirectory(src)
