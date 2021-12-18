@@ -42,6 +42,7 @@ void tROIs::taddroi() {
         QCOMPARE(roishape->getEditingVertex(), 1);
         QCOMPARE(roishape->getVertices()[0], QPoint(0, 0));
         QCOMPARE(roishape->getVertices()[1], QPoint(0, 0));
+        QCOMPARE(roishape->getShapeType(), ROIVert::SHAPE::RECTANGLE);
         roishape->setVertices({ QPoint(0, 0), QPoint(2, 2) });
         emit roishape->roiEdited(ROIVert::SHAPE::RECTANGLE, roishape->getTightBoundingBox(), roishape->getVertices());
         auto trace = roi.Trace->getTrace();    
@@ -59,7 +60,7 @@ void tROIs::taddroi() {
         auto& roishape = roi.graphicsShape;
         QCOMPARE(roishape->getVertices()[0], QPoint(0, 0));
         QCOMPARE(roishape->getVertices()[1], QPoint(0, 0));
-
+        QCOMPARE(roishape->getShapeType(), ROIVert::SHAPE::ELLIPSE);
         QCOMPARE(roishape->getEditingVertex(), 1);
     }
     {
@@ -69,7 +70,7 @@ void tROIs::taddroi() {
         auto& roishape = roi.graphicsShape;
         QCOMPARE(roishape->getVertices()[0], QPoint(0, 0));
         QCOMPARE(roishape->getVertices()[1], QPoint(0, 0));
-
+        QCOMPARE(roishape->getShapeType(), ROIVert::SHAPE::POLYGON);
         QCOMPARE(roishape->getEditingVertex(), 1);
         rois->pushROI({ 0, 0 }, ROIVert::SHAPE::POLYGON);
     }

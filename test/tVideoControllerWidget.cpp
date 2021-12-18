@@ -132,7 +132,7 @@ void tVideoControllerWidget::tenabled() {
 
 void tVideoControllerWidget::tloop() {
     // set the looper on. set frame make sure we eventually hit frame before
-    int timeout = 1000;
+    int timeout = 1500;
 
     widget->setNFrames(10);
     QCOMPARE(sliScrub->maximum(), 10);  // required for next steps

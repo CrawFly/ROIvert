@@ -54,11 +54,14 @@ struct ImageDataWidget::pimpl
         }
 
         {
+            optFile.setText("Multi-page File");
+            optFile.setObjectName("optFile");
             optFolder.setText("Folder");
             optFolder.setToolTip("Select this option if your dataset is made up of several Tiff files with one file for each frame.\nThe files must be in a folder of their own and will be read in alphanumeric order.");
-            optFile.setText("Multi-page File");
             optFolder.setToolTip("Select this option if your data are contained in a single 'multipage' Tiff file.");
             optFolder.setChecked(true);
+            optFolder.setObjectName("optFolder");
+
         }
 
         {
@@ -82,6 +85,7 @@ struct ImageDataWidget::pimpl
             const QSize textSize = cmdBrowseFilePath.fontMetrics().size(Qt::TextShowMnemonic, "999");
             spinFrameRate.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinFrameRate.setToolTip(tr("Set the frame rate in which the data were recorded\nin frames per second (FPS)"));
+            spinFrameRate.setObjectName("spinFrameRate");
         }
         {
             spinDownTime.setMinimum(1);
@@ -113,6 +117,7 @@ struct ImageDataWidget::pimpl
         contents.setLayout(&vlay);
         vlay.addLayout(&formlay);
 
+        completer.setParent(&contents);
         {
             QVBoxLayout *lay = new QVBoxLayout;
             lay->addWidget(&optFolder);
@@ -235,8 +240,6 @@ struct ImageDataWidget::pimpl
             cmdBrowseFilePath.setToolTip(tr("Open a dialog to select a folder"));
         }
         filePathChanged(txtFilePath.text());
-        // change the thing that checks whether to enable the button
-        // enable the button if it should be
     }
 };
 
