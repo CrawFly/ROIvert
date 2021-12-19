@@ -9,6 +9,8 @@ target_sources(ROIVertTest
         tContrastWidget.h
         tDisplaySettings.cpp
         tDisplaySettings.h
+        tFileIO.cpp
+        tFileIO.h
         tMiscSmallWidgets.cpp
         tMiscSmallWidgets.h
         tROIs.cpp

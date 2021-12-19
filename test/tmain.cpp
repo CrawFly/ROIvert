@@ -5,6 +5,7 @@
 #include "tColormapPickWidget.h"
 #include "tContrastWidget.h"
 #include "tDisplaySettings.h"
+#include "tFileIO.h"
 #include "tMiscSmallWidgets.h"
 #include "tROIs.h"
 #include "tROIStyle.h"
@@ -191,6 +192,7 @@ int main(int argc, char** argv)
     bank.addSuite<tColormapPickWidget>();
     bank.addSuite<tContrastWidget>();
     bank.addSuite<tDisplaySettings>();
+    bank.addSuite<tFileIO>();
     bank.addSuite<tMiscSmallWidgets>();
     bank.addSuite<tROIs>();
     bank.addSuite<tROIStyle>();
