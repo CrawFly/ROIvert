@@ -65,6 +65,7 @@ void ImageView::mousePressEvent(QMouseEvent *event)
 void ImageView::mouseMoveEvent(QMouseEvent *event)
 {
     const QPointF clickpos = mapToScene(event->pos());
+
     emit mouseMoved(clickpos, sceneRect().contains(clickpos));
     QGraphicsView::mouseMoveEvent(event);
 }

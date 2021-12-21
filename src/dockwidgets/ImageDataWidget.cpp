@@ -68,6 +68,7 @@ struct ImageDataWidget::pimpl
             txtFilePath.setCompleter(&completer);
             txtFilePath.setMinimumWidth(100);
             txtFilePath.setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
+            txtFilePath.setObjectName("txtFilePath");
         }
         {
             cmdBrowseFilePath.setText("...");
@@ -92,18 +93,21 @@ struct ImageDataWidget::pimpl
             spinDownTime.setMaximum(100);
             spinDownTime.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinDownTime.setToolTip(tr("Import only every nth frame\nNote: the frame rate should reflect the raw value\nNote: frame subsets for multipage tiff files do not speed up loading"));
+            spinDownTime.setObjectName("spinDownTime");
         }
         {
             spinDownSpace.setMinimum(1);
             spinDownSpace.setMaximum(100);
             spinDownSpace.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinDownSpace.setToolTip(tr("Import only every nth pixel"));
+            spinDownSpace.setObjectName("spinDownSpace");
         }
         {
             cmdLoad.setText("Load Files");
             cmdLoad.setEnabled(false);
             cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\nFolder is selected and the File Path is not a path containing tiff files\nFile is selected and the File Name is not a tiff file"));
             cmdLoad.setMaximumWidth(320);
+            cmdLoad.setObjectName("cmdLoad");
         }
         {
             progBar.setMaximum(100);

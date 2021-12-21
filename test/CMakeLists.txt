@@ -23,4 +23,6 @@ target_sources(ROIVertTest
         tVideoControllerWidget.h
         tVideoData.cpp
         tVideoData.h
+        tWorkflow.cpp
+        tWorkflow.h
 )

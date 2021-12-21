@@ -20,7 +20,7 @@ public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder);
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
-    void setInitialSettings();
+    void setInitialSettings(bool restore=true);
     
 protected:
     void closeEvent(QCloseEvent* event) override;

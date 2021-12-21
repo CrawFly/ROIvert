@@ -12,6 +12,7 @@
 #include "tTraceChartWidget.h"
 #include "tVideoControllerWidget.h"
 #include "tVideoData.h"
+#include "tWorkflow.h"
 #include <iostream>
 
 
@@ -199,6 +200,7 @@ int main(int argc, char** argv)
     bank.addSuite<tTraceChartWidget>();
     bank.addSuite<tVideoData>();
     bank.addSuite<tVideoControllerWidget>();
+    bank.addSuite<tWorkflow>();
 
     //QGuiApplication app(argc, argv);
     QApplication app(argc, argv);
