@@ -11,8 +11,8 @@ public:
 	ZoomPan(QGraphicsView* view);
 	~ZoomPan();
 
-	void Zoom(double factor);
 	void setZoomFactor(double value) noexcept;
+	void setModifier(Qt::KeyboardModifier);
 
 private:
 	struct pimpl;

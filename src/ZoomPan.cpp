@@ -51,6 +51,7 @@ struct ZoomPan::pimpl
     }
     bool wheelEvent(const QWheelEvent *event)
     {
+    
         if (QApplication::keyboardModifiers() == mod)
         {
             const double angle = event->angleDelta().y();
@@ -81,10 +82,12 @@ ZoomPan::ZoomPan(QGraphicsView *view) : QObject(view), impl(std::make_unique<pim
 }
 ZoomPan::~ZoomPan() { };
 
+void ZoomPan::setModifier(Qt::KeyboardModifier mod) {
+    impl->mod = mod;
+}
 void ZoomPan::setZoomFactor(double value) noexcept { impl->zoomfactor = value; }
 bool ZoomPan::eventFilter(QObject *object, QEvent *event)
 {
-
     switch (event->type())
     {
     case QEvent::MouseButtonPress:

@@ -9,8 +9,10 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
-
+#include <QWheelEvent>
+#include <QKeyEvent>
 #include <QMouseEvent>
+#include <QScrollBar>
 
 #include "roivert.h"
 #include "dockwidgets/FileIOWidget.h"
@@ -23,6 +25,7 @@
 #include "ROI/ROIShape.h"
 #include "ROI/ROIs.h"
 #include "widgets/TraceChartWidget.h"
+#include "ZoomPan.h"
 
 
 #include <QElapsedTimer>
@@ -129,9 +132,9 @@ namespace {
         selctshapeaction(r, s);
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(v1.x(), v1.y()));
         QTest::mouseMove(iview(r), iview(r)->mapFromScene(v2.x(), v2.y()));
-        pause(100);
+        pause(50);
         QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(v2.x(), v2.y()));
-        pause(100);
+        pause(50);
     }
 
     void makeroi_poly(Roivert* r, std::vector<QPointF> verts) {
@@ -143,14 +146,14 @@ namespace {
         for (size_t i = 1; i < verts.size(); ++i) {
             QTest::mouseMove(iview(r), iview(r)->mapFromScene(verts[i].x(), verts[i].y()));
             QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[i].x(), verts[i].y()));
-            pause(100);
+            pause(50);
             QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[i].x(), verts[i].y()));
         }
 
         // complete the ROI: 
         QTest::mouseMove(iview(r), iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
-        pause(100);
+        pause(50);
         QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
     }
 }
@@ -158,35 +161,56 @@ namespace {
 void tWorkflow::init() {
     r = new Roivert;
     r->show();
-    update();
-}
-void tWorkflow::cleanup() {
-    delete(r);
-}
-
-void tWorkflow::troi() {
-    // This tests creation, editing, selection, and destruction
-    // These could be done separately, but there's a fair amount of overlapping territory here
-    
-
-    dw::validate(r);
     r->setInitialSettings(false);
     dw::hide(r);
     r->resize(1000, 1000);
     r->activateWindow();
     update();
 
-    { // Loading video
-        loaddataset(r);
-        QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
-        QCOMPARE(vdata(r)->getdsSpace(), 1);
-        QCOMPARE(vdata(r)->getdsTime(), 1);
-        QCOMPARE(vdata(r)->get(false, 0, 0).at<uint8_t>(0), 208);
-        QCOMPARE(vdata(r)->get(true, 0, 0).at<uint8_t>(0), 161);
-    }
+    dw::validate(r);
+}
+void tWorkflow::cleanup() {
+    delete(r);
+}
 
+void tWorkflow::tload() {
+    loaddataset(r);
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
+    QCOMPARE(vdata(r)->getdsSpace(), 1);
+    QCOMPARE(vdata(r)->getdsTime(), 1);
+    QCOMPARE(vdata(r)->get(false, 0, 0).at<uint8_t>(0), 208);
+    QCOMPARE(vdata(r)->get(true, 0, 0).at<uint8_t>(0), 161);
+    QCOMPARE(vdata(r)->getTMax(), 1);
+    QCOMPARE(vdata(r)->getWidth(), 6);
+    QCOMPARE(vdata(r)->getHeight(), 5);
+
+    // changing framerate should have an instant effect
+    auto spinFrameRate = dw::imagedata(r)->findChild<QDoubleSpinBox*>("spinFrameRate");
+    spinFrameRate->setValue(14);
+    QCOMPARE(vdata(r)->getTMax(), .5);
+
+    loaddataset(r, 2);
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 3, 1000);
+    QCOMPARE(vdata(r)->getdsTime(), 2);
+    QCOMPARE(vdata(r)->getdsSpace(), 1);
+    QCOMPARE(vdata(r)->getWidth(), 6);
+    QCOMPARE(vdata(r)->getHeight(), 5);
     
-    { // Drawing ROIs
+    loaddataset(r, 1, 2);
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
+    QCOMPARE(vdata(r)->getdsTime(), 1);
+    QCOMPARE(vdata(r)->getdsSpace(), 2);
+    QCOMPARE(vdata(r)->getWidth(), 3);
+    QCOMPARE(vdata(r)->getHeight(), 2);
+}
+
+void tWorkflow::troi() {
+    // This tests creation, editing, selection, and destruction
+    // These could be done separately, but there's a fair amount of overlapping territory here
+    loaddataset(r);
+
+    // Drawing ROIs
+    { 
         makeroi_nonpoly(r, ROIVert::SHAPE::RECTANGLE, { 0, 0 }, { 3, 3 });
         QCOMPARE(rois(r)->size(), 1);
         QCOMPARE((*rois(r))[0].graphicsShape->getShapeType(), ROIVert::SHAPE::RECTANGLE);
@@ -206,7 +230,8 @@ void tWorkflow::troi() {
         QCOMPARE(rois(r)->getSelected(), { 2 });
     }
 
-    { // Selecting ROIs
+    // Selecting ROIs
+    { 
         // note that selction relies somewhat on qt's hit testing, which is a little inaccurate, so this test focuses on selction mechanics but not precision
 
         selctshapeaction(r, ROIVert::SHAPE::SELECT);
@@ -251,7 +276,8 @@ void tWorkflow::troi() {
 
     }
 
-    { // Click on charts window to select
+    // Selecting via Charts
+    { 
         // unselect all before proceeding
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(5,.1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>());
@@ -275,25 +301,52 @@ void tWorkflow::troi() {
         update();
     }
 
-    { // Edit ROIs
+    // Editing ROIs
+    {
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1,.1));
         QCOMPARE(rois(r)->getSelected(), { 0 });
 
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(3, 3));
         QTest::mouseMove(iview(r), iview(r)->mapFromScene(4, 4));
-        pause(100);
+        pause(50);
         QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(4, 4));
-        pause(100);
+        pause(50);
         QCOMPARE((*rois(r))[0].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({4, 4}), QPoint({0, 0}) }));
     }
-
 }
 
-//      Zoom in and out
+void tWorkflow::tzoom() {
+    // I can't find a way to set the qApp KeyboardModifiers set with 
+    loaddataset(r);
+    pause(1000);
+    auto zoomer = iview(r)->findChild<ZoomPan*>(); 
+    zoomer->setModifier(Qt::NoModifier);
+    
+    auto z1 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
 
+    auto evt = QWheelEvent({ 0, 0 }, 120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
+    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+    auto z2 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
+
+    evt = QWheelEvent({ 0, 0 }, 120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
+    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+    auto z3 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
+    
+    // pan tests are too tempermental to include
+
+    evt = QWheelEvent({ 0, 0 }, -120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
+    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+
+    
+    auto z5 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
+    QVERIFY(z1.first < z2.first && z1.second < z2.second);
+    QVERIFY(z2.first < z3.first && z2.second < z3.second);
+    QCOMPARE(z5, z1);
+}
 //      Contrast/display settings
-
 //      Change styling on rois, charts
-//      import/export? or maybe this is covered
+//      import/export? or maybe this is well covered in unit
 //      Play/pause video, change playspeed, change df/f
 //      Delete Rois

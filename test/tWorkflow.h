@@ -3,10 +3,9 @@
 
 class Roivert;
 
-//** note: tWorkflow is not intended as a dumping ground for misc. tests that don't fit
-//         but instead for integration tests that explicitly exercise:
-//              - cross component behavior (e.g. switching df/f on|off)
-//              - interactive workflows which are about mouse-work (e.g. drawing and editing ROIs)
+//** note: tWorkflow is not intended as a dumping ground for misc. integration tests 
+//         but instead targets testing that really needs to simulate mouse activity, 
+//         or test relationships across components.
 
 class tWorkflow : public QObject
 {
@@ -16,7 +15,9 @@ private slots:
     void init();
     void cleanup();
 
+    void tload();
     void troi();
+    void tzoom();
 private:
     Roivert* r;
 };
