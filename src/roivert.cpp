@@ -71,6 +71,7 @@ struct Roivert::pimpl
 Roivert::Roivert(QWidget *parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
 {
+    QApplication::setOrganizationName("Neuroph");
     impl->makeObjects(this);
     impl->initDockWidgets(this);
     impl->setWidgetParams();

@@ -61,11 +61,12 @@ ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsW
 ROIVertSettings::~ROIVertSettings() = default;
 
 void ROIVertSettings::saveSettings() { 
-    QSettings settings("Neuroph", "ROIVert");
+    
+    QSettings settings;
     impl->savesettings(settings);
 }
 void ROIVertSettings::restoreSettings() {
-    QSettings settings("Neuroph", "ROIVert");
+    QSettings settings;
     impl->restoresettings(settings);
 }
 void ROIVertSettings::resetSettings() {
