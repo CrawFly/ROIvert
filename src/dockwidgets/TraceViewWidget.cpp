@@ -1,17 +1,24 @@
 #include "dockwidgets/TraceViewWidget.h"
 
-
 #include <QApplication>
 #include <QBoxLayout>
 #include <QDebug>
 #include <QKeyEvent>
-#include <QScrollArea>
 #include <QSize>
 #include <QTabWidget>
 
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
 #include "widgets/TraceChartWidget.h"
+
+void RScrollArea::wheelEvent(QWheelEvent* event) {
+    if (event->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier)) {
+        emit modwheel(event->angleDelta().y());
+        return;
+    }        
+    QScrollArea::wheelEvent(event);
+}
+
 
 struct TraceViewWidget::pimpl
 {
@@ -40,6 +47,7 @@ struct TraceViewWidget::pimpl
         lineChartLayout->setContentsMargins(0, 0, 0, 0);
         lineChartLayout->setSpacing(10);
         lineChartLayout->setMargin(10);
+        lineChartLayout->setAlignment(Qt::AlignTop);
 
         tabRidgeLine->setLayout(ridgeLayout);
         ridgeLayout->addWidget(ridgeChart.get());
@@ -50,8 +58,23 @@ struct TraceViewWidget::pimpl
         scrollArea->ensureWidgetVisible(w);
     }
 
-    QSize recsize{ 1000,1000 };
+    int linechartheight = 0;
 
+    QSize recsize{ 1000,1000 };
+    RScrollArea *scrollArea{new RScrollArea};
+
+    QList<TraceChartWidget*> getLineCharts() {
+        QList<TraceChartWidget*> ret;
+        auto n = lineChartLayout->count();
+        ret.reserve(n);
+        for (size_t i = 0; i < n; ++i) {
+            auto chart = dynamic_cast<TraceChartWidget*>(lineChartLayout->itemAt(i)->widget());
+            if (chart) {
+                ret.push_back(chart);
+            }
+        }
+        return ret;
+    }
 private:
     // todo: make these all unique/scoped (be careful with order)
 
@@ -62,7 +85,6 @@ private:
 
     QGridLayout *scrollAreaParent{new QGridLayout};
     QWidget *scrollAreaContent{new QWidget};
-    QScrollArea *scrollArea{new QScrollArea};
 
     QGridLayout *ridgeLayout{new QGridLayout};
 
@@ -84,6 +106,21 @@ TraceViewWidget::TraceViewWidget(QWidget *parent) :
     impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
     impl->doLayout();
+    connect(impl->scrollArea, &RScrollArea::modwheel, [&](int del) { 
+        // find the children of linechartlayout and for each one, adjust the size
+        auto charts = impl->getLineCharts();
+
+        if (!charts.empty()) {
+            if (impl->linechartheight == 0) {
+                impl->linechartheight = charts[0]->minimumSizeHint().height();
+            }
+            impl->linechartheight += del / 2;
+            for (auto& chart : charts) {
+                chart->setFixedHeight(impl->linechartheight);
+            }
+        }
+    });
+    
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
@@ -95,10 +132,14 @@ void TraceViewWidget::addLineChart(TraceChartWidget *chart)
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
 
-    // This extremely aggressive double update is required to ensure that the scroll area
+    // This aggressive double update is required to ensure that the scroll area
     // is up to date before scrolling to the new chart.
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+
+    if (impl->linechartheight > 0) {
+        chart->setFixedHeight(impl->linechartheight);
+    }
 
     impl->scrollToWidget(chart);
 }
