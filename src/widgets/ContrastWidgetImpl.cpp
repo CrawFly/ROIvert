@@ -165,13 +165,17 @@ namespace ContrastWidgetImpl
         minline->setX(0.);
         minline->setMin(0.);
         minline->setMax(1.);
+        minline->setObjectName("minline");
+
         maxline = new VertLine(scene);
         maxline->setX(1.);
         maxline->setMin(0.);
         maxline->setMax(1.);
+        maxline->setObjectName("maxline");
 
         // gamma curve
         gamline = new GammaLine(scene);
+        gamline->setObjectName("gamline");
 
         // connect connect min/max/gamma with eachother
         connect(minline, &VertLine::changeVal, maxline, &VertLine::setMin);
@@ -234,8 +238,6 @@ namespace ContrastWidgetImpl
     }
     void ContrastChart::setValues(ROIVert::contrast minmaxgamma, bool silent)
     {
-        
-
         bool oldblock = signalsBlocked();
         if (silent) {
             blockSignals(true);

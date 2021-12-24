@@ -1,4 +1,8 @@
 #include "tChartStyle.h"
+
+#include <QtTest/QtTest>
+#include "ChartStyle.h"
+
 #include "ROI/ROIStyle.h"
 
 void tChartStyle::init() {
@@ -100,4 +104,46 @@ void tChartStyle::tROIStyleLink() {
 void tChartStyle::tNormalization() {
     chartstyle->setNormalization(ROIVert::NORMALIZATION::ZSCORE);
     QCOMPARE(chartstyle->getNormalization(), ROIVert::NORMALIZATION::ZSCORE);
+}
+void tChartStyle::tCopy() {
+    chartstyle->setBackgroundColor(QColor(123, 321, 69));
+    chartstyle->setLabelFontSize(34);
+    chartstyle->setTickLabelFontSize(23);
+    chartstyle->setFontFamily("Calibri");
+    chartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+    chartstyle->setTraceLineWidth(3);
+    chartstyle->setTraceFillOpacity(123);
+    chartstyle->setTraceFillGradient(true);
+    chartstyle->setDoBackBrush(true);
+    chartstyle->setAxisColor(QColor(255,123,42));
+    chartstyle->setAxisLineWidth(4);
+    chartstyle->setGrid(true);
+    chartstyle->setNormalization(ROIVert::NORMALIZATION::ZSCORE);
+    {
+        auto cp = std::make_unique<ChartStyle>(*chartstyle);
+        QCOMPARE(cp->getBackgroundColor(), chartstyle->getBackgroundColor());
+        QCOMPARE(cp->getLabelFont(), chartstyle->getLabelFont());
+        QCOMPARE(cp->getTickLabelFont(), chartstyle->getTickLabelFont());
+        QCOMPARE(cp->getLimitStyle(), chartstyle->getLimitStyle());
+        QCOMPARE(cp->getTracePen(), chartstyle->getTracePen());
+        QCOMPARE(cp->getTraceBrush(), chartstyle->getTraceBrush());
+        QCOMPARE(cp->getGrid(), chartstyle->getGrid());
+        QCOMPARE(cp->getAxisPen(), chartstyle->getAxisPen());
+        QCOMPARE(cp->getNormalization(), chartstyle->getNormalization());
+    }
+    
+    {
+        ChartStyle cp;
+        cp = *chartstyle;
+        QCOMPARE(cp.getBackgroundColor(), chartstyle->getBackgroundColor());
+        QCOMPARE(cp.getLabelFont(), chartstyle->getLabelFont());
+        QCOMPARE(cp.getTickLabelFont(), chartstyle->getTickLabelFont());
+        QCOMPARE(cp.getLimitStyle(), chartstyle->getLimitStyle());
+        QCOMPARE(cp.getTracePen(), chartstyle->getTracePen());
+        QCOMPARE(cp.getTraceBrush(), chartstyle->getTraceBrush());
+        QCOMPARE(cp.getGrid(), chartstyle->getGrid());
+        QCOMPARE(cp.getAxisPen(), chartstyle->getAxisPen());
+        QCOMPARE(cp.getNormalization(), chartstyle->getNormalization());
+
+    }
 }

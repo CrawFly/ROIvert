@@ -1,5 +1,6 @@
 #pragma once
 #include <QDockWidget>
+#include <QScrollArea>
 
 class QVBoxLayout;
 class TraceChartWidget;
@@ -34,4 +35,19 @@ protected:
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
+};
+
+    // RScrollArea is a little wrapper around QScrollArea to let modified scoll perform 
+    // a differnt behavior (to resize the charts)
+class RScrollArea : public QScrollArea
+{
+    Q_OBJECT
+
+public:
+signals:
+    void modwheel(int delta);
+
+protected:
+    void wheelEvent(QWheelEvent* event) override;
+
 };

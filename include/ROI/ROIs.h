@@ -1,14 +1,16 @@
 #pragma once
 #include <QObject>
-#include "ImageView.h"
-#include "dockwidgets/TraceViewWidget.h"
-#include "VideoData.h"
+class ImageView;
+class TraceViewWidget;
+class VideoData;
+class ROIStyle;
+class ChartStyle;
 #include "ROIVertEnums.h"
-#include "ROIStyle.h"
-#include "ChartStyle.h"
-
+#include "ROI/ROI.h"
 class ROIShape;
 
+
+class TraceChartWidget;
 class TraceChartSeries;
 
 class ROIs : public QObject
@@ -19,40 +21,37 @@ public:
     ROIs(ImageView*, TraceViewWidget*, VideoData*);
     ~ROIs();
 
-    std::vector<size_t> getSelected() const noexcept;
-    ROIStyle* getROIStyle(size_t ind) const noexcept;
-    ROIStyle* getCoreROIStyle() const noexcept;
-
-    ChartStyle* getLineChartStyle(size_t ind) const noexcept;
-    void updateLineChartStyle(size_t ind);
+    size_t size() const noexcept;
+    ROI& operator[](std::size_t idx);
+    const ROI& operator[](std::size_t idx) const;
+    void pushROI(QPoint pos, ROIVert::SHAPE shp);
     
-    ChartStyle* getRidgeChartStyle(size_t ind) const noexcept;
-    void updateRidgeChartStyle(size_t ind);
-
-    void setColorBySelect(bool yesno = true);
-    void updateROITraces();
-
-    size_t getNROIs() const noexcept;
+    void deleteROIs(std::vector<size_t> inds);
     void deleteAllROIs();
-    std::vector<std::vector<float>> getTraces(std::vector<size_t> inds) const;
-    void exportLineChartImages(std::vector<size_t> inds, QString basename, int width, int height, int quality) const;
+
+    void setROIShape(ROIVert::SHAPE);
+    void update();
+
+    int getIndex(const ROIShape* r) const;
+    int getIndex(const TraceChartWidget* chart) const;
+    int getIndex(const TraceChartSeries* series) const;
+
+    void setSelected(std::vector<size_t>);
+    std::vector<size_t> getSelected() const noexcept;
     
+    ROIStyle* getCoreROIStyle() const noexcept;
+    void setColorBySelect(bool yesno = true);
+        
     void setMatchYAxes(bool);
     bool getMatchYAxes() const noexcept;
+
+    void updateROITraces();
 
     void read(const QJsonObject &json);
     void write(QJsonObject &json) const;
 
 signals:
     void selectionChanged(std::vector<size_t> inds);
-
-public slots:
-    void mousePress(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
-    void keyPress(int, Qt::KeyboardModifiers);
-    void imageSizeUpdate(QSize);
-    void setROIShape(ROIVert::SHAPE) noexcept;
-    void roiEdit(ROIVert::SHAPE, QRect, std::vector<QPoint>);
-    void chartClick(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
 
 private:
     struct pimpl;

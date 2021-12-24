@@ -5,4 +5,26 @@ target_sources(ROIVertTest
         tChartStyle.h
         tColormapPickWidget.cpp
         tColormapPickWidget.h
+        tContrastWidget.cpp
+        tContrastWidget.h
+        tDisplaySettings.cpp
+        tDisplaySettings.h
+        tFileIO.cpp
+        tFileIO.h
+        tMiscSmallWidgets.cpp
+        tMiscSmallWidgets.h
+        tROIs.cpp
+        tROIs.h
+        tROIStyle.cpp
+        tROIStyle.h
+        tSettings.cpp
+        tSettings.h
+        tTraceChartWidget.cpp
+        tTraceChartWidget.h
+        tVideoControllerWidget.cpp
+        tVideoControllerWidget.h
+        tVideoData.cpp
+        tVideoData.h
+        tWorkflow.cpp
+        tWorkflow.h
 )

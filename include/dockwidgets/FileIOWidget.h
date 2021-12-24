@@ -14,6 +14,9 @@ public:
     void saveSettings(QSettings& settings) const override;
     void restoreSettings(QSettings& settings) override;
     void resetSettings() override;
+
+    bool testoverride = false;
+
 signals:
     void exportTraces(QString filename, bool doHeader, bool doTimeCol);
     void exportROIs(QString filename);

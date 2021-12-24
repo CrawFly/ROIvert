@@ -16,7 +16,7 @@ struct ROIVertSettings::pimpl {
     FileIOWidget* fileiowidget{ nullptr };
         
     void savesettings(QSettings& settings) {
-        settings.setValue("version", 1.f);
+        settings.setValue("version", ROIVERTVERSION);
         settings.beginGroup("window");
         settings.setValue("geometry", roivert->saveGeometry());
         settings.setValue("windowState", roivert->saveState());
@@ -61,11 +61,12 @@ ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsW
 ROIVertSettings::~ROIVertSettings() = default;
 
 void ROIVertSettings::saveSettings() { 
-    QSettings settings("Neuroph", "ROIVert");
+    
+    QSettings settings;
     impl->savesettings(settings);
 }
 void ROIVertSettings::restoreSettings() {
-    QSettings settings("Neuroph", "ROIVert");
+    QSettings settings;
     impl->restoresettings(settings);
 }
 void ROIVertSettings::resetSettings() {

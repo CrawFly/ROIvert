@@ -5,7 +5,7 @@
 #include <QSplashScreen>
 #include <QTimer>
 #include <QDesktopWidget>
-
+#include <QPainter>
 #include <QGUIApplication>
 #include <QScreen>
 
@@ -29,6 +29,9 @@ int main(int argc, char *argv[])
 
     pixmap = pixmap.scaled(pixmap.width()/sf, pixmap.height()/sf);
 
+    QPainter painter( &pixmap );
+    painter.setPen(QPen(Qt::white));
+    painter.drawText( QPoint(pixmap.width()*.78, pixmap.height()*.79), "V" ROIVERTVERSION);
 
     QSplashScreen splash(pixmap);
     splash.show();

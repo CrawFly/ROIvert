@@ -93,8 +93,6 @@ cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const
 
 void VideoData::getHistogram(bool isDff, std::vector<float> &h) const noexcept
 {
-    //debugHistogram(impl->histogram, isDff);
-
     impl->histogram[isDff].copyTo(h);
 }
 int VideoData::getWidth() const noexcept { return impl->width; }
@@ -138,9 +136,9 @@ void VideoData::pimpl::init()
 
     // initialize projections
     for (int i = 0; i < 2; i++)
-    {                                                  // looping over raw and dff
-        proj[i][(int)projection::MIN] = first.clone(); // initialize min and max as the first frame, will compare on each load
-        proj[i][(int)projection::MAX] = first.clone();
+    {
+        proj[i][(int)projection::MIN] = cv::Mat(first.size(), first.type(), 255);
+        proj[i][(int)projection::MAX] = cv::Mat::zeros(first.size(), mattype);
         proj[i][(int)projection::MEAN] = cv::Mat::zeros(first.size(), mattype);
         proj[i][(int)projection::SUM] = cv::Mat::zeros(first.size(), mattype);
     }
@@ -279,10 +277,12 @@ cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const
         return res;
     }
 
+    cv::Mat boundedMu = get(false, 3, 0)(cvbb);
+    cv::bitwise_and(mask, boundedMu > 0, mask);
+
     for (size_t i = 0; i < getNFrames(); ++i)
     {
         cv::Mat boundedRaw = get(false, 0, i)(cvbb);
-        cv::Mat boundedMu = get(false, 3, i)(cvbb);
         boundedRaw.convertTo(boundedRaw, CV_32FC1);
         boundedMu.convertTo(boundedMu, CV_32FC1);
         cv::Mat boundedDff = (boundedRaw - boundedMu) / boundedMu;

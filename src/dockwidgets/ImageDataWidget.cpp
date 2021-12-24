@@ -54,17 +54,21 @@ struct ImageDataWidget::pimpl
         }
 
         {
+            optFile.setText("Multi-page File");
+            optFile.setObjectName("optFile");
             optFolder.setText("Folder");
             optFolder.setToolTip("Select this option if your dataset is made up of several Tiff files with one file for each frame.\nThe files must be in a folder of their own and will be read in alphanumeric order.");
-            optFile.setText("Multi-page File");
             optFolder.setToolTip("Select this option if your data are contained in a single 'multipage' Tiff file.");
             optFolder.setChecked(true);
+            optFolder.setObjectName("optFolder");
+
         }
 
         {
             txtFilePath.setCompleter(&completer);
             txtFilePath.setMinimumWidth(100);
             txtFilePath.setSizePolicy(QSizePolicy::Policy::MinimumExpanding, QSizePolicy::Policy::Preferred);
+            txtFilePath.setObjectName("txtFilePath");
         }
         {
             cmdBrowseFilePath.setText("...");
@@ -82,24 +86,28 @@ struct ImageDataWidget::pimpl
             const QSize textSize = cmdBrowseFilePath.fontMetrics().size(Qt::TextShowMnemonic, "999");
             spinFrameRate.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinFrameRate.setToolTip(tr("Set the frame rate in which the data were recorded\nin frames per second (FPS)"));
+            spinFrameRate.setObjectName("spinFrameRate");
         }
         {
             spinDownTime.setMinimum(1);
             spinDownTime.setMaximum(100);
             spinDownTime.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinDownTime.setToolTip(tr("Import only every nth frame\nNote: the frame rate should reflect the raw value\nNote: frame subsets for multipage tiff files do not speed up loading"));
+            spinDownTime.setObjectName("spinDownTime");
         }
         {
             spinDownSpace.setMinimum(1);
             spinDownSpace.setMaximum(100);
             spinDownSpace.setSizePolicy(QSizePolicy::Policy::Fixed, QSizePolicy::Policy::Preferred);
             spinDownSpace.setToolTip(tr("Import only every nth pixel"));
+            spinDownSpace.setObjectName("spinDownSpace");
         }
         {
             cmdLoad.setText("Load Files");
             cmdLoad.setEnabled(false);
             cmdLoad.setToolTip(tr("Load files. This button will be disabled if:\nFolder is selected and the File Path is not a path containing tiff files\nFile is selected and the File Name is not a tiff file"));
             cmdLoad.setMaximumWidth(320);
+            cmdLoad.setObjectName("cmdLoad");
         }
         {
             progBar.setMaximum(100);
@@ -113,6 +121,7 @@ struct ImageDataWidget::pimpl
         contents.setLayout(&vlay);
         vlay.addLayout(&formlay);
 
+        completer.setParent(&contents);
         {
             QVBoxLayout *lay = new QVBoxLayout;
             lay->addWidget(&optFolder);
@@ -235,8 +244,6 @@ struct ImageDataWidget::pimpl
             cmdBrowseFilePath.setToolTip(tr("Open a dialog to select a folder"));
         }
         filePathChanged(txtFilePath.text());
-        // change the thing that checks whether to enable the button
-        // enable the button if it should be
     }
 };
 

@@ -173,7 +173,7 @@ std::vector<QColor> ROIPalette::getPaletteColors() const noexcept
 
 std::vector<QColor> ROIPalette::getPaletteColors(std::vector<size_t> inds) const
 {
-    std::vector<QColor> ret;
+    std::vector<QColor> ret(inds.size());
     if (!palettecolors.empty())
     {
         std::transform(inds.begin(), inds.end(), ret.begin(), [&](size_t ind) -> QColor

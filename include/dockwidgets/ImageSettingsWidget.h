@@ -12,6 +12,7 @@ class ImageSettingsWidget : public DockWidgetWithSettings
         ~ImageSettingsWidget();
         void setHistogram(std::vector<float> &data);
         void setContrast(ROIVert::contrast c);
+        ROIVert::contrast getContrast() const noexcept;
         void setContentsEnabled(bool);
 
         void saveSettings(QSettings& settings) const override;

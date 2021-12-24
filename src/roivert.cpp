@@ -71,6 +71,7 @@ struct Roivert::pimpl
 Roivert::Roivert(QWidget *parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
 {
+    QApplication::setOrganizationName("Neuroph");
     impl->makeObjects(this);
     impl->initDockWidgets(this);
     impl->setWidgetParams();
@@ -119,7 +120,7 @@ void Roivert::doConnect()
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
 {
     // Confirm load if rois exist:
-    if (impl->rois->getNROIs() > 0)
+    if (impl->rois->size() > 0)
     {
         // rois exist:
         QMessageBox msg;
@@ -206,9 +207,11 @@ void Roivert::closeEvent(QCloseEvent* event) {
     impl->roivertsettings->saveSettings();
 }
 
-void Roivert::setInitialSettings() {
+void Roivert::setInitialSettings(bool restore) {
     impl->roivertsettings->resetSettings();
-    impl->roivertsettings->restoreSettings();
+    if (restore) {
+        impl->roivertsettings->restoreSettings();
+    }
     impl->vidctrl->setEnabled(false);
     
 }
@@ -261,6 +264,7 @@ void Roivert::pimpl::makeObjects(Roivert *par)
     imageview = std::make_unique<ImageView>(par);
 
     rois = std::make_unique<ROIs>(imageview.get(), traceviewwidget.get(), viddata.get());
+    rois->setParent(par);
     fileio = std::make_unique<FileIO>(rois.get(), traceviewwidget.get(), viddata.get());
 
     ROIGroup = std::make_unique<QActionGroup>(par);
@@ -353,6 +357,12 @@ void Roivert::pimpl::makeToolbar(Roivert *par)
     actROIPoly->setShortcut(Qt::Key_2);
     actROIRect->setShortcut(Qt::Key_3);
     actROISelect->setShortcut(Qt::Key_4);
+
+    actROIEllipse->setObjectName("actROIEllipse");
+    actROIPoly->setObjectName("actROIPoly");
+    actROIRect->setObjectName("actROIRect");
+    actROISelect->setObjectName("actROISelect");
+
 
     ui.mainToolBar->addActions(ROIGroup->actions());
     ui.mainToolBar->addSeparator();

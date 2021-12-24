@@ -21,7 +21,6 @@ public:
     ChartStyle* getStyle();
     void updateStyle();
 
-
     void addSeries(std::shared_ptr<TraceChartSeries>);
     void removeSeries(std::shared_ptr<TraceChartSeries>) noexcept;
     std::vector<std::shared_ptr<TraceChartSeries>> getSeries() const;
@@ -39,8 +38,6 @@ public:
     QSize minimumSizeHint() const override;
 
     void updateExtents();
-
-
 signals:
     void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
 
@@ -79,8 +76,6 @@ public:
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
     
-    void setStyle(const ChartStyle&) noexcept;
-
     bool polyContains(const QPointF&);
     void setHighlighted(bool);
         
@@ -124,6 +119,7 @@ public:
     void setPlotBox(QRect);
     void setManualLimits(qreal min, qreal max);
 
+    std::vector<double> getTickValues() const noexcept;
 
 protected:
     // this updates the tick values, the ticklabelthickness, and the margins. It needs to be called if the font changes or the labels change.

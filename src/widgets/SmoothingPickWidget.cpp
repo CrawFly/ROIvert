@@ -33,6 +33,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
                            "\n  Median: Take the median in a moving rectangle."
                            "\n  Gaussian: Use a Gaussian kernel to wait the moving average."
                            "\n  Bilateral: A Gaussian filter applied spatially with a second Gaussian applied to pixel intensity difference."));
+    cmbBlur->setObjectName("cmbBlur");
 
     // Set params for sigma and sigma_i spinners:
     spinBlurSigma->setMinimum(0.);
@@ -40,11 +41,13 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     spinBlurSigma->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSigma->setMaximumWidth(50);
     spinBlurSigma->setToolTip(tr("Spatial Gaussian sigma, specify 0 to have it automatically selected."));
+    spinBlurSigma->setObjectName("spinBlurSigma");
     spinBlurSigmaI->setMinimum(0.);
     spinBlurSigmaI->setMaximum(100.);
     spinBlurSigmaI->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSigmaI->setMaximumWidth(50);
     spinBlurSigmaI->setToolTip(tr("Intensity Gaussian sigma, specify 0 to have it automatically selected."));
+    spinBlurSigmaI->setObjectName("spinBlurSigmaI");
 
     // Set size spinner params
     spinBlurSize->setMinimum(0);
@@ -53,11 +56,14 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     spinBlurSize->setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
     spinBlurSize->setMaximumWidth(50);
     spinBlurSize->setToolTip(tr("The size of the filter. Some filters use only odd values and will take the next greater odd value."));
+    spinBlurSize->setObjectName("spinBlurSize");
 
     // ParamsLay holds the parameters for smoothing
     QHBoxLayout *paramsLay = new QHBoxLayout;
     lblSigma->setText(QString::fromWCharArray(L"\x03C3S:"));
     lblSigmaI->setText(QString::fromWCharArray(L"\x03C3I:"));
+    lblSigma->setObjectName("lblSigma");
+    lblSigmaI->setObjectName("lblSigmaI");
 
     paramsLay->addWidget(new QLabel(tr("Size:")), 0, Qt::AlignLeft);
     paramsLay->addWidget(spinBlurSize, 0, Qt::AlignLeft);
@@ -74,13 +80,11 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     lay->addWidget(widgParams);
     lay->setSpacing(0);
     widgParams->setVisible(false);
+    widgParams->setObjectName("widgParams");
 
     // set visible params based on smoothing type
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
             [=](int) { updateSmothingParamWidgets(); });
-
-    // fire signal when anything changes
-    //connect(cmbBlur,)
 
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated), this, &SmoothingPickWidget::smoothingChanged);
     connect(spinBlurSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmoothingPickWidget::smoothingChanged);
@@ -106,6 +110,7 @@ void SmoothingPickWidget::setSmoothing(ROIVert::smoothing s)
 
 void SmoothingPickWidget::updateSmothingParamWidgets() {
     const auto type = cmbBlur->currentIndex();
+
     widgParams->setVisible(type > 0);
     lblSigma->setVisible(type > 2);
     spinBlurSigma->setVisible(type > 2);
