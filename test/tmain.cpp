@@ -10,6 +10,7 @@
 #include "tROIs.h"
 #include "tROIStyle.h"
 #include "tTraceChartWidget.h"
+#include "tSettings.h"
 #include "tVideoControllerWidget.h"
 #include "tVideoData.h"
 #include "tWorkflow.h"
@@ -197,6 +198,7 @@ int main(int argc, char** argv)
     bank.addSuite<tMiscSmallWidgets>();
     bank.addSuite<tROIs>();
     bank.addSuite<tROIStyle>();
+    bank.addSuite<tSettings>();
     bank.addSuite<tTraceChartWidget>();
     bank.addSuite<tVideoData>();
     bank.addSuite<tVideoControllerWidget>();

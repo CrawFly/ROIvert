@@ -123,6 +123,10 @@ void ImageSettingsWidget::setContrast(ROIVert::contrast c)
 {
     impl->contrast->setContrast(c);
 }
+
+ROIVert::contrast ImageSettingsWidget::getContrast() const noexcept {
+    return impl->contrast->getContrast();
+}
 void ImageSettingsWidget::setContentsEnabled(bool onoff)
 {
     impl->contents->setEnabled(onoff);

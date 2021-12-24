@@ -53,7 +53,8 @@ struct FileIOWidget::pimpl
         spinChartQuality.setMinimum(10);
         spinChartQuality.setMaximum(100);
         spinChartQuality.setValue(100);
-        spinChartWidth.setToolTip(tr("Quality used for compression of images"));
+        spinChartQuality.setToolTip(tr("Quality used for compression of images"));
+        spinChartQuality.setObjectName("spinChartQuality");
 
         spinChartWidth.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinChartHeight.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);

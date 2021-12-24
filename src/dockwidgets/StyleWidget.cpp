@@ -195,6 +195,7 @@ struct StyleWidget::pimpl
         ret->setLayout(lay);
         linewidth->setMinimum(0);
         linewidth->setMaximum(15);
+        linewidth->setObjectName("linewidth");
         linefill->setMinimum(0);
         linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
