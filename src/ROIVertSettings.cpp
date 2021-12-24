@@ -16,7 +16,7 @@ struct ROIVertSettings::pimpl {
     FileIOWidget* fileiowidget{ nullptr };
         
     void savesettings(QSettings& settings) {
-        settings.setValue("version", 1.f);
+        settings.setValue("version", ROIVERTVERSION);
         settings.beginGroup("window");
         settings.setValue("geometry", roivert->saveGeometry());
         settings.setValue("windowState", roivert->saveState());

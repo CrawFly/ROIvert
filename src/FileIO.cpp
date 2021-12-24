@@ -206,7 +206,7 @@ void FileIO::exportROIs(QString filename) const
     }
 
     auto json = QJsonObject();
-    json["version"] = "1.0";
+    json["version"] = ROIVERTVERSION;
 
     impl->rois->write(json);
     QJsonDocument saveDoc(json);

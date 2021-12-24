@@ -109,7 +109,6 @@ void tFileIO::texporttraces() {
         auto splitsplit = splitstring[i + 1].split(',');
         QVERIFY(!splitsplit.isEmpty());
         QCOMPARE(splitsplit[0], QString::number(i));
-
     }   
 }
 void tFileIO::texportrois() { 
@@ -126,6 +125,10 @@ void tFileIO::texportrois() {
     QVERIFY(jdoc.isObject());
     QVERIFY(jdoc.object().contains("ROIs"));
     QVERIFY(jdoc.object().contains("version"));
+
+    auto jversion = jdoc.object()["version"];
+    QVERIFY(jversion.isString());
+    QCOMPARE(jversion.toString(), ROIVERTVERSION);
 
     auto jrois = jdoc.object()["ROIs"];
     QVERIFY(jrois.isArray());

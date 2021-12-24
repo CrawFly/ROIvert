@@ -73,6 +73,9 @@ endif()
 
 add_custom_command(TARGET ROIVertTest POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/test_resources $<TARGET_FILE_DIR:ROIVertTest>/test_resources)
 target_compile_definitions(ROIVertTest PUBLIC TEST_RESOURCE_DIR="$<TARGET_FILE_DIR:ROIVertTest>/test_resources")
+
+add_compile_definitions(ROIVERTVERSION="${CMAKE_PROJECT_VERSION}")
+
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)

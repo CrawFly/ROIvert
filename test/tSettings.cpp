@@ -52,7 +52,7 @@ void tSettings::checkWidgetValuesDefault() {
     QCOMPARE(spinFrameRate->value(), 30);
     QCOMPARE(isw->getContrast(), ROIVert::contrast({ 0, 1, 1 }));
     QCOMPARE(linewidth->value(), 2);
-    // todo: something about window? non-critical
+
 }
 void tSettings::checkWidgetValuesCustom() {
     auto spinChartQuality = r->findChild<QSpinBox*>("spinChartQuality");
@@ -93,12 +93,16 @@ void tSettings::tsavesettings() {
     QVERIFY(groups.contains("ImageSettings"));
     QVERIFY(groups.contains("Style"));
     QVERIFY(groups.contains("window"));
+    
 
     QCOMPARE(s.value("FileIO/chartquality").toInt(), 42);
     QCOMPARE(s.value("ImageData/framerate").toDouble(), 23);
     QVERIFY(std::abs(s.value("ImageSettings/rawCont0").toDouble() - .1) < .00001);
     QVERIFY(std::abs(s.value("ImageSettings/rawCont1").toDouble() - .2) < .00001);
     QVERIFY(std::abs(s.value("ImageSettings/rawCont2").toDouble() - 2.) < .00001);
+
+    QVERIFY(s.contains("version"));
+    QCOMPARE(s.value("version").toString(), ROIVERTVERSION);
 }
 void tSettings::tresetsettings() {
     checkWidgetValuesDefault();
