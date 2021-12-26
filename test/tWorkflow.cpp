@@ -160,7 +160,8 @@ void tWorkflow::init() {
     r->show();
     r->setInitialSettings(false);
     dw::hide(r);
-    r->resize(750, 750);
+    // note: the size of the window seems to influence a rounding error (test-only) that varies across display resolution
+    r->resize(1000, 1000); 
     r->activateWindow();
     update();
 
@@ -208,7 +209,8 @@ void tWorkflow::troi() {
 
     // Drawing ROIs
     {
-        makeroi_nonpoly(r, ROIVert::SHAPE::RECTANGLE, { 0, 0 }, { 3, 3 });
+        // warning: fragile tests, something causing rounding errors here...
+        makeroi_nonpoly(r, ROIVert::SHAPE::RECTANGLE, { 0.1, 0.1 }, { 3.1, 3.1 });
         QCOMPARE(rois(r)->size(), 1);
         QCOMPARE((*rois(r))[0].graphicsShape->getShapeType(), ROIVert::SHAPE::RECTANGLE);
         QCOMPARE((*rois(r))[0].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({0,0}), QPoint({3,3}) }));
@@ -220,8 +222,7 @@ void tWorkflow::troi() {
         QCOMPARE((*rois(r))[1].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({1,1}), QPoint({4,4}) }));
         QCOMPARE(rois(r)->getSelected(), { 1 });
 
-        // note hack for pixel click rounding error
-        makeroi_poly(r, { { 2.1, 2.1 }, { 5.1, 2.1 }, {2.1, 5.1} });
+        makeroi_poly(r, { { 2.1, 2.1 }, { 5.1, 2.1 }, { 2.1, 5.1 } });
         QCOMPARE(rois(r)->size(), 3);
         QCOMPARE((*rois(r))[2].graphicsShape->getShapeType(), ROIVert::SHAPE::POLYGON);
         QCOMPARE((*rois(r))[2].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({2,2}), QPoint({5,2}), QPoint({2,5}) }));
@@ -230,7 +231,8 @@ void tWorkflow::troi() {
 
     // Selecting ROIs
     {
-        // note that selction relies somewhat on qt's hit testing, which is a little inaccurate, so this test focuses on selction mechanics but not precision
+        // This test focuses on selction mechanics but not precision, which is 
+        // somewhat imperfect (i.e. you can select a target when not exactly on top of it).
 
         selctshapeaction(r, ROIVert::SHAPE::SELECT);
         update();

@@ -12,9 +12,10 @@
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
+    Roivert w;
 
+#ifdef NDEBUG
     QRect screenGeometry(0, 0, 1920, 1080);
-
     auto screens = QGuiApplication::screens();
     if (!screens.empty()) {
         screenGeometry = screens[0]->geometry();
@@ -31,15 +32,10 @@ int main(int argc, char* argv[])
 
     QPainter painter(&pixmap);
     painter.setPen(QPen(Qt::white));
-
     painter.drawText(QRect(0, pixmap.height() * .75, pixmap.width(), pixmap.height() * .1), Qt::AlignCenter & Qt::AlignHCenter, "V" ROIVERTVERSION);
     QSplashScreen splash(pixmap);
     splash.show();
-
-    Roivert w;
     QTimer t;
-
-#ifdef NDEBUG
     const int delay = 1500;
     t.singleShot(delay, [&]
     {

@@ -94,7 +94,7 @@ void tVideoControllerWidget::ttiming() {
         float thisrate = dur / nfr;
         maxinterval = std::max(dur / nfr, maxinterval);
     }
-    QVERIFY(maxinterval < expected_interval * 2);
+    QVERIFY(maxinterval < std::max(expected_interval * 2, 25.f));
 }
 void tVideoControllerWidget::tdff() {
     size_t dffToggledFireCount = 0;

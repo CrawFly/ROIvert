@@ -131,8 +131,8 @@ void tFileIO::texportrois() {
     auto jrois = jdoc.object()["ROIs"];
     QVERIFY(jrois.isArray());
     QCOMPARE(jrois.toArray().size(), 3);
-
-    auto jroi = jrois.toArray()[0];
+    
+    auto jroi = jdoc.object()["ROIs"].toArray()[0];
     QVERIFY(jroi.isObject());
     QVERIFY(jroi.toObject().contains("shape"));
     QVERIFY(jroi.toObject()["shape"].isObject());

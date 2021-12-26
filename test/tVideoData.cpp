@@ -17,13 +17,14 @@ void tVideoData::cleanup() {
 
 void tVideoData::loadmultipage(int dst, int dss) {
     QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
-    assert(QFile(f[0]).exists());
+    QVERIFY(QFile(f[0]).exists());
     data->load(f, dst, dss, false);
 }
 
 void tVideoData::loadjsonexpected() {
     QFile file(TEST_RESOURCE_DIR "/roiverttestdata.json");
-    assert(file.open(QIODevice::ReadOnly));
+    auto isopen = file.open(QIODevice::ReadOnly);
+    QVERIFY(isopen);
 
     QByteArray jdata = file.readAll();
     auto doc = QJsonDocument::fromJson(jdata);
@@ -112,6 +113,7 @@ void tVideoData::tload() {
     QFETCH(int, frame);
 
     double minval, maxval;
+
     cv::minMaxLoc(data->get(false, 0, frame) - expraw[frame], &minval, &maxval);
     QCOMPARE(maxval, 0);
 
@@ -304,6 +306,13 @@ void tVideoData::tnowidthtrace() {
 void tVideoData::thistogram() {
     std::vector<float> histogram(255);
     data->getHistogram(true, histogram);
+#ifdef NDEBUG
+    QCOMPARE(histogram.size(), 256);
+    QCOMPARE(histogram[0], 3);
+    auto histsum = std::accumulate(histogram.begin(), histogram.end(), 0);
+    QCOMPARE(histsum, 210);
+#else
     QEXPECT_FAIL("", "opencv histograms fail sporadically in DEBUG builds", Abort);
     QCOMPARE(1, 2);
+#endif // NDEBUG
 }
