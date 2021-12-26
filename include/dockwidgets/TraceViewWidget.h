@@ -28,6 +28,9 @@ signals:
     void keyPressed(int key, Qt::KeyboardModifiers mod);
     void chartClicked(TraceChartWidget*, std::vector<TraceChartSeries*>, Qt::KeyboardModifiers);
 
+public slots:
+    void updateMinimumHeight();
+
 protected:
     void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;

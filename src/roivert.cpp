@@ -113,6 +113,8 @@ void Roivert::doConnect()
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggled, impl->vidctrl.get(), &VideoControllerWidget::dffToggle);
 
     connect(impl->actReset.get(), &QAction::triggered, this, &Roivert::setDefaultGeometry);
+
+    connect(impl->stylewidget.get(), &StyleWidget::ChartStyleChanged, impl->traceviewwidget.get(), &TraceViewWidget::updateMinimumHeight);
 }
 
 void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)

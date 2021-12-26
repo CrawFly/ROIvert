@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
     });
 #else
     w.show();
+    w.setInitialSettings();
 #endif
 
     return a.exec();

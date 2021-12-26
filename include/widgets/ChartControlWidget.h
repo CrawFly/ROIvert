@@ -9,11 +9,11 @@ public:
     ~ChartControlWidget();
 
 signals:
-    void heightChanged(int newheight);
+    void lineChartHeightChanged(int newheight);
 
 public slots:
-    void changeMinimumHeight(int minheight);
-    void changeHeight(int newheight);
+    void changeMinimumLineChartHeight(int minheight);
+    void changeLineChartHeight(int newheight);
 
 private:
     struct pimpl;

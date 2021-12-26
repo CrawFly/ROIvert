@@ -21,6 +21,10 @@ public:
     void saveSettings(QSettings& settings) const override;
     void restoreSettings(QSettings& settings) override;
     void resetSettings() override;
+
+signals:
+    void ChartStyleChanged();
+
 public slots:
     void selectionChange(std::vector<size_t> inds);
 

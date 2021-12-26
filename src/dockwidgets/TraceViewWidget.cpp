@@ -25,9 +25,11 @@ struct TraceViewWidget::pimpl
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
-
     std::shared_ptr<ChartStyle> coreRidgeStyle = std::make_shared<ChartStyle>();
     std::shared_ptr<ChartStyle> coreLineStyle = std::make_shared<ChartStyle>();
+    ChartControlWidget* chartcontrols{ new ChartControlWidget };
+    RScrollArea* scrollArea{ new RScrollArea };
+    int linechartheight = 0;
 
     void doLayout()
     {
@@ -53,17 +55,12 @@ struct TraceViewWidget::pimpl
         tabRidgeLine->setLayout(ridgeLayout);
         ridgeLayout->addWidget(ridgeChart.get());
     }
-
+    
     void scrollToWidget(QWidget* w)
     {
         scrollArea->ensureWidgetVisible(w);
     }
-
-    int linechartheight = 0;
-
-    QSize recsize{ 1000,1000 };
-    RScrollArea* scrollArea{ new RScrollArea };
-
+    
     QList<TraceChartWidget*> getLineCharts() {
         QList<TraceChartWidget*> ret;
         auto n = lineChartLayout->count();
@@ -76,18 +73,36 @@ struct TraceViewWidget::pimpl
         }
         return ret;
     }
-    ChartControlWidget* chartcontrols{ new ChartControlWidget };
+    
+    void wheelToScroll(int delta) {
+        if (!getLineCharts().empty()) {
+            auto newheight = linechartheight + delta / 2;
+            chartcontrols->changeLineChartHeight(newheight);
+        }
+    }
+    
+    void setChartHeight(int newheight) {
+        auto charts = getLineCharts();
+        if (!charts.empty()) {
+            auto minheight = charts[0]->minimumSizeHint().height();
+            if (newheight < minheight) {
+                chartcontrols->changeMinimumLineChartHeight(minheight);
+                newheight = minheight;
+            }
+            linechartheight = newheight;
+            for (auto& chart : charts) {
+                chart->setFixedHeight(linechartheight);
+            }
+        }
+    }
 private:
     // todo: make these all unique/scoped (be careful with order)
-
     QTabWidget* tab{ new QTabWidget };
     QWidget* tabLine{ new QWidget };
     QWidget* tabRidgeLine{ new QWidget };
     QWidget* tabImage{ new QWidget };
-
     QGridLayout* scrollAreaParent{ new QGridLayout };
     QWidget* scrollAreaContent{ new QWidget };
-
     QGridLayout* ridgeLayout{ new QGridLayout };
 };
 
@@ -106,19 +121,8 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
 
     impl->doLayout();
 
-    connect(impl->scrollArea, &RScrollArea::modwheel, impl->chartcontrols, &ChartControlWidget::changeHeight);
-    /*
-    connect(impl->scrollArea, &RScrollArea::modwheel, [&](int del) {
-        // find the children of linechartlayout and for each one, adjust the size
-        auto charts = impl->getLineCharts();
-        if (!charts.empty()) {
-            impl->linechartheight = std::max(charts[0]->minimumSizeHint().height(), impl->linechartheight + del / 2);
-            for (auto& chart : charts) {
-                chart->setFixedHeight(impl->linechartheight);
-            }
-        }
-    });
-    */
+    connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
+    connect(impl->chartcontrols, &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
@@ -133,10 +137,7 @@ void TraceViewWidget::addLineChart(TraceChartWidget * chart)
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-    if (impl->linechartheight > 0) {
-        chart->setFixedHeight(impl->linechartheight);
-    }
-
+    impl->chartcontrols->changeLineChartHeight(std::max(impl->linechartheight, chart->minimumSizeHint().height()));
     impl->scrollToWidget(chart);
 }
 void TraceViewWidget::scrollToChart(TraceChartWidget * w)
@@ -164,4 +165,12 @@ void TraceViewWidget::keyPressEvent(QKeyEvent * event)
 void TraceViewWidget::mousePressEvent(QMouseEvent * event)
 {
     emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
+}
+
+void TraceViewWidget::updateMinimumHeight() {
+    auto charts = impl->getLineCharts();
+    if (!charts.empty()) {
+        auto minheight = charts[0]->minimumSizeHint().height();
+        impl->chartcontrols->changeMinimumLineChartHeight(minheight);
+    }
 }

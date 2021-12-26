@@ -401,6 +401,7 @@ void StyleWidget::ChartStyleChange()
     }
     impl->traceview->getRidgeChart().updateStyle();
     impl->rois->update();
+    emit ChartStyleChanged();
 }
 void StyleWidget::LineChartStyleChange()
 {
