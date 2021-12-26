@@ -2,7 +2,6 @@
 #include <QObject>
 #include "opencv2/opencv.hpp"
 
-
 class VideoData;
 
 class tVideoData : public QObject
@@ -46,10 +45,9 @@ private:
     std::vector<float> roiellipse;
     std::vector<float> roitril;
 
-    void loadmultipage(int dst=1, int dss=1);
-    void loadjsonexpected();    
+    void loadmultipage(int dst = 1, int dss = 1);
+    void loadjsonexpected();
 };
-
 
 //todo:
 //  16 bit datasets

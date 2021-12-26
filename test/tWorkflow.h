@@ -3,8 +3,8 @@
 
 class Roivert;
 
-//** note: tWorkflow is not intended as a dumping ground for misc. integration tests 
-//         but instead targets testing that really needs to simulate mouse activity, 
+//** note: tWorkflow is not intended as a dumping ground for misc. integration tests
+//         but instead targets testing that really needs to simulate mouse activity,
 //         or test relationships across components.
 
 class tWorkflow : public QObject

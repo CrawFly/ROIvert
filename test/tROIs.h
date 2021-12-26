@@ -17,7 +17,7 @@ private slots:
     void cleanupTestCase();
     void taddroi();
     void tdeleteroi();
-    
+
     void tindexfinders();
     void tselected();
     void tmatchy();

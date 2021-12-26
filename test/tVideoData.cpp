@@ -5,7 +5,6 @@
 #include "VideoData.h"
 #include "ROIVertEnums.h"
 
-
 void tVideoData::init() {
     data = new VideoData;
     loadjsonexpected();
@@ -22,17 +21,17 @@ void tVideoData::loadmultipage(int dst, int dss) {
 }
 
 void tVideoData::loadjsonexpected() {
-    QFile file( TEST_RESOURCE_DIR "/roiverttestdata.json");
+    QFile file(TEST_RESOURCE_DIR "/roiverttestdata.json");
     assert(file.open(QIODevice::ReadOnly));
 
     QByteArray jdata = file.readAll();
     auto doc = QJsonDocument::fromJson(jdata);
-    
+
     auto raw = doc.object()["raw"].toArray();
     int nframes(raw.size());
     int w = raw[0].toArray().size();
     int h = raw[0].toArray()[0].toArray().size();
-    
+
     expraw.clear();
     expraw.resize(nframes);
     for (int f = 0; f < nframes; ++f) {
@@ -43,7 +42,7 @@ void tVideoData::loadjsonexpected() {
             }
         }
     }
-    
+
     auto dffi = doc.object()["dffi"].toArray();
     expdffi.clear();
     expdffi.resize(nframes);
@@ -55,7 +54,7 @@ void tVideoData::loadjsonexpected() {
             }
         }
     }
-    
+
     auto rawmean = doc.object()["rawmean"].toArray();
     auto rawmax = doc.object()["rawmax"].toArray();
     auto rawmin = doc.object()["rawmin"].toArray();
@@ -81,7 +80,7 @@ void tVideoData::loadjsonexpected() {
     for (const auto& val : jroiwf) {
         roiwholefield.push_back(static_cast<float>(val.toDouble()));
     }
-    
+
     auto jroiel = doc.object()["roi_wholeellipse"].toArray();
     for (const auto& val : jroiel) {
         roiellipse.push_back(static_cast<float>(val.toDouble()));
@@ -95,7 +94,7 @@ void tVideoData::loadjsonexpected() {
 
 void tVideoData::tload_data() {
     // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
-    
+
     QTest::addColumn<int>("frame");
     for (int i = 0; i < 7; ++i) {
         QTest::newRow(std::to_string(i).c_str()) << i;
@@ -110,14 +109,13 @@ void tVideoData::tload() {
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
     QFETCH(int, frame);
-    
+
     double minval, maxval;
     cv::minMaxLoc(data->get(false, 0, frame) - expraw[frame], &minval, &maxval);
     QCOMPARE(maxval, 0);
 
     cv::minMaxLoc(data->get(true, 0, frame) - expdffi[frame], &minval, &maxval);
     QVERIFY(maxval <= 1); // allow off-by-one errors, due to rounding (?)
-
 }
 
 void tVideoData::tproj() {
@@ -129,20 +127,19 @@ void tVideoData::tproj() {
     actproj = data->get(false, (int)VideoData::projection::MIN + 1, 0);
     cv::minMaxLoc(actproj - expminraw, &minval, &maxval);
     QCOMPARE(maxval, 0);
-    
+
     actproj = data->get(false, (int)VideoData::projection::MAX + 1, 0);
     cv::minMaxLoc(actproj - expmaxraw, &minval, &maxval);
     QCOMPARE(maxval, 0);
-    
+
     actproj = data->get(true, (int)VideoData::projection::MIN + 1, 0);
     cv::minMaxLoc(actproj - expmindff, &minval, &maxval);
     QVERIFY(maxval <= 1);
-    
+
     actproj = data->get(true, (int)VideoData::projection::MAX + 1, 0);
     cv::minMaxLoc(actproj - expmaxdff, &minval, &maxval);
     QVERIFY(maxval <= 1);
 }
-
 
 void tVideoData::tdowns_data() {
     // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
@@ -159,23 +156,21 @@ void tVideoData::tdowns_data() {
     }
 }
 
-
 void tVideoData::tdowns() {
-    loadmultipage(1,2);
-    
+    loadmultipage(1, 2);
+
     QCOMPARE(data->getNFrames(), 7);
     QCOMPARE(data->getdsSpace(), 2);
     QCOMPARE(data->getdsTime(), 1);
     QCOMPARE(data->getHeight(), 2);
     QCOMPARE(data->getWidth(), 3);
 
-    
     QFETCH(int, frame);
     QFETCH(int, row);
     QFETCH(int, col);
 
     auto m = data->get(false, 0, frame);
-    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame].at<uint8_t>(row*2, col*2));
+    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame].at<uint8_t>(row * 2, col * 2));
 }
 
 void tVideoData::tdownt_data() {
@@ -194,26 +189,24 @@ void tVideoData::tdownt_data() {
 }
 
 void tVideoData::tdownt() {
-    loadmultipage(2,1);
+    loadmultipage(2, 1);
     QCOMPARE(data->getNFrames(), 3);
     QCOMPARE(data->getdsSpace(), 1);
     QCOMPARE(data->getdsTime(), 2);
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
-    
-    
+
     QFETCH(int, frame);
     QFETCH(int, row);
     QFETCH(int, col);
     auto m = data->get(false, 0, frame);
-    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame*2+1].at<uint8_t>(row, col));
+    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame * 2 + 1].at<uint8_t>(row, col));
 }
 
 void tVideoData::tfr() {
     data->setFrameRate(14);
     QCOMPARE(data->getTMax(), .5);
 }
-
 
 void tVideoData::ttrace() {
     {
@@ -238,19 +231,15 @@ void tVideoData::ttrace() {
     }
 }
 
-
-
 void tVideoData::tdeadpixel() {
-    QStringList f = {  TEST_RESOURCE_DIR "/roiverttestdata_deadpix.tiff" };
+    QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata_deadpix.tiff" };
     data->load(f, 1, 1, false);
     auto m = data->get(true, 0, 0);
     auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
     for (size_t i = 0; i < trace.size().width; ++i) {
         QVERIFY(!isnan(trace.at<float>(0, i)));
-            
     }
 }
-
 
 void tVideoData::tmultifile_data() {
     QTest::addColumn<int>("frame");
@@ -259,11 +248,10 @@ void tVideoData::tmultifile_data() {
     }
 }
 
-
 void tVideoData::tmultifile() {
     QStringList f;
     for (size_t i = 0; i < 7; ++i) {
-        f << ( TEST_RESOURCE_DIR "/roiverttestdata_mf" + std::to_string(i + 1) + ".tiff").c_str();
+        f << (TEST_RESOURCE_DIR "/roiverttestdata_mf" + std::to_string(i + 1) + ".tiff").c_str();
     }
     data->load(f, 1, 1, true);
 
@@ -273,7 +261,7 @@ void tVideoData::tmultifile() {
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
     QFETCH(int, frame);
-    
+
     double minval, maxval;
     cv::minMaxLoc(data->get(false, 0, frame) - expraw[frame], &minval, &maxval);
     QCOMPARE(maxval, 0);
@@ -284,7 +272,7 @@ void tVideoData::tmultifile() {
 
 void tVideoData::temptyfilelist() {
     // an empty file list is currently a no-op, i.e. all data unchanged
-    
+
     QStringList f;
     data->load(f, 1, 1, true);
 
@@ -315,6 +303,6 @@ void tVideoData::tnowidthtrace() {
 void tVideoData::thistogram() {
     std::vector<float> histogram(255);
     data->getHistogram(true, histogram);
-    QEXPECT_FAIL("","opencv histograms fail sporadically in DEBUG builds", Abort);
+    QEXPECT_FAIL("", "opencv histograms fail sporadically in DEBUG builds", Abort);
     QCOMPARE(1, 2);
 }

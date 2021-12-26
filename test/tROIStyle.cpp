@@ -33,9 +33,8 @@ void tROIStyle::tpen() {
     style->setLineWidth(1);
     QCOMPARE(emitcntr, 5);
     auto pen = style->getPen();
-    QCOMPARE(style->getPen().style(),Qt::PenStyle::SolidLine);
+    QCOMPARE(style->getPen().style(), Qt::PenStyle::SolidLine);
 }
-
 
 void tROIStyle::tbrush() {
     int emitcntr = 0;
@@ -52,7 +51,7 @@ void tROIStyle::tbrush() {
     style->setFillOpacity(128);
     QCOMPARE(emitcntr, 3);
     QCOMPARE(style->getBrush().color().alpha(), 128);
-        
+
     style->setFillOpacity(0);
     QCOMPARE(emitcntr, 4);
     QCOMPARE(style->getBrush().style(), Qt::BrushStyle::NoBrush);
@@ -75,7 +74,6 @@ void tROIStyle::tcolorbyselected() {
     QCOMPARE(emitcntr, 2);
     style->setColorBySelected(true);
     QCOMPARE(emitcntr, 3);
-    
 
     QVERIFY(style->isColorBySelected());
     style->setSelected(true);
@@ -83,7 +81,7 @@ void tROIStyle::tcolorbyselected() {
     QCOMPARE(emitcntr, 5);
     QCOMPARE(style->getPen().color(), selclr);
     QCOMPARE(style->getBrush().color(), selclr);
-    
+
     style->setSelected(false);
     QCOMPARE(emitcntr, 6);
     QCOMPARE(style->getPen().color(), unselclr);
@@ -91,7 +89,7 @@ void tROIStyle::tcolorbyselected() {
 }
 void tROIStyle::tpalettecolors() {
     ROIPalette p;
-    
+
     // Note: signal must be used for MOC to generate, unused so untested
     //bool didemit = false;
     //connect(p.get(), &ROIPalette::paletteChanged, [&]{ didemit = true; });
@@ -103,7 +101,6 @@ void tROIStyle::tpalettecolors() {
     QCOMPARE(p.getPaletteColor(1), Qt::green);
     QCOMPARE(p.getPaletteColor(2), Qt::blue);
     QCOMPARE(p.getPaletteColor(13), Qt::green);
-
 
     auto act = p.getPaletteColors(std::vector<size_t>({ 0, 1, 2, 8, 7, 6 }));
     auto exp = std::vector<QColor>({ Qt::red, Qt::green, Qt::blue, Qt::blue, Qt::green, Qt::red });
@@ -121,7 +118,7 @@ void tROIStyle::tcopy() {
     style->setLineWidth(3);
     style->setFillOpacity(123);
     style->setSelectorSize(22);
-    
+
     {
         auto cp = std::make_unique<ROIStyle>(*style);
         QCOMPARE(cp->getPen(), style->getPen());

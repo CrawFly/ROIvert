@@ -3,7 +3,7 @@
 
 class ChartStyle;
 
-class tChartStyle: public QObject
+class tChartStyle : public QObject
 {
     Q_OBJECT
 private slots:

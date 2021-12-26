@@ -19,7 +19,6 @@ void tColormapPickWidget::tSetGet() {
 
     widget->setColormap(11);
     QCOMPARE(widget->getColormap(), 11);
-
 }
 void tColormapPickWidget::tComboSelect() {
     auto cmb = widget->findChild<QComboBox*>("cmbColormap");

@@ -10,7 +10,6 @@
 #include "dockwidgets/TraceViewWidget.h"
 #include "VideoData.h"
 
-
 class filescopeguard {
 public:
     filescopeguard(QFile* f) : file(f) { }
@@ -19,13 +18,12 @@ private:
     QFile* file;
 };
 
-
 struct tFileIO::objptrs {
     ImageView iview;
     TraceViewWidget tview;
     VideoData vdata;
     ROIs* rois = nullptr;
-    
+
     objptrs() {
         QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
         vdata.load(f, 1, 1, false);
@@ -68,13 +66,13 @@ void tFileIO::cleanup() {
     fileio = nullptr;
 }
 
-void tFileIO::texporttraces() { 
+void tFileIO::texporttraces() {
     fileio->exportTraces("traces.csv", false, false);
     QFile file("traces.csv");
     QVERIFY(file.exists());
     filescopeguard fsg(&file);
 
-    // read the file 
+    // read the file
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray actstring = file.readAll();
     QString expstring;
@@ -109,14 +107,14 @@ void tFileIO::texporttraces() {
         auto splitsplit = splitstring[i + 1].split(',');
         QVERIFY(!splitsplit.isEmpty());
         QCOMPARE(splitsplit[0], QString::number(i));
-    }   
+    }
 }
-void tFileIO::texportrois() { 
+void tFileIO::texportrois() {
     fileio->exportROIs("rois.json");
     QFile file("rois.json");
     QVERIFY(file.exists());
     filescopeguard fsg(&file);
-    
+
     QVERIFY(file.open(QFile::ReadOnly));
     QByteArray jdata = file.readAll();
     file.close();
@@ -133,7 +131,7 @@ void tFileIO::texportrois() {
     auto jrois = jdoc.object()["ROIs"];
     QVERIFY(jrois.isArray());
     QCOMPARE(jrois.toArray().size(), 3);
-    
+
     auto jroi = jrois.toArray()[0];
     QVERIFY(jroi.isObject());
     QVERIFY(jroi.toObject().contains("shape"));
@@ -147,26 +145,23 @@ void tFileIO::texportrois() {
     QVERIFY(jroishape["RGB"].isArray());
     QVERIFY(jroishape["RGB"].toArray()[0].isDouble());
     QCOMPARE(jroishape["RGB"].toArray().size(), 3);
-    
+
     QVERIFY(jroishape["type"].isDouble());
     QCOMPARE(jroishape["type"].toDouble(), 0);
 
     QVERIFY(jroishape["verts"].isArray());
     QCOMPARE(jroishape["verts"].toArray().size(), 2);
-
-
 }
 void tFileIO::timportrois() {
     fileio->exportROIs("rois.json");
     QFile file("rois.json");
     QVERIFY(file.exists());
     filescopeguard fsg(&file);
-    
-    
+
     auto rois2 = std::make_unique<ROIs>(&ptrs->iview, &ptrs->tview, &ptrs->vdata);
     auto fileio2 = std::make_unique<FileIO>(rois2.get(), &ptrs->tview, &ptrs->vdata);
     fileio2->importROIs("rois.json");
-    
+
     QCOMPARE(rois2->size(), 3);
 
     auto& shp = (*rois2)[0].graphicsShape;
@@ -177,19 +172,17 @@ void tFileIO::timportrois() {
 }
 
 void tFileIO::texportcharts_data() {
-    
     QTest::addColumn<QString>("ext");
     QTest::newRow("png") << "png";
     QTest::newRow("jpg") << "jpg";
 }
 
-
-void tFileIO::texportcharts() { 
+void tFileIO::texportcharts() {
     QFETCH(QString, ext);
     fileio->exportCharts(QString("charts.%1").arg(ext), 500, 600, 100, false);
-    for(size_t i = 0; i<3; ++i)
+    for (size_t i = 0; i < 3; ++i)
     {
-        auto fn = QString("charts_%1.%2").arg(i+1).arg(ext);
+        auto fn = QString("charts_%1.%2").arg(i + 1).arg(ext);
         QFile file(fn);
         QVERIFY(file.exists());
         filescopeguard fsg(&file);
@@ -197,7 +190,7 @@ void tFileIO::texportcharts() {
         QCOMPARE(im.size().width(), 500);
         QCOMPARE(im.size().height(), 600);
     }
-    
+
     fileio->exportCharts(QString("chart.%1").arg(ext), 500, 600, 100, true);
     auto fn = QString("chart.%1").arg(ext);
     QFile file(fn);

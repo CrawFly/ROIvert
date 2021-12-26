@@ -20,4 +20,3 @@ private slots:
 private:
     ROIStyle* style;
 };
-

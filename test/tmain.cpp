@@ -16,8 +16,7 @@
 #include "tWorkflow.h"
 #include <iostream>
 
-
-typedef QObject * (*QConstructor)();
+typedef QObject* (*QConstructor)();
 
 class TestBank {
 public:
@@ -42,8 +41,8 @@ public:
             for (int i = meta.methodOffset(); i < meta.methodCount(); ++i) {
                 auto thisname = QString::fromLatin1(meta.method(i).name());
                 if (meta.method(i).methodType() == QMetaMethod::MethodType::Slot &&
-                    thisname != "cleanup" && thisname != "init" && 
-                    thisname != "cleanupTestCase" && thisname != "initTestCase" 
+                    thisname != "cleanup" && thisname != "init" &&
+                    thisname != "cleanupTestCase" && thisname != "initTestCase"
                     && !thisname.endsWith("_data")) {
                     ret.push_back(suite + "." + thisname);
                 }
@@ -134,8 +133,7 @@ namespace {
         return ret;
     }
 
-
-    std::array<size_t,3> printresults(QFile& source, bool disablepretty, QFile& outfile) {
+    std::array<size_t, 3> printresults(QFile& source, bool disablepretty, QFile& outfile) {
         bool doFile = !outfile.fileName().isEmpty();
         bool doPretty = !doFile && !disablepretty;
 
@@ -143,7 +141,7 @@ namespace {
         if (doFile) {
             outstream.setDevice(&outfile);
         }
-        
+
         std::array<size_t, 3> ret({ 0,0,0 });
 
         QTextStream in(&source);
@@ -220,17 +218,16 @@ int main(int argc, char** argv)
     parser.addOption({ {"d", "disableformatting"}, "Disable pretty formatting (for terminals that don't support ANSI formatting)." });
     parser.addOption({ {"C", "countsuites"}, "Count the number of test suites." });
     parser.addOption({ {"c", "countcases"}, "Count the number of test cases." });
-    
+
     // options:
     parser.process(app);
     if (parser.isSet("h")) {
         std::cout << parser.helpText().toStdString();
         return 0;
     }
-    
+
     const QStringList args = parser.positionalArguments();
     QMap<QString, QStringList> testset{ getTestSet(args, bank) };
-
 
     if (parser.isSet("L")) {
         printsuites(testset);
@@ -241,20 +238,20 @@ int main(int argc, char** argv)
         printcases(testset);
         return 0;
     }
-    
+
     if (parser.isSet("C")) {
         std::cout << "\n" << "Number of Suites: " << countsuites(testset) << std::endl;
         return 0;
     }
-    
+
     if (parser.isSet("c")) {
         std::cout << "\n" << "Number of Cases: " << countcases(testset) << std::endl;
         return 0;
     }
-    
+
     QFile tempfile("ROIVertTestResultsTemporaryFile");
     filescopeguard fsg(&tempfile);
-    
+
     QFile outfile;
     if (!parser.value("o").isEmpty()) {
         outfile.setFileName(parser.value("o"));
@@ -267,31 +264,31 @@ int main(int argc, char** argv)
     QElapsedTimer t;
     t.start();
     std::array<size_t, 3> totals_case({ 0,0,0 });
-    size_t totalpassed=0, totalfailed=0;
+    size_t totalpassed = 0, totalfailed = 0;
     for (const auto& s : testset.keys()) {
         auto obj = bank.create(s);
         QStringList params = { "" };    // First parameter always blank
         params.append(testset[s]);      // All cases
-        params.append({"-o", "ROIVertTestResultsTemporaryFile"});
+        params.append({ "-o", "ROIVertTestResultsTemporaryFile" });
         if (parser.isSet("s")) {
             params.push_back("-silent");
         }
         else if (!parser.value("v").isEmpty()) {
             params.push_back("-v" + parser.value("v"));
         }
-        
+
         QTest::qExec(obj, params);
         if (!tempfile.open(QIODevice::ReadOnly)) {
             std::cerr << "Error reading temporary file.\n";
             return 1;
         }
-        std::array<size_t,3> res = printresults(tempfile, parser.isSet("d"), outfile);
+        std::array<size_t, 3> res = printresults(tempfile, parser.isSet("d"), outfile);
         for (size_t i = 0; i < 3; ++i) {
             totals_case[i] += res[i];
         }
         totalpassed += static_cast<size_t>(res[1] == 0);
         totalfailed += static_cast<size_t>(res[1] != 0);
-        
+
         tempfile.close();
     }
 
@@ -301,13 +298,12 @@ int main(int argc, char** argv)
         << "Cases Ignored:\t\033[33m" << totals_case[2] << "\033[0m\n"
         << "Suites Passed:\t\033[32m" << totalpassed << "\033[0m\n"
         << "Suites Failed:\t\033[31m" << totalfailed << "\033[0m\n"
-        << "Duration:\t" << (float)t.elapsed()/1000.f << "s\n"
+        << "Duration:\t" << (float)t.elapsed() / 1000.f << "s\n"
         << std::endl;
-
 
     if (!outfile.fileName().isEmpty()) {
         outfile.close();
-    }    
-    
+    }
+
     return 0;
 };

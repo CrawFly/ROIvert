@@ -7,11 +7,9 @@
 #include "tVideoControllerWidget.h"
 #include "widgets/VideoControllerWidget.h"
 
-
 void tVideoControllerWidget::init() {
     widget = new VideoControllerWidget;
 
-    
     sliScrub = widget->findChild<QSlider*>("sliScrub");
     cmdBack = widget->findChild<QPushButton*>("cmdBack");
     cmdPlay = widget->findChild<QPushButton*>("cmdPlay");
@@ -21,10 +19,9 @@ void tVideoControllerWidget::init() {
     txtSpeed = widget->findChild<QLineEdit*>("txtSpeed");
     dialSpeed = widget->findChild<QDial*>("dialSpeed");
     lblTime = widget->findChild<QLabel*>("lblTime");
-
 }
 void tVideoControllerWidget::cleanup() {
-    delete widget ;
+    delete widget;
     widget = nullptr;
 }
 
@@ -58,28 +55,28 @@ void tVideoControllerWidget::ttimelabel_data() {
     QTest::newRow("F") << 1000 << 10.f << 1000 << "01:39:900 (1000/1000)";
 }
 
-void tVideoControllerWidget::ttiming(){
+void tVideoControllerWidget::ttiming() {
     QFETCH(float, fr);
     size_t n = 100;
     auto expected_interval = 1000 / fr;
-    int timeout = std::ceil(n / fr)*1000 + 1000;
+    int timeout = std::ceil(n / fr) * 1000 + 1000;
 
     widget->setNFrames(n);
     widget->setFrameRate(fr);
     QElapsedTimer signaltimer;
 
     signaltimer.start();
-    
+
     std::vector<int> elapsed_time;
     elapsed_time.reserve(n);
     elapsed_time.push_back(0);
-    
+
     std::vector<size_t> elapsed_frames;
     elapsed_frames.reserve(n);
     elapsed_frames.push_back(0);
-    
-    connect(widget, &VideoControllerWidget::frameChanged, [&](const size_t& frame) { 
-        elapsed_time.push_back(signaltimer.restart()); 
+
+    connect(widget, &VideoControllerWidget::frameChanged, [&](const size_t& frame) {
+        elapsed_time.push_back(signaltimer.restart());
         elapsed_frames.push_back(frame);
     });
     widget->start();
@@ -92,7 +89,7 @@ void tVideoControllerWidget::ttiming(){
     // VideoControllerWidget should know to skip frames if there's not enough time to show them:
     float maxinterval = 0;
     for (size_t i = 1; i < elapsed_frames.size(); ++i) {
-        float nfr = elapsed_frames[i] - elapsed_frames[i-1];
+        float nfr = elapsed_frames[i] - elapsed_frames[i - 1];
         float dur = elapsed_time[i];
         float thisrate = dur / nfr;
         maxinterval = std::max(dur / nfr, maxinterval);
@@ -105,9 +102,8 @@ void tVideoControllerWidget::tdff() {
     size_t frameChangedFireCount = 0;
     size_t framestate = 0;
 
-
-    connect(widget, &VideoControllerWidget::dffToggled, [&](bool chk) {checkedstate = chk; dffToggledFireCount++; } );
-    connect(widget, &VideoControllerWidget::frameChanged, [&](size_t currframe) {framestate = currframe; frameChangedFireCount++; } );
+    connect(widget, &VideoControllerWidget::dffToggled, [&](bool chk) {checkedstate = chk; dffToggledFireCount++; });
+    connect(widget, &VideoControllerWidget::frameChanged, [&](size_t currframe) {framestate = currframe; frameChangedFireCount++; });
 
     widget->dffToggle(true);
     QVERIFY(widget->isDff());
@@ -151,7 +147,7 @@ void tVideoControllerWidget::tsetnframes() {
     QCOMPARE(sliScrub->maximum(), 4);
     sliScrub->setValue(3);
     QCOMPARE(widget->getCurrFrame(), 3);
-    
+
     widget->setNFrames(3);
     QCOMPARE(widget->getCurrFrame(), 1); // Expect currframe reset.
     QCOMPARE(sliScrub->maximum(), 3);
@@ -161,7 +157,7 @@ void tVideoControllerWidget::tspeeddial() {
     QFETCH(QString, txt);
     dialSpeed->setValue(val);
     QCOMPARE(txt, txtSpeed->text());
-    
+
     dialSpeed->setValue(-100);
     txtSpeed->setText(txt);
     txtSpeed->editingFinished();
@@ -172,11 +168,11 @@ void tVideoControllerWidget::ttimelabel() {
     QFETCH(float, framerate);
     QFETCH(int, currframe);
     QFETCH(QString, expstr);
-    
+
     widget->setNFrames(nframes);
     widget->setFrameRate(framerate);
     sliScrub->setValue(currframe);
-   
+
     QCOMPARE(lblTime->text(), expstr);
 }
 
@@ -185,7 +181,7 @@ void tVideoControllerWidget::tforwback() {
     sliScrub->setValue(5);
 
     size_t frameChangedFireCount = 0;
-    connect(widget, &VideoControllerWidget::frameChanged, [&](size_t currframe) { frameChangedFireCount++; } );
+    connect(widget, &VideoControllerWidget::frameChanged, [&](size_t currframe) { frameChangedFireCount++; });
 
     QCOMPARE(widget->getCurrFrame(), 5);
     cmdBack->click();
@@ -195,9 +191,9 @@ void tVideoControllerWidget::tforwback() {
     cmdForw->click();
     QCOMPARE(widget->getCurrFrame(), 5);
     QCOMPARE(frameChangedFireCount, 2);
-    
+
     cmdForw->click();
-    QCOMPARE(frameChangedFireCount, 2); // at the end, no fire    
+    QCOMPARE(frameChangedFireCount, 2); // at the end, no fire
 }
 
 void tVideoControllerWidget::tframeoverflow() {
@@ -219,11 +215,11 @@ void tVideoControllerWidget::tplaybutton() {
 
     auto stopframe = widget->getCurrFrame();
 
-    QTime dieTime= QTime::currentTime().addSecs(1);
+    QTime dieTime = QTime::currentTime().addSecs(1);
     while (QTime::currentTime() < dieTime)
     {
         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
     }
-        
+
     QCOMPARE(widget->getCurrFrame(), stopframe);
 }

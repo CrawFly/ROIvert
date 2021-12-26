@@ -14,7 +14,7 @@
 #include <QDoubleSpinBox>
 
 void tSettings::init() {
-    // NOTE: tSettings is 'destructive' but settins will use a application name ROIVertTest, 
+    // NOTE: tSettings is 'destructive' but settins will use a application name ROIVertTest,
     // so this shouldn't impact regular ROIVert installed on the same machine
 
     // Always clear any previously set settings at startup
@@ -28,7 +28,7 @@ void tSettings::init() {
     rsettings = new ROIVertSettings(r, idw, isw, sw, fw);
 
     // Reset saved settings
-    QSettings().clear();    
+    QSettings().clear();
     rsettings->saveSettings();
 
     // Clear settings
@@ -52,7 +52,6 @@ void tSettings::checkWidgetValuesDefault() {
     QCOMPARE(spinFrameRate->value(), 30);
     QCOMPARE(isw->getContrast(), ROIVert::contrast({ 0, 1, 1 }));
     QCOMPARE(linewidth->value(), 2);
-
 }
 void tSettings::checkWidgetValuesCustom() {
     auto spinChartQuality = r->findChild<QSpinBox*>("spinChartQuality");
@@ -84,7 +83,7 @@ void tSettings::tsavesettings() {
     applyCustomValuesToWidgets();
 
     rsettings->saveSettings();
-    
+
     QSettings s;
     auto groups = s.childGroups();
     QCOMPARE(groups.length(), 5);
@@ -93,7 +92,6 @@ void tSettings::tsavesettings() {
     QVERIFY(groups.contains("ImageSettings"));
     QVERIFY(groups.contains("Style"));
     QVERIFY(groups.contains("window"));
-    
 
     QCOMPARE(s.value("FileIO/chartquality").toInt(), 42);
     QCOMPARE(s.value("ImageData/framerate").toDouble(), 23);
@@ -120,5 +118,4 @@ void tSettings::trestoresettings() {
     checkWidgetValuesDefault();
     rsettings->restoreSettings();
     checkWidgetValuesCustom();
-
 }

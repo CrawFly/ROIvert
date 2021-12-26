@@ -3,7 +3,6 @@
 class ROIVertSettings;
 class Roivert;
 
-
 class tSettings : public QObject
 {
     Q_OBJECT
@@ -23,6 +22,4 @@ private:
     void applyCustomValuesToWidgets();
     void checkWidgetValuesDefault();
     void checkWidgetValuesCustom();
-
-
 };

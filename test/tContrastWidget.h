@@ -2,7 +2,6 @@
 #include <QObject>
 class ContrastWidget;
 
-
 class tContrastWidget : public QObject
 {
     Q_OBJECT
@@ -22,4 +21,3 @@ private:
     struct implptrs;
     implptrs* ptrs;
 };
-

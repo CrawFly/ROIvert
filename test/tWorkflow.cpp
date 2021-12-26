@@ -27,7 +27,6 @@
 #include "widgets/TraceChartWidget.h"
 #include "ZoomPan.h"
 
-
 #include <QElapsedTimer>
 
 namespace dw {
@@ -36,7 +35,7 @@ namespace dw {
     StyleWidget* style(Roivert* r) { return r->findChild<StyleWidget*>(); };
     FileIOWidget* fileio(Roivert* r) { return r->findChild<FileIOWidget*>(); };
     TraceViewWidget* tview(Roivert* r) { return r->findChild<TraceViewWidget*>(); };
-    
+
     void validate(Roivert* r) {
         QVERIFY(dw::imagedata(r) != nullptr);
         QVERIFY(dw::imagesettings(r) != nullptr);
@@ -56,7 +55,6 @@ namespace {
     VideoData* vdata(Roivert* r) { return r->findChild<VideoData*>(); };
     ImageView* iview(Roivert* r) { return r->findChild<ImageView*>(); };
     ROIs* rois(Roivert* r) { return r->findChild<ROIs*>(); };
-
 
     void pause(int dur) {
         QElapsedTimer t;
@@ -98,7 +96,6 @@ namespace {
     }
 
     void selctshapeaction(Roivert* r, ROIVert::SHAPE s) {
-
         auto actiongroup = r->findChild<QActionGroup*>();
         QVERIFY(actiongroup);
         QAction* act = nullptr;
@@ -126,7 +123,6 @@ namespace {
     }
 
     void makeroi_nonpoly(Roivert* r, ROIVert::SHAPE s, QPointF v1, QPointF v2) {
-        
         QTest::mouseMove(iview(r));
 
         selctshapeaction(r, s);
@@ -138,7 +134,6 @@ namespace {
     }
 
     void makeroi_poly(Roivert* r, std::vector<QPointF> verts) {
-        
         QTest::mouseMove(iview(r));
         selctshapeaction(r, ROIVert::SHAPE::POLYGON);
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
@@ -150,7 +145,7 @@ namespace {
             QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[i].x(), verts[i].y()));
         }
 
-        // complete the ROI: 
+        // complete the ROI:
         QTest::mouseMove(iview(r), iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
         pause(50);
@@ -195,7 +190,7 @@ void tWorkflow::tload() {
     QCOMPARE(vdata(r)->getdsSpace(), 1);
     QCOMPARE(vdata(r)->getWidth(), 6);
     QCOMPARE(vdata(r)->getHeight(), 5);
-    
+
     loaddataset(r, 1, 2);
     QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
     QCOMPARE(vdata(r)->getdsTime(), 1);
@@ -210,13 +205,13 @@ void tWorkflow::troi() {
     loaddataset(r);
 
     // Drawing ROIs
-    { 
+    {
         makeroi_nonpoly(r, ROIVert::SHAPE::RECTANGLE, { 0, 0 }, { 3, 3 });
         QCOMPARE(rois(r)->size(), 1);
         QCOMPARE((*rois(r))[0].graphicsShape->getShapeType(), ROIVert::SHAPE::RECTANGLE);
         QCOMPARE((*rois(r))[0].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({0,0}), QPoint({3,3}) }));
         QCOMPARE(rois(r)->getSelected(), { 0 });
-        
+
         makeroi_nonpoly(r, ROIVert::SHAPE::ELLIPSE, { 1, 1 }, { 4, 4 });
         QCOMPARE(rois(r)->size(), 2);
         QCOMPARE((*rois(r))[1].graphicsShape->getShapeType(), ROIVert::SHAPE::ELLIPSE);
@@ -231,55 +226,54 @@ void tWorkflow::troi() {
     }
 
     // Selecting ROIs
-    { 
+    {
         // note that selction relies somewhat on qt's hit testing, which is a little inaccurate, so this test focuses on selction mechanics but not precision
 
         selctshapeaction(r, ROIVert::SHAPE::SELECT);
         update();
 
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), { 0 });
 
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(2.1,2.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(2.1, 2.1));
         QCOMPARE(rois(r)->getSelected(), { 2 });
-        
+
         // shift to select
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 2 }));
 
         // no-op shift off roi
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(5,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(5, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 2 }));
 
         // shift to de-select
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 2 }));
 
         // (re-select)
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 2 }));
 
         // unselect
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(5,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(5, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>());
 
         // select two then click one without shift to select just that one
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1,.1));
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(2.1,2.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1, .1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier, iview(r)->mapFromScene(2.1, 2.1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 2 }));
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), { 0 });
 
         // select all with key
         QTest::keyClick(iview(r)->viewport(), Qt::Key::Key_A, Qt::KeyboardModifier::ControlModifier);
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 1, 2 }));
-
     }
 
     // Selecting via Charts
-    { 
+    {
         // unselect all before proceeding
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(5,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(5, .1));
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>());
 
         dw::tview(r)->show();
@@ -292,18 +286,18 @@ void tWorkflow::troi() {
         QCOMPARE(rois(r)->getSelected(), { 1 });
         QTest::mousePress(tc0, Qt::MouseButton::LeftButton, Qt::KeyboardModifier::ShiftModifier);
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 1 }));
-        
+
         // select all with key
         QTest::keyClick(dw::tview(r), Qt::Key::Key_A, Qt::KeyboardModifier::ControlModifier);
         QCOMPARE(rois(r)->getSelected(), std::vector<size_t>({ 0, 1, 2 }));
-        
+
         dw::tview(r)->hide();
         update();
     }
 
     // Editing ROIs
     {
-        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1,.1));
+        QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(.1, .1));
         QCOMPARE(rois(r)->getSelected(), { 0 });
 
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(3, 3));
@@ -316,33 +310,32 @@ void tWorkflow::troi() {
 }
 
 void tWorkflow::tzoom() {
-    // I can't find a way to set the qApp KeyboardModifiers set with 
+    // I can't find a way to set the qApp KeyboardModifiers set with
     loaddataset(r);
     pause(1000);
-    auto zoomer = iview(r)->findChild<ZoomPan*>(); 
+    auto zoomer = iview(r)->findChild<ZoomPan*>();
     zoomer->setModifier(Qt::NoModifier);
-    
-    auto z1 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
+
+    auto z1 = std::make_pair<double, double>(iview(r)->transform().m11(), iview(r)->transform().m22());
 
     auto evt = QWheelEvent({ 0, 0 }, 120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
-    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
-    auto z2 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
+    QApplication::sendEvent(iview(r)->viewport(), &evt); update();
+    auto z2 = std::make_pair<double, double>(iview(r)->transform().m11(), iview(r)->transform().m22());
 
     evt = QWheelEvent({ 0, 0 }, 120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
-    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
-    auto z3 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
-    
+    QApplication::sendEvent(iview(r)->viewport(), &evt); update();
+    auto z3 = std::make_pair<double, double>(iview(r)->transform().m11(), iview(r)->transform().m22());
+
     // pan tests are too tempermental to include
 
     evt = QWheelEvent({ 0, 0 }, -120, Qt::MouseButton::NoButton, Qt::KeyboardModifier::NoModifier);
-    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
-    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
-    QApplication::sendEvent(iview(r)->viewport(), &evt);update();
+    QApplication::sendEvent(iview(r)->viewport(), &evt); update();
+    QApplication::sendEvent(iview(r)->viewport(), &evt); update();
+    QApplication::sendEvent(iview(r)->viewport(), &evt); update();
 
-    
-    auto z5 = std::make_pair<double,double>( iview(r)->transform().m11(), iview(r)->transform().m22());
-    QVERIFY(z1.first < z2.first && z1.second < z2.second);
-    QVERIFY(z2.first < z3.first && z2.second < z3.second);
+    auto z5 = std::make_pair<double, double>(iview(r)->transform().m11(), iview(r)->transform().m22());
+    QVERIFY(z1.first < z2.first&& z1.second < z2.second);
+    QVERIFY(z2.first < z3.first&& z2.second < z3.second);
     QCOMPARE(z5, z1);
 }
 //      Contrast/display settings

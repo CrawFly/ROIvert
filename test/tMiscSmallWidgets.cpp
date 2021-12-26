@@ -15,9 +15,7 @@
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "DisplaySettings.h"
 
-
 void tMiscSmallWidgets::tSmoothingPickWidget_data() {
-
     QTest::addColumn<int>("type");
     QTest::addColumn<int>("size");
     QTest::addColumn<float>("sig");
@@ -25,7 +23,6 @@ void tMiscSmallWidgets::tSmoothingPickWidget_data() {
     QTest::addColumn<bool>("paramsvis");
     QTest::addColumn<bool>("sigvis");
     QTest::addColumn<bool>("sigivis");
-
 
     QTest::newRow("none")       << 0 << 1 << 2.f << 3.f << false << false << false;
     QTest::newRow("box")        << 1 << 2 << 3.f << 4.f << true  << false << false;
@@ -48,7 +45,7 @@ void tMiscSmallWidgets::tSmoothingPickWidget()
     ROIVert::smoothing s = { type, size, sig, sigi };
     widget->setSmoothing(s);
     QCOMPARE(widget->getSmoothing(), s);
-    
+
     auto cmb = widget->findChild<QComboBox*>("cmbBlur");
     QCOMPARE(cmb->currentIndex(), type);
 
@@ -61,13 +58,13 @@ void tMiscSmallWidgets::tSmoothingPickWidget()
     QCOMPARE(widget->findChild<QWidget*>("lblSigmaI")->isVisibleTo(widget.get()), sigivis);
     QCOMPARE(widget->findChild<QWidget*>("spinBlurSigmaI")->isVisibleTo(widget.get()), sigivis);
 }
-void tMiscSmallWidgets::tSmoothingPickWidgetSignal() 
+void tMiscSmallWidgets::tSmoothingPickWidgetSignal()
 {
     auto widget = std::make_unique<SmoothingPickWidget>();
     auto cmb = widget->findChild<QComboBox*>("cmbBlur");
     int firecount = 0;
     connect(widget.get(), &SmoothingPickWidget::smoothingChanged, [&] {firecount++; });
-    
+
     widget->findChild<QComboBox*>("cmbBlur")->activated(2);
     QCOMPARE(firecount, 1);
     widget->findChild<QSpinBox*>("spinBlurSize")->valueChanged(2);
@@ -94,7 +91,7 @@ void tMiscSmallWidgets::tProjectionPickWidget()
     widget->setProjection(2);
     auto bg = widget->findChild<QPushButton*>()->group();
     bg->idClicked(2);
-    
+
     QCOMPARE(widget->getProjection(), 2);
     QCOMPARE(firecount, 1);
 }
@@ -132,7 +129,7 @@ void tMiscSmallWidgets::tFileIOWidget() {
         QCOMPARE(actfn, QDir::currentPath() + "/foo.jpeg");
         QVERIFY(!actisridge);
     }
-    
+
     {
         auto cmd = w.findChild<QPushButton*>("cmdExpRidge");
         QString actfn;
@@ -150,7 +147,7 @@ void tMiscSmallWidgets::tImageDataWidget() {
     auto optFile = w.findChild<QRadioButton*>("optFile");
     auto optFolder = w.findChild<QRadioButton*>("optFolder");
     auto completer = w.findChild<QCompleter*>();
-    
+
     {
         optFile->setChecked(true);
         optFolder->setChecked(false);
@@ -158,7 +155,7 @@ void tMiscSmallWidgets::tImageDataWidget() {
         QVERIFY(!(model->filter() & QDir::AllDirs));
         QVERIFY(model->filter() & QDir::Files);
     }
-    
+
     {
         optFile->setChecked(false);
         optFolder->setChecked(true);
@@ -166,14 +163,14 @@ void tMiscSmallWidgets::tImageDataWidget() {
         QVERIFY(model->filter() & QDir::AllDirs);
         QVERIFY(!(model->filter() & QDir::Files));
     }
-    
+
     bool didfire = false;
     connect(&w, &ImageDataWidget::frameRateChanged, [&](double) { didfire = true; });
     auto spinFrameRate = w.findChild<QDoubleSpinBox*>("spinFrameRate");
     spinFrameRate->valueChanged(42.1);
     QVERIFY(didfire);
 }
-void tMiscSmallWidgets::tImageSettingsWidget(){
+void tMiscSmallWidgets::tImageSettingsWidget() {
     DisplaySettings sets;
     sets.setProjectionMode(3);
 
@@ -181,7 +178,7 @@ void tMiscSmallWidgets::tImageSettingsWidget(){
 
     int cntr = 0;
     connect(&w, &ImageSettingsWidget::imgSettingsChanged, [&] {cntr++; });
-    
+
     ROIVert::contrast c;
     w.setContrast(c);
     QCOMPARE(cntr, 1);
@@ -194,5 +191,4 @@ void tMiscSmallWidgets::tImageSettingsWidget(){
     butNone->click();
     QVERIFY(!w.isProjectionActive());
     QCOMPARE(cntr, 3);
-    
 }

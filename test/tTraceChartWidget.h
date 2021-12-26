@@ -18,7 +18,7 @@ private slots:
     void ttitle();
     void tantialiasing();
     void tclick();
-    
+
     void tseriesdata();
     void tseriesextents();
     void tseriesoffset();
@@ -31,7 +31,6 @@ private slots:
     void taxisthickness();
 
     void tridgeline();
-
 
 private:
     TraceChartWidget* chart;

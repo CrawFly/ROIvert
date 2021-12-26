@@ -13,8 +13,7 @@ private slots:
     void tSetGet();
     void tComboSelect();
     void tSignal();
-    
+
 private:
     ColormapPickWidget* widget = nullptr;
 };
-

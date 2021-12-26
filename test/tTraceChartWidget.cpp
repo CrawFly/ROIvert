@@ -8,12 +8,11 @@
 
 namespace {
     std::shared_ptr<TraceChartSeries> makeSeriesHelper(double xmin, double xmax, std::vector<float> yvalues, std::shared_ptr<ChartStyle> style) {
-
         cv::Mat data(1, yvalues.size(), CV_32F);
         for (size_t i = 0; i < yvalues.size(); ++i) {
             data.at<float>(0, i) = yvalues[i];
         }
-        auto ret= std::make_shared<TraceChartSeries>(style);
+        auto ret = std::make_shared<TraceChartSeries>(style);
         ret->setData(data);
         ret->setXMin(xmin);
         ret->setXMax(xmax);
@@ -59,13 +58,12 @@ void tTraceChartWidget::tstyle() {
     chart->updateStyle();
     int xthickb = xaxis->getThickness();
     int ythickb = yaxis->getThickness();
-    
+
     QVERIFY(xthickb > xthicka);
     QVERIFY(ythickb > ythicka);
 }
 
 void tTraceChartWidget::tnormalization_data() {
-    
     QTest::addColumn<int>("norm");
     QTest::addColumn<QString>("label");
     QTest::addColumn<float>("ymin");
@@ -84,9 +82,9 @@ void tTraceChartWidget::tnormalization() {
     QFETCH(QString, label);
     QFETCH(float, ymin);
     QFETCH(float, ymax);
-    
+
     auto style = std::make_shared<ChartStyle>();
-    
+
     style->setNormalization(static_cast<ROIVert::NORMALIZATION>(norm + 1 % 6));
     auto series = makeSeriesHelper(0, 1, { 0.f, 1.f, 2.f, 3.f, 4.f }, style);
     chart->addSeries(series);
@@ -117,7 +115,7 @@ void tTraceChartWidget::taddremoveseries() {
     QCOMPARE(std::get<1>(yaxis->getExtents()), 2);
     QCOMPARE(chart->getSeries().size(), 1);
     QCOMPARE(chart->getSeries()[0].get(), series1.get());
-    
+
     chart->addSeries(series2);
     QCOMPARE(std::get<0>(xaxis->getExtents()), 1);
     QCOMPARE(std::get<1>(xaxis->getExtents()), 7);
@@ -153,7 +151,7 @@ void tTraceChartWidget::tclick() {
     // this test is going to depend on painting, so:
     //  set up a main window
     //  use a separate chart object as deleting the window will destroy the chart
-    
+
     auto win = std::make_unique<QMainWindow>();
     win->setFixedSize(500, 500);
     auto testchart = new TraceChartWidget(defstyle, win.get());
@@ -163,10 +161,10 @@ void tTraceChartWidget::tclick() {
     std::vector<TraceChartSeries*> hitseries;
     connect(testchart, &TraceChartWidget::chartClicked,
         [&](TraceChartWidget*, std::vector<TraceChartSeries*> ser, Qt::KeyboardModifiers)
-        {
+    {
         clickfired = true;
         hitseries = ser;
-        }
+    }
     );
 
     auto series1 = makeSeriesHelper(0., 1., { 1.f, 1.f, 0.f, 0.f, 0.f }, defstyle);
@@ -174,10 +172,9 @@ void tTraceChartWidget::tclick() {
     testchart->addSeries(series1);
     testchart->addSeries(series2);
 
-    
-    win->show();    
+    win->show();
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
-    
+
     //click outside:
     auto rect = testchart->contentsRect();
     QPoint clicklocation(-1, -1);
@@ -193,7 +190,7 @@ void tTraceChartWidget::tclick() {
     QCOMPARE(clickfired, true);
     QCOMPARE(hitseries.size(), 1);
     QCOMPARE(hitseries[0], series1.get());
-    
+
     // click right:
     clickfired = false;
     clicklocation.setX(rect.x() + rect.width() * .75);
@@ -202,7 +199,7 @@ void tTraceChartWidget::tclick() {
     QCOMPARE(clickfired, true);
     QCOMPARE(hitseries.size(), 1);
     QCOMPARE(hitseries[0], series2.get());
-    
+
     // click right and get two series:
     auto series3 = makeSeriesHelper(0., 1., { 0.f, 0.f, 0.f, 1.f, 1.f }, defstyle);
     testchart->addSeries(series3);
@@ -214,7 +211,7 @@ void tTraceChartWidget::tclick() {
     QCOMPARE(hitseries.size(), 2);
     QCOMPARE(hitseries[0], series2.get());
     QCOMPARE(hitseries[1], series3.get());
-    
+
     // click middle and get an empty:
     clickfired = false;
     clicklocation.setX(rect.x() + rect.width() * .55);
@@ -234,12 +231,12 @@ void tTraceChartWidget::tseriesdata() {
 
     series1->setData(data2);
     series2->setData(data1);
-    
+
     QCOMPARE(series1->getData().at<float>(0), 2.f);
     QCOMPARE(series1->getData().at<float>(1), 3.f);
     QCOMPARE(series2->getData().at<float>(0), 0.f);
     QCOMPARE(series2->getData().at<float>(1), 1.f);
-    
+
     // coercion out of float test:
     cv::Mat dataint(1, 2, CV_8U);
     dataint.at<uint8_t>(0, 0) = 1;
@@ -249,11 +246,10 @@ void tTraceChartWidget::tseriesdata() {
     QCOMPARE(series1->getData().at<float>(1), 2.f);
 }
 void tTraceChartWidget::tseriesextents() {
-    
     double xmin = 2., xmax = 3.;
     float ymin = 4., ymax = 5.;
-    auto series = makeSeriesHelper(xmin, xmax, { ymin, ymax, (ymin+ymax)/2.f }, defstyle);
-    
+    auto series = makeSeriesHelper(xmin, xmax, { ymin, ymax, (ymin + ymax) / 2.f }, defstyle);
+
     QCOMPARE(series->getXMin(), xmin);
     QCOMPARE(series->getXMax(), xmax);
     QCOMPARE(series->getYMin(), ymin);
@@ -286,7 +282,6 @@ void tTraceChartWidget::tseriesdegendata() {
     QCOMPARE(novarseries->getYMin(), -1.);
     QCOMPARE(novarseries->getYMax(), 1.);
 
-    
     style->setNormalization(ROIVert::NORMALIZATION::ZSCORE);
     novarseries->updatePoly();
     QCOMPARE(novarseries->getYMin(), -1.);
@@ -301,14 +296,13 @@ void tTraceChartWidget::tseriessetstyle() {
 
     auto series = makeSeriesHelper(0, 1, { 1., 100. }, style1);
     QCOMPARE(series->getYMax(), 100.);
-    
+
     series->setStyle(style2);
     series->updatePoly();
     QVERIFY(std::abs(series->getYMax() - 1.) < .001);
 }
 
 void tTraceChartWidget::taxislimits() {
-
     auto style = std::make_shared<ChartStyle>();
     style->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
     TraceChartVAxis ax(style);
@@ -327,17 +321,16 @@ void tTraceChartWidget::taxislimits() {
     style->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
     QCOMPARE(std::get<0>(ax.getLimits()), -std::sqrt(2));
     QCOMPARE(std::get<1>(ax.getLimits()), 3.49);
-    
+
     style->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
     ax.setManualLimits(4., 5.);
     QCOMPARE(std::get<0>(ax.getLimits()), 4.);
     QCOMPARE(std::get<1>(ax.getLimits()), 5.);
-    
-    
+
     style->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
     QCOMPARE(std::get<0>(ax.getLimits()), 0.);
     QCOMPARE(std::get<1>(ax.getLimits()), 1.);
-    
+
     // ** note that haxis is always auto:
     TraceChartHAxis hax(style);
     hax.setExtents(-std::sqrt(2), 3.49);
@@ -351,26 +344,24 @@ void tTraceChartWidget::taxisticks() {
     auto style = std::make_shared<ChartStyle>();
     TraceChartVAxis ax(style);
     ax.setExtents(0, 10.);
-    
+
     // the actual ticks will be up to 2 more than the setting...
     ax.setMaxNTicks(5);
-    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 2., 4., 6., 8., 10.}));
+    QCOMPARE(ax.getTickValues(), std::vector<double>({ 0., 2., 4., 6., 8., 10. }));
     ax.setMaxNTicks(11);
-    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10.}));
+    QCOMPARE(ax.getTickValues(), std::vector<double>({ 0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10. }));
     ax.setMaxNTicks(20);
-    QCOMPARE(ax.getTickValues(), std::vector<double>({0., .5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8., 8.5, 9., 9.5, 10.}));
+    QCOMPARE(ax.getTickValues(), std::vector<double>({ 0., .5, 1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8., 8.5, 9., 9.5, 10. }));
     int withdec = ax.getThickness();
 
     ax.setMaxNTicks(2);
-    QCOMPARE(ax.getTickValues(), std::vector<double>({0., 5., 10.}));
+    QCOMPARE(ax.getTickValues(), std::vector<double>({ 0., 5., 10. }));
     int withoutdec = ax.getThickness();
 
     QVERIFY(withoutdec < withdec);
 }
 
 void tTraceChartWidget::taxisthickness_data() {
-    
-    
     QTest::addColumn<QString>("font");
     QTest::addColumn<int>("tickfontsize");
     QTest::addColumn<int>("lblfontsize");
@@ -390,8 +381,6 @@ void tTraceChartWidget::taxisthickness_data() {
     QTest::newRow("9") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC";
     QTest::newRow("10") << "Arial" << 5 << 20 << 7 << 9 << 5 << 7 << "ABCDEFG";
     QTest::newRow("11") << "Courier" << 5 << 20 << 7 << 9 << 5 << 7 << "ABC";
-    
-
 }
 
 void tTraceChartWidget::taxisthickness() {
@@ -409,7 +398,7 @@ void tTraceChartWidget::taxisthickness() {
     style->setFontFamily(font);
     style->setTickLabelFontSize(tickfontsize);
     style->setLabelFontSize(lblfontsize);
-    
+
     TraceChartHAxis hax(style);
     hax.setTickLength(ticklength);
     hax.setSpacings(labelspacing, ticklabelspacing, tickmarkspacing);
@@ -419,9 +408,7 @@ void tTraceChartWidget::taxisthickness() {
     vax.setTickLength(ticklength);
     vax.setSpacings(labelspacing, ticklabelspacing, tickmarkspacing);
     vax.setLabel(label);
-    
 
-    
     auto tickheight = QFontMetrics(QFont(font, tickfontsize)).height();
     auto tickwidth = QFontMetrics(QFont(font, tickfontsize)).width("0.9");
     auto labelheight = QFontMetrics(QFont(font, lblfontsize)).height();
@@ -439,7 +426,7 @@ void tTraceChartWidget::taxisthickness() {
 
 void tTraceChartWidget::tridgeline() {
     auto ridge = RidgeLineWidget();
-    
+
     QCOMPARE(ridge.getYAxis()->getVisible(), false);
     QCOMPARE(ridge.getXAxis()->getVisible(), true);
     QCOMPARE(ridge.getXAxis()->getLabel(), "Time (s)");

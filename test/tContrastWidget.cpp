@@ -22,11 +22,11 @@ struct tContrastWidget::implptrs {
         spinmax = widget->findChild<QDoubleSpinBox*>("spinMax");
         spingamma = widget->findChild<QDoubleSpinBox*>("spinGamma");
         chart = widget->findChild<ContrastWidgetImpl::ContrastChart*>();
-    
+
         auto scenekids = chart->scene()->items();
         for (auto& kid : scenekids) {
             auto v = qgraphicsitem_cast<VertLine*>(kid);
-            if (v && v->objectName()=="minline") {
+            if (v && v->objectName() == "minline") {
                 minline = v;
             }
             else if (v && v->objectName() == "maxline") {
@@ -56,7 +56,6 @@ struct tContrastWidget::implptrs {
     VertLine* maxline;
     QGraphicsPathItem* histogram;
 };
-    
 
 void tContrastWidget::init() {
     widget = new ContrastWidget;
@@ -86,35 +85,34 @@ void tContrastWidget::tsetspinners() {
         double exp = .1;
         ptrs->spinmin->setValue(exp);
         ROIVert::contrast c{ widget->getContrast() };
-        QVERIFY( almostequal(std::get<0>(c), exp) );
+        QVERIFY(almostequal(std::get<0>(c), exp));
         QCOMPARE(ptrs->chart->getValues(), c);
     }
     {
         double exp = .2;
         ptrs->spinmax->setValue(exp);
         ROIVert::contrast c{ widget->getContrast() };
-        QVERIFY( almostequal(std::get<1>(c), exp) );
+        QVERIFY(almostequal(std::get<1>(c), exp));
         QCOMPARE(ptrs->chart->getValues(), c);
     }
     {
         double exp = .3;
         ptrs->spingamma->setValue(exp);
         ROIVert::contrast c{ widget->getContrast() };
-        QVERIFY( almostequal(std::get<2>(c), exp) );
+        QVERIFY(almostequal(std::get<2>(c), exp));
         QCOMPARE(ptrs->chart->getValues(), c);
     }
 }
 
-
 void tContrastWidget::thistogram() {
-    widget->setHistogram({ .1f, .1f, .4f, .3f, .2f });    
+    widget->setHistogram({ .1f, .1f, .4f, .3f, .2f });
     QVERIFY(ptrs->histogram != nullptr);
-    QCOMPARE(ptrs->histogram->path().elementCount(), 7);    
+    QCOMPARE(ptrs->histogram->path().elementCount(), 7);
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(0).x, 0));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(0).y, 1));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(1).x, 0));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(1).y, .75));
-    QVERIFY(almostequal(ptrs->histogram->path().elementAt(5).x,.8));
+    QVERIFY(almostequal(ptrs->histogram->path().elementAt(5).x, .8));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(5).y, .5));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(6).x, 1));
     QVERIFY(almostequal(ptrs->histogram->path().elementAt(6).y, 1));
@@ -125,7 +123,7 @@ void tContrastWidget::thistogram() {
 void tContrastWidget::tlinecolor() {
     auto clr = QColor(50, 60, 70);
     widget->setLineColor(clr);
-    
+
     QCOMPARE(ptrs->minline->pen().color(), clr);
     QCOMPARE(ptrs->maxline->pen().color(), clr);
 }

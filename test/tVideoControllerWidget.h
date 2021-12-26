@@ -17,7 +17,7 @@ private slots:
     void cleanup();
     void ttiming();
     void ttiming_data();
-    
+
     void tdff();
     void tenabled();
     void tloop();
@@ -31,14 +31,14 @@ private slots:
     void tplaybutton();
 private:
     VideoControllerWidget* widget;
-    
-    QPushButton *cmdBack = nullptr;
-    QPushButton *cmdPlay = nullptr;
-    QPushButton *cmdForw = nullptr;
-    QPushButton *cmdLoop = nullptr;
-    QSlider *sliScrub = nullptr;
-    QLabel *lblTime = nullptr;
-    QDial *dialSpeed = nullptr;
-    QLineEdit *txtSpeed = nullptr;
-    QPushButton *cmdDff = nullptr;
+
+    QPushButton* cmdBack = nullptr;
+    QPushButton* cmdPlay = nullptr;
+    QPushButton* cmdForw = nullptr;
+    QPushButton* cmdLoop = nullptr;
+    QSlider* sliScrub = nullptr;
+    QLabel* lblTime = nullptr;
+    QDial* dialSpeed = nullptr;
+    QLineEdit* txtSpeed = nullptr;
+    QPushButton* cmdDff = nullptr;
 };

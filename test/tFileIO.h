@@ -6,7 +6,7 @@ class FileIO;
 class tFileIO : public QObject
 {
     Q_OBJECT
-public:    
+public:
     tFileIO();
 
 private slots:
@@ -23,5 +23,5 @@ private:
     std::unique_ptr<objptrs> ptrs;
     FileIO* fileio;
 };
-    // void exportROIs(QString filename) const;
-    // void exportCharts(QString filename, int width, int height, int quality, bool ridge);
+// void exportROIs(QString filename) const;
+// void exportCharts(QString filename, int width, int height, int quality, bool ridge);

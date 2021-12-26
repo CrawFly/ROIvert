@@ -15,7 +15,7 @@ private slots:
     void init();
     void cleanup();
     void cleanupTestCase();
-    
+
     void tsetgetcontrast();
     void tsetgetprojectionmode();
     void tsetgetusecolormap();
@@ -26,9 +26,7 @@ private slots:
 
     void tcombined();
 
-
 private:
     DisplaySettings* settings = nullptr;
     cv::Mat* mat;
 };
-
