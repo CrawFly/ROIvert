@@ -124,7 +124,17 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
     connect(impl->chartcontrols, &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
     connect(impl->chartcontrols, &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { 
-        qDebug() << tmin << tmax;
+        auto charts = impl->getLineCharts();
+        for (auto& chart : charts) {
+            auto cs = chart->getStyle();
+            cs->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+            chart->getXAxis()->setManualLimits(tmin, tmax);
+            auto ser = chart->getSeries()[0];
+            //ser->setXMin(tmin);
+            //ser->setXMax(tmax);
+            chart->updateStyle();
+            
+        }
     } );
 }
 
@@ -140,7 +150,9 @@ void TraceViewWidget::addLineChart(TraceChartWidget * chart)
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
 
-    impl->chartcontrols->changeLineChartHeight(std::max(impl->linechartheight, chart->minimumSizeHint().height()));
+    //impl->chartcontrols->changeLineChartHeight(std::max(impl->linechartheight, chart->minimumSizeHint().height()));
+    impl->setChartHeight(impl->linechartheight);
+    
     impl->scrollToWidget(chart);
 }
 void TraceViewWidget::scrollToChart(TraceChartWidget * w)

@@ -75,9 +75,8 @@ struct TraceChartAxis::pimpl
     QRect position = QRect(0, 0, 1, 1);
     QRect plotbox = QRect(0, 0, 1, 1);
     std::tuple<qreal, qreal> extents = std::make_tuple(0, 1);
-    ;
     std::tuple<qreal, qreal> manuallimits = std::make_tuple(0, 1);
-    ;
+
 
     int spacelabel = 0, spaceticklabel = 10, spacetickmark = 5;
     int labelthickness = 0, ticklabelthickness = 0; //** these are font size caches...
@@ -134,14 +133,17 @@ std::tuple<double, double> TraceChartAxis::getLimits() const
     case ROIVert::LIMITSTYLE::TIGHT:
         return impl->extents;
     case ROIVert::LIMITSTYLE::MANAGED:
-        if (impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE)
-        {
-            return { 0., 1. };
-        }
         return impl->manuallimits;
     }
 
     return { 0., 1. };
+}
+std::tuple<double, double> TraceChartVAxis::getLimits() const {
+    if (impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE)
+    {
+        return { 0., 1. };
+    }
+    return TraceChartAxis::getLimits();
 }
 
 void TraceChartAxis::setLabel(const QString & Label)
@@ -274,10 +276,11 @@ void TraceChartHAxis::paint(QPainter & painter)
     double min, max;
     std::tie(min, max) = getLimits();
     const double span = max - min;
-
+    
     for (int i = impl->tightleft; i < impl->tickvalues.size() - impl->tightright; ++i)
     {
         const float propalongruler = (impl->tickvalues[i] - min) / (span);
+
         const int xpos = pos.left() + propalongruler * pos.width();
         const int w = impl->tickwidths[i];
         const QRect ticklabelR(xpos - w / 2, ticklabeltop, w, impl->ticklabelthickness);

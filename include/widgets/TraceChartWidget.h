@@ -95,7 +95,7 @@ public:
 
     void setExtents(const double& min, const double& max);
     std::tuple<double, double> getExtents() const noexcept;
-    std::tuple<double, double> getLimits() const;
+    virtual std::tuple<double, double> getLimits() const;
 
     void setLabel(const QString& Label);
     virtual QString getLabel() const noexcept;
@@ -151,6 +151,7 @@ public:
     int getLength() const noexcept override;
     std::tuple<double, double> getMargins() const override;
     int getThickness() const noexcept override;
+    virtual std::tuple<double, double> getLimits() const;
 
 protected:
     virtual ROIVert::LIMITSTYLE getLimitStyle() const override;

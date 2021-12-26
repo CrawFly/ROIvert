@@ -225,6 +225,9 @@ void TraceChartSeries::pimpl::updatePoly()
     const double mult = (extents[1] - extents[0]) / (data.size().width - 1);
     poly.reserve(normdata.size().width);
 
+    // todo: there's a slight error here: the first and last values are at [0, fs*nsamps], 
+    // but really they describe a span so the first sample should be offset forward, but that looks a little strange
+
     for (int i = 0; i < normdata.size().width; ++i)
     {
         poly << QPointF(mult * i + extents[0], normdata.at<float>(0, i) + offset);

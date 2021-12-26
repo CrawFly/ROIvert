@@ -336,6 +336,8 @@ void TraceChartWidget::pimpl::paint_data(QPainter& painter)
     std::tie(xmin, xmax) = xaxis->getLimits();
     std::tie(ymin, ymax) = yaxis->getLimits();
 
+    //qDebug() << xmin << xmax;
+
     QTransform T;
     T = QTransform::fromTranslate(-xmin, -ymin) *
         QTransform::fromScale(plotbox.width() / (xmax - xmin), -plotbox.height() / (ymax - ymin)) *
@@ -343,11 +345,10 @@ void TraceChartWidget::pimpl::paint_data(QPainter& painter)
 
     for (int i = 0; i < series.size(); ++i)
     {
+        qDebug() << series[i]->getExtents();
         const QColor lineColor(Qt::red);
         const QColor fillColor(Qt::red);
 
-        //const QColor lineColor(style.Line.Colors[i % style.Line.Colors.size()]);
-        //const QColor fillColor = QColor(style.Line.FillColors[i % style.Line.FillColors.size()]);
         series[i]->paint(painter, lineColor, fillColor, T, ymin);
     }
 }
