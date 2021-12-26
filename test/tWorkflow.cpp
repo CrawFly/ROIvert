@@ -150,6 +150,8 @@ namespace {
         QTest::mousePress(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
         pause(50);
         QTest::mouseRelease(iview(r)->viewport(), Qt::MouseButton::LeftButton, Qt::KeyboardModifier::NoModifier, iview(r)->mapFromScene(verts[0].x(), verts[0].y()));
+
+
     }
 }
 
@@ -158,7 +160,7 @@ void tWorkflow::init() {
     r->show();
     r->setInitialSettings(false);
     dw::hide(r);
-    r->resize(1000, 1000);
+    r->resize(750, 750);
     r->activateWindow();
     update();
 
@@ -218,7 +220,8 @@ void tWorkflow::troi() {
         QCOMPARE((*rois(r))[1].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({1,1}), QPoint({4,4}) }));
         QCOMPARE(rois(r)->getSelected(), { 1 });
 
-        makeroi_poly(r, { { 2, 2 }, { 5, 2 }, {2, 5} });
+        // note hack for pixel click rounding error
+        makeroi_poly(r, { { 2.1, 2.1 }, { 5.1, 2.1 }, {2.1, 5.1} });
         QCOMPARE(rois(r)->size(), 3);
         QCOMPARE((*rois(r))[2].graphicsShape->getShapeType(), ROIVert::SHAPE::POLYGON);
         QCOMPARE((*rois(r))[2].graphicsShape->getVertices(), std::vector<QPoint>({ QPoint({2,2}), QPoint({5,2}), QPoint({2,5}) }));

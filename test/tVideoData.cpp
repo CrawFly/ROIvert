@@ -17,6 +17,7 @@ void tVideoData::cleanup() {
 
 void tVideoData::loadmultipage(int dst, int dss) {
     QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
+    assert(QFile(f[0]).exists());
     data->load(f, dst, dss, false);
 }
 

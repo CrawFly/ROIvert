@@ -33,8 +33,9 @@ void tChartStyle::tFont() {
 
     auto lblmetrics = chartstyle->getLabelFontMetrics();
     auto tickmetrics = chartstyle->getTickLabelFontMetrics();
-    QCOMPARE(lblmetrics.height(), 83);
-    QCOMPARE(tickmetrics.height(), 56);
+
+    QCOMPARE(lblmetrics.height(), QFontMetrics(QFont("Calibri", 34)).height());
+    QCOMPARE(tickmetrics.height(), QFontMetrics(QFont("Calibri", 23)).height());
 }
 void tChartStyle::tLimits()
 {
