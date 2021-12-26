@@ -334,7 +334,7 @@ int TraceChartHAxis::getThickness() const noexcept
 
 ROIVert::LIMITSTYLE TraceChartHAxis::getLimitStyle() const
 {
-    return ROIVert::LIMITSTYLE::AUTO;
+    return impl->chartstyle->getXLimitStyle();
 }
 
 TraceChartVAxis::TraceChartVAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
@@ -423,7 +423,7 @@ int TraceChartVAxis::getThickness() const noexcept
 
 ROIVert::LIMITSTYLE TraceChartVAxis::getLimitStyle() const
 {
-    return impl->chartstyle->getLimitStyle();
+    return impl->chartstyle->getYLimitStyle();
 }
 
 ROIVert::LIMITSTYLE TraceChartAxis::getLimitStyle() const

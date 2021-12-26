@@ -113,7 +113,7 @@ struct ROIs::pimpl
             // matchy
             for (auto& roi : rois)
             {
-                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+                roi->linechartstyle->setYLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
             }
             updateYLimits();
         }
@@ -121,7 +121,7 @@ struct ROIs::pimpl
         {
             for (auto& roi : rois)
             {
-                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+                roi->linechartstyle->setYLimitStyle(ROIVert::LIMITSTYLE::AUTO);
                 roi->Trace->update();
             }
         }
@@ -140,7 +140,7 @@ struct ROIs::pimpl
             }
             for (auto& roi : rois)
             {
-                roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+                roi->linechartstyle->setYLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
                 roi->Trace->getTraceChart()->getYAxis()->setManualLimits(themin, themax);
                 roi->Trace->update();
             }

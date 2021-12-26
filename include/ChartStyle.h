@@ -29,8 +29,12 @@ public:
     QFont getTickLabelFont();
     QFontMetrics getLabelFontMetrics();
     QFontMetrics getTickLabelFontMetrics();
-    void setLimitStyle(ROIVert::LIMITSTYLE) noexcept;
-    ROIVert::LIMITSTYLE getLimitStyle() const noexcept;
+
+    void setXLimitStyle(ROIVert::LIMITSTYLE) noexcept;
+    ROIVert::LIMITSTYLE getXLimitStyle() const noexcept;
+
+    void setYLimitStyle(ROIVert::LIMITSTYLE) noexcept;
+    ROIVert::LIMITSTYLE getYLimitStyle() const noexcept;
 
     QPen getAxisPen() const;
     bool getGrid() const noexcept;

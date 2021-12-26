@@ -23,7 +23,8 @@ struct ChartStyle::pimpl
     bool dobackbrush{ false };
     ROIVert::NORMALIZATION normalization{ ROIVert::NORMALIZATION::NONE };
 
-    ROIVert::LIMITSTYLE limitstyle{ ROIVert::LIMITSTYLE::AUTO };
+    ROIVert::LIMITSTYLE xlimitstyle{ ROIVert::LIMITSTYLE::AUTO };
+    ROIVert::LIMITSTYLE ylimitstyle{ ROIVert::LIMITSTYLE::AUTO };
 };
 
 ChartStyle::ChartStyle() : impl(std::make_unique<pimpl>()) { };
@@ -190,13 +191,22 @@ ROIVert::NORMALIZATION ChartStyle::getNormalization() const noexcept
     return impl->normalization;
 }
 
-void ChartStyle::setLimitStyle(ROIVert::LIMITSTYLE limitstyle) noexcept
+void ChartStyle::setYLimitStyle(ROIVert::LIMITSTYLE limitstyle) noexcept
 {
-    impl->limitstyle = limitstyle;
+    impl->ylimitstyle = limitstyle;
 }
-ROIVert::LIMITSTYLE ChartStyle::getLimitStyle() const noexcept
+ROIVert::LIMITSTYLE ChartStyle::getYLimitStyle() const noexcept
 {
-    return impl->limitstyle;
+    return impl->ylimitstyle;
+}
+
+void ChartStyle::setXLimitStyle(ROIVert::LIMITSTYLE limitstyle) noexcept
+{
+    impl->xlimitstyle = limitstyle;
+}
+ROIVert::LIMITSTYLE ChartStyle::getXLimitStyle() const noexcept
+{
+    return impl->xlimitstyle;
 }
 
 bool ChartStyle::getTraceFillGradient() const noexcept

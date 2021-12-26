@@ -168,7 +168,10 @@ void Roivert::changeFrame(const size_t frame)
 void Roivert::frameRateChanged(double frameRate)
 {
     impl->vidctrl->setFrameRate(frameRate / impl->viddata->getdsTime());
-    impl->viddata->setFrameRate(frameRate / impl->viddata->getdsTime()); // duplicated for convenience
+    impl->viddata->setFrameRate(frameRate / impl->viddata->getdsTime());
+    impl->traceviewwidget->updateTMax();
+    
+
     impl->rois->updateROITraces();
 }
 

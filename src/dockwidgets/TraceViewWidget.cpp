@@ -9,8 +9,8 @@
 
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
-#include "widgets/TraceChartWidget.h"
 #include "widgets/ChartControlWidget.h"
+#include "widgets/TraceChartWidget.h"
 
 void RScrollArea::wheelEvent(QWheelEvent* event) {
     if (event->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier)) {
@@ -22,11 +22,11 @@ void RScrollArea::wheelEvent(QWheelEvent* event) {
 
 struct TraceViewWidget::pimpl
 {
+    std::shared_ptr<ChartStyle> coreLineStyle = std::make_shared<ChartStyle>();
+    std::shared_ptr<ChartStyle> coreRidgeStyle = std::make_shared<ChartStyle>();
+    std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
-    std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
-    std::shared_ptr<ChartStyle> coreRidgeStyle = std::make_shared<ChartStyle>();
-    std::shared_ptr<ChartStyle> coreLineStyle = std::make_shared<ChartStyle>();
     ChartControlWidget* chartcontrols{ new ChartControlWidget };
     RScrollArea* scrollArea{ new RScrollArea };
     int linechartheight = 0;
@@ -55,12 +55,12 @@ struct TraceViewWidget::pimpl
         tabRidgeLine->setLayout(ridgeLayout);
         ridgeLayout->addWidget(ridgeChart.get());
     }
-    
+
     void scrollToWidget(QWidget* w)
     {
         scrollArea->ensureWidgetVisible(w);
     }
-    
+
     QList<TraceChartWidget*> getLineCharts() {
         QList<TraceChartWidget*> ret;
         auto n = lineChartLayout->count();
@@ -73,14 +73,14 @@ struct TraceViewWidget::pimpl
         }
         return ret;
     }
-    
+
     void wheelToScroll(int delta) {
         if (!getLineCharts().empty()) {
             auto newheight = linechartheight + delta / 2;
             chartcontrols->changeLineChartHeight(newheight);
         }
     }
-    
+
     void setChartHeight(int newheight) {
         auto charts = getLineCharts();
         if (!charts.empty()) {
@@ -116,13 +116,16 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
 
     impl->coreRidgeStyle->setDoBackBrush(true);
     impl->coreRidgeStyle->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
-    impl->coreRidgeStyle->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    impl->coreRidgeStyle->setYLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
     impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
     impl->doLayout();
 
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
     connect(impl->chartcontrols, &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
+    connect(impl->chartcontrols, &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { 
+        qDebug() << tmin << tmax;
+    } );
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
@@ -173,4 +176,7 @@ void TraceViewWidget::updateMinimumHeight() {
         auto minheight = charts[0]->minimumSizeHint().height();
         impl->chartcontrols->changeMinimumLineChartHeight(minheight);
     }
+}
+void TraceViewWidget::updateTMax() {
+    impl->chartcontrols->setAutoTMax();
 }

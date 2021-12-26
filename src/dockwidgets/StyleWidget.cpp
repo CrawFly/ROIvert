@@ -587,7 +587,7 @@ void StyleWidget::resetSettings() {
 
     crs->setDoBackBrush(true);
     crs->setNormalization(ROIVert::NORMALIZATION::ZEROTOONE);
-    crs->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    crs->setYLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
 
     impl->rois->setMatchYAxes(false);
     impl->traceview->getRidgeChart().offset = .5;

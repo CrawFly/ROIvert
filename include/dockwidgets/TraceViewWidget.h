@@ -23,6 +23,7 @@ public:
     ChartStyle* getCoreLineChartStyle() const noexcept;
 
     void scrollToChart(TraceChartWidget*);
+    void updateTMax();
 
 signals:
     void keyPressed(int key, Qt::KeyboardModifiers mod);

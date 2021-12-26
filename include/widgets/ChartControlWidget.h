@@ -7,9 +7,12 @@ class ChartControlWidget : public QWidget {
 public:
     explicit ChartControlWidget(QWidget* parent = nullptr);
     ~ChartControlWidget();
+    void setAutoTMax();
 
 signals:
     void lineChartHeightChanged(int newheight);
+    void timeRangeChanged(double tmin, double tmax);
+    
 
 public slots:
     void changeMinimumLineChartHeight(int minheight);
