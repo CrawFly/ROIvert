@@ -23,7 +23,7 @@ void tChartStyle::tFont() {
     chartstyle->setLabelFontSize(34);
     chartstyle->setTickLabelFontSize(23);
     chartstyle->setFontFamily("Calibri");
-        
+
     auto lblfont = chartstyle->getLabelFont();
     auto tickfont = chartstyle->getTickLabelFont();
     QCOMPARE(lblfont.family(), "Calibri");
@@ -51,7 +51,7 @@ void tChartStyle::tTracePen() {
     chartstyle->setTraceLineWidth(0);
     pen = chartstyle->getTracePen();
     QCOMPARE(pen.style(), Qt::PenStyle::NoPen);
-    
+
     chartstyle->setTraceLineWidth(2);
     pen = chartstyle->getTracePen();
     QCOMPARE(pen.width(), 2);
@@ -70,14 +70,14 @@ void tChartStyle::tBrush() {
     chartstyle->setTraceFillOpacity(0);
     brush = chartstyle->getTraceBrush();
     QCOMPARE(brush.style(), Qt::BrushStyle::NoBrush);
-    
+
     chartstyle->setTraceFillOpacity(200);
     brush = chartstyle->getTraceBrush();
     QCOMPARE(brush.color().alpha(), 200);
     QCOMPARE(brush.style(), Qt::BrushStyle::SolidPattern);
 }
 void tChartStyle::tAxis() {
-    chartstyle->setAxisColor(QColor(255,123,42));
+    chartstyle->setAxisColor(QColor(255, 123, 42));
     chartstyle->setAxisLineWidth(4);
     chartstyle->setGrid(true);
     QCOMPARE(chartstyle->getGrid(), true);
@@ -115,7 +115,7 @@ void tChartStyle::tCopy() {
     chartstyle->setTraceFillOpacity(123);
     chartstyle->setTraceFillGradient(true);
     chartstyle->setDoBackBrush(true);
-    chartstyle->setAxisColor(QColor(255,123,42));
+    chartstyle->setAxisColor(QColor(255, 123, 42));
     chartstyle->setAxisLineWidth(4);
     chartstyle->setGrid(true);
     chartstyle->setNormalization(ROIVert::NORMALIZATION::ZSCORE);
@@ -131,7 +131,7 @@ void tChartStyle::tCopy() {
         QCOMPARE(cp->getAxisPen(), chartstyle->getAxisPen());
         QCOMPARE(cp->getNormalization(), chartstyle->getNormalization());
     }
-    
+
     {
         ChartStyle cp;
         cp = *chartstyle;
@@ -144,6 +144,5 @@ void tChartStyle::tCopy() {
         QCOMPARE(cp.getGrid(), chartstyle->getGrid());
         QCOMPARE(cp.getAxisPen(), chartstyle->getAxisPen());
         QCOMPARE(cp.getNormalization(), chartstyle->getNormalization());
-
     }
 }
