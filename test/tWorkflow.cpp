@@ -163,6 +163,7 @@ void tWorkflow::init() {
     // note: the size of the window seems to influence a rounding error (test-only) that varies across display resolution
     r->resize(1000, 1000); 
     r->activateWindow();
+    r->move(1, 1);
     update();
 
     dw::validate(r);
