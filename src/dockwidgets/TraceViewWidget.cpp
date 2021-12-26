@@ -10,6 +10,8 @@
 #include "ChartStyle.h"
 #include "ROIVertEnums.h"
 #include "widgets/TraceChartWidget.h"
+#include "widgets/ChartControlWidget.h"
+
 
 void RScrollArea::wheelEvent(QWheelEvent* event) {
     if (event->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier)) {
@@ -31,6 +33,7 @@ struct TraceViewWidget::pimpl
 
     void doLayout()
     {
+        topGridLayout->addWidget(chartcontrols);
         topGridLayout->addWidget(tab);
 
         tab->addTab(tabLine, "Line");
@@ -75,6 +78,7 @@ struct TraceViewWidget::pimpl
         }
         return ret;
     }
+    ChartControlWidget* chartcontrols{ new ChartControlWidget };
 private:
     // todo: make these all unique/scoped (be careful with order)
 
@@ -106,21 +110,20 @@ TraceViewWidget::TraceViewWidget(QWidget *parent) :
     impl->ridgeChart->setStyle(impl->coreRidgeStyle);
 
     impl->doLayout();
+
+    connect(impl->scrollArea, &RScrollArea::modwheel, impl->chartcontrols, &ChartControlWidget::changeHeight);
+    /*
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int del) { 
         // find the children of linechartlayout and for each one, adjust the size
         auto charts = impl->getLineCharts();
-
         if (!charts.empty()) {
-            if (impl->linechartheight == 0) {
-                impl->linechartheight = charts[0]->minimumSizeHint().height();
-            }
-            impl->linechartheight += del / 2;
+            impl->linechartheight = std::max(charts[0]->minimumSizeHint().height(), impl->linechartheight + del / 2);
             for (auto& chart : charts) {
                 chart->setFixedHeight(impl->linechartheight);
             }
         }
     });
-    
+    */
 }
 
 TraceViewWidget::~TraceViewWidget() = default;

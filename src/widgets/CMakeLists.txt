@@ -11,4 +11,5 @@ target_sources(ROIVertLib
         TraceChartSeries.cpp
         TraceChartWidget.cpp
         VideoControllerWidget.cpp
+        ChartControlWidget.cpp
 )

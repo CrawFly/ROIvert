@@ -1,5 +1,6 @@
 target_sources(ROIVertLib
     PRIVATE
+        ChartControlWidget.h
         ColormapPickWidget.h
         ContrastWidget.h
         ContrastWidgetImpl.h
