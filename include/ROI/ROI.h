@@ -19,16 +19,15 @@ struct ROI {
 
     std::shared_ptr<ChartStyle> ridgechartstyle;
     std::shared_ptr<ChartStyle> linechartstyle;
-    
+
     std::unique_ptr<ROITrace> Trace;
     std::unique_ptr<ROITrace> Ridge;
-    
+
     int pixelsubset;
 
     void setSelected(bool sel);
     bool getSelected();
 
-    void read(const QJsonObject &json);
-    void write(QJsonObject &json) const;
-
+    void read(const QJsonObject& json);
+    void write(QJsonObject& json) const;
 };

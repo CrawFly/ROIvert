@@ -34,4 +34,3 @@ signals:
 private:
     std::unique_ptr<QComboBox> cmbColormap{ nullptr };
 };
-

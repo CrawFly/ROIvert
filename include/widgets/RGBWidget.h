@@ -7,16 +7,16 @@ class RGBWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit RGBWidget(QWidget *parent = nullptr);
+    explicit RGBWidget(QWidget* parent = nullptr);
     ~RGBWidget();
-    
+
     QColor getColor() const;
 
 signals:
-    void colorChanged(const QColor &);
+    void colorChanged(const QColor&);
 
 public slots:
-    void setColor(const QColor &);
+    void setColor(const QColor&);
 
 private:
     struct pimpl;

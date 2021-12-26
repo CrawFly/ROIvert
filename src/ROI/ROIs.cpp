@@ -26,9 +26,9 @@ struct ROIs::pimpl
     std::vector<std::unique_ptr<ROI>> rois;
     ROIPalette pal;
     ROIStyle coreStyle;
-    bool matchyaxes{false};
+    bool matchyaxes{ false };
 
-    std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape *r) noexcept
+    std::vector<std::unique_ptr<ROI>>::iterator find(const ROIShape* r) noexcept
     {
         for (auto it = rois.begin(); it < rois.end(); ++it)
         {
@@ -39,7 +39,7 @@ struct ROIs::pimpl
         }
         return rois.end();
     }
-    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartWidget *chart) noexcept
+    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartWidget* chart) noexcept
     {
         for (auto it = rois.begin(); it < rois.end(); ++it)
         {
@@ -50,7 +50,7 @@ struct ROIs::pimpl
         }
         return rois.end();
     }
-    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartSeries *series) noexcept
+    std::vector<std::unique_ptr<ROI>>::iterator find(const TraceChartSeries* series) noexcept
     {
         for (auto it = rois.begin(); it < rois.end(); ++it)
         {
@@ -61,26 +61,25 @@ struct ROIs::pimpl
         }
         return rois.end();
     }
-    
+
     void pushROI(QPoint pos, ROIVert::SHAPE shp, bool isimport = false) {
         ROIStyle rs = coreStyle;
         rs.setColor(pal.getPaletteColor(rois.size()));
 
         rois.push_back(std::make_unique<ROI>(imageview->scene(), traceview, videodata, shp, imageview->getImageSize(), rs));
-        
-        auto &gObj = rois.back()->graphicsShape;
+
+        auto& gObj = rois.back()->graphicsShape;
         if (!isimport)
         {
-            gObj->setVertices({pos, pos});
+            gObj->setVertices({ pos, pos });
             gObj->setEditingVertex(1);
             gObj->grabMouse();
         }
-
     }
 
     void deleteROIs(std::vector<size_t> inds)
     {
-        for (auto &ind : inds)
+        for (auto& ind : inds)
         {
             rois[ind] = nullptr;
         }
@@ -100,7 +99,7 @@ struct ROIs::pimpl
         imageview->scene()->update();
         updateYLimits();
     }
-    
+
     void setMatchYAxes(bool onoff)
     {
         if (matchyaxes == onoff)
@@ -112,7 +111,7 @@ struct ROIs::pimpl
         if (onoff)
         {
             // matchy
-            for (auto &roi : rois)
+            for (auto& roi : rois)
             {
                 roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
             }
@@ -120,7 +119,7 @@ struct ROIs::pimpl
         }
         else
         {
-            for (auto &roi : rois)
+            for (auto& roi : rois)
             {
                 roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
                 roi->Trace->update();
@@ -134,12 +133,12 @@ struct ROIs::pimpl
             double themin = std::numeric_limits<double>::infinity();
             double themax = -std::numeric_limits<double>::infinity();
 
-            for (auto &roi : rois)
+            for (auto& roi : rois)
             {
                 themin = std::min(themin, roi->Trace->getLineSeries()->getYMin());
                 themax = std::max(themax, roi->Trace->getLineSeries()->getYMax());
             }
-            for (auto &roi : rois)
+            for (auto& roi : rois)
             {
                 roi->linechartstyle->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
                 roi->Trace->getTraceChart()->getYAxis()->setManualLimits(themin, themax);
@@ -149,7 +148,7 @@ struct ROIs::pimpl
     }
 };
 
-ROIs::ROIs(ImageView *iView, TraceViewWidget *tView, VideoData *vData) : impl(std::make_unique<pimpl>())
+ROIs::ROIs(ImageView* iView, TraceViewWidget* tView, VideoData* vData) : impl(std::make_unique<pimpl>())
 {
     impl->imageview = iView;
     impl->traceview = tView;
@@ -175,13 +174,12 @@ const ROI& ROIs::operator[](std::size_t idx) const {
 void ROIs::pushROI(QPoint pos, ROIVert::SHAPE shp)
 {
     impl->pushROI(pos, shp, false);
-    auto &gObj = impl->rois.back()->graphicsShape;
-    auto &tObj = impl->rois.back()->Trace;
+    auto& gObj = impl->rois.back()->graphicsShape;
+    auto& tObj = impl->rois.back()->Trace;
     connect(gObj.get(), &ROIShape::roiEdited, tObj.get(), &ROITrace::updateTrace);
     connect(gObj.get(), &ROIShape::roiEdited, impl->roicontroller.get(), &ROIController::roiEdit);
     connect(tObj->getTraceChart(), &TraceChartWidget::chartClicked, impl->roicontroller.get(), &ROIController::chartClick);
 }
-
 
 void ROIs::setSelected(std::vector<size_t> inds) {
     impl->roicontroller->setSelected(inds);
@@ -195,7 +193,7 @@ std::vector<size_t> ROIs::getSelected() const noexcept
 void ROIs::setColorBySelect(bool yesno)
 {
     impl->coreStyle.setColorBySelected(yesno);
-    for (auto &r : impl->rois)
+    for (auto& r : impl->rois)
     {
         r->roistyle->setColorBySelected(yesno);
     }
@@ -203,7 +201,7 @@ void ROIs::setColorBySelect(bool yesno)
 
 void ROIs::updateROITraces()
 {
-    for (auto &r : impl->rois)
+    for (auto& r : impl->rois)
     {
         r->Trace->update();
     }
@@ -220,19 +218,19 @@ void ROIs::deleteAllROIs()
     impl->deleteROIs(inds);
 }
 
-void ROIs::read(const QJsonObject &json)
+void ROIs::read(const QJsonObject & json)
 {
     QJsonArray jrois = json["ROIs"].toArray();
-    for (const auto &jroi : jrois)
+    for (const auto& jroi : jrois)
     {
         impl->pushROI(QPoint(), ROIVert::SHAPE::RECTANGLE, true);
         impl->rois.back()->read(jroi.toObject());
     }
 }
-void ROIs::write(QJsonObject &json) const
+void ROIs::write(QJsonObject & json) const
 {
     QJsonArray jrois;
-    for (auto &r : impl->rois)
+    for (auto& r : impl->rois)
     {
         QJsonObject jroi;
         r->write(jroi);
@@ -241,7 +239,7 @@ void ROIs::write(QJsonObject &json) const
     json["ROIs"] = jrois;
 }
 
-ROIStyle *ROIs::getCoreROIStyle() const noexcept
+ROIStyle* ROIs::getCoreROIStyle() const noexcept
 {
     return &impl->coreStyle;
 }
@@ -252,17 +250,17 @@ void ROIs::setMatchYAxes(bool onoff)
 }
 bool ROIs::getMatchYAxes() const noexcept { return impl->matchyaxes; }
 
-int ROIs::getIndex(const ROIShape *r) const
+int ROIs::getIndex(const ROIShape * r) const
 {
     const auto it = impl->find(r);
     return it == impl->rois.end() ? -1 : it - impl->rois.begin();
 }
-int ROIs::getIndex(const TraceChartWidget *chart) const
+int ROIs::getIndex(const TraceChartWidget * chart) const
 {
     const auto it = impl->find(chart);
     return it == impl->rois.end() ? -1 : it - impl->rois.begin();
-} 
-int ROIs::getIndex(const TraceChartSeries *series) const
+}
+int ROIs::getIndex(const TraceChartSeries * series) const
 {
     const auto it = impl->find(series);
     return it == impl->rois.end() ? -1 : it - impl->rois.begin();

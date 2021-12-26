@@ -4,7 +4,6 @@
 #include <QColor>
 #include <QRect>
 
-
 namespace ROIVert {
     /**
      * @brief min, max, gamma

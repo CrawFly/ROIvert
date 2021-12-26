@@ -18,10 +18,10 @@ struct ProjectionPickWidget::pimpl
 {
     QButtonGroup projection;
     QGridLayout layout;
-    QPushButton butNone{tr("None")};
-    QPushButton butMean{"Mean"};
-    QPushButton butMin{tr("Min")};
-    QPushButton butMax{tr("Max")};
+    QPushButton butNone{ tr("None") };
+    QPushButton butMean{ "Mean" };
+    QPushButton butMin{ tr("Min") };
+    QPushButton butMax{ tr("Max") };
 
     void init()
     {
@@ -46,7 +46,6 @@ struct ProjectionPickWidget::pimpl
         projection.addButton(&butMean, static_cast<int>(proj::MEAN));
         projection.addButton(&butMin, static_cast<int>(proj::MIN));
         projection.addButton(&butMax, static_cast<int>(proj::MAX));
-
     }
 
     void doLayout()
@@ -60,9 +59,8 @@ struct ProjectionPickWidget::pimpl
     }
 };
 
-ProjectionPickWidget::ProjectionPickWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
+ProjectionPickWidget::ProjectionPickWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
-    
     impl->init();
     impl->doLayout();
     setLayout(&impl->layout);

@@ -4,13 +4,13 @@
 class QSettings;
 
 class ImageDataWidget : public DockWidgetWithSettings
-{       
-Q_OBJECT
+{
+    Q_OBJECT
 
 public:
-    ImageDataWidget(QWidget *parent = nullptr);
+    ImageDataWidget(QWidget* parent = nullptr);
     ~ImageDataWidget();
-    
+
     void setContentsEnabled(bool);
 
     void saveSettings(QSettings& settings) const override;

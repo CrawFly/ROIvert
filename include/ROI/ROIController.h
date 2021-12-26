@@ -16,7 +16,7 @@ class ROIController : public QObject {
 public:
     ROIController(ROIs*, TraceViewWidget*, ImageView*);
     ~ROIController();
-    
+
     void setSelected(std::vector<size_t>);
     std::vector<size_t> getSelected() const noexcept;
 

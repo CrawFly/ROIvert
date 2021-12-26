@@ -2,13 +2,13 @@
 #include "DockWidgetWithSettings.h"
 
 class FileIOWidget : public DockWidgetWithSettings
-{    
-Q_OBJECT
+{
+    Q_OBJECT
 
 public:
     FileIOWidget(QWidget* parent = nullptr);
     ~FileIOWidget();
-    
+
     void setContentsEnabled(bool);
 
     void saveSettings(QSettings& settings) const override;
@@ -27,4 +27,3 @@ private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
 };
-

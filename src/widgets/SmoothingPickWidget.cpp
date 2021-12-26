@@ -5,9 +5,8 @@
 #include <QLabel>
 #include <QSpinBox>
 
-SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
+SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent)
 {
-
     cmbBlur = new QComboBox;
     spinBlurSize = new QSpinBox;
     spinBlurSigma = new QDoubleSpinBox;
@@ -19,7 +18,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     // We'll do box, gaussian, median, bilateral
     // each one has a size
     // gaussian and bilateral have a sigma
-    QVBoxLayout *lay = new QVBoxLayout;
+    QVBoxLayout* lay = new QVBoxLayout;
     setLayout(lay);
 
     // Add the combo box items
@@ -29,10 +28,10 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     cmbBlur->addItem("Gaussian");
     cmbBlur->addItem("Bilateral");
     cmbBlur->setToolTip(tr("Choose a smoothing method for the display of images (this does not affect charts):"
-                           "\n  Box: Take the mean in a moving rectangle."
-                           "\n  Median: Take the median in a moving rectangle."
-                           "\n  Gaussian: Use a Gaussian kernel to wait the moving average."
-                           "\n  Bilateral: A Gaussian filter applied spatially with a second Gaussian applied to pixel intensity difference."));
+        "\n  Box: Take the mean in a moving rectangle."
+        "\n  Median: Take the median in a moving rectangle."
+        "\n  Gaussian: Use a Gaussian kernel to wait the moving average."
+        "\n  Bilateral: A Gaussian filter applied spatially with a second Gaussian applied to pixel intensity difference."));
     cmbBlur->setObjectName("cmbBlur");
 
     // Set params for sigma and sigma_i spinners:
@@ -59,7 +58,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
     spinBlurSize->setObjectName("spinBlurSize");
 
     // ParamsLay holds the parameters for smoothing
-    QHBoxLayout *paramsLay = new QHBoxLayout;
+    QHBoxLayout* paramsLay = new QHBoxLayout;
     lblSigma->setText(QString::fromWCharArray(L"\x03C3S:"));
     lblSigmaI->setText(QString::fromWCharArray(L"\x03C3I:"));
     lblSigma->setObjectName("lblSigma");
@@ -84,7 +83,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
 
     // set visible params based on smoothing type
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated),
-            [=](int) { updateSmothingParamWidgets(); });
+        [=](int) { updateSmothingParamWidgets(); });
 
     connect(cmbBlur, QOverload<int>::of(&QComboBox::activated), this, &SmoothingPickWidget::smoothingChanged);
     connect(spinBlurSize, QOverload<int>::of(&QSpinBox::valueChanged), this, &SmoothingPickWidget::smoothingChanged);
@@ -95,9 +94,9 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget *parent) : QWidget(parent)
 ROIVert::smoothing SmoothingPickWidget::getSmoothing()
 {
     return std::make_tuple(cmbBlur->currentIndex(),
-                           spinBlurSize->value(),
-                           spinBlurSigma->value(),
-                           spinBlurSigmaI->value());
+        spinBlurSize->value(),
+        spinBlurSigma->value(),
+        spinBlurSigmaI->value());
 }
 
 void SmoothingPickWidget::setSmoothing(ROIVert::smoothing s)

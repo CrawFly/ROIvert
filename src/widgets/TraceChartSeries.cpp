@@ -11,7 +11,7 @@ using ROIVert::NORMALIZATION;
 
 namespace
 {
-    void lerpGradAlpha(QLinearGradient &grad, QColor clr)
+    void lerpGradAlpha(QLinearGradient& grad, QColor clr)
     {
         const auto alp = clr.alphaF();
         for (int ii = 0; ii < 10; ++ii)
@@ -21,7 +21,7 @@ namespace
             grad.setColorAt(x, clr);
         }
     }
-    void cvMedIqr(cv::Mat mat, double &med, double &iqr)
+    void cvMedIqr(cv::Mat mat, double& med, double& iqr)
     {
         // calculate median and iqr
 
@@ -36,8 +36,8 @@ namespace
         }
 
         constexpr int n = 100;
-        const float range[2] = {(float)valmin, (float)valmax};
-        const float *histrange = {range};
+        const float range[2] = { (float)valmin, (float)valmax };
+        const float* histrange = { range };
         cv::Mat hist;
         cv::calcHist(&mat, 1, 0, cv::Mat(), hist, 1, &n, &histrange, true, false);
 
@@ -74,9 +74,9 @@ struct TraceChartSeries::pimpl
     void updatePoly();
     void updateNorm();
     void updateYExtents();
-    void paint(QPainter &painter, const QColor &lineColor, const QColor &fillColor, const QTransform &T, const double &ymin);
+    void paint(QPainter& painter, const QColor& lineColor, const QColor& fillColor, const QTransform& T, const double& ymin);
 
-    double extents[4] = {0, 1, 0, 1};
+    double extents[4] = { 0, 1, 0, 1 };
     QString name;
     cv::Mat data;
 
@@ -84,16 +84,16 @@ struct TraceChartSeries::pimpl
     float getOffset() const noexcept;
     std::shared_ptr<ChartStyle> chartstyle;
 
-    bool polyContains(const QPointF &);
-    bool highlighted{false};
+    bool polyContains(const QPointF&);
+    bool highlighted{ false };
 
-    NORMALIZATION norm{NORMALIZATION::NONE}; // normalization used to calculate normdata...(cache)
+    NORMALIZATION norm{ NORMALIZATION::NONE }; // normalization used to calculate normdata...(cache)
     cv::Mat normdata;
 
 private:
     QPolygonF poly;
     QPainterPath path;
-    float offset{0};
+    float offset{ 0 };
 };
 
 TraceChartSeries::TraceChartSeries(std::shared_ptr<ChartStyle> style) : impl(std::make_unique<pimpl>())
@@ -117,15 +117,15 @@ cv::Mat TraceChartSeries::getData() const noexcept
     return impl->data;
 }
 
-void TraceChartSeries::paint(QPainter &painter, const QColor &lineColor, const QColor &fillColor, const QTransform &T, const double &ymin)
+void TraceChartSeries::paint(QPainter & painter, const QColor & lineColor, const QColor & fillColor, const QTransform & T, const double& ymin)
 {
     impl->paint(painter, lineColor, fillColor, T, ymin);
 }
 
-void TraceChartSeries::setXMin(const double &val) noexcept { impl->extents[0] = val; }
+void TraceChartSeries::setXMin(const double& val) noexcept { impl->extents[0] = val; }
 double TraceChartSeries::getXMin() const noexcept { return impl->extents[0]; }
 
-void TraceChartSeries::setXMax(const double &val) noexcept { impl->extents[1] = val; }
+void TraceChartSeries::setXMax(const double& val) noexcept { impl->extents[1] = val; }
 double TraceChartSeries::getXMax() const noexcept { return impl->extents[1]; }
 
 double TraceChartSeries::getYMin() const noexcept { return impl->extents[2]; }
@@ -141,7 +141,7 @@ QRectF TraceChartSeries::getExtents()
     return QRectF(QPointF(impl->extents[0], impl->extents[2]), QPointF(impl->extents[1], impl->extents[3]));
 }
 
-bool TraceChartSeries::polyContains(const QPointF &pt) { return impl->polyContains(pt); }
+bool TraceChartSeries::polyContains(const QPointF & pt) { return impl->polyContains(pt); }
 
 void TraceChartSeries::updatePoly()
 {
@@ -169,11 +169,10 @@ void TraceChartSeries::pimpl::setData(cv::Mat d)
     updatePoly();
 }
 
-bool TraceChartSeries::pimpl::polyContains(const QPointF &pt) { return path.contains(pt); }
+bool TraceChartSeries::pimpl::polyContains(const QPointF & pt) { return path.contains(pt); }
 
 void TraceChartSeries::pimpl::updateNorm()
 {
-
     switch (chartstyle->getNormalization())
     {
     case ROIVert::NORMALIZATION::NONE:
@@ -271,7 +270,7 @@ float TraceChartSeries::pimpl::getOffset() const noexcept
     return offset;
 }
 
-void TraceChartSeries::pimpl::paint(QPainter &painter, const QColor &lineColor, const QColor &fillColor, const QTransform &T, const double &ymin)
+void TraceChartSeries::pimpl::paint(QPainter & painter, const QColor & lineColor, const QColor & fillColor, const QTransform & T, const double& ymin)
 {
     if (chartstyle == nullptr)
     {
@@ -285,7 +284,7 @@ void TraceChartSeries::pimpl::paint(QPainter &painter, const QColor &lineColor, 
     {
         // A fill gradient
         QLinearGradient grad(T.map(QPointF(extents[0], extents[2])),
-                             T.map(QPointF(extents[0], extents[3])));
+            T.map(QPointF(extents[0], extents[3])));
 
         auto alp = brush.color().alphaF() > 0. ? 1 / brush.color().alphaF() : 1;
         lerpGradAlpha(grad, brush.color());

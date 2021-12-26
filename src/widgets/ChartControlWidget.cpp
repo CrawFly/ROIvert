@@ -6,14 +6,12 @@
 struct ChartControlWidget::pimpl {
     QHBoxLayout toplay;
     QSpinBox spinHeight;
-    
 };
 
 ChartControlWidget::ChartControlWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>()) {
     this->setLayout(&impl->toplay);
     impl->spinHeight.setFixedWidth(100);
     // need an auto set on minimum...
-
 
     impl->toplay.addWidget(&impl->spinHeight);
     impl->toplay.addStretch(1);
@@ -22,9 +20,7 @@ ChartControlWidget::ChartControlWidget(QWidget* parent) : QWidget(parent), impl(
 }
 
 ChartControlWidget::~ChartControlWidget() {
-
 }
-
 
 void ChartControlWidget::changeMinimumHeight(int minheight) {
     impl->spinHeight.setMinimum(minheight);

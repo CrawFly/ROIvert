@@ -2,15 +2,15 @@
 
 struct DisplaySettings::pimpl
 {
-    ROIVert::contrast contrast[2] = {{0., 1., 1.}, {0., 1., 1.}};
-    cv::Mat lut[2] = {cv::Mat(1, 256, CV_8U), cv::Mat(1, 256, CV_8U)};
-    int projectionmode{0}; // 0 means no projection
-    bool usecolormap{false};
-    cv::ColormapTypes colormap{cv::ColormapTypes::COLORMAP_BONE};
+    ROIVert::contrast contrast[2] = { {0., 1., 1.}, {0., 1., 1.} };
+    cv::Mat lut[2] = { cv::Mat(1, 256, CV_8U), cv::Mat(1, 256, CV_8U) };
+    int projectionmode{ 0 }; // 0 means no projection
+    bool usecolormap{ false };
+    cv::ColormapTypes colormap{ cv::ColormapTypes::COLORMAP_BONE };
     smoothingtype smoothing = smoothingtype::NONE;
-    int smoothsize{0};
-    double smoothsigma{0};
-    double smoothsigmaI{0};
+    int smoothsize{ 0 };
+    double smoothsigma{ 0 };
+    double smoothsigmaI{ 0 };
 
     void updateLut(const bool isDff);
     bool hasContrast(const bool isDff) const noexcept;
@@ -53,7 +53,7 @@ void DisplaySettings::setSmoothing(ROIVert::smoothing s) noexcept
 // **** pimpl ****
 void DisplaySettings::pimpl::updateLut(const bool isDff)
 {
-    uchar *ptr = lut[isDff].ptr();
+    uchar* ptr = lut[isDff].ptr();
     if (ptr == nullptr)
     {
         return;
@@ -72,8 +72,8 @@ void DisplaySettings::pimpl::updateLut(const bool isDff)
 bool DisplaySettings::pimpl::hasContrast(const bool isDff) const noexcept
 {
     return !(std::get<0>(contrast[isDff]) == 0. &&
-             std::get<1>(contrast[isDff]) == 1. &&
-             std::get<2>(contrast[isDff]) == 1.);
+        std::get<1>(contrast[isDff]) == 1. &&
+        std::get<2>(contrast[isDff]) == 1.);
 }
 cv::Mat DisplaySettings::pimpl::getImage(cv::Mat raw, bool isDff)
 {

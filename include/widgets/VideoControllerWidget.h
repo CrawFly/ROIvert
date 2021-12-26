@@ -5,7 +5,7 @@ class VideoControllerWidget : public QWidget
     Q_OBJECT
 
 public:
-    VideoControllerWidget(QWidget *parent = nullptr);
+    VideoControllerWidget(QWidget* parent = nullptr);
     ~VideoControllerWidget();
 
     bool isDff() const;
@@ -13,11 +13,11 @@ public:
 
     void setNFrames(const size_t& frames);
     void setFrameRate(const float& framerate);
-    
+
     size_t getCurrFrame() const noexcept;
 
     void play(const bool&);
-    
+
     void start();
     void stop();
 
@@ -37,4 +37,3 @@ private:
     void toggleDff(bool checked) const;
     void timestep();
 };
-

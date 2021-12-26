@@ -11,11 +11,11 @@
 #include "widgets/ColormapPickWidget.h"
 #include "widgets/SmoothingPickWidget.h"
 
-static void addVSep(QVBoxLayout *lay)
+static void addVSep(QVBoxLayout* lay)
 {
     if (lay)
     {
-        QFrame *line = new QFrame;
+        QFrame* line = new QFrame;
         line->setFrameStyle(QFrame::HLine);
         lay->addWidget(line);
     }
@@ -23,14 +23,14 @@ static void addVSep(QVBoxLayout *lay)
 
 struct ImageSettingsWidget::pimpl
 {
-    QWidget *contents;
+    QWidget* contents;
     DisplaySettings* dispsettings{ nullptr }; //*** communication is currently through signal/slot, but dispsettings ptr is used for save/load/reset
 
-    ContrastWidget *contrast = new ContrastWidget;
-    ProjectionPickWidget *projection = new ProjectionPickWidget;
-    ColormapPickWidget *colormap = new ColormapPickWidget;
-    SmoothingPickWidget *Wsmoothing = new SmoothingPickWidget;
-    QPushButton *dffToggle = new QPushButton;
+    ContrastWidget* contrast = new ContrastWidget;
+    ProjectionPickWidget* projection = new ProjectionPickWidget;
+    ColormapPickWidget* colormap = new ColormapPickWidget;
+    SmoothingPickWidget* Wsmoothing = new SmoothingPickWidget;
+    QPushButton* dffToggle = new QPushButton;
 
     void init()
     {
@@ -46,7 +46,7 @@ struct ImageSettingsWidget::pimpl
         Wsmoothing->setMaximumWidth(300);
     }
 
-    void layout(QVBoxLayout *topLay)
+    void layout(QVBoxLayout* topLay)
     {
         topLay->setAlignment(Qt::AlignTop);
         topLay->setContentsMargins(10, 0, 10, 10);
@@ -82,19 +82,19 @@ struct ImageSettingsWidget::pimpl
         payload.projectionType = projection->getProjection();
         payload.cmap = colormap->getColormap();
         payload.Smoothing = Wsmoothing->getSmoothing();
-        
+
         return payload;
     }
 };
 
-ImageSettingsWidget::ImageSettingsWidget(QWidget *parent, DisplaySettings* dispsettings) : DockWidgetWithSettings(parent),
-    impl(std::make_unique<pimpl>())
+ImageSettingsWidget::ImageSettingsWidget(QWidget* parent, DisplaySettings* dispsettings) : DockWidgetWithSettings(parent),
+impl(std::make_unique<pimpl>())
 {
     impl->dispsettings = dispsettings;
     impl->contents = new QWidget;
     toplay.addWidget(impl->contents);
 
-    QVBoxLayout *lay = new QVBoxLayout;
+    QVBoxLayout* lay = new QVBoxLayout;
     impl->contents->setLayout(lay);
 
     impl->init();
@@ -137,36 +137,34 @@ void ImageSettingsWidget::dffToggle(bool onoff)
     impl->dffToggle->setChecked(onoff);
 }
 
-void ImageSettingsWidget::saveSettings(QSettings& settings) const {
-
+void ImageSettingsWidget::saveSettings(QSettings & settings) const {
     settings.beginGroup("ImageSettings");
     settings.setValue("dorestore", getSettingsStorage());
     if (getSettingsStorage()) {
         auto rawContrast = impl->dispsettings->getContrast(false);
         auto dffContrast = impl->dispsettings->getContrast(true);
-        
+
         settings.setValue("rawCont0", std::get<0>(rawContrast));
         settings.setValue("rawCont1", std::get<1>(rawContrast));
         settings.setValue("rawCont2", std::get<2>(rawContrast));
         settings.setValue("dffCont0", std::get<0>(dffContrast));
         settings.setValue("dffCont1", std::get<1>(dffContrast));
         settings.setValue("dffCont2", std::get<2>(dffContrast));
-        
+
         auto currSettings = impl->updateSettings();
         settings.setValue("cmap", currSettings.cmap);
         settings.setValue("proj", currSettings.projectionType);
 
-        settings.setValue("smoothing0",std::get<0>(currSettings.Smoothing));
-        settings.setValue("smoothing1",std::get<1>(currSettings.Smoothing));
-        settings.setValue("smoothing2",std::get<2>(currSettings.Smoothing));
-        settings.setValue("smoothing3",std::get<3>(currSettings.Smoothing));
+        settings.setValue("smoothing0", std::get<0>(currSettings.Smoothing));
+        settings.setValue("smoothing1", std::get<1>(currSettings.Smoothing));
+        settings.setValue("smoothing2", std::get<2>(currSettings.Smoothing));
+        settings.setValue("smoothing3", std::get<3>(currSettings.Smoothing));
     }
     settings.endGroup();
 }
-void ImageSettingsWidget::restoreSettings(QSettings& settings) {
+void ImageSettingsWidget::restoreSettings(QSettings & settings) {
     settings.beginGroup("ImageSettings");
     setSettingsStorage(settings.value("dorestore", true).toBool());
-
 
     if (getSettingsStorage()) {
         //setContrast({ settings.value("cont0", 0.).toFloat(), settings.value("cont1", 1.).toFloat(),settings.value("cont2", 1.).toFloat() });
@@ -181,10 +179,8 @@ void ImageSettingsWidget::restoreSettings(QSettings& settings) {
     settings.endGroup();
     impl->Wsmoothing->updateSmothingParamWidgets();
     emit imgSettingsChanged(impl->updateSettings());
-    
 }
 void ImageSettingsWidget::resetSettings() {
-
     ROIVert::imgsettings defaultSettings;
     impl->dispsettings->setContrast(false, defaultSettings.Contrast);
     impl->dispsettings->setContrast(true, defaultSettings.Contrast);
@@ -194,7 +190,7 @@ void ImageSettingsWidget::resetSettings() {
     impl->colormap->setColormap(defaultSettings.cmap);
     impl->Wsmoothing->setSmoothing(defaultSettings.Smoothing);
     impl->projection->setProjection(0);
-    
+
     impl->Wsmoothing->updateSmothingParamWidgets();
     emit imgSettingsChanged(defaultSettings);
 }

@@ -15,7 +15,7 @@ struct ROISelector::pimpl
     double sz = 20.;
 };
 
-ROISelector::ROISelector(ROIShape *par) : impl(std::make_unique<pimpl>())
+ROISelector::ROISelector(ROIShape* par) : impl(std::make_unique<pimpl>())
 {
     setParentItem(par);
     setCursor(Qt::SizeAllCursor);
@@ -30,13 +30,13 @@ void ROISelector::setVertices(const QVector<QPoint> verts)
     impl->verts = verts;
 }
 
-void ROISelector::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ROISelector::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
     const double scale = scene()->views()[0]->transform().m11();
     const double sz = impl->sz / scale;
 
     impl->path.clear();
-    for (const auto &vert : impl->verts)
+    for (const auto& vert : impl->verts)
     {
         impl->path.addRect(vert.x() - sz / 2, vert.y() - sz / 2, sz, sz);
     }
@@ -49,7 +49,6 @@ void ROISelector::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 
 QRectF ROISelector::boundingRect() const
 {
-
     // clamp path rect to image bounding box
     //auto intersectrect = impl->path.boundingRect() & impl->bb;
     //return intersectrect;

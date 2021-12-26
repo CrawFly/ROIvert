@@ -62,23 +62,23 @@ public:
 
     void setXMin(const double&) noexcept;
     double getXMin() const noexcept;
-    
+
     void setXMax(const double&) noexcept;
     double getXMax() const noexcept;
 
     double getYMin() const noexcept;
     double getYMax() const noexcept;
-    
+
     QRectF getExtents();
-    
+
     void paint(QPainter& painter, const QColor& lineColor, const QColor& fillColor, const QTransform& T, const double& ymin);
 
     void setOffset(float) noexcept;
     float getOffset() const noexcept;
-    
+
     bool polyContains(const QPointF&);
     void setHighlighted(bool);
-        
+
     void updatePoly();
 private:
     struct pimpl;
@@ -92,7 +92,7 @@ public:
     virtual ~TraceChartAxis();
     virtual void paint(QPainter& painter) = 0;
     void setStyle(std::shared_ptr<ChartStyle> style);
-    
+
     void setExtents(const double& min, const double& max);
     std::tuple<double, double> getExtents() const noexcept;
     std::tuple<double, double> getLimits() const;
@@ -104,13 +104,13 @@ public:
     virtual int getLength() const noexcept = 0;
 
     virtual std::tuple<double, double> getMargins() const = 0;   // The length corresponds to the length of the axle, margins include any text that overhangs
-    virtual int getThickness() const noexcept = 0;               // Thickness is in the perpendecular direction to the axis. 
-    
+    virtual int getThickness() const noexcept = 0;               // Thickness is in the perpendecular direction to the axis.
+
     void setZero(const int& xzero, const int& yzero) noexcept;
-    
+
     void setSpacings(const int& label, const int& ticklabel, const int& tickmark) noexcept;
     void setTickLength(const int& ticklength) noexcept;
-    
+
     void setMaxNTicks(const unsigned int& n);
 
     void setVisible(bool) noexcept;
@@ -155,9 +155,7 @@ public:
 protected:
     virtual ROIVert::LIMITSTYLE getLimitStyle() const override;
     void updateLayout() override;
-
 };
-
 
 class RidgeLineWidget : public TraceChartWidget
 {
@@ -166,4 +164,3 @@ public:
     void updateOffsets();
     float offset{ 0.5 };
 };
-

@@ -9,18 +9,17 @@
 
 struct VideoData::pimpl
 {
-
     void init();
-    void accum(const cv::Mat &frame, bool isDff);
+    void accum(const cv::Mat& frame, bool isDff);
     void complete();
 
-    void dffNativeToOrig(double &val);
-    cv::Mat calcDffDouble(const cv::Mat &frame);
-    cv::Mat calcDffNative(const cv::Mat &frame);
+    void dffNativeToOrig(double& val);
+    cv::Mat calcDffDouble(const cv::Mat& frame);
+    cv::Mat calcDffNative(const cv::Mat& frame);
 
     void readframe(size_t filenum);
-    void readmulti(const QString &filename, VideoData *par);
-    void calcHist(const cv::Mat *frame, cv::Mat &histogram, bool accum);
+    void readmulti(const QString& filename, VideoData* par);
+    void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
 
     QStringList files;
     int width = 0, height = 0, nframes = 0, mattype = 0;
@@ -33,7 +32,7 @@ struct VideoData::pimpl
     float framerate;
 };
 
-VideoData::VideoData(QObject *parent) : QObject(parent), impl(std::make_unique<pimpl>()) {}
+VideoData::VideoData(QObject* parent) : QObject(parent), impl(std::make_unique<pimpl>()) {}
 VideoData::~VideoData() = default;
 
 void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder)
@@ -156,7 +155,7 @@ void VideoData::pimpl::init()
     histogram[0] = cv::Mat::zeros(1, 256, CV_32F);
     histogram[1] = cv::Mat::zeros(1, 256, CV_32F);
 }
-void VideoData::pimpl::accum(const cv::Mat &frame, bool isDff)
+void VideoData::pimpl::accum(const cv::Mat & frame, bool isDff)
 {
     // accumulate (raw) min, max, histogram
     proj[isDff][0] = cv::min(proj[isDff][0], frame);
@@ -179,14 +178,14 @@ void VideoData::pimpl::complete()
     dffrng = dffmaxval - dffminval;
 }
 
-void VideoData::pimpl::dffNativeToOrig(double &val)
+void VideoData::pimpl::dffNativeToOrig(double& val)
 {
     // This helper takes my scaled dff values and translates them back into what they would be in original double space:
-    void dffNativeToOrig(float &val);
+    void dffNativeToOrig(float& val);
     double maxval = pow(2, bitdepth); // intmax for this depth
     val = dffminval + dffrng * val / maxval;
 }
-cv::Mat VideoData::pimpl::calcDffDouble(const cv::Mat &frame)
+cv::Mat VideoData::pimpl::calcDffDouble(const cv::Mat & frame)
 {
     // This calculates the df/f as a double
     cv::Mat ret(frame.size(), CV_64FC1);
@@ -195,7 +194,7 @@ cv::Mat VideoData::pimpl::calcDffDouble(const cv::Mat &frame)
     cv::divide(ret, projdbl[0][static_cast<size_t>(VideoData::projection::MEAN)], ret);
     return ret;
 }
-cv::Mat VideoData::pimpl::calcDffNative(const cv::Mat &frame)
+cv::Mat VideoData::pimpl::calcDffNative(const cv::Mat & frame)
 {
     // get the double df/f
     cv::Mat dffdbl = calcDffDouble(frame);
@@ -213,7 +212,6 @@ cv::Mat VideoData::pimpl::calcDffNative(const cv::Mat &frame)
 
 void VideoData::pimpl::readframe(size_t ind)
 {
-
     data[0][ind] = cv::Mat(height, width, mattype);
 
     std::string filename = files[ind].toLocal8Bit().constData();
@@ -227,7 +225,7 @@ void VideoData::pimpl::readframe(size_t ind)
 
     data[0][ind] = image;
 }
-void VideoData::pimpl::readmulti(const QString &filename, VideoData *par)
+void VideoData::pimpl::readmulti(const QString & filename, VideoData * par)
 {
     std::string fn = filename.toLocal8Bit().constData();
     std::vector<cv::Mat> tallstack;
@@ -241,11 +239,11 @@ void VideoData::pimpl::readmulti(const QString &filename, VideoData *par)
         int mod = dsTime;
         data[0].resize(tallstack.size() / dsTime);
         std::copy_if(tallstack.begin(), tallstack.end(), data[0].begin(), [&cnt, &mod](cv::Mat fr) -> bool
-                     { return ++cnt % mod == 0; });
+        { return ++cnt % mod == 0; });
     }
 
     float cnt = 0;
-    for (auto &image : data[0])
+    for (auto& image : data[0])
     {
         if (dsSpace > 1)
         {
@@ -258,13 +256,13 @@ void VideoData::pimpl::readmulti(const QString &filename, VideoData *par)
     nframes = data[0].size();
     data[1].resize(nframes);
 }
-void VideoData::pimpl::calcHist(const cv::Mat *frame, cv::Mat &histogram, bool accum)
+void VideoData::pimpl::calcHist(const cv::Mat * frame, cv::Mat & histogram, bool accum)
 {
     // thin wrapper on opencv calchist
     constexpr int chnl = 0;
     constexpr int histsize = 256;
-    const float range[] = {0, static_cast<float>(pow(2, bitdepth)) + 1}; //the upper boundary is exclusive
-    const float *histRange = {range};
+    const float range[] = { 0, static_cast<float>(pow(2, bitdepth)) + 1 }; //the upper boundary is exclusive
+    const float* histRange = { range };
 
     cv::calcHist(frame, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, accum);
 }
@@ -298,9 +296,9 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
 {
     // Turn the bounding box into a cv box
     const cv::Rect cvbb(static_cast<size_t>(bb.x()),
-                        static_cast<size_t>(bb.y()),
-                        static_cast<size_t>(bb.width() - 1),
-                        static_cast<size_t>(bb.height()) - 1);
+        static_cast<size_t>(bb.y()),
+        static_cast<size_t>(bb.width() - 1),
+        static_cast<size_t>(bb.height()) - 1);
 
     const int w = std::max(bb.width() - 1, 0);
     const int h = std::max(bb.height() - 1, 0);
@@ -323,7 +321,7 @@ cv::Mat VideoData::computeTrace(ROIVert::SHAPE s, QRect bb, std::vector<QPoint> 
         break;
     case ROIVert::SHAPE::POLYGON:
         std::vector<cv::Point> cVertices;
-        for (auto &pt : pts)
+        for (auto& pt : pts)
         {
             cVertices.push_back(cv::Point(pt.x() - bb.left(), pt.y() - bb.top()));
         }

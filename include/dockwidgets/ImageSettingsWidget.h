@@ -7,29 +7,28 @@ class DisplaySettings;
 class ImageSettingsWidget : public DockWidgetWithSettings
 {
     Q_OBJECT
-    public:
-        ImageSettingsWidget(QWidget* parent = nullptr, DisplaySettings* = nullptr);
-        ~ImageSettingsWidget();
-        void setHistogram(std::vector<float> &data);
-        void setContrast(ROIVert::contrast c);
-        ROIVert::contrast getContrast() const noexcept;
-        void setContentsEnabled(bool);
+public:
+    ImageSettingsWidget(QWidget* parent = nullptr, DisplaySettings* = nullptr);
+    ~ImageSettingsWidget();
+    void setHistogram(std::vector<float>& data);
+    void setContrast(ROIVert::contrast c);
+    ROIVert::contrast getContrast() const noexcept;
+    void setContentsEnabled(bool);
 
-        void saveSettings(QSettings& settings) const override;
-        void restoreSettings(QSettings& settings) override;
-        void resetSettings() override;
+    void saveSettings(QSettings& settings) const override;
+    void restoreSettings(QSettings& settings) override;
+    void resetSettings() override;
 
-        bool isProjectionActive() const;
+    bool isProjectionActive() const;
 
-    signals:
-        void imgSettingsChanged(ROIVert::imgsettings newsettings);
-        void dffToggled(bool);
-    
-    public slots:
-        void dffToggle(bool);
+signals:
+    void imgSettingsChanged(ROIVert::imgsettings newsettings);
+    void dffToggled(bool);
 
-    private:
-        struct pimpl;
-        std::unique_ptr<pimpl> impl;
+public slots:
+    void dffToggle(bool);
+
+private:
+    struct pimpl;
+    std::unique_ptr<pimpl> impl;
 };
-

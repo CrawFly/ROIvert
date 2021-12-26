@@ -14,13 +14,12 @@
 
 struct VideoControllerWidget::pimpl
 {
-
     bool isDff() const;
     void initWidgets();
-    void layoutWidgets(VideoControllerWidget *par);
+    void layoutWidgets(VideoControllerWidget* par);
 
-    bool setFrame(const size_t &);
-    void setSpeed_dial(const int &);
+    bool setFrame(const size_t&);
+    void setSpeed_dial(const int&);
     void setSpeed_text();
 
     float speedmult();
@@ -32,22 +31,21 @@ struct VideoControllerWidget::pimpl
     size_t currframe = 0;
     float framerate = 30.;
 
-    QPushButton *cmdBack = new QPushButton;
-    QPushButton *cmdPlay = new QPushButton;
-    QPushButton *cmdForw = new QPushButton;
-    QPushButton *cmdLoop = new QPushButton;
-    QSlider *sliScrub = new QSlider(Qt::Horizontal);
-    QLabel *lblTime = new QLabel();
-    QDial *dialSpeed = new QDial();
-    QLineEdit *txtSpeed = new QLineEdit();
-    QPushButton *cmdDff = new QPushButton();
+    QPushButton* cmdBack = new QPushButton;
+    QPushButton* cmdPlay = new QPushButton;
+    QPushButton* cmdForw = new QPushButton;
+    QPushButton* cmdLoop = new QPushButton;
+    QSlider* sliScrub = new QSlider(Qt::Horizontal);
+    QLabel* lblTime = new QLabel();
+    QDial* dialSpeed = new QDial();
+    QLineEdit* txtSpeed = new QLineEdit();
+    QPushButton* cmdDff = new QPushButton();
 
-    
     QTimer timer;
     QElapsedTimer elapsed;
-    int accumtime{0};
+    int accumtime{ 0 };
 };
-VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
+VideoControllerWidget::VideoControllerWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     impl->initWidgets();
     impl->layoutWidgets(this);
@@ -57,9 +55,9 @@ VideoControllerWidget::VideoControllerWidget(QWidget *parent) : QWidget(parent),
     connect(impl->cmdForw, &QPushButton::clicked, this, &VideoControllerWidget::incFrame);
     connect(impl->sliScrub, &QAbstractSlider::valueChanged, this, &VideoControllerWidget::setFrame);
     connect(impl->dialSpeed, &QDial::valueChanged, this, [=](int speed)
-            { impl->setSpeed_dial(speed); });
+    { impl->setSpeed_dial(speed); });
     connect(impl->txtSpeed, &QLineEdit::editingFinished, this, [=]
-            { impl->setSpeed_text(); });
+    { impl->setSpeed_text(); });
     connect(impl->cmdDff, &QPushButton::clicked, this, &VideoControllerWidget::toggleDff);
 
     connect(&impl->timer, &QTimer::timeout, this, &VideoControllerWidget::timestep);
@@ -71,21 +69,21 @@ void VideoControllerWidget::forceUpdate()
     impl->updateTimeLabel();
     emit frameChanged(impl->currframe);
 }
-void VideoControllerWidget::setFrame(const size_t &frame)
+void VideoControllerWidget::setFrame(const size_t & frame)
 {
     if (impl->setFrame(frame))
     {
         emit frameChanged(frame);
     }
 }
-void VideoControllerWidget::setNFrames(const size_t &frames)
+void VideoControllerWidget::setNFrames(const size_t & frames)
 {
     setEnabled(frames > 0);
     impl->sliScrub->setMaximum(frames);
     impl->currframe = 1;
     forceUpdate();
 }
-void VideoControllerWidget::setFrameRate(const float &framerate)
+void VideoControllerWidget::setFrameRate(const float& framerate)
 {
     impl->framerate = framerate;
     impl->updateTimeLabel();
@@ -106,7 +104,7 @@ void VideoControllerWidget::toggleDff(bool checked) const
     emit frameChanged(getCurrFrame());
     emit dffToggled(checked);
 }
-void VideoControllerWidget::dffToggle(const bool &isdff)
+void VideoControllerWidget::dffToggle(const bool& isdff)
 {
     impl->cmdDff->setChecked(isdff);
     toggleDff(isdff);
@@ -114,7 +112,7 @@ void VideoControllerWidget::dffToggle(const bool &isdff)
 void VideoControllerWidget::decFrame() { setFrame(getCurrFrame() - 1); }
 void VideoControllerWidget::incFrame() { setFrame(getCurrFrame() + 1); }
 size_t VideoControllerWidget::getCurrFrame() const noexcept { return impl->currframe; }
-void VideoControllerWidget::play(const bool &pressed)
+void VideoControllerWidget::play(const bool& pressed)
 {
     pressed ? start() : stop();
 }
@@ -205,12 +203,12 @@ void VideoControllerWidget::pimpl::initWidgets()
     cmdDff->setObjectName("cmdDff");
     lblTime->setObjectName("lblTime");
 }
-void VideoControllerWidget::pimpl::layoutWidgets(VideoControllerWidget *par)
+void VideoControllerWidget::pimpl::layoutWidgets(VideoControllerWidget * par)
 {
-    QVBoxLayout *layTop = new QVBoxLayout;
-    QGridLayout *layUnder = new QGridLayout;
-    QHBoxLayout *layButtons = new QHBoxLayout;
-    QHBoxLayout *layTxt = new QHBoxLayout;
+    QVBoxLayout* layTop = new QVBoxLayout;
+    QGridLayout* layUnder = new QGridLayout;
+    QHBoxLayout* layButtons = new QHBoxLayout;
+    QHBoxLayout* layTxt = new QHBoxLayout;
 
     par->setLayout(layTop);
     layTop->addWidget(sliScrub);
@@ -232,7 +230,7 @@ void VideoControllerWidget::pimpl::layoutWidgets(VideoControllerWidget *par)
     layUnder->addLayout(layTxt, 0, 2, Qt::AlignRight);
     layTxt->addWidget(lblTime);
 }
-bool VideoControllerWidget::pimpl::setFrame(const size_t &frame)
+bool VideoControllerWidget::pimpl::setFrame(const size_t & frame)
 {
     if (frame == currframe || frame < 1 || frame > nframes())
     {
@@ -243,7 +241,7 @@ bool VideoControllerWidget::pimpl::setFrame(const size_t &frame)
     updateTimeLabel();
     return true;
 }
-void VideoControllerWidget::pimpl::setSpeed_dial(const int &val)
+void VideoControllerWidget::pimpl::setSpeed_dial(const int& val)
 {
     // val ranges from -100 to 100
     const float speed = val >= 0 ? round(pow(10, val / 50.)) : round(pow(10, val / 50.) * 100.) / 100.;

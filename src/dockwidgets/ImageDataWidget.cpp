@@ -61,7 +61,6 @@ struct ImageDataWidget::pimpl
             optFolder.setToolTip("Select this option if your data are contained in a single 'multipage' Tiff file.");
             optFolder.setChecked(true);
             optFolder.setObjectName("optFolder");
-
         }
 
         {
@@ -123,7 +122,7 @@ struct ImageDataWidget::pimpl
 
         completer.setParent(&contents);
         {
-            QVBoxLayout *lay = new QVBoxLayout;
+            QVBoxLayout* lay = new QVBoxLayout;
             lay->addWidget(&optFolder);
             lay->addWidget(&optFile);
             formlay.addRow("Dataset Type:", lay);
@@ -131,7 +130,7 @@ struct ImageDataWidget::pimpl
         formlay.addRow(new QLabel(" "));
 
         {
-            QHBoxLayout *lay = new QHBoxLayout;
+            QHBoxLayout* lay = new QHBoxLayout;
             lay->addWidget(&txtFilePath);
             lay->addWidget(&cmdBrowseFilePath);
             lay->setAlignment(Qt::AlignLeft);
@@ -145,13 +144,12 @@ struct ImageDataWidget::pimpl
 
         formlay.addRow(new QLabel(" "));
         formlay.addRow(&cmdLoad);
-        
 
         vlay.addWidget(&progBar);
         vlay.addStretch();
     }
 
-    void browse(ImageDataWidget *par)
+    void browse(ImageDataWidget* par)
     {
         const bool isfile = optFile.isChecked();
 
@@ -163,9 +161,9 @@ struct ImageDataWidget::pimpl
         }
 
         QString fileName = QFileDialog::getOpenFileName(par,
-                                                        isfile ? tr("Select a Multi-Page Tiff File") : tr("Select a Tiff File in the Dataset"),
-                                                        initpath,
-                                                        tr("Tiff Files (*.tif *.tiff)"));
+            isfile ? tr("Select a Multi-Page Tiff File") : tr("Select a Tiff File in the Dataset"),
+            initpath,
+            tr("Tiff Files (*.tif *.tiff)"));
 
         if (!fileName.isEmpty())
         {
@@ -182,7 +180,7 @@ struct ImageDataWidget::pimpl
         }
     }
 
-    void filePathChanged(const QString &filepath)
+    void filePathChanged(const QString& filepath)
     {
         cmdLoad.setEnabled(false);
 
@@ -196,8 +194,8 @@ struct ImageDataWidget::pimpl
         else if (QFileInfo(filepath).isDir())
         {
             QStringList fl = QDir(filepath).entryList(QStringList() << "*.tif"
-                                                                    << "*.tiff",
-                                                      QDir::Files);
+                << "*.tiff",
+                QDir::Files);
             if (fl.size() > 0)
             {
                 cmdLoad.setEnabled(true);
@@ -205,23 +203,23 @@ struct ImageDataWidget::pimpl
         }
     }
 
-    void load(ImageDataWidget *par)
+    void load(ImageDataWidget* par)
     {
         bool isfolder = optFolder.isChecked();
         QStringList filelist;
         if (isfolder)
         {
             QFileInfoList fileinfolist = QDir(txtFilePath.text()).entryInfoList(QStringList() << "*.tif"
-                                                                                              << "*.tiff",
-                                                                                QDir::Files);
-            for (auto &filename : fileinfolist)
+                << "*.tiff",
+                QDir::Files);
+            for (auto& filename : fileinfolist)
             {
                 filelist << filename.absoluteFilePath();
             }
         }
         else
         {
-            filelist = QStringList({txtFilePath.text()});
+            filelist = QStringList({ txtFilePath.text() });
         }
 
         emit par->fileLoadRequested(filelist, spinFrameRate.value(), spinDownTime.value(), spinDownSpace.value(), isfolder);
@@ -247,7 +245,7 @@ struct ImageDataWidget::pimpl
     }
 };
 
-ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
+ImageDataWidget::ImageDataWidget(QWidget* parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
 {
     toplay.addWidget(&impl->contents);
 
@@ -255,16 +253,16 @@ ImageDataWidget::ImageDataWidget(QWidget *parent) : DockWidgetWithSettings(paren
     impl->layout();
 
     connect(&impl->cmdBrowseFilePath, &QPushButton::clicked, [=]
-            { impl->browse(this); });
-    connect(&impl->txtFilePath, &QLineEdit::textChanged, [=](const QString &filepath)
-            { impl->filePathChanged(filepath); });
+    { impl->browse(this); });
+    connect(&impl->txtFilePath, &QLineEdit::textChanged, [=](const QString& filepath)
+    { impl->filePathChanged(filepath); });
     connect(&impl->cmdLoad, &QPushButton::clicked, [=]
-            { impl->load(this); });
+    { impl->load(this); });
     connect(&impl->spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ImageDataWidget::frameRateChanged);
     connect(&impl->optFile, &QRadioButton::toggled, [=]
-            { impl->optfilefolder(); });
+    { impl->optfilefolder(); });
     connect(&impl->optFolder, &QRadioButton::toggled, [=]
-            { impl->optfilefolder(); });
+    { impl->optfilefolder(); });
 }
 ImageDataWidget::~ImageDataWidget() { }
 
@@ -284,7 +282,7 @@ void ImageDataWidget::setProgBar(int val)
     impl->progBar.setVisible(false);
 }
 
-void ImageDataWidget::saveSettings(QSettings &settings) const
+void ImageDataWidget::saveSettings(QSettings& settings) const
 {
     settings.beginGroup("ImageData");
     settings.setValue("dorestore", getSettingsStorage());
@@ -297,7 +295,7 @@ void ImageDataWidget::saveSettings(QSettings &settings) const
     }
     settings.endGroup();
 }
-void ImageDataWidget::restoreSettings(QSettings &settings)
+void ImageDataWidget::restoreSettings(QSettings& settings)
 {
     settings.beginGroup("ImageData");
     setSettingsStorage(settings.value("dorestore", true).toBool());
@@ -318,5 +316,4 @@ void ImageDataWidget::resetSettings()
     impl->spinDownSpace.setValue(1);
     impl->optFolder.setChecked(true);
     impl->optfilefolder();
-    
 }

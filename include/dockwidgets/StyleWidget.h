@@ -9,32 +9,32 @@ class TraceViewWidget;
 class StyleWidget : public DockWidgetWithSettings
 {
     Q_OBJECT
-    public:
-        explicit StyleWidget(QWidget* parent = nullptr);
-        ~StyleWidget();
-    
-        void setROIs(ROIs* rois);
-        void setTraceView(TraceViewWidget* traceview);
-        void loadSettings();
-        void setContentsEnabled(bool);
-        
-        void saveSettings(QSettings& settings) const override;
-        void restoreSettings(QSettings& settings) override;
-        void resetSettings() override;
-    public slots:
-        void selectionChange(std::vector<size_t> inds);
+public:
+    explicit StyleWidget(QWidget* parent = nullptr);
+    ~StyleWidget();
 
-        void ROIColorChange();
-        void ROIStyleChange();
-        void ChartStyleChange();
-        void LineChartStyleChange();
-        void RidgeChartStyleChange();
-        void RidgeOverlapChange();
-        void LineMatchyChange();
+    void setROIs(ROIs* rois);
+    void setTraceView(TraceViewWidget* traceview);
+    void loadSettings();
+    void setContentsEnabled(bool);
 
-    private:
-        struct pimpl;
-        std::unique_ptr<pimpl> impl;
+    void saveSettings(QSettings& settings) const override;
+    void restoreSettings(QSettings& settings) override;
+    void resetSettings() override;
+public slots:
+    void selectionChange(std::vector<size_t> inds);
+
+    void ROIColorChange();
+    void ROIStyleChange();
+    void ChartStyleChange();
+    void LineChartStyleChange();
+    void RidgeChartStyleChange();
+    void RidgeOverlapChange();
+    void LineMatchyChange();
+
+private:
+    struct pimpl;
+    std::unique_ptr<pimpl> impl;
 };
 
 class CustomTabStyle : public QProxyStyle {

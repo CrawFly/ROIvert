@@ -5,17 +5,17 @@ class QGraphicsView;
 
 class ZoomPan : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 public:
-	ZoomPan(QGraphicsView* view);
-	~ZoomPan();
+    ZoomPan(QGraphicsView* view);
+    ~ZoomPan();
 
-	void setZoomFactor(double value) noexcept;
-	void setModifier(Qt::KeyboardModifier);
+    void setZoomFactor(double value) noexcept;
+    void setModifier(Qt::KeyboardModifier);
 
 private:
-	struct pimpl;
+    struct pimpl;
     std::unique_ptr<pimpl> impl;
-	bool eventFilter(QObject* object, QEvent* event) override;
+    bool eventFilter(QObject* object, QEvent* event) override;
 };

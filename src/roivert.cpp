@@ -32,43 +32,42 @@ struct Roivert::pimpl
 {
     Ui::RoivertClass ui;
 
-    std::unique_ptr<QVBoxLayout> toplayout{nullptr};
+    std::unique_ptr<QVBoxLayout> toplayout{ nullptr };
 
-    std::unique_ptr<VideoData> viddata{nullptr};
-    std::unique_ptr<ImageDataWidget> imagedatawidget{nullptr};
-    std::unique_ptr<ImageSettingsWidget> imagesettingswidget{nullptr};
-    std::unique_ptr<StyleWidget> stylewidget{nullptr};
-    std::unique_ptr<FileIOWidget> fileiowidget{nullptr};
-    std::unique_ptr<TraceViewWidget> traceviewwidget{nullptr};
+    std::unique_ptr<VideoData> viddata{ nullptr };
+    std::unique_ptr<ImageDataWidget> imagedatawidget{ nullptr };
+    std::unique_ptr<ImageSettingsWidget> imagesettingswidget{ nullptr };
+    std::unique_ptr<StyleWidget> stylewidget{ nullptr };
+    std::unique_ptr<FileIOWidget> fileiowidget{ nullptr };
+    std::unique_ptr<TraceViewWidget> traceviewwidget{ nullptr };
 
-    std::unique_ptr<ImageView> imageview{nullptr};
-    std::unique_ptr<VideoControllerWidget> vidctrl{nullptr};
+    std::unique_ptr<ImageView> imageview{ nullptr };
+    std::unique_ptr<VideoControllerWidget> vidctrl{ nullptr };
 
-    std::unique_ptr<ROIs> rois{nullptr};
-    std::unique_ptr<FileIO> fileio{nullptr};
+    std::unique_ptr<ROIs> rois{ nullptr };
+    std::unique_ptr<FileIO> fileio{ nullptr };
 
-    std::unique_ptr<QActionGroup> ROIGroup{nullptr};
-    std::unique_ptr<QAction> actROIEllipse{nullptr};
-    std::unique_ptr<QAction> actROIPoly{nullptr};
-    std::unique_ptr<QAction> actROIRect{nullptr};
-    std::unique_ptr<QAction> actROISelect{nullptr};
-    std::unique_ptr<QAction> actReset{nullptr};
+    std::unique_ptr<QActionGroup> ROIGroup{ nullptr };
+    std::unique_ptr<QAction> actROIEllipse{ nullptr };
+    std::unique_ptr<QAction> actROIPoly{ nullptr };
+    std::unique_ptr<QAction> actROIRect{ nullptr };
+    std::unique_ptr<QAction> actROISelect{ nullptr };
+    std::unique_ptr<QAction> actReset{ nullptr };
 
     std::unique_ptr<ROIVertSettings> roivertsettings{ nullptr };
-
 
     DisplaySettings dispSettings;
 
     void layout();
-    void initDockWidgets(Roivert *par);
+    void initDockWidgets(Roivert* par);
     void setWidgetParams();
-    void makeObjects(Roivert *par);
-    void makeToolbar(Roivert *par);
+    void makeObjects(Roivert* par);
+    void makeToolbar(Roivert* par);
 
     QSize screensize{ 3840, 2100 };
 };
 
-Roivert::Roivert(QWidget *parent) :
+Roivert::Roivert(QWidget* parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
 {
     QApplication::setOrganizationName("Neuroph");
@@ -83,7 +82,7 @@ Roivert::Roivert(QWidget *parent) :
     doConnect(); // todo: consider move to impl
     impl->makeToolbar(this);
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
-    
+
     impl->screensize = QDesktopWidget().availableGeometry(this).size();
 }
 
@@ -97,13 +96,13 @@ void Roivert::doConnect()
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
 
     connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, [=](QString fn, bool dohdr, bool dotime)
-            { impl->fileio->exportTraces(fn, dohdr, dotime); });
+    { impl->fileio->exportTraces(fn, dohdr, dotime); });
     connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, [=](QString fn)
-            { impl->fileio->exportROIs(fn); });
+    { impl->fileio->exportROIs(fn); });
     connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, [=](QString fn)
-            { impl->fileio->importROIs(fn); });
+    { impl->fileio->importROIs(fn); });
     connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, [=](QString fn, int width, int height, int quality, bool ridge)
-            { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
+    { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
 
     // progress for loading
     connect(impl->viddata.get(), &VideoData::loadProgress, impl->imagedatawidget.get(), &ImageDataWidget::setProgBar);
@@ -112,7 +111,6 @@ void Roivert::doConnect()
     connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, this, &Roivert::updateContrastWidget);
     connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggle);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::dffToggled, impl->vidctrl.get(), &VideoControllerWidget::dffToggle);
-
 
     connect(impl->actReset.get(), &QAction::triggered, this, &Roivert::setDefaultGeometry);
 }
@@ -142,7 +140,6 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     impl->vidctrl->setFrameRate(frameRate / dsTime);
     impl->viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
 
-    
     impl->vidctrl->setEnabled(!impl->imagesettingswidget->isProjectionActive());
     impl->imagesettingswidget->setContentsEnabled(true);
     impl->imageview->setEnabled(true);
@@ -186,7 +183,6 @@ void Roivert::updateContrastWidget(bool isDff)
 }
 void Roivert::imgSettingsChanged(ROIVert::imgsettings settings)
 {
-
     impl->dispSettings.setContrast(impl->vidctrl->isDff(), settings.Contrast);
 
     impl->dispSettings.setProjectionMode(settings.projectionType);
@@ -202,7 +198,7 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings)
     impl->vidctrl->forceUpdate();
 }
 
-void Roivert::closeEvent(QCloseEvent* event) {
+void Roivert::closeEvent(QCloseEvent * event) {
     // todo: call ROIVertSettings::saveSettings();
     impl->roivertsettings->saveSettings();
 }
@@ -213,7 +209,6 @@ void Roivert::setInitialSettings(bool restore) {
         impl->roivertsettings->restoreSettings();
     }
     impl->vidctrl->setEnabled(false);
-    
 }
 void Roivert::setDefaultGeometry() {
     impl->traceviewwidget->setFloating(true);
@@ -236,11 +231,9 @@ void Roivert::setDefaultGeometry() {
 
     addToolBar(Qt::LeftToolBarArea, impl->ui.mainToolBar);
     qApp->processEvents(QEventLoop::AllEvents);
-    
-    
 
     auto size = std::min(impl->screensize.width() / 3, 1000);
-    resize(size*1.2, size);
+    resize(size * 1.2, size);
     impl->traceviewwidget->resize(size * .8, size * .3);
 }
 
@@ -248,7 +241,7 @@ QSize Roivert::getScreenSize() const {
     return impl->screensize;
 }
 
-void Roivert::pimpl::makeObjects(Roivert *par)
+void Roivert::pimpl::makeObjects(Roivert * par)
 {
     ui.setupUi(par);
     toplayout = std::make_unique<QVBoxLayout>(ui.centralWidget);
@@ -276,7 +269,7 @@ void Roivert::pimpl::makeObjects(Roivert *par)
     actReset = std::make_unique<QAction>(QIcon(":/icons/dockreset.png"), "");
     actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
     par->addAction(actReset.get());
-    
+
     roivertsettings = std::make_unique<ROIVertSettings>(par, imagedatawidget.get(), imagesettingswidget.get(), stylewidget.get(), fileiowidget.get());
 }
 
@@ -312,7 +305,7 @@ void Roivert::pimpl::setWidgetParams()
     stylewidget->setTraceView(traceviewwidget.get());
 }
 
-void Roivert::pimpl::initDockWidgets(Roivert *par)
+void Roivert::pimpl::initDockWidgets(Roivert * par)
 {
     par->addDockWidget(Qt::RightDockWidgetArea, imagedatawidget.get());
     par->addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget.get());
@@ -333,7 +326,7 @@ void Roivert::pimpl::layout()
     toplayout->addWidget(vidctrl.get());
 }
 
-void Roivert::pimpl::makeToolbar(Roivert *par)
+void Roivert::pimpl::makeToolbar(Roivert * par)
 {
     actROIEllipse->setCheckable(true);
     actROIPoly->setCheckable(true);
@@ -363,15 +356,14 @@ void Roivert::pimpl::makeToolbar(Roivert *par)
     actROIRect->setObjectName("actROIRect");
     actROISelect->setObjectName("actROISelect");
 
-
     ui.mainToolBar->addActions(ROIGroup->actions());
     ui.mainToolBar->addSeparator();
 
-    connect(ROIGroup.get(), &QActionGroup::triggered, par, [&](QAction *act)
-            {
-                ROIVert::SHAPE shp{act->property("Shape").toInt()};
-                rois->setROIShape(shp);
-            });
+    connect(ROIGroup.get(), &QActionGroup::triggered, par, [&](QAction* act)
+    {
+        ROIVert::SHAPE shp{ act->property("Shape").toInt() };
+        rois->setROIShape(shp);
+    });
 
     imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
     imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
@@ -396,7 +388,7 @@ void Roivert::pimpl::makeToolbar(Roivert *par)
         empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         ui.mainToolBar->addWidget(empty);
     }
-    
+
     ui.mainToolBar->addAction(actReset.get());
 
     ui.mainToolBar->setFloatable(false);

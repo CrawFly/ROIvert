@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 
-VertLine::VertLine(QGraphicsScene *scene)
+VertLine::VertLine(QGraphicsScene* scene)
 {
     if (scene)
     {
@@ -33,10 +33,10 @@ void VertLine::setX(qreal x, bool silent)
 }
 void VertLine::setMin(qreal m) { minX = m; }
 void VertLine::setMax(qreal m) { maxX = m; }
-void VertLine::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void VertLine::mousePressEvent(QGraphicsSceneMouseEvent* event)
 {
 }
-void VertLine::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void VertLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     setX(event->pos().x());
 }
@@ -45,7 +45,7 @@ QRectF VertLine::boundingRect() const
     return QRectF(X - .025, 0, .05, 1);
 };
 
-GammaLine::GammaLine(QGraphicsScene *scene)
+GammaLine::GammaLine(QGraphicsScene* scene)
 {
     if (scene)
     {
@@ -85,8 +85,8 @@ void GammaLine::setGamma(qreal g, bool silent)
         }
     }
 }
-void GammaLine::mousePressEvent(QGraphicsSceneMouseEvent *event) {}
-void GammaLine::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void GammaLine::mousePressEvent(QGraphicsSceneMouseEvent* event) {}
+void GammaLine::mouseMoveEvent(QGraphicsSceneMouseEvent* event)
 {
     QPointF newloc = event->pos();
 
@@ -131,10 +131,10 @@ QPainterPath GammaLine::shape() const
 
 namespace ContrastWidgetImpl
 {
-    ContrastChart::ContrastChart(QWidget *parent)
+    ContrastChart::ContrastChart(QWidget* parent)
         : QGraphicsView(parent)
     {
-        QGraphicsScene *scene = new QGraphicsScene(0, 0, 1, 1);
+        QGraphicsScene* scene = new QGraphicsScene(0, 0, 1, 1);
         setRenderHints(QPainter::Antialiasing);
 
         scene->setBackgroundBrush(Qt::white);
@@ -149,12 +149,12 @@ namespace ContrastWidgetImpl
         scene->addItem(HistPath);
 
         // Overlays to mark out of min/max
-        QGraphicsRectItem *leftOverlayRect = new QGraphicsRectItem;
+        QGraphicsRectItem* leftOverlayRect = new QGraphicsRectItem;
         leftOverlayRect->setRect(0, -1, 0, 3);
         leftOverlayRect->setPen(Qt::NoPen);
         leftOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
         scene->addItem(leftOverlayRect);
-        QGraphicsRectItem *rightOverlayRect = new QGraphicsRectItem;
+        QGraphicsRectItem* rightOverlayRect = new QGraphicsRectItem;
         rightOverlayRect->setRect(1, -1, 0, 3);
         rightOverlayRect->setPen(QPen(Qt::NoPen));
         rightOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
@@ -185,13 +185,13 @@ namespace ContrastWidgetImpl
 
         // connect overlays to accompanying lines
         connect(minline, &VertLine::changeVal, this, [leftOverlayRect](qreal val)
-                { leftOverlayRect->setRect(-1, -1, 1 + val, 3); });
+        { leftOverlayRect->setRect(-1, -1, 1 + val, 3); });
         connect(maxline, &VertLine::changeVal, this, [rightOverlayRect](qreal val)
-                { rightOverlayRect->setRect(val, -1, 2. - val, 3); });
+        { rightOverlayRect->setRect(val, -1, 2. - val, 3); });
 
         // connect outbound signal:
-        auto lam = [this] { 
-            emit contrastChanged(getValues()); 
+        auto lam = [this] {
+            emit contrastChanged(getValues());
         };
         connect(minline, &VertLine::changeVal, this, lam);
         connect(maxline, &VertLine::changeVal, this, lam);
@@ -226,7 +226,7 @@ namespace ContrastWidgetImpl
             HistPath->setBrush(lGrad);
         }
     }
-    void ContrastChart::resizeEvent(QResizeEvent *event)
+    void ContrastChart::resizeEvent(QResizeEvent* event)
     {
         fitInView(scene()->sceneRect(), Qt::IgnoreAspectRatio);
     }
@@ -253,7 +253,6 @@ namespace ContrastWidgetImpl
         if (silent) {
             blockSignals(oldblock);
         }
-
     }
     void ContrastChart::setGammaRange(qreal mingamma, qreal maxgamma)
     {

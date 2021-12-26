@@ -11,8 +11,8 @@
 
 struct ROITrace::pimpl
 {
-    VideoData *videodata;
-    TraceViewWidget *traceview;
+    VideoData* videodata;
+    TraceViewWidget* traceview;
 
     cv::Mat TraceData;
     std::unique_ptr<TraceChartWidget> TraceChart;
@@ -31,7 +31,7 @@ struct ROITrace::pimpl
     std::shared_ptr<ChartStyle> chartstyle;
 };
 
-ROITrace::ROITrace(TraceViewWidget *tv, VideoData *vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) : impl(std::make_unique<pimpl>())
+ROITrace::ROITrace(TraceViewWidget* tv, VideoData* vd, std::shared_ptr<ChartStyle> ridgestyle, std::shared_ptr<ChartStyle> linestyle) : impl(std::make_unique<pimpl>())
 {
     impl->init(ridgestyle, linestyle);
     impl->videodata = vd;
@@ -88,6 +88,6 @@ void ROITrace::update()
     impl->traceview->getRidgeChart().update();
 }
 
-TraceChartWidget *ROITrace::getTraceChart() const noexcept { return impl->TraceChart.get(); }
-TraceChartSeries *ROITrace::getLineSeries() const noexcept { return impl->LineSeries.get(); }
-TraceChartSeries *ROITrace::getRidgeSeries() const noexcept { return impl->RidgeSeries.get(); }
+TraceChartWidget* ROITrace::getTraceChart() const noexcept { return impl->TraceChart.get(); }
+TraceChartSeries* ROITrace::getLineSeries() const noexcept { return impl->LineSeries.get(); }
+TraceChartSeries* ROITrace::getRidgeSeries() const noexcept { return impl->RidgeSeries.get(); }

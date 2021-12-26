@@ -10,18 +10,17 @@ class Roivert : public QMainWindow
     Q_OBJECT
 
 public:
-    Roivert(QWidget *parent = Q_NULLPTR);
+    Roivert(QWidget* parent = Q_NULLPTR);
     ~Roivert();
     void setDefaultGeometry();
     QSize getScreenSize() const;
-
 
 public slots:
     void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder);
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
-    void setInitialSettings(bool restore=true);
-    
+    void setInitialSettings(bool restore = true);
+
 protected:
     void closeEvent(QCloseEvent* event) override;
 
@@ -32,5 +31,4 @@ private:
     void doConnect();
     void frameRateChanged(double frameRate);
     void updateContrastWidget(bool isDff);
-
 };

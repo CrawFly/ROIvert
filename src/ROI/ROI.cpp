@@ -3,9 +3,8 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-ROI::ROI(QGraphicsScene *scene, TraceViewWidget *tView, VideoData *videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle &rstyle)
+ROI::ROI(QGraphicsScene* scene, TraceViewWidget* tView, VideoData* videodata, ROIVert::SHAPE shp, QSize imgsize, const ROIStyle& rstyle)
 {
-
     roistyle = std::make_unique<ROIStyle>(rstyle);
 
     auto rcs = tView->getCoreRidgeChartStyle();
@@ -34,7 +33,7 @@ bool ROI::getSelected() {
     return graphicsShape->isSelectVisible();
 }
 
-void ROI::read(const QJsonObject &json)
+void ROI::read(const QJsonObject& json)
 {
     QJsonObject jShape = json["shape"].toObject();
     graphicsShape->read(jShape, pixelsubset);
@@ -43,7 +42,7 @@ void ROI::read(const QJsonObject &json)
     const QColor clr(jrgb[0].toInt(), jrgb[1].toInt(), jrgb[2].toInt());
     roistyle->setColor(clr);
 }
-void ROI::write(QJsonObject &json) const
+void ROI::write(QJsonObject& json) const
 {
     QJsonObject jShape;
     graphicsShape->write(jShape, pixelsubset);

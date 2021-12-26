@@ -7,7 +7,6 @@ class ChartStyle;
 class TraceChartWidget;
 class TraceChartSeries;
 
-
 namespace ROIVert {
     enum class SHAPE;
 }
@@ -21,11 +20,9 @@ public:
     ~ROITrace();
     void update();
 
-    
     TraceChartWidget* getTraceChart() const noexcept;
     TraceChartSeries* getLineSeries() const noexcept;
     TraceChartSeries* getRidgeSeries() const noexcept;
-    
 
     std::vector<float> getTrace() const;
 
@@ -36,4 +33,3 @@ private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
 };
-

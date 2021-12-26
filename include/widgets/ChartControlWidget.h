@@ -7,7 +7,7 @@ class ChartControlWidget : public QWidget {
 public:
     explicit ChartControlWidget(QWidget* parent = nullptr);
     ~ChartControlWidget();
-    
+
 signals:
     void heightChanged(int newheight);
 

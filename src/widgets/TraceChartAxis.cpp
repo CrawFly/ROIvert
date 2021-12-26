@@ -7,7 +7,7 @@
 
 namespace
 {
-    double niceNum(const double &range, const bool round) noexcept
+    double niceNum(const double& range, const bool round) noexcept
     {
         float exponent = std::floor(std::log10(range));
         float fraction = range / std::pow(10.f, exponent);
@@ -38,7 +38,7 @@ namespace
 
         return niceFraction * pow(10, exponent);
     }
-    std::vector<double> getNiceTicksLimits(double minval, const double &maxval, const unsigned int &maxticks)
+    std::vector<double> getNiceTicksLimits(double minval, const double& maxval, const unsigned int& maxticks)
     {
         // https://stackoverflow.com/questions/8506881/nice-label-algorithm-for-charts-with-minimum-ticks
 
@@ -58,7 +58,7 @@ namespace
             nicemin += spacing;
         }
 
-        std::vector<double> ticks = {nicemin};
+        std::vector<double> ticks = { nicemin };
 
         while ((maxval - ticks.back()) > rfac)
         {
@@ -81,7 +81,7 @@ struct TraceChartAxis::pimpl
 
     int spacelabel = 0, spaceticklabel = 10, spacetickmark = 5;
     int labelthickness = 0, ticklabelthickness = 0; //** these are font size caches...
-    int margins[2] = {0, 0};
+    int margins[2] = { 0, 0 };
 
     int ticklength = 8;
     int maxnticks = 14;
@@ -112,7 +112,7 @@ void TraceChartAxis::setStyle(std::shared_ptr<ChartStyle> style)
     impl->chartstyle = style == nullptr ? std::make_shared<ChartStyle>() : style;
     updateLayout();
 }
-void TraceChartAxis::setExtents(const double &min, const double &max)
+void TraceChartAxis::setExtents(const double& min, const double& max)
 {
     if (max > min)
     {
@@ -129,22 +129,22 @@ std::tuple<double, double> TraceChartAxis::getLimits() const
     switch (getLimitStyle())
     {
     case ROIVert::LIMITSTYLE::AUTO:
-        return {impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front(),
-                impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back()};
+        return { impl->tightleft ? std::get<0>(impl->extents) : impl->tickvalues.front(),
+                impl->tightright ? std::get<1>(impl->extents) : impl->tickvalues.back() };
     case ROIVert::LIMITSTYLE::TIGHT:
         return impl->extents;
     case ROIVert::LIMITSTYLE::MANAGED:
         if (impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE)
         {
-            return {0., 1.};
+            return { 0., 1. };
         }
         return impl->manuallimits;
     }
 
-    return {0., 1.};
+    return { 0., 1. };
 }
 
-void TraceChartAxis::setLabel(const QString &Label)
+void TraceChartAxis::setLabel(const QString & Label)
 {
     impl->label = Label;
     updateLayout();
@@ -154,21 +154,21 @@ QString TraceChartAxis::getLabel() const noexcept
     return impl->label;
 }
 
-void TraceChartAxis::setZero(const int &xzero, const int &yzero) noexcept
+void TraceChartAxis::setZero(const int& xzero, const int& yzero) noexcept
 {
     impl->position.setRect(xzero, yzero, impl->position.width(), impl->position.height());
 }
-void TraceChartAxis::setSpacings(const int &label, const int &ticklabel, const int &tickmark) noexcept
+void TraceChartAxis::setSpacings(const int& label, const int& ticklabel, const int& tickmark) noexcept
 {
     impl->spacelabel = label;
     impl->spaceticklabel = ticklabel;
     impl->spacetickmark = tickmark;
 }
-void TraceChartAxis::setTickLength(const int &ticklength) noexcept
+void TraceChartAxis::setTickLength(const int& ticklength) noexcept
 {
     impl->ticklength = ticklength;
 }
-void TraceChartAxis::setMaxNTicks(const unsigned int &n)
+void TraceChartAxis::setMaxNTicks(const unsigned int& n)
 {
     const auto old = impl->maxnticks;
     impl->maxnticks = std::clamp((int)n, 3, 50);
@@ -203,7 +203,7 @@ void TraceChartAxis::updateLayout()
     // we maybe bail on the tickpicker if the range is crazy?
     if ((extmin != 0 && std::abs(log10(extmin)) > 7) || (extmax != 0 && std::abs(log10(extmax)) > 7))
     {
-        impl->tickvalues = {extmin, (extmin + extmax) / 2, extmax};
+        impl->tickvalues = { extmin, (extmin + extmax) / 2, extmax };
     }
     else
     {
@@ -239,23 +239,23 @@ bool TraceChartAxis::getVisible() const noexcept { return impl->visible; }
 void TraceChartAxis::setPlotBox(QRect pos) { impl->plotbox = pos; }
 void TraceChartAxis::setManualLimits(qreal min, qreal max)
 {
-    impl->manuallimits = {min, max};
+    impl->manuallimits = { min, max };
     updateLayout();
 };
 
-TraceChartHAxis::TraceChartHAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style){};
-void TraceChartHAxis::paint(QPainter &painter)
+TraceChartHAxis::TraceChartHAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
+void TraceChartHAxis::paint(QPainter & painter)
 {
     if (!impl->visible || impl->chartstyle == nullptr)
     {
         return;
     }
 
-    const QRect &pos = impl->position;
-    auto pen{impl->chartstyle->getAxisPen()};
+    const QRect& pos = impl->position;
+    auto pen{ impl->chartstyle->getAxisPen() };
     auto gridpen = QPen(pen);
 
-    auto gridclr{pen.color()};
+    auto gridclr{ pen.color() };
     gridclr.setAlpha(100);
     gridpen.setColor(gridclr);
 
@@ -303,7 +303,7 @@ void TraceChartHAxis::updateLayout()
     // set the thickness to the sum of everything:
     impl->position.setHeight(impl->thickness());
 }
-void TraceChartHAxis::setLength(const int &length) noexcept
+void TraceChartHAxis::setLength(const int& length) noexcept
 {
     impl->position.setWidth(length);
 }
@@ -337,18 +337,18 @@ ROIVert::LIMITSTYLE TraceChartHAxis::getLimitStyle() const
     return ROIVert::LIMITSTYLE::AUTO;
 }
 
-TraceChartVAxis::TraceChartVAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style){};
-void TraceChartVAxis::paint(QPainter &painter)
+TraceChartVAxis::TraceChartVAxis(std::shared_ptr<ChartStyle> style) : TraceChartAxis(style) {};
+void TraceChartVAxis::paint(QPainter & painter)
 {
     if (!impl->visible || impl->chartstyle == nullptr)
     {
         return;
     }
-    const QRect &pos = impl->position;
-    auto pen{impl->chartstyle->getAxisPen()};
+    const QRect& pos = impl->position;
+    auto pen{ impl->chartstyle->getAxisPen() };
     auto gridpen = QPen(pen);
 
-    auto gridclr{pen.color()};
+    auto gridclr{ pen.color() };
     gridclr.setAlpha(100);
     gridpen.setColor(gridclr);
 
@@ -403,7 +403,7 @@ void TraceChartVAxis::updateLayout()
 
     impl->position.setWidth(impl->thickness());
 }
-void TraceChartVAxis::setLength(const int &length) noexcept
+void TraceChartVAxis::setLength(const int& length) noexcept
 {
     impl->position.setHeight(length);
 }

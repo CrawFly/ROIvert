@@ -12,15 +12,13 @@
 #include "widgets/TraceChartWidget.h"
 #include "widgets/ChartControlWidget.h"
 
-
 void RScrollArea::wheelEvent(QWheelEvent* event) {
     if (event->modifiers().testFlag(Qt::KeyboardModifier::ControlModifier)) {
         emit modwheel(event->angleDelta().y());
         return;
-    }        
+    }
     QScrollArea::wheelEvent(event);
 }
-
 
 struct TraceViewWidget::pimpl
 {
@@ -56,7 +54,7 @@ struct TraceViewWidget::pimpl
         ridgeLayout->addWidget(ridgeChart.get());
     }
 
-    void scrollToWidget(QWidget *w)
+    void scrollToWidget(QWidget* w)
     {
         scrollArea->ensureWidgetVisible(w);
     }
@@ -64,7 +62,7 @@ struct TraceViewWidget::pimpl
     int linechartheight = 0;
 
     QSize recsize{ 1000,1000 };
-    RScrollArea *scrollArea{new RScrollArea};
+    RScrollArea* scrollArea{ new RScrollArea };
 
     QList<TraceChartWidget*> getLineCharts() {
         QList<TraceChartWidget*> ret;
@@ -82,24 +80,21 @@ struct TraceViewWidget::pimpl
 private:
     // todo: make these all unique/scoped (be careful with order)
 
-    QTabWidget *tab{new QTabWidget};
-    QWidget *tabLine{new QWidget};
-    QWidget *tabRidgeLine{new QWidget};
-    QWidget *tabImage{new QWidget};
+    QTabWidget* tab{ new QTabWidget };
+    QWidget* tabLine{ new QWidget };
+    QWidget* tabRidgeLine{ new QWidget };
+    QWidget* tabImage{ new QWidget };
 
-    QGridLayout *scrollAreaParent{new QGridLayout};
-    QWidget *scrollAreaContent{new QWidget};
+    QGridLayout* scrollAreaParent{ new QGridLayout };
+    QWidget* scrollAreaContent{ new QWidget };
 
-    QGridLayout *ridgeLayout{new QGridLayout};
-
-
+    QGridLayout* ridgeLayout{ new QGridLayout };
 };
 
-TraceViewWidget::TraceViewWidget(QWidget *parent) :
+TraceViewWidget::TraceViewWidget(QWidget* parent) :
     QDockWidget(parent),
     impl(std::make_unique<pimpl>())
 {
-    
     auto contents = new QWidget;
     this->setWidget(contents);
     contents->setLayout(impl->topGridLayout.get());
@@ -113,7 +108,7 @@ TraceViewWidget::TraceViewWidget(QWidget *parent) :
 
     connect(impl->scrollArea, &RScrollArea::modwheel, impl->chartcontrols, &ChartControlWidget::changeHeight);
     /*
-    connect(impl->scrollArea, &RScrollArea::modwheel, [&](int del) { 
+    connect(impl->scrollArea, &RScrollArea::modwheel, [&](int del) {
         // find the children of linechartlayout and for each one, adjust the size
         auto charts = impl->getLineCharts();
         if (!charts.empty()) {
@@ -128,9 +123,7 @@ TraceViewWidget::TraceViewWidget(QWidget *parent) :
 
 TraceViewWidget::~TraceViewWidget() = default;
 
-
-
-void TraceViewWidget::addLineChart(TraceChartWidget *chart)
+void TraceViewWidget::addLineChart(TraceChartWidget * chart)
 {
     impl->lineChartLayout->addWidget(chart);
     chart->getXAxis()->setLabel("Time (s)");
@@ -146,29 +139,29 @@ void TraceViewWidget::addLineChart(TraceChartWidget *chart)
 
     impl->scrollToWidget(chart);
 }
-void TraceViewWidget::scrollToChart(TraceChartWidget *w)
+void TraceViewWidget::scrollToChart(TraceChartWidget * w)
 {
     impl->scrollToWidget(w);
 }
-RidgeLineWidget &TraceViewWidget::getRidgeChart() noexcept
+RidgeLineWidget& TraceViewWidget::getRidgeChart() noexcept
 {
     return *(impl->ridgeChart);
 }
 
-ChartStyle *TraceViewWidget::getCoreRidgeChartStyle() const noexcept
+ChartStyle* TraceViewWidget::getCoreRidgeChartStyle() const noexcept
 {
     return impl->coreRidgeStyle.get();
 }
-ChartStyle *TraceViewWidget::getCoreLineChartStyle() const noexcept
+ChartStyle* TraceViewWidget::getCoreLineChartStyle() const noexcept
 {
     return impl->coreLineStyle.get();
 }
-void TraceViewWidget::keyPressEvent(QKeyEvent *event)
+void TraceViewWidget::keyPressEvent(QKeyEvent * event)
 {
     emit keyPressed(event->key(), event->modifiers());
 }
 
-void TraceViewWidget::mousePressEvent(QMouseEvent *event)
+void TraceViewWidget::mousePressEvent(QMouseEvent * event)
 {
-    emit chartClicked(nullptr, std::vector<TraceChartSeries *>(), event->modifiers());
+    emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
 }

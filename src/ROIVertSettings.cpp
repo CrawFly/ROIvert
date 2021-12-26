@@ -14,7 +14,7 @@ struct ROIVertSettings::pimpl {
     ImageSettingsWidget* imagesettingswidget{ nullptr };
     StyleWidget* stylewidget{ nullptr };
     FileIOWidget* fileiowidget{ nullptr };
-        
+
     void savesettings(QSettings& settings) {
         settings.setValue("version", ROIVERTVERSION);
         settings.beginGroup("window");
@@ -28,7 +28,6 @@ struct ROIVertSettings::pimpl {
         fileiowidget->saveSettings(settings);
     }
     void restoresettings(QSettings& settings) {
-        
         settings.beginGroup("window");
         roivert->restoreGeometry(settings.value("geometry").toByteArray());
         roivert->restoreState(settings.value("windowState").toByteArray());
@@ -49,7 +48,6 @@ struct ROIVertSettings::pimpl {
     }
 };
 
-
 ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsWidget* is, StyleWidget* s, FileIOWidget* fio) : impl(std::make_unique<pimpl>())
 {
     impl->roivert = r;
@@ -60,8 +58,7 @@ ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsW
 }
 ROIVertSettings::~ROIVertSettings() = default;
 
-void ROIVertSettings::saveSettings() { 
-    
+void ROIVertSettings::saveSettings() {
     QSettings settings;
     impl->savesettings(settings);
 }

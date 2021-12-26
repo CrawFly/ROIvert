@@ -14,7 +14,7 @@
 
 #include "widgets/TraceChartWidget.h"
 
-static QString tr(const char *sourceText, const char *disambiguation = nullptr, int n = -1)
+static QString tr(const char* sourceText, const char* disambiguation = nullptr, int n = -1)
 {
     return QObject::tr(sourceText, disambiguation, n);
 }
@@ -22,11 +22,11 @@ static bool validateROIsJson(QJsonObject json, QSize maxsize)
 {
     // this is just looking for things that are likely to cause a crash...
 
-    auto jrois{json["ROIs"].toArray()};
-    for (const auto &jroi : jrois)
+    auto jrois{ json["ROIs"].toArray() };
+    for (const auto& jroi : jrois)
     {
-        auto roi{jroi.toObject()};
-        auto shape{roi["shape"].toObject()};
+        auto roi{ jroi.toObject() };
+        auto shape{ roi["shape"].toObject() };
 
         QJsonArray jrgb = shape["RGB"].toArray();
         if (jrgb.size() != 3)
@@ -34,19 +34,19 @@ static bool validateROIsJson(QJsonObject json, QSize maxsize)
             return false;
         }
 
-        auto type{shape["type"].toInt()};
+        auto type{ shape["type"].toInt() };
         if (type > 2)
         {
             return false;
         }
-        auto jverts{shape["verts"].toArray()};
+        auto jverts{ shape["verts"].toArray() };
         if (jverts.size() < 2)
         {
             return false;
         }
-        for (const auto &vert : jverts)
+        for (const auto& vert : jverts)
         {
-            auto arr{vert.toArray()};
+            auto arr{ vert.toArray() };
             if (arr.size() != 2)
             {
                 return false;
@@ -63,9 +63,9 @@ static bool validateROIsJson(QJsonObject json, QSize maxsize)
 
 struct FileIO::pimpl
 {
-    ROIs *rois{nullptr};
-    TraceViewWidget *traceview{nullptr};
-    VideoData *videodata{nullptr};
+    ROIs* rois{ nullptr };
+    TraceViewWidget* traceview{ nullptr };
+    VideoData* videodata{ nullptr };
 
     QSize getMaxSize() const noexcept
     {
@@ -79,7 +79,7 @@ struct FileIO::pimpl
     }
 };
 
-FileIO::FileIO(ROIs *rois, TraceViewWidget *traceview, VideoData *videodata) : impl(std::make_unique<pimpl>())
+FileIO::FileIO(ROIs* rois, TraceViewWidget* traceview, VideoData* videodata) : impl(std::make_unique<pimpl>())
 {
     impl->rois = rois;
     impl->traceview = traceview;
@@ -186,7 +186,6 @@ void FileIO::importROIs(QString filename) const
 }
 void FileIO::exportROIs(QString filename) const
 {
-
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
@@ -230,7 +229,7 @@ void FileIO::exportCharts(QString filename, int width, int height, int quality, 
             msg.exec();
             return;
         }
-        
+
         const QFileInfo basefile(filename);
         const QString basename(QDir(basefile.absolutePath()).filePath(basefile.completeBaseName()));
         const QString suffix = basefile.completeSuffix();

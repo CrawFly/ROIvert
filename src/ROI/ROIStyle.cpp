@@ -4,15 +4,15 @@
 
 struct ROIStyle::pimpl
 {
-    QColor linecolor{QColor(255, 0, 0)};
-    QColor fillcolor{QColor(255, 0, 0)};
-    std::pair<QColor, QColor> selunselcolors = {QColor(0, 255, 0), QColor(255, 0, 0)};
+    QColor linecolor{ QColor(255, 0, 0) };
+    QColor fillcolor{ QColor(255, 0, 0) };
+    std::pair<QColor, QColor> selunselcolors = { QColor(0, 255, 0), QColor(255, 0, 0) };
 
-    int linewidth{3};
-    int fillopacity{0};
-    int selsize{10};
-    bool colorbyselected{false};
-    bool isSelected{false};
+    int linewidth{ 3 };
+    int fillopacity{ 0 };
+    int selsize{ 10 };
+    bool colorbyselected{ false };
+    bool isSelected{ false };
 
     QColor getLineColor() const noexcept
     {
@@ -27,9 +27,8 @@ struct ROIStyle::pimpl
 ROIStyle::ROIStyle() : impl(std::make_unique<pimpl>()) { }
 ROIStyle::~ROIStyle() { }
 
-
 // todo: write these copies better....
-ROIStyle &ROIStyle::operator=(const ROIStyle &that)
+ROIStyle& ROIStyle::operator=(const ROIStyle& that)
 {
     if (this != &that)
     {
@@ -46,7 +45,7 @@ ROIStyle &ROIStyle::operator=(const ROIStyle &that)
     return *this;
 }
 
-ROIStyle::ROIStyle(const ROIStyle &that) : impl(std::make_unique<pimpl>())
+ROIStyle::ROIStyle(const ROIStyle& that) : impl(std::make_unique<pimpl>())
 {
     if (this != &that)
     {
@@ -60,7 +59,6 @@ ROIStyle::ROIStyle(const ROIStyle &that) : impl(std::make_unique<pimpl>())
     }
     emit this->StyleChanged(*this);
 }
-
 
 QPen ROIStyle::getPen() const
 {
@@ -177,7 +175,7 @@ std::vector<QColor> ROIPalette::getPaletteColors(std::vector<size_t> inds) const
     if (!palettecolors.empty())
     {
         std::transform(inds.begin(), inds.end(), ret.begin(), [&](size_t ind) -> QColor
-                       { return palettecolors[ind % palettecolors.size()]; });
+        { return palettecolors[ind % palettecolors.size()]; });
     }
     return ret;
 }

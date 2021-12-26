@@ -12,7 +12,7 @@
 #include "ROI/ROISelector.h"
 #include "ROI/ROIStyle.h"
 
-static void clamp_point_to_rect(QPoint &pt, QRect rect)
+static void clamp_point_to_rect(QPoint& pt, QRect rect)
 {
     pt.setX(std::clamp(pt.x(), rect.left(), rect.width()));
     pt.setY(std::clamp(pt.y(), rect.top(), rect.height()));
@@ -20,9 +20,8 @@ static void clamp_point_to_rect(QPoint &pt, QRect rect)
 
 struct ROIShape::pimpl
 {
-    void init(ROIVert::SHAPE shape, ROIShape *parent, std::shared_ptr<ROIStyle> style)
+    void init(ROIVert::SHAPE shape, ROIShape* parent, std::shared_ptr<ROIStyle> style)
     {
-
         switch (shape)
         {
         case ROIVert::SHAPE::RECTANGLE:
@@ -50,19 +49,19 @@ struct ROIShape::pimpl
 
         updateStyle();
     }
-    ROIShape *par;
+    ROIShape* par;
 
     std::shared_ptr<ROIStyle> roistyle;
 
     QRectF bb;             // todo: rename to distinguish from roi bounding box
-    int EditingVertex{-1}; // current vertex being edited, -1 for none
+    int EditingVertex{ -1 }; // current vertex being edited, -1 for none
 
     QRect getBoundingBox() const noexcept
     {
         if (!vertices.empty())
         {
             QRect r(vertices[0], QSize(0, 0));
-            for (auto &v : vertices)
+            for (auto& v : vertices)
             {
                 r.setLeft(std::min(r.left(), v.x()));
                 r.setRight(std::max(r.right(), v.x()));
@@ -84,11 +83,11 @@ struct ROIShape::pimpl
         sel->update();
         shapeItem->update();
     }
-    void updateRectShape(QGraphicsItem *shp)
+    void updateRectShape(QGraphicsItem* shp)
     {
-        auto rShape = dynamic_cast<QGraphicsRectItem *>(shp);
-        auto eShape = dynamic_cast<QGraphicsEllipseItem *>(shp);
-        const QRect r{getBoundingBox()};
+        auto rShape = dynamic_cast<QGraphicsRectItem*>(shp);
+        auto eShape = dynamic_cast<QGraphicsEllipseItem*>(shp);
+        const QRect r{ getBoundingBox() };
         if (rShape)
         {
             rShape->setRect(r);
@@ -99,17 +98,17 @@ struct ROIShape::pimpl
             eShape->setRect(r);
             eShape->setRect(r + QMargins(0, 0, -1, -1));
         }
-        sel->setVertices({r.topLeft(), r.bottomLeft(), r.topRight(), r.bottomRight()});
+        sel->setVertices({ r.topLeft(), r.bottomLeft(), r.topRight(), r.bottomRight() });
     }
-    void updatePolyShape(QGraphicsItem *shp)
+    void updatePolyShape(QGraphicsItem* shp)
     {
-        auto poly = dynamic_cast<QGraphicsPolygonItem *>(shp);
+        auto poly = dynamic_cast<QGraphicsPolygonItem*>(shp);
 
         // ??? for some reason QPolygon::fromStdVector crashes...
         //QPolygon qvertices = QPolygon::fromStdVector(vertices);
         QPolygon qvertices;
         qvertices.reserve(vertices.size());
-        for (auto &v : vertices)
+        for (auto& v : vertices)
         {
             qvertices.push_back(v);
         }
@@ -126,7 +125,7 @@ struct ROIShape::pimpl
         {
             std::vector<int> d(vertices.size());
             std::transform(vertices.begin(), vertices.end(), d.begin(), [&](QPoint pt) -> int
-                           { return (clickpos - pt).manhattanLength(); });
+            { return (clickpos - pt).manhattanLength(); });
             auto it = std::min_element(d.begin(), d.end());
             EditingVertex = it - d.begin();
         }
@@ -134,16 +133,16 @@ struct ROIShape::pimpl
         {
             QRect rect = getBoundingBox();
 
-            std::vector<QPoint> vertpos{rect.topLeft(), rect.topRight(), rect.bottomRight(), rect.bottomLeft()};
+            std::vector<QPoint> vertpos{ rect.topLeft(), rect.topRight(), rect.bottomRight(), rect.bottomLeft() };
 
             std::vector<int> d(4);
             std::transform(vertpos.begin(), vertpos.end(), d.begin(), [&](QPoint pt) -> int
-                           { return (clickpos - pt).manhattanLength(); });
+            { return (clickpos - pt).manhattanLength(); });
 
             auto it = std::min_element(d.begin(), d.end());
             size_t minind = it - d.begin();
 
-            vertices = {vertpos[minind], vertpos[(minind + 2) % 4]};
+            vertices = { vertpos[minind], vertpos[(minind + 2) % 4] };
             EditingVertex = 0;
         }
     }
@@ -171,7 +170,6 @@ struct ROIShape::pimpl
     }
     void mouseRelease(QPoint clickpos, const double sceneScale)
     {
-
         if (EditingVertex > -1)
         {
             if (isPoly() && polyopen)
@@ -205,7 +203,7 @@ struct ROIShape::pimpl
         brush = roistyle->getBrush();
         selsize = roistyle->getSelectorSize();
 
-        auto shp = dynamic_cast<QAbstractGraphicsShapeItem *>(shapeItem);
+        auto shp = dynamic_cast<QAbstractGraphicsShapeItem*>(shapeItem);
         if (shp)
         {
             shp->setPen(pen);
@@ -258,21 +256,20 @@ struct ROIShape::pimpl
 
 private:
     std::vector<QPoint> vertices;
-    QGraphicsItem *shapeItem = nullptr;
-    ROISelector *sel = nullptr;
-    ROIVert::SHAPE shptype{ROIVert::SHAPE::RECTANGLE};
+    QGraphicsItem* shapeItem = nullptr;
+    ROISelector* sel = nullptr;
+    ROIVert::SHAPE shptype{ ROIVert::SHAPE::RECTANGLE };
     bool polyopen = true; // Special for distinguishing polygon's inital drawing state from later editing state
     QPen pen;
     QBrush brush;
     double selsize = 20.;
 };
 
-ROIShape::ROIShape(QGraphicsScene *scene,
-                   ROIVert::SHAPE shp,
-                   QSize imgsize,
-                   std::shared_ptr<ROIStyle> style) : impl(std::make_unique<pimpl>())
+ROIShape::ROIShape(QGraphicsScene* scene,
+    ROIVert::SHAPE shp,
+    QSize imgsize,
+    std::shared_ptr<ROIStyle> style) : impl(std::make_unique<pimpl>())
 {
-
     impl->init(shp, this, style);
     setBoundingRect(QRectF(0, 0, imgsize.width(), imgsize.height()));
     connect(style.get(), &ROIStyle::StyleChanged, this, &ROIShape::updateStyle);
@@ -285,7 +282,7 @@ void ROIShape::setVertices(std::vector<QPoint> vertices)
     impl->setVertices(vertices);
 }
 
-void ROIShape::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void ROIShape::paint(QPainter * painter, const QStyleOptionGraphicsItem * option, QWidget * widget)
 {
     // paint is no-op, children are auto painted.
 }
@@ -299,7 +296,7 @@ void ROIShape::setEditingVertex(int VertexIndex) noexcept
 }
 
 // these three are overridden in poly? or we do it all in this object and just use switches
-void ROIShape::mousePressEvent(QGraphicsSceneMouseEvent *event)
+void ROIShape::mousePressEvent(QGraphicsSceneMouseEvent * event)
 {
     if (!isSelectVisible() || event->button() != Qt::LeftButton)
     {
@@ -323,7 +320,7 @@ void ROIShape::doPress(QPoint pos)
     }
 }
 
-void ROIShape::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+void ROIShape::mouseMoveEvent(QGraphicsSceneMouseEvent * event)
 {
     // this means that the selector is moving!
     if (impl->EditingVertex > -1)
@@ -334,7 +331,7 @@ void ROIShape::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
     }
 }
 
-void ROIShape::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+void ROIShape::mouseReleaseEvent(QGraphicsSceneMouseEvent * event)
 {
     QPoint clickpos = mapToScene(event->pos()).toPoint();
     clamp_point_to_rect(clickpos, impl->bb.toRect());
@@ -392,27 +389,27 @@ QRect ROIShape::getTightBoundingBox() const noexcept
     return impl->getBoundingBox();
 }
 
-void ROIShape::read(const QJsonObject &json, int pixelsubset)
+void ROIShape::read(const QJsonObject & json, int pixelsubset)
 {
     impl->setShapeType(static_cast<ROIVert::SHAPE>(json["type"].toInt()));
     QJsonArray jverts = json["verts"].toArray();
     std::vector<QPoint> vertices;
-    for (const auto &vert : jverts)
+    for (const auto& vert : jverts)
     {
-        QPoint pt{vert.toArray()[0].toInt(), vert.toArray()[1].toInt()};
+        QPoint pt{ vert.toArray()[0].toInt(), vert.toArray()[1].toInt() };
         vertices.push_back(pt / pixelsubset);
     }
     impl->setVertices(vertices);
     impl->setSelectVisible(false);
     emit roiEdited(getShapeType(), getTightBoundingBox(), getVertices());
 }
-void ROIShape::write(QJsonObject &json, int pixelsubset) const
+void ROIShape::write(QJsonObject & json, int pixelsubset) const
 {
     json["type"] = static_cast<int>(impl->getShapeType());
     QJsonArray jverts;
-    for (auto &pt : impl->getVertices())
+    for (auto& pt : impl->getVertices())
     {
-        jverts.append(QJsonArray({pt.x() * pixelsubset, pt.y() * pixelsubset}));
+        jverts.append(QJsonArray({ pt.x() * pixelsubset, pt.y() * pixelsubset }));
     }
     json["verts"] = jverts;
 }

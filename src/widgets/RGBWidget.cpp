@@ -6,10 +6,10 @@
 
 struct RGBWidget::pimpl
 {
-    std::vector<std::pair<QSlider *, QSpinBox *>> rgb;
+    std::vector<std::pair<QSlider*, QSpinBox*>> rgb;
 };
 
-RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
+RGBWidget::RGBWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     auto grid = new QGridLayout(this);
 
@@ -29,9 +29,9 @@ RGBWidget::RGBWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<p
         connect(spin, QOverload<int>::of(&QSpinBox::valueChanged), slide, &QSlider::setValue);
 
         connect(slide, &QSlider::valueChanged, this, [=](int)
-                { emit colorChanged(getColor()); });
+        { emit colorChanged(getColor()); });
 
-        impl->rgb.push_back({slide, spin});
+        impl->rgb.push_back({ slide, spin });
     }
 
     impl->rgb[0].first->setStyleSheet("QSlider::handle:horizontal {background: #f99; border: 3px solid #f00; width: 13px;margin-top: -2px;margin-bottom: -2px;border-radius: 6px;}");
@@ -46,13 +46,13 @@ RGBWidget::~RGBWidget() { }
 
 QColor RGBWidget::getColor() const
 {
-    const int r{impl->rgb[0].second->value()};
-    const int g{impl->rgb[1].second->value()};
-    const int b{impl->rgb[2].second->value()};
+    const int r{ impl->rgb[0].second->value() };
+    const int g{ impl->rgb[1].second->value() };
+    const int b{ impl->rgb[2].second->value() };
     return QColor(r, g, b);
 }
 
-void RGBWidget::setColor(const QColor &clr)
+void RGBWidget::setColor(const QColor& clr)
 {
     auto isblocked = this->signalsBlocked();
     this->blockSignals(true);

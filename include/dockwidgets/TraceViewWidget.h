@@ -15,13 +15,13 @@ class TraceViewWidget : public QDockWidget
 public:
     TraceViewWidget(QWidget* parent = nullptr);
     ~TraceViewWidget();
-    
+
     void addLineChart(TraceChartWidget*);
     RidgeLineWidget& getRidgeChart() noexcept;
-    
+
     ChartStyle* getCoreRidgeChartStyle() const noexcept;
     ChartStyle* getCoreLineChartStyle() const noexcept;
-    
+
     void scrollToChart(TraceChartWidget*);
 
 signals:
@@ -37,8 +37,8 @@ private:
     std::unique_ptr<pimpl> impl;
 };
 
-    // RScrollArea is a little wrapper around QScrollArea to let modified scoll perform 
-    // a differnt behavior (to resize the charts)
+// RScrollArea is a little wrapper around QScrollArea to let modified scoll perform
+// a differnt behavior (to resize the charts)
 class RScrollArea : public QScrollArea
 {
     Q_OBJECT
@@ -49,5 +49,4 @@ signals:
 
 protected:
     void wheelEvent(QWheelEvent* event) override;
-
 };

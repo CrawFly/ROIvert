@@ -6,11 +6,10 @@
  * \author neuroph
 */
 
-// todo: this needs a rewrite, several aspects could be handled much better now! 
+// todo: this needs a rewrite, several aspects could be handled much better now!
 //      - doesn't really need a graphicsview, could do this all more cleanly in a paint
 //      - overabstraction of these classes
 //      - could consider using the chart widget here
-
 
 #pragma once
 #include <QGraphicsLineItem>
@@ -68,7 +67,7 @@ private:
 };
 
 namespace ContrastWidgetImpl {
-     class ContrastChart : public QGraphicsView
+    class ContrastChart : public QGraphicsView
     {
         Q_OBJECT
 

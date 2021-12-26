@@ -10,7 +10,6 @@ enum class smoothingtype {
     BILATERAL
 };
 
-
 class DisplaySettings
 {
 public:

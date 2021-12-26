@@ -10,7 +10,7 @@ public:
     ChartStyle& operator=(const ChartStyle&) noexcept;
     ChartStyle(const ChartStyle&);
     ~ChartStyle();
-    
+
     void connectToROIStyle(const ROIStyle*);
 
     // Charts
@@ -21,7 +21,7 @@ public:
     void setAxisColor(QColor) noexcept;
     void setAxisLineWidth(int) noexcept;
     void setGrid(bool) noexcept;
-    
+
     void setLabelFontSize(int) noexcept;
     void setTickLabelFontSize(int) noexcept;
     void setFontFamily(QString) noexcept;
@@ -32,11 +32,9 @@ public:
     void setLimitStyle(ROIVert::LIMITSTYLE) noexcept;
     ROIVert::LIMITSTYLE getLimitStyle() const noexcept;
 
-
     QPen getAxisPen() const;
     bool getGrid() const noexcept;
 
-    
     // Traces
     void setTraceLineWidth(int) noexcept;
     void setTraceFillOpacity(int) noexcept;
@@ -59,4 +57,3 @@ private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
 };
-

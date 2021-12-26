@@ -7,7 +7,6 @@ namespace ROIVert {
     enum class SHAPE;
 }
 
-
 class VideoData : public QObject
 {
     Q_OBJECT
@@ -21,13 +20,13 @@ public:
     void load(QStringList filelist, int dst, int dss, bool isfolder);
     cv::Mat get(bool isDff, int projmode, size_t framenum) const;
     void getHistogram(bool isDff, std::vector<float>& histogram) const noexcept;
-    
+
     int getWidth() const noexcept;
     int getHeight() const noexcept;
     size_t getNFrames() const noexcept;
     int getdsTime() const noexcept;
     int getdsSpace() const noexcept;
-    
+
     float getTMax() const noexcept;
     void setFrameRate(float framerate) noexcept;
 

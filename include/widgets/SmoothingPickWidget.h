@@ -24,7 +24,6 @@ public:
     void setSmoothing(ROIVert::smoothing s);
     void updateSmothingParamWidgets();
 
-
 signals:
     void smoothingChanged();
 
@@ -37,4 +36,3 @@ private:
     QLabel* lblSigmaI;
     QWidget* widgParams;
 };
-

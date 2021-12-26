@@ -4,7 +4,6 @@
 
 class ROIStyle;
 
-
 class ROIShape : public QGraphicsObject
 {
     Q_OBJECT
@@ -16,10 +15,10 @@ public:
         std::shared_ptr<ROIStyle> style);
 
     ~ROIShape();
-    
+
     void setVertices(std::vector<QPoint> vertices);
     std::vector<QPoint> getVertices() const noexcept;
-    
+
     void setEditingVertex(int VertexIndex) noexcept;
     int getEditingVertex() const noexcept;
 
@@ -28,7 +27,7 @@ public:
 
     void setBoundingRect(QRectF); // NOTE that this boundingrect is the one used for painting, NOT the tight rect
     void updateStyle();
-    
+
     ROIVert::SHAPE getShapeType() const noexcept;
     QRect getTightBoundingBox() const noexcept;
 
@@ -41,12 +40,11 @@ public:
 
     void doPress(QPoint pos);
 
-    void read(const QJsonObject &json, int pixesubset);
-    void write(QJsonObject &json, int pixesubset) const;
+    void read(const QJsonObject& json, int pixesubset);
+    void write(QJsonObject& json, int pixesubset) const;
 
 signals:
     void roiEdited(ROIVert::SHAPE, QRect, std::vector<QPoint>);
-
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;
@@ -57,4 +55,3 @@ private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
 };
-

@@ -6,31 +6,31 @@
 
 struct ChartStyle::pimpl
 {
-    QColor backgroundcolor{Qt::white};
-    QColor axiscolor{Qt::black};
-    int axislinewidth{1};
+    QColor backgroundcolor{ Qt::white };
+    QColor axiscolor{ Qt::black };
+    int axislinewidth{ 1 };
     bool grid = false;
-    int labelfontsize{12};
-    int tickfontsize{10};
-    QString fontfamily{"Arial"};
+    int labelfontsize{ 12 };
+    int tickfontsize{ 10 };
+    QString fontfamily{ "Arial" };
 
-    int tracelinewidth{2};
-    int tracefillopacity{55};
-    bool tracefillgradient{true};
-    QColor linecolor{Qt::red};
-    QColor fillcolor{Qt::red};
+    int tracelinewidth{ 2 };
+    int tracefillopacity{ 55 };
+    bool tracefillgradient{ true };
+    QColor linecolor{ Qt::red };
+    QColor fillcolor{ Qt::red };
 
-    bool dobackbrush{false};
-    ROIVert::NORMALIZATION normalization{ROIVert::NORMALIZATION::NONE};
+    bool dobackbrush{ false };
+    ROIVert::NORMALIZATION normalization{ ROIVert::NORMALIZATION::NONE };
 
-    ROIVert::LIMITSTYLE limitstyle{ROIVert::LIMITSTYLE::AUTO};
+    ROIVert::LIMITSTYLE limitstyle{ ROIVert::LIMITSTYLE::AUTO };
 };
 
 ChartStyle::ChartStyle() : impl(std::make_unique<pimpl>()) { };
 
 ChartStyle::~ChartStyle() {}
 
-ChartStyle &ChartStyle::operator=(const ChartStyle &that) noexcept
+ChartStyle& ChartStyle::operator=(const ChartStyle& that) noexcept
 {
     if (this != &that)
     {
@@ -40,7 +40,7 @@ ChartStyle &ChartStyle::operator=(const ChartStyle &that) noexcept
     return *this;
 }
 
-ChartStyle::ChartStyle(const ChartStyle &that) : impl(std::make_unique<pimpl>())
+ChartStyle::ChartStyle(const ChartStyle& that) : impl(std::make_unique<pimpl>())
 {
     if (that.impl != nullptr && this != &that)
     {
@@ -161,7 +161,7 @@ QBrush ChartStyle::getTraceBrush() const
     return brush;
 }
 
-void ChartStyle::connectToROIStyle(const ROIStyle *r)
+void ChartStyle::connectToROIStyle(const ROIStyle* r)
 {
     if (r != nullptr)
     {
@@ -171,7 +171,7 @@ void ChartStyle::connectToROIStyle(const ROIStyle *r)
     }
 }
 
-void ChartStyle::ROIStyleChanged(const ROIStyle &r)
+void ChartStyle::ROIStyleChanged(const ROIStyle& r)
 {
     impl->linecolor = r.getLineColor();
     impl->fillcolor = r.getFillColor();

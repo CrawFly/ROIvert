@@ -8,7 +8,7 @@
 
 struct ZoomPan::pimpl
 {
-    QGraphicsView *view{nullptr};
+    QGraphicsView* view{ nullptr };
     Qt::KeyboardModifiers mod = Qt::ControlModifier;
     double zoomfactor = 1.0015;
     bool zoomedMin()
@@ -34,9 +34,8 @@ struct ZoomPan::pimpl
         view->centerOn(view->mapToScene(viewportCenter().toPoint()));
     }
 
-    void moveEvent(const QMouseEvent *event)
+    void moveEvent(const QMouseEvent* event)
     {
-
         const QPointF delta = targetViewportPos - event->pos();
         if (qAbs(delta.x()) > 5 || qAbs(delta.y()) > 5)
         {
@@ -49,9 +48,8 @@ struct ZoomPan::pimpl
             view->centerOn(view->mapToScene((viewportCenter() + delta).toPoint()));
         }
     }
-    bool wheelEvent(const QWheelEvent *event)
+    bool wheelEvent(const QWheelEvent* event)
     {
-    
         if (QApplication::keyboardModifiers() == mod)
         {
             const double angle = event->angleDelta().y();
@@ -61,7 +59,7 @@ struct ZoomPan::pimpl
         }
         return false;
     }
-    bool pressEvent(const QMouseEvent *event)
+    bool pressEvent(const QMouseEvent* event)
     {
         if (QApplication::keyboardModifiers() == mod)
         {
@@ -74,7 +72,7 @@ struct ZoomPan::pimpl
     QPointF targetScenePos, targetViewportPos;
 };
 
-ZoomPan::ZoomPan(QGraphicsView *view) : QObject(view), impl(std::make_unique<pimpl>())
+ZoomPan::ZoomPan(QGraphicsView* view) : QObject(view), impl(std::make_unique<pimpl>())
 {
     impl->view = view;
     impl->view->viewport()->installEventFilter(this);
@@ -86,17 +84,17 @@ void ZoomPan::setModifier(Qt::KeyboardModifier mod) {
     impl->mod = mod;
 }
 void ZoomPan::setZoomFactor(double value) noexcept { impl->zoomfactor = value; }
-bool ZoomPan::eventFilter(QObject *object, QEvent *event)
+bool ZoomPan::eventFilter(QObject* object, QEvent* event)
 {
     switch (event->type())
     {
     case QEvent::MouseButtonPress:
-        return impl->pressEvent(dynamic_cast<QMouseEvent *>(event));
+        return impl->pressEvent(dynamic_cast<QMouseEvent*>(event));
     case QEvent::MouseMove:
-        impl->moveEvent(dynamic_cast<QMouseEvent *>(event));
+        impl->moveEvent(dynamic_cast<QMouseEvent*>(event));
         return false;
     case QEvent::Wheel:
-        return impl->wheelEvent(dynamic_cast<QWheelEvent *>(event));
+        return impl->wheelEvent(dynamic_cast<QWheelEvent*>(event));
     case QEvent::MouseButtonRelease:
         impl->view->setDragMode(QGraphicsView::NoDrag);
         return false;

@@ -8,7 +8,6 @@ namespace
 {
     std::vector<QPixmap> getColormapPixmaps(std::vector<cv::ColormapTypes> CmapTypes)
     {
-
         // Generate some base colormap data
         cv::Mat cv_cmap(15, 255, CV_8U);
         for (int col = 0; col < cv_cmap.size().width; col++)
@@ -23,7 +22,7 @@ namespace
         std::vector<QPixmap> res;
         res.push_back(QPixmap::fromImage(QImage(cv_cmap.data, cv_cmap.size().width, cv_cmap.size().height, cv_cmap.step, QImage::Format_Grayscale8)));
 
-        for (auto &map : CmapTypes)
+        for (auto& map : CmapTypes)
         {
             cv::Mat thismap(cv_cmap.size(), cv_cmap.type());
             cv::applyColorMap(cv_cmap, thismap, map);
@@ -32,18 +31,18 @@ namespace
 
         return res;
     }
-    const std::vector<cv::ColormapTypes> cmaps{cv::COLORMAP_DEEPGREEN, cv::COLORMAP_HOT, cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE, cv::COLORMAP_TURBO, cv::COLORMAP_TWILIGHT, cv::COLORMAP_OCEAN };
+    const std::vector<cv::ColormapTypes> cmaps{ cv::COLORMAP_DEEPGREEN, cv::COLORMAP_HOT, cv::COLORMAP_INFERNO, cv::COLORMAP_PINK, cv::COLORMAP_BONE, cv::COLORMAP_TURBO, cv::COLORMAP_TWILIGHT, cv::COLORMAP_OCEAN };
 }
 
-ColormapPickWidget::ColormapPickWidget(QWidget *parent) : QWidget(parent)
+ColormapPickWidget::ColormapPickWidget(QWidget* parent) : QWidget(parent)
 {
-    auto lay{std::make_unique<QVBoxLayout>()};
+    auto lay{ std::make_unique<QVBoxLayout>() };
     cmbColormap = std::make_unique<QComboBox>();
     cmbColormap->setObjectName("cmbColormap");
     cmbColormap->setToolTip(tr("Choose a colormap for displaying the video"));
 
     std::vector<QPixmap> c = getColormapPixmaps(cmaps);
-    for (auto &mapimage : c)
+    for (auto& mapimage : c)
     {
         cmbColormap->addItem("");
         cmbColormap->setItemData(cmbColormap->count() - 1, mapimage, Qt::DecorationRole);
@@ -71,7 +70,6 @@ int ColormapPickWidget::getColormap() const
 
     const size_t ind = cmapIndex - 1;
     return (cmaps[ind]);
-
 }
 
 void ColormapPickWidget::setColormap(int cmapID)

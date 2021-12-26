@@ -16,23 +16,23 @@ struct FileIOWidget::pimpl
     QVBoxLayout lay;
     QFormLayout layChartParams;
 
-    QLabel lblTraces{tr("Traces")};
-    QLabel lblCharts{tr("Charts")};
-    QLabel lblROIs{tr("ROIs")};
+    QLabel lblTraces{ tr("Traces") };
+    QLabel lblCharts{ tr("Charts") };
+    QLabel lblROIs{ tr("ROIs") };
 
-    QCheckBox chkHeader{tr("Include Header")};
-    QCheckBox chkTime{tr("Include Time Column")};
-    QPushButton cmdExpTraces{tr("Export Traces")};
+    QCheckBox chkHeader{ tr("Include Header") };
+    QCheckBox chkTime{ tr("Include Time Column") };
+    QPushButton cmdExpTraces{ tr("Export Traces") };
 
     QSpinBox spinChartWidth;
     QSpinBox spinChartHeight;
     QSpinBox spinChartQuality;
 
-    QPushButton cmdExpCharts{tr("Export Lines")};
-    QPushButton cmdExpRidge{tr("Export Ridge")};
+    QPushButton cmdExpCharts{ tr("Export Lines") };
+    QPushButton cmdExpRidge{ tr("Export Ridge") };
 
-    QPushButton cmdImpROIs{tr("Import ROIs")};
-    QPushButton cmdExpROIs{tr("Export ROIs")};
+    QPushButton cmdImpROIs{ tr("Import ROIs") };
+    QPushButton cmdExpROIs{ tr("Export ROIs") };
 
     void init()
     {
@@ -68,7 +68,7 @@ struct FileIOWidget::pimpl
         cmdImpROIs.setObjectName("cmdImpROIs");
         cmdExpCharts.setObjectName("cmdExpCharts");
         cmdExpRidge.setObjectName("cmdExpRidge");
-        
+
         lay.setContentsMargins(10, 0, 10, 10);
     }
     void doLayout()
@@ -80,7 +80,7 @@ struct FileIOWidget::pimpl
         lay.addWidget(&cmdExpTraces);
 
         {
-            QFrame *line = new QFrame;
+            QFrame* line = new QFrame;
             line->setFrameStyle(QFrame::HLine);
             lay.addWidget(line);
         }
@@ -112,7 +112,7 @@ struct FileIOWidget::pimpl
         }
 
         {
-            QFrame *line = new QFrame;
+            QFrame* line = new QFrame;
             line->setFrameStyle(QFrame::HLine);
             lay.addWidget(line);
         }
@@ -125,12 +125,12 @@ struct FileIOWidget::pimpl
             templay->addStretch(1);
             lay.addLayout(templay.release());
         }
-        
+
         lay.addStretch();
     }
 };
 
-FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
+FileIOWidget::FileIOWidget(QWidget* parent) : DockWidgetWithSettings(parent), impl(std::make_unique<pimpl>())
 {
     toplay.addWidget(&impl->contents);
 
@@ -138,93 +138,92 @@ FileIOWidget::FileIOWidget(QWidget *parent) : DockWidgetWithSettings(parent), im
     impl->doLayout();
 
     connect(&impl->cmdExpTraces, &QPushButton::clicked, this, [=]()
-            {
-                QString initpath = QDir::currentPath();
-                if (!windowFilePath().isEmpty())
-                {
-                    initpath = windowFilePath();
-                }
-                QString filename = testoverride ? QDir::currentPath()  + "/foo.csv" : 
-                    QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
-                if (!filename.isEmpty())
-                {
-                    windowFilePath() = QFileInfo(filename).absolutePath();
+    {
+        QString initpath = QDir::currentPath();
+        if (!windowFilePath().isEmpty())
+        {
+            initpath = windowFilePath();
+        }
+        QString filename = testoverride ? QDir::currentPath() + "/foo.csv" :
+            QFileDialog::getSaveFileName(this, tr("Save Traces As..."), initpath, tr("Comma Separated Volume (*.csv)"));
+        if (!filename.isEmpty())
+        {
+            windowFilePath() = QFileInfo(filename).absolutePath();
 
-                    emit exportTraces(filename, impl->chkHeader.isChecked(), impl->chkTime.isChecked());
-                }
-            });
+            emit exportTraces(filename, impl->chkHeader.isChecked(), impl->chkTime.isChecked());
+        }
+    });
 
     connect(&impl->cmdExpROIs, &QPushButton::clicked, this, [=]()
-            {
-                QString initpath = QDir::currentPath();
-                if (!windowFilePath().isEmpty())
-                {
-                    initpath = windowFilePath();
-                }
-                QString filename = testoverride ? QDir::currentPath()  + "/foo.json" : 
-                    QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("JavaScript Object Notation (*.json)"));
-                if (!filename.isEmpty())
-                {
-                    windowFilePath() = QFileInfo(filename).absolutePath();
-                    emit exportROIs(filename);
-                }
-            });
+    {
+        QString initpath = QDir::currentPath();
+        if (!windowFilePath().isEmpty())
+        {
+            initpath = windowFilePath();
+        }
+        QString filename = testoverride ? QDir::currentPath() + "/foo.json" :
+            QFileDialog::getSaveFileName(this, tr("Save ROIs As..."), initpath, tr("JavaScript Object Notation (*.json)"));
+        if (!filename.isEmpty())
+        {
+            windowFilePath() = QFileInfo(filename).absolutePath();
+            emit exportROIs(filename);
+        }
+    });
 
     connect(&impl->cmdImpROIs, &QPushButton::clicked, this, [=]()
-            {
-                QString initpath = QDir::currentPath();
-                if (!windowFilePath().isEmpty())
-                {
-                    initpath = windowFilePath();
-                }
-                QString filename = testoverride ? QDir::currentPath()  + "/foo.json" : 
-                    QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("JavaScript Object Notation (*.json)"));
-                if (!filename.isEmpty())
-                {
-                    setWindowFilePath(QFileInfo(filename).absolutePath());
-                    emit importROIs(filename);
-                }
-            });
+    {
+        QString initpath = QDir::currentPath();
+        if (!windowFilePath().isEmpty())
+        {
+            initpath = windowFilePath();
+        }
+        QString filename = testoverride ? QDir::currentPath() + "/foo.json" :
+            QFileDialog::getOpenFileName(this, tr("Select ROI File..."), initpath, tr("JavaScript Object Notation (*.json)"));
+        if (!filename.isEmpty())
+        {
+            setWindowFilePath(QFileInfo(filename).absolutePath());
+            emit importROIs(filename);
+        }
+    });
 
     connect(&impl->cmdExpCharts, &QPushButton::clicked, this, [=]()
-            {
-                QString initpath = QDir::currentPath();
-                if (!windowFilePath().isEmpty())
-                {
-                    initpath = windowFilePath();
-                }
-                QString filename = testoverride ? QDir::currentPath()  + "/foo.jpeg" : 
-                    QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
-                if (!filename.isEmpty())
-                {
-                    setWindowFilePath(QFileInfo(filename).absolutePath());
-                    emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), false);
-                }
-            });
+    {
+        QString initpath = QDir::currentPath();
+        if (!windowFilePath().isEmpty())
+        {
+            initpath = windowFilePath();
+        }
+        QString filename = testoverride ? QDir::currentPath() + "/foo.jpeg" :
+            QFileDialog::getSaveFileName(this, tr("Save Chart As (suffix will be added)..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group file (*.jpeg)"));
+        if (!filename.isEmpty())
+        {
+            setWindowFilePath(QFileInfo(filename).absolutePath());
+            emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), false);
+        }
+    });
 
     connect(&impl->cmdExpRidge, &QPushButton::clicked, this, [=]()
-            {
-                QString initpath = QDir::currentPath();
-                if (!windowFilePath().isEmpty())
-                {
-                    initpath = windowFilePath();
-                }
-                QString filename = testoverride ? QDir::currentPath()  + "/foo.jpeg" : 
-                    QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
-                if (!filename.isEmpty())
-                {
-                    setWindowFilePath(QFileInfo(filename).absolutePath());
-                    emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), true);
-                }
-            });
+    {
+        QString initpath = QDir::currentPath();
+        if (!windowFilePath().isEmpty())
+        {
+            initpath = windowFilePath();
+        }
+        QString filename = testoverride ? QDir::currentPath() + "/foo.jpeg" :
+            QFileDialog::getSaveFileName(this, tr("Save Chart As..."), initpath, tr("Portable Network Graphic (*.png);;Joint Photographic Experts Group File (*.jpeg)"));
+        if (!filename.isEmpty())
+        {
+            setWindowFilePath(QFileInfo(filename).absolutePath());
+            emit exportCharts(filename, impl->spinChartWidth.value(), impl->spinChartHeight.value(), impl->spinChartQuality.value(), true);
+        }
+    });
 }
-FileIOWidget::~FileIOWidget(){ }
+FileIOWidget::~FileIOWidget() { }
 
 void FileIOWidget::setContentsEnabled(bool onoff)
 {
     impl->contents.setEnabled(onoff);
 }
-
 
 void FileIOWidget::saveSettings(QSettings& settings) const {
     settings.beginGroup("FileIO");
@@ -239,12 +238,11 @@ void FileIOWidget::saveSettings(QSettings& settings) const {
     settings.endGroup();
 }
 void FileIOWidget::restoreSettings(QSettings& settings) {
-    
     settings.beginGroup("FileIO");
     setSettingsStorage(settings.value("dorestore", true).toBool());
     if (getSettingsStorage()) {
-        impl->chkHeader.setChecked(settings.value("header",true).toBool());
-        impl->chkTime.setChecked(settings.value("time",true).toBool());
+        impl->chkHeader.setChecked(settings.value("header", true).toBool());
+        impl->chkTime.setChecked(settings.value("time", true).toBool());
         impl->spinChartHeight.setValue(settings.value("chartwidth", 600).toInt());
         impl->spinChartWidth.setValue(settings.value("chartheight", 1600).toInt());
         impl->spinChartQuality.setValue(settings.value("chartquality", 100).toInt());

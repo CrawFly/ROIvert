@@ -4,7 +4,6 @@
 #include <QPen>
 #include <QBrush>
 
-
 class ROIStyle : public QObject
 {
     Q_OBJECT
@@ -34,7 +33,7 @@ public:
 
     int getSelectorSize() const noexcept;
     bool isColorBySelected() const noexcept;
-    
+
 signals:
     void StyleChanged(const ROIStyle&);
 

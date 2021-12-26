@@ -1,11 +1,10 @@
 #pragma once
 #include <memory>
 class Roivert;
-class ImageDataWidget; 
+class ImageDataWidget;
 class ImageSettingsWidget;
 class StyleWidget;
 class FileIOWidget;
-
 
 class ROIVertSettings
 {
@@ -16,10 +15,8 @@ public:
     void saveSettings();
     void restoreSettings();
     void resetSettings();
-    
 
 private:
     struct pimpl;
     std::unique_ptr<pimpl> impl;
 };
-

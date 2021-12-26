@@ -12,7 +12,7 @@ public:
     QSize getImageSize() const noexcept;
 
 signals:
-    void mouseMoved(QPointF,bool);
+    void mouseMoved(QPointF, bool);
     void mousePressed(QList<QGraphicsItem*>, const QPointF&, QMouseEvent*);
     void keyPressed(int key, Qt::KeyboardModifiers mod);
     void imageSizeUpdated(QSize);

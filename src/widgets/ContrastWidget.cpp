@@ -10,7 +10,6 @@
 
 #include "widgets/ContrastWidgetImpl.h"
 
-
 struct ContrastWidget::pimpl
 {
     ContrastWidgetImpl::ContrastChart chart;
@@ -35,7 +34,7 @@ struct ContrastWidget::pimpl
         spinMax.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
         spinMax.setToolTip(tr("Maximum value: pixels greater than this proportion of the pixel range will be shown as white."));
         spinMax.setObjectName("spinMax");
-        
+
         spinGamma.setValue(1.);
         spinGamma.setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
         spinGamma.setButtonSymbols(QAbstractSpinBox::ButtonSymbols::NoButtons);
@@ -56,11 +55,9 @@ struct ContrastWidget::pimpl
             lay.addLayout(layEdit.release());
         }
     }
-
-
 };
 
-ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent), impl(std::make_unique<pimpl>())
+ContrastWidget::ContrastWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>())
 {
     setGammaRange(.001, 10.);
     impl->init();
@@ -68,21 +65,19 @@ ContrastWidget::ContrastWidget(QWidget *parent) : QWidget(parent), impl(std::mak
     setLayout(&impl->lay);
 
     connect(&impl->spinMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
-    connect(&impl->spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,  &ContrastWidget::spin2Chart);
+    connect(&impl->spinMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
     connect(&impl->spinGamma, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &ContrastWidget::spin2Chart);
     connect(&impl->chart, &ContrastWidgetImpl::ContrastChart::contrastChanged, this, &ContrastWidget::chart2Spin);
 }
 
 ContrastWidget::~ContrastWidget() { }
 
-
 void ContrastWidget::spin2Chart() {
-    ROIVert::contrast c{impl->spinMin.value(), impl->spinMax.value(), impl->spinGamma.value()};
+    ROIVert::contrast c{ impl->spinMin.value(), impl->spinMax.value(), impl->spinGamma.value() };
     impl->chart.setValues(c, true);
     emit contrastChanged(c);
 }
 void ContrastWidget::chart2Spin(ROIVert::contrast c) {
-    
     impl->spinMin.blockSignals(true);
     impl->spinMax.blockSignals(true);
     impl->spinGamma.blockSignals(true);
@@ -96,20 +91,16 @@ void ContrastWidget::chart2Spin(ROIVert::contrast c) {
     impl->spinGamma.blockSignals(false);
 
     emit contrastChanged(c);
-
 }
 
-
-ROIVert::contrast ContrastWidget::getContrast() { 
-    return impl->chart.getValues(); 
+ROIVert::contrast ContrastWidget::getContrast() {
+    return impl->chart.getValues();
 }
 
-void ContrastWidget::setContrast(ROIVert::contrast c) { 
+void ContrastWidget::setContrast(ROIVert::contrast c) {
     impl->chart.setValues(c, true);
     chart2Spin(c);
 }
-
-
 
 void ContrastWidget::setHistogram(QVector<float> y) { impl->chart.setHistogram(y); }
 void ContrastWidget::setHistogramColor(QColor c) { impl->chart.setHistogramColor(c); }

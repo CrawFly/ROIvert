@@ -9,7 +9,6 @@ class ChartStyle;
 #include "ROI/ROI.h"
 class ROIShape;
 
-
 class TraceChartWidget;
 class TraceChartSeries;
 
@@ -25,7 +24,7 @@ public:
     ROI& operator[](std::size_t idx);
     const ROI& operator[](std::size_t idx) const;
     void pushROI(QPoint pos, ROIVert::SHAPE shp);
-    
+
     void deleteROIs(std::vector<size_t> inds);
     void deleteAllROIs();
 
@@ -38,17 +37,17 @@ public:
 
     void setSelected(std::vector<size_t>);
     std::vector<size_t> getSelected() const noexcept;
-    
+
     ROIStyle* getCoreROIStyle() const noexcept;
     void setColorBySelect(bool yesno = true);
-        
+
     void setMatchYAxes(bool);
     bool getMatchYAxes() const noexcept;
 
     void updateROITraces();
 
-    void read(const QJsonObject &json);
-    void write(QJsonObject &json) const;
+    void read(const QJsonObject& json);
+    void write(QJsonObject& json) const;
 
 signals:
     void selectionChanged(std::vector<size_t> inds);
