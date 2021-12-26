@@ -141,13 +141,13 @@ void tROIs::tmatchy() {
 
     rois->setMatchYAxes(true);
     QVERIFY(rois->getMatchYAxes());
-    QCOMPARE((*rois)[0].linechartstyle->getLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
-    QCOMPARE((*rois)[1].linechartstyle->getLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
+    QCOMPARE((*rois)[0].linechartstyle->getYLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
+    QCOMPARE((*rois)[1].linechartstyle->getYLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
 
     rois->setMatchYAxes(false);
     QVERIFY(!rois->getMatchYAxes());
-    QCOMPARE((*rois)[0].linechartstyle->getLimitStyle(), ROIVert::LIMITSTYLE::AUTO);
-    QCOMPARE((*rois)[1].linechartstyle->getLimitStyle(), ROIVert::LIMITSTYLE::AUTO);
+    QCOMPARE((*rois)[0].linechartstyle->getYLimitStyle(), ROIVert::LIMITSTYLE::AUTO);
+    QCOMPARE((*rois)[1].linechartstyle->getYLimitStyle(), ROIVert::LIMITSTYLE::AUTO);
 }
 
 void tROIs::tpalettepush() {

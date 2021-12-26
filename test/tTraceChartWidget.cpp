@@ -304,7 +304,7 @@ void tTraceChartWidget::tseriessetstyle() {
 
 void tTraceChartWidget::taxislimits() {
     auto style = std::make_shared<ChartStyle>();
-    style->setLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+    style->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
     TraceChartVAxis ax(style);
     ax.setExtents(1., 2.);
     QCOMPARE(std::get<0>(ax.getExtents()), 1.);
@@ -318,11 +318,11 @@ void tTraceChartWidget::taxislimits() {
     QCOMPARE(std::get<0>(ax.getLimits()), -1.5);
     QCOMPARE(std::get<1>(ax.getLimits()), 3.5);
 
-    style->setLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
+    style->setYLimitStyle(ROIVert::LIMITSTYLE::TIGHT);
     QCOMPARE(std::get<0>(ax.getLimits()), -std::sqrt(2));
     QCOMPARE(std::get<1>(ax.getLimits()), 3.49);
 
-    style->setLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+    style->setYLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
     ax.setManualLimits(4., 5.);
     QCOMPARE(std::get<0>(ax.getLimits()), 4.);
     QCOMPARE(std::get<1>(ax.getLimits()), 5.);
@@ -331,7 +331,7 @@ void tTraceChartWidget::taxislimits() {
     QCOMPARE(std::get<0>(ax.getLimits()), 0.);
     QCOMPARE(std::get<1>(ax.getLimits()), 1.);
 
-    // ** note that haxis is always auto:
+    // todo: test for hax non-auto limits
     TraceChartHAxis hax(style);
     hax.setExtents(-std::sqrt(2), 3.49);
     QCOMPARE(std::get<0>(hax.getExtents()), -std::sqrt(2));
