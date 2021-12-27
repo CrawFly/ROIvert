@@ -11,6 +11,7 @@ public:
     void setAutoTMax();
     double getTMin() const;
     double getTMax() const;
+    void setTRange(double min, double max);
 
 signals:
     void lineChartHeightChanged(int newheight);

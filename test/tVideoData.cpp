@@ -69,7 +69,6 @@ void tVideoData::loadjsonexpected() {
     expmindff = cv::Mat(h, w, CV_8UC1);
     for (int c = 0; c < w; ++c) {
         for (int r = 0; r < h; ++r) {
-            //qDebug() << rawmean[c];
             expmeanraw.at<uint8_t>(r, c) = rawmean[c].toArray()[r].toInt();
             expmaxraw.at<uint8_t>(r, c) = rawmax[c].toArray()[r].toInt();
             expminraw.at<uint8_t>(r, c) = rawmin[c].toArray()[r].toInt();

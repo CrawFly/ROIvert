@@ -91,3 +91,11 @@ double ChartControlWidget::getTMin() const {
 double ChartControlWidget::getTMax() const {
     return impl->spinTMax.value();
 }
+
+void ChartControlWidget::setTRange(double min, double max) {
+    impl->spinTMin.blockSignals(true);
+    // block signals so as to only have one event fire
+    impl->spinTMin.setValue(min);
+    impl->spinTMax.setValue(max);
+    impl->spinTMin.blockSignals(false);
+}

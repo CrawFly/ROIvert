@@ -32,16 +32,6 @@ struct tContrastWidget::implptrs {
             else if (v && v->objectName() == "maxline") {
                 maxline = v;
             }
-            /*
-            * todo: something wrong with gamma pointer...
-            auto g = qgraphicsitem_cast<GammaLine*>(kid);
-            if (g) {
-                //auto a = g->objectName();
-                qDebug() << "g->objectName()";
-                gammaline = g;
-            }
-            */
-
             auto h = qgraphicsitem_cast<QGraphicsPathItem*>(kid);;
             if (h && h->path().elementCount() == 0) {
                 histogram = h;

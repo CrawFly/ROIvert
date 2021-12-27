@@ -3,7 +3,7 @@
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
-
+#include <QRubberBand>
 #include "ChartStyle.h"
 
 struct TraceChartWidget::pimpl
@@ -11,6 +11,8 @@ struct TraceChartWidget::pimpl
     std::vector<std::shared_ptr<TraceChartSeries>> series;
     std::unique_ptr<TraceChartHAxis> xaxis = std::make_unique<TraceChartHAxis>(chartstyle);
     std::unique_ptr<TraceChartVAxis> yaxis = std::make_unique<TraceChartVAxis>(chartstyle);
+    std::unique_ptr<QRubberBand> rband = std::make_unique<QRubberBand>(QRubberBand::Shape::Rectangle);
+    int rbandorigin = 0;
 
     QString titlestring;
     bool antialias;
@@ -53,6 +55,10 @@ struct TraceChartWidget::pimpl
         return ret;
     }
 
+    QRect getPlotBox() const {
+        return plotbox;
+    }
+
 private:
     QMargins margins;
     QRect plotbox;
@@ -78,6 +84,9 @@ TraceChartWidget::TraceChartWidget(std::shared_ptr<ChartStyle> style, QWidget* p
 
     setContentsMargins(0, 0, 0, 0); // these margins are in the layout
     impl->setInnerMargins(QMargins(5, 5, 5, 5));
+
+    impl->rband->setParent(this);
+    impl->rband->setVisible(false);
 }
 
 TraceChartWidget::~TraceChartWidget() { };
@@ -336,8 +345,6 @@ void TraceChartWidget::pimpl::paint_data(QPainter& painter)
     std::tie(xmin, xmax) = xaxis->getLimits();
     std::tie(ymin, ymax) = yaxis->getLimits();
 
-    //qDebug() << xmin << xmax;
-
     QTransform T;
     T = QTransform::fromTranslate(-xmin, -ymin) *
         QTransform::fromScale(plotbox.width() / (xmax - xmin), -plotbox.height() / (ymax - ymin)) *
@@ -345,7 +352,6 @@ void TraceChartWidget::pimpl::paint_data(QPainter& painter)
 
     for (int i = 0; i < series.size(); ++i)
     {
-        qDebug() << series[i]->getExtents();
         const QColor lineColor(Qt::red);
         const QColor fillColor(Qt::red);
 
@@ -361,14 +367,39 @@ void TraceChartWidget::mousePressEvent(QMouseEvent* event)
 {
     // convert hit position to data position:
     QPoint pos = event->pos();
-
     if (!contentsRect().contains(pos))
     {
         // this probably can't be hit in the current state
         emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
     }
 
+    if (event->modifiers().testFlag(Qt::ControlModifier)) {
+        auto pb = impl->getPlotBox();
+        auto x = std::clamp(event->pos().x(), pb.left(), pb.right());
+        impl->rband->setGeometry(QRect(x, pb.top(), 0, pb.height()));
+        impl->rband->setVisible(true);
+        impl->rbandorigin = x;
+        return;
+    }
     auto hitTraces = impl->getHitSeries(impl->pos2data(pos));
-
     emit chartClicked(this, hitTraces, event->modifiers());
+}
+
+void TraceChartWidget::mouseMoveEvent(QMouseEvent* event) {
+    if (impl->rband->isVisible()) {
+        auto rect = impl->rband->geometry();
+        auto pb = impl->getPlotBox();
+        auto x = std::clamp(event->pos().x(), pb.left(), pb.right());
+        
+        x > impl->rbandorigin ? rect.setRight(x) : rect.setLeft(x);
+
+        impl->rband->setGeometry(rect);
+    }
+}
+void TraceChartWidget::mouseReleaseEvent(QMouseEvent* event) {
+    if (impl->rband->isVisible()) {
+        impl->rband->setVisible(false);
+        auto rect = impl->rband->geometry();
+        emit chartTimeLimitsSelected(impl->pos2data(rect.bottomLeft()).x(), impl->pos2data(rect.bottomRight()).x());
+    }
 }

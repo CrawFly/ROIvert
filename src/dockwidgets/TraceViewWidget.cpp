@@ -98,6 +98,21 @@ struct TraceViewWidget::pimpl
             }
         }
     }
+
+    void setTimeRange(double tmin, double tmax) {
+        auto charts = getLineCharts();
+        for (auto& chart : charts) {
+            auto cs = chart->getStyle();
+            cs->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+            chart->getXAxis()->setManualLimits(tmin, tmax);
+            auto ser = chart->getSeries()[0];
+            chart->updateStyle();
+        }
+        coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+        coreRidgeStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+        ridgeChart->getXAxis()->setManualLimits(tmin, tmax);
+        ridgeChart->updateStyle();
+    };
 private:
     // todo: make these all unique/scoped (be careful with order)
     QTabWidget* tab{ new QTabWidget };
@@ -127,20 +142,7 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
 
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
     connect(impl->chartcontrols.get(), &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
-    connect(impl->chartcontrols.get(), &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { 
-        auto charts = impl->getLineCharts();
-        for (auto& chart : charts) {
-            auto cs = chart->getStyle();
-            cs->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
-            chart->getXAxis()->setManualLimits(tmin, tmax);
-            auto ser = chart->getSeries()[0];
-            chart->updateStyle();
-        }
-        impl->coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
-        impl->coreRidgeStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
-        impl->ridgeChart->getXAxis()->setManualLimits(tmin, tmax);
-        impl->ridgeChart->updateStyle();
-    } );
+    connect(impl->chartcontrols.get(), &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { impl->setTimeRange(tmin, tmax); });
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
@@ -160,6 +162,8 @@ void TraceViewWidget::addLineChart(TraceChartWidget * chart)
 
     impl->setChartHeight(impl->linechartheight);
     impl->scrollToWidget(chart);
+
+    connect(chart, &TraceChartWidget::chartTimeLimitsSelected, [&](double min, double max) { impl->chartcontrols->setTRange(min, max); });
 }
 void TraceViewWidget::scrollToChart(TraceChartWidget * w)
 {
@@ -169,7 +173,6 @@ RidgeLineWidget& TraceViewWidget::getRidgeChart() noexcept
 {
     return *(impl->ridgeChart);
 }
-
 ChartStyle* TraceViewWidget::getCoreRidgeChartStyle() const noexcept
 {
     return impl->coreRidgeStyle.get();
@@ -182,12 +185,10 @@ void TraceViewWidget::keyPressEvent(QKeyEvent * event)
 {
     emit keyPressed(event->key(), event->modifiers());
 }
-
 void TraceViewWidget::mousePressEvent(QMouseEvent * event)
 {
     emit chartClicked(nullptr, std::vector<TraceChartSeries*>(), event->modifiers());
 }
-
 void TraceViewWidget::updateMinimumHeight() {
     auto charts = impl->getLineCharts();
     if (!charts.empty()) {
@@ -198,7 +199,6 @@ void TraceViewWidget::updateMinimumHeight() {
 void TraceViewWidget::updateTMax() {
     impl->chartcontrols->setAutoTMax();
 }
-
 double TraceViewWidget::makeAllTimeLimitsAuto() {
     auto charts = impl->getLineCharts();
     for (auto& chart : charts) {
