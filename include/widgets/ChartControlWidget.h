@@ -1,13 +1,16 @@
 #pragma once
 #include <QWidget>
+class TraceViewWidget;
 
 class ChartControlWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit ChartControlWidget(QWidget* parent = nullptr);
+    explicit ChartControlWidget(TraceViewWidget*);
     ~ChartControlWidget();
     void setAutoTMax();
+    double getTMin() const;
+    double getTMax() const;
 
 signals:
     void lineChartHeightChanged(int newheight);

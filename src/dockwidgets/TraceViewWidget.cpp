@@ -27,13 +27,16 @@ struct TraceViewWidget::pimpl
     std::unique_ptr<QGridLayout> topGridLayout = std::make_unique<QGridLayout>();
     std::unique_ptr<QVBoxLayout> lineChartLayout = std::make_unique<QVBoxLayout>();
     std::unique_ptr<RidgeLineWidget> ridgeChart = std::make_unique<RidgeLineWidget>();
-    ChartControlWidget* chartcontrols{ new ChartControlWidget };
+    std::unique_ptr<ChartControlWidget> chartcontrols;
     RScrollArea* scrollArea{ new RScrollArea };
     int linechartheight = 0;
 
+    void init(TraceViewWidget* par) {
+        chartcontrols = std::make_unique<ChartControlWidget>(par);
+    }
     void doLayout()
     {
-        topGridLayout->addWidget(chartcontrols);
+        topGridLayout->addWidget(chartcontrols.get());
         topGridLayout->addWidget(tab);
 
         tab->addTab(tabLine, "Line");
@@ -110,6 +113,7 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
     QDockWidget(parent),
     impl(std::make_unique<pimpl>())
 {
+    impl->init(this);
     auto contents = new QWidget;
     this->setWidget(contents);
     contents->setLayout(impl->topGridLayout.get());
@@ -122,19 +126,20 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
     impl->doLayout();
 
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
-    connect(impl->chartcontrols, &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
-    connect(impl->chartcontrols, &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { 
+    connect(impl->chartcontrols.get(), &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
+    connect(impl->chartcontrols.get(), &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { 
         auto charts = impl->getLineCharts();
         for (auto& chart : charts) {
             auto cs = chart->getStyle();
             cs->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
             chart->getXAxis()->setManualLimits(tmin, tmax);
             auto ser = chart->getSeries()[0];
-            //ser->setXMin(tmin);
-            //ser->setXMax(tmax);
             chart->updateStyle();
-            
         }
+        impl->coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+        impl->coreRidgeStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
+        impl->ridgeChart->getXAxis()->setManualLimits(tmin, tmax);
+        impl->ridgeChart->updateStyle();
     } );
 }
 
@@ -149,10 +154,11 @@ void TraceViewWidget::addLineChart(TraceChartWidget * chart)
     // is up to date before scrolling to the new chart.
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
     qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
+    if (chart->getStyle()->getXLimitStyle() == ROIVert::LIMITSTYLE::MANAGED) {
+        chart->getXAxis()->setManualLimits(impl->chartcontrols->getTMin(), impl->chartcontrols->getTMax());
+    }
 
-    //impl->chartcontrols->changeLineChartHeight(std::max(impl->linechartheight, chart->minimumSizeHint().height()));
     impl->setChartHeight(impl->linechartheight);
-    
     impl->scrollToWidget(chart);
 }
 void TraceViewWidget::scrollToChart(TraceChartWidget * w)
@@ -191,4 +197,17 @@ void TraceViewWidget::updateMinimumHeight() {
 }
 void TraceViewWidget::updateTMax() {
     impl->chartcontrols->setAutoTMax();
+}
+
+double TraceViewWidget::makeAllTimeLimitsAuto() {
+    auto charts = impl->getLineCharts();
+    for (auto& chart : charts) {
+        auto cs = chart->getStyle();
+        cs->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+        chart->updateStyle();
+    }
+    impl->coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+    impl->coreRidgeStyle->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
+    impl->ridgeChart->updateStyle();
+    return std::get<1>(impl->ridgeChart->getXAxis()->getLimits());
 }

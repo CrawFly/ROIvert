@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QDebug>
 #include <QPushButton>
+#include "dockwidgets/TraceViewWidget.h"
 
 struct ChartControlWidget::pimpl {
     QHBoxLayout toplay;
@@ -14,7 +15,8 @@ struct ChartControlWidget::pimpl {
     QDoubleSpinBox spinTMin;
     QDoubleSpinBox spinTMax;
     QPushButton cmdAutoTimeRange;
-    
+    TraceViewWidget* tview;
+
     void configureWidgets() {
         spinHeight.setFixedWidth(100);
         spinHeight.setMaximum(999999);
@@ -40,13 +42,14 @@ struct ChartControlWidget::pimpl {
     void adjustTimeSpinners(ChartControlWidget* w) {
         emit w->timeRangeChanged(spinTMin.value(), spinTMax.value());
         spinTMin.setMaximum(spinTMax.value());
-        spinTMax.setMinimum(spinTMin.value());
+        spinTMax.setMinimum(spinTMin.value() + .01);
         cmdAutoTimeRange.setChecked(false); 
     }
 };
 
-ChartControlWidget::ChartControlWidget(QWidget* parent) : QWidget(parent), impl(std::make_unique<pimpl>()) {
-    this->setLayout(&impl->toplay);
+ChartControlWidget::ChartControlWidget(TraceViewWidget* par) : impl(std::make_unique<pimpl>()) {
+    impl->tview = par;
+    setLayout(&impl->toplay);
     impl->doLayout();
     impl->configureWidgets();
 
@@ -55,6 +58,7 @@ ChartControlWidget::ChartControlWidget(QWidget* parent) : QWidget(parent), impl(
 
     connect(&impl->spinTMin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double val) { impl->adjustTimeSpinners(this);  });
     connect(&impl->spinTMax, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double val) { impl->adjustTimeSpinners(this);  });
+    connect(&impl->cmdAutoTimeRange, &QPushButton::clicked, this, &ChartControlWidget::setAutoTMax);
 }
 
 ChartControlWidget::~ChartControlWidget() {
@@ -70,10 +74,20 @@ void ChartControlWidget::changeLineChartHeight(int newheight) {
 
 void ChartControlWidget::setAutoTMax() {
     if (impl->cmdAutoTimeRange.isChecked()) {
-        // todo:
-        // turn off signals
-        // make charts auto mode
-        // grab tmax from chart
-        // turn signals back on
+        impl->spinTMin.blockSignals(true);
+        impl->spinTMax.blockSignals(true);
+        auto tmax = impl->tview->makeAllTimeLimitsAuto();
+        impl->spinTMin.setValue(0);
+        impl->spinTMin.setMaximum(tmax);
+        impl->spinTMax.setValue(tmax);
+        impl->spinTMax.setMinimum(0);
+        impl->spinTMin.blockSignals(false);
+        impl->spinTMax.blockSignals(false);
     }
+}
+double ChartControlWidget::getTMin() const {
+    return impl->spinTMin.value();
+}
+double ChartControlWidget::getTMax() const {
+    return impl->spinTMax.value();
 }

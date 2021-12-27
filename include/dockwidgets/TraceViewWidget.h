@@ -23,6 +23,7 @@ public:
     ChartStyle* getCoreLineChartStyle() const noexcept;
 
     void scrollToChart(TraceChartWidget*);
+    double makeAllTimeLimitsAuto();
     void updateTMax();
 
 signals:

@@ -139,7 +139,7 @@ std::tuple<double, double> TraceChartAxis::getLimits() const
     return { 0., 1. };
 }
 std::tuple<double, double> TraceChartVAxis::getLimits() const {
-    if (impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE)
+    if (getLimitStyle() == ROIVert::LIMITSTYLE::MANAGED && impl->chartstyle->getNormalization() == ROIVert::NORMALIZATION::ZEROTOONE)
     {
         return { 0., 1. };
     }
