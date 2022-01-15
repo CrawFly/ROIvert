@@ -4,6 +4,8 @@ target_sources(ROIVertLib
         DisplaySettings.cpp
         DockWidgetWithSettings.cpp
         FileIO.cpp
+        ImageDataTableModel.cpp
+        ImageDataWindow.cpp
         ImageView.cpp
         ROIVertSettings.cpp
         VideoData.cpp

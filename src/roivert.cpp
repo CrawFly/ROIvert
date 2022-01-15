@@ -9,6 +9,8 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 
+#include "ImageDataWindow.h"
+
 #include "DisplaySettings.h"
 #include "FileIO.h"
 #include "ImageView.h"
@@ -70,6 +72,7 @@ struct Roivert::pimpl
 Roivert::Roivert(QWidget* parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
 {
+
     QApplication::setOrganizationName("Neuroph");
     impl->makeObjects(this);
     impl->initDockWidgets(this);
@@ -214,6 +217,10 @@ void Roivert::setInitialSettings(bool restore) {
         impl->roivertsettings->restoreSettings();
     }
     impl->vidctrl->setEnabled(false);
+
+    
+    auto im = new ImageDataWindow();
+    im->show();
 }
 void Roivert::setDefaultGeometry() {
     impl->traceviewwidget->setFloating(true);
@@ -240,6 +247,7 @@ void Roivert::setDefaultGeometry() {
     auto size = std::min(impl->screensize.width() / 3, 1000);
     resize(size * 1.2, size);
     impl->traceviewwidget->resize(size * .8, size * .3);
+
 }
 
 QSize Roivert::getScreenSize() const {
