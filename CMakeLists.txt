@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Qt5 COMPONENTS Core Gui Widgets Test REQUIRED)
 find_package(OpenCV 4.4 REQUIRED core imgproc imgcodecs)
+find_package(TinyTIFFShared REQUIRED)
 
 message(STATUS "OpenCV library status:")
 message(STATUS "    config: ${OpenCV_DIR}")
@@ -23,14 +24,14 @@ message(STATUS "    Core Version: ${Qt5Core_VERSION_STRING}")
 message(STATUS "    Widgets Version: ${Qt5Widgets_VERSION_STRING}")
 message(STATUS "    Gui Version: ${Qt5Gui_VERSION_STRING}")
 message(STATUS "    Test Version: ${Qt5Test_VERSION_STRING}")
-
-
+message(STATUS "Tiff Library status:")
+message(STATUS "    Found: ${TinyTIFFShared_FOUND}")
+message(STATUS "    Location: ${TinyTIFFShared_DIR}")
 
 add_library(ROIVertLib "")
 add_executable(ROIVert WIN32 MACOSX_BUNDLE "")
 add_executable(ROIVertTest "")
 
-# todo: Seems like the qrc should be in lib, but it works this way for some reason?
 target_sources(ROIVert 
     PRIVATE
         resource.h
@@ -64,6 +65,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvcoredll_dbg}>$<$<CONFIG:release>:${cvcoredll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgprocdll_dbg}>$<$<CONFIG:release>:${cvimgprocdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgcodecsdll_dbg}>$<$<CONFIG:release>:${cvimgcodecsdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TinyTIFFShared_DIR}\\..\\..\\..\\bin\\$<$<CONFIG:debug>:TinyTIFFShared_Debug.dll>$<$<CONFIG:release>:$TinyTIFFShared_Release.dll>" $<TARGET_FILE_DIR:ROIVert>
     )
 
     add_custom_command(TARGET ROIVertTest POST_BUILD
@@ -80,10 +82,19 @@ add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(test)
 
-target_link_libraries(ROIVertLib PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui )
+target_link_libraries(ROIVertLib PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui TinyTIFFShared)
 target_link_libraries(ROIVert PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui )
 target_link_libraries(ROIVertTest PRIVATE Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Test )
 
 target_link_libraries(ROIVertLib PRIVATE ${OpenCV_LIBS})
 target_link_libraries(ROIVert PRIVATE ROIVertLib)
 target_link_libraries(ROIVertTest PRIVATE ROIVertLib ${OpenCV_LIBS})
+
+##Last ditch snippet for listing all variables
+#
+#get_cmake_property(_variableNames VARIABLES)
+#list (SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
+#
