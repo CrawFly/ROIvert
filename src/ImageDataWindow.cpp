@@ -23,6 +23,7 @@ struct ImageDataWindow::pimpl
 {
     void init(QGridLayout* top) {
         top->addWidget(&splitter,0,0);
+
         splitter.addWidget(&folderview);
 
         initmodels();
@@ -39,31 +40,54 @@ struct ImageDataWindow::pimpl
         
         connect(folderview.selectionModel(), &QItemSelectionModel::currentChanged, &immodel, &ImageDataTableModel::setFileModelIndex);
         connect(&immodel, &ImageDataTableModel::modelReset, [=]() {fileview.resizeColumnsToContents();});
-        connect(fileview.selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection &selected, const QItemSelection) {
-            auto inds = fileview.selectionModel()->selectedIndexes();
+        connect(fileview.selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection) { updateLabel(); });
+        connect(&spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double) { updateLabel();  });
+    }
 
-            // get the total number of frames
-            int nframes = 0;
-            for (auto& ind : inds) {
-                nframes += ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt();
+    void getSelectedData(QStringList& files, std::vector<size_t>& frames) {
+        auto inds = fileview.selectionModel()->selectedIndexes();
+        files.reserve(inds.length());
+        frames.reserve(inds.length());
+
+        for (auto& ind : inds) {
+            files.push_back(ind.data(Qt::DisplayRole).toString());
+            frames.push_back(ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt());
+        }
+    }
+
+    QPushButton* getCancelButton() { return &cmdCancel; }
+    QPushButton* getLoadButton() { return &cmdLoad; }
+
+    
+private:
+    void updateLabel() {
+        auto inds = fileview.selectionModel()->selectedIndexes();
+
+        // get the total number of frames
+        int nframes = 0;
+        int width = 0, height = 0;
+
+        for (auto& ind : inds) {
+            int w = ind.siblingAtColumn(3).data(Qt::DisplayRole).toInt();
+            int h = ind.siblingAtColumn(4).data(Qt::DisplayRole).toInt();
+            if (width == 0) {
+                width = w;
+                height = h;
             }
-            int nseconds = nframes/spinFrameRate.value();
-            auto minutes = std::floor(nseconds / 60);
-            auto seconds = nseconds % 60;
+            if (w != width || h != height) {
+                lblDatasetInfo.setText(QString("Width/Height Mismatch: All selected files must have the same width and height"));
+                return;
+            }
+
+            nframes += ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt();
+        }
+        int nseconds = nframes/spinFrameRate.value();
+        auto minutes = std::floor(nseconds / 60);
+        auto seconds = nseconds % 60;
 
             
-            lblDatasetInfo.setText(QString("Files Selected: %1\nFrames: %2\nDuration %3:%4").arg(inds.size()).arg(nframes).arg(minutes).arg(seconds,2,'f',0,'0'));
-
-
-            //QModelIndex(index.row(),)
-            //qDebug() << index[0].model()->data()
-        });
+        lblDatasetInfo.setText(QString("Files Selected: %1\nFrames: %2\nDuration %3:%4").arg(inds.size()).arg(nframes).arg(minutes).arg(seconds,2,'f',0,'0'));
     }
-    
-   
-
-
-private:
     QVBoxLayout* makeControlPanel() {
 
         auto ret = new QVBoxLayout;
@@ -112,6 +136,8 @@ private:
             lay->addWidget(&cmdLoad);
             cmdCancel.setText(tr("Cancel"));
             cmdLoad.setText(tr("Load"));
+            cmdCancel.setAutoDefault(false);
+
             ret->addLayout(lay);
         }
         return ret;
@@ -151,13 +177,11 @@ private:
     QSpinBox spinDownSpace;
     QSpinBox spinDownTime;
     QLabel lblDatasetInfo;
+
     QPushButton cmdCancel;
     QPushButton cmdLoad;
-
+    
 };
-
-
-
 
 ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint), impl(std::make_unique<pimpl>())
 {
@@ -166,70 +190,19 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTi
     setWindowTitle("Load Dataset");
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
 
-
+    
     auto toplay = new QGridLayout(this);
     impl->init(toplay);
 
-    /*
-    //auto lay = new QGridLayout(this);
-    auto toplay = new QGridLayout(this);
+    connect(impl->getCancelButton(), &QPushButton::pressed, this, &QDialog::reject);
 
-    auto splitter = impl->splitter;
-    toplay->addWidget(&splitter, 0, 0);
-
-    auto folderview = new QTreeView();
-    splitter.addWidget(folderview);
-
-    auto fileview = new QTableView();
-    auto lay = new QVBoxLayout;
-    auto placeholder = new QWidget;
-    placeholder->setLayout(lay);
-    splitter->addWidget(placeholder);
-    lay->addWidget(fileview);
-
-    //auto buttonlay = new QHBoxLayout();
-    //lay->addLayout(buttonlay, 1, 1);
-    //buttonlay->addWidget(new QPushButton("Cancel"));
-    //buttonlay->addStretch(0);
-    //buttonlay->addWidget(new QPushButton("Load"));
-    auto cntrl = impl->makeControlPanel();
-    lay->addLayout(cntrl);
-
-    QFileSystemModel* model = new QFileSystemModel; // todo: stored path
-    model->setRootPath(QDir::currentPath());
-    model->setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
-    model->setOption(QFileSystemModel::DontUseCustomDirectoryIcons, true);
-    folderview->setModel(model);
-    folderview->setAnimated(false);
-    for (int i = 1; i < model->columnCount(); ++i) {
-        folderview->hideColumn(i);
-    }
-    
-    auto imagemodel= new ImageDataTableModel;
-    auto proxyModel = new QSortFilterProxyModel;
-    proxyModel->setSourceModel(imagemodel);
-    fileview->setModel(proxyModel);
-    fileview->setSortingEnabled(true);
-    fileview->sortByColumn(0,Qt::SortOrder::AscendingOrder);
-    fileview->verticalHeader()->setVisible(false);
-    connect(folderview->selectionModel(), &QItemSelectionModel::currentChanged, imagemodel, &ImageDataTableModel::setFileModelIndex);
-    connect(imagemodel, &ImageDataTableModel::modelReset, [=]() {fileview->resizeColumnsToContents();});
-
-    folderview->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    fileview->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    fileview->horizontalHeader()->setSectionResizeMode(0,QHeaderView::ResizeToContents);
-    
-    fileview->resizeColumnsToContents();
-    
-    //fileview->columnWidth()
-    int minwidth = 0;
-    for (size_t i = 0; i < proxyModel->columnCount(); ++i) {
-        minwidth += fileview->columnWidth(i);
-        
-    }
-    fileview->setMinimumWidth(minwidth+10);
-    */
-
+    connect(impl->getLoadButton(), &QPushButton::pressed, [&] {
+        QStringList filelist;
+        std::vector<size_t> frames;
+        impl->getSelectedData(filelist, frames);
+        emit fileLoadRequested(filelist, frames);
+        hide();
+    });
 }
 
 ImageDataWindow::~ImageDataWindow() {

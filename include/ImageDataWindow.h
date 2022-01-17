@@ -9,7 +9,7 @@ public:
     ~ImageDataWindow();
 
 signals:
-    void fileLoadRequested(QStringList filelist, std::vector<int> files);
+    void fileLoadRequested(QStringList filelist, std::vector<size_t> framesperfile);
 
 private:
     struct pimpl;

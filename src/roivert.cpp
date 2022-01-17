@@ -37,6 +37,9 @@ struct Roivert::pimpl
     std::unique_ptr<QVBoxLayout> toplayout{ nullptr };
 
     std::unique_ptr<VideoData> viddata{ nullptr };
+    
+    std::unique_ptr<ImageDataWindow> imagedatawindow{ nullptr };
+
     std::unique_ptr<ImageDataWidget> imagedatawidget{ nullptr };
     std::unique_ptr<ImageSettingsWidget> imagesettingswidget{ nullptr };
     std::unique_ptr<StyleWidget> stylewidget{ nullptr };
@@ -219,8 +222,8 @@ void Roivert::setInitialSettings(bool restore) {
     impl->vidctrl->setEnabled(false);
 
     
-    auto im = new ImageDataWindow();
-    im->show();
+    impl->imagedatawindow->setGeometry(geometry());
+    impl->imagedatawindow->show();
 }
 void Roivert::setDefaultGeometry() {
     impl->traceviewwidget->setFloating(true);
@@ -260,6 +263,7 @@ void Roivert::pimpl::makeObjects(Roivert * par)
     toplayout = std::make_unique<QVBoxLayout>(ui.centralWidget);
     viddata = std::make_unique<VideoData>(par);
 
+    imagedatawindow = std::make_unique<ImageDataWindow>(par);
     imagedatawidget = std::make_unique<ImageDataWidget>(par);
     imagesettingswidget = std::make_unique<ImageSettingsWidget>(par, &dispSettings);
     stylewidget = std::make_unique<StyleWidget>(par);
