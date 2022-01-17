@@ -4,13 +4,88 @@
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QFont>
+#include <QFontMetrics>
 
+#include "tinytiffreader.h"
 
+#include <QDebug>
+
+struct TiffMeta {
+    // store everything in a stringlist, note that data are retrieved columnwise, so these should be adjacent
+    QStringList name;
+    QStringList date;
+    QStringList frames;
+    QStringList width;
+    QStringList height;
+
+    void clear() {
+        name.clear();
+        date.clear();
+        frames.clear();
+        width.clear();
+        height.clear();
+    }
+
+    void reserve(int sz) {
+        name.reserve(sz);
+        date.reserve(sz);
+        frames.reserve(sz);
+        width.reserve(sz);
+        height.reserve(sz);
+    }
+
+    void push_back(QString fn, QDateTime fd, int fr, int w, int h) {
+        name.push_back(fn);
+        date.push_back(fd.toString("yyyy.MM.dd hh:mm:ss"));
+        frames.push_back(QString::number(fr));
+        width.push_back(QString::number(w));
+        height.push_back(QString::number(h));
+    }
+};
 
 struct ImageDataTableModel::pimpl
 {
     QList<QFileInfo> files;
-    QStringList colnames = { "AAA", "BBB" };
+    QStringList colnames = { "Name", "Date", "Frames", "Width", "Height"};
+
+    TiffMeta imagedata;
+    
+    void retrieveFileData(QDir fp) {
+        files = fp.entryInfoList({"*.tif", "*.tiff"}, QDir::Files, QDir::Name);
+        imagedata.clear();
+        imagedata.reserve(files.size());
+        for (auto& file : files) {
+            int frames=0, width=0, height=0;
+            
+            auto tiff = TinyTIFFReader_open(file.absoluteFilePath().toStdString().c_str());
+            if (tiff) {
+                frames = TinyTIFFReader_countFrames(tiff);
+                width = TinyTIFFReader_getWidth(tiff);
+                height = TinyTIFFReader_getHeight(tiff);
+            }
+            TinyTIFFReader_close(tiff);
+            imagedata.push_back(file.fileName(), file.lastModified(), frames, width, height);
+        }
+    }
+
+    QString getData(const QModelIndex& index){
+        
+        switch (index.column()) {
+        case 0:
+            return imagedata.name[index.row()];
+        case 1:
+            return imagedata.date[index.row()];
+        case 2:
+            return imagedata.frames[index.row()];
+        case 3:
+            return imagedata.width[index.row()];
+        case 4:
+            return imagedata.height[index.row()];
+        default:
+            return "";
+        }
+    
+    }
 };
 
 ImageDataTableModel::ImageDataTableModel(QObject* parent) : QAbstractTableModel(parent), impl(std::make_unique<pimpl>()) { }
@@ -21,26 +96,22 @@ int ImageDataTableModel::rowCount(const QModelIndex& parent) const {
 }
 
 int ImageDataTableModel::columnCount(const QModelIndex& parent) const { 
-    return 2;
+    return 5;
 }
 QVariant ImageDataTableModel::data(const QModelIndex& index, int role) const { 
-    if(role==Qt::TextAlignmentRole){
-        return Qt::AlignVCenter;
-    }
-    else if(role == Qt::FontRole){
-        return QFont();
-    }
-    else if(role == Qt::CheckStateRole){
+    switch (role)
+    {
+    case Qt::DisplayRole:
+        return impl->getData(index);
+    case Qt::SizeHintRole:
         return QVariant();
-    }
 
-    switch (index.column()) {
-    case 0:
-        return impl->files[index.row()].fileName();
-        break;
-    case 1:
-        return impl->files[index.row()].lastModified();
-        break;
+    case Qt::FontRole:
+        return QFont();
+    case Qt::TextAlignmentRole:
+        return Qt::AlignVCenter | Qt::AlignLeft;
+    default:
+        return QVariant();
     }
     return QVariant(); 
 }
@@ -63,10 +134,10 @@ QVariant ImageDataTableModel::headerData(int section, Qt::Orientation orientatio
 }
 void ImageDataTableModel::setFileModelIndex(const QModelIndex &index, const QModelIndex&){ 
     beginResetModel();
-    auto model = (QFileSystemModel*)index.model();
-    auto fp = model->fileInfo(index).absoluteFilePath();
-    auto qd = QDir(fp);
-    impl->files = qd.entryInfoList({"*.tif", "*.tiff"}, QDir::Files, QDir::Name);
+
+    auto model = dynamic_cast<const QFileSystemModel*>(index.model());
+    auto filepath = QDir(model->fileInfo(index).absoluteFilePath());
+    impl->retrieveFileData(filepath);
     endResetModel();
 }
 
