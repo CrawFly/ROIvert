@@ -96,7 +96,9 @@ Roivert::~Roivert() = default;
 
 void Roivert::doConnect()
 {
-    connect(impl->imagedatawidget.get(), &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
+    connect(impl->imagedatawindow.get(), &ImageDataWindow::fileLoadRequested, this, &Roivert::loadVideo);
+    //connect(impl->imagedatawidget.get(), &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
+
     connect(impl->vidctrl.get(), &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
     connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
@@ -123,8 +125,9 @@ void Roivert::doConnect()
     connect(impl->stylewidget.get(), &StyleWidget::ChartStyleChanged, impl->traceviewwidget.get(), &TraceViewWidget::updateMinimumHeight);
 }
 
-void Roivert::loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder)
+void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace)
 {
+
     // Confirm load if rois exist:
     if (impl->rois->size() > 0)
     {
@@ -141,6 +144,10 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
     }
 
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+    impl->viddata->load(filenameframelist, dsTime, dsSpace);
+
+    /*
     impl->viddata->load(fileList, dsTime, dsSpace, isfolder);
 
     impl->imagedatawidget->setProgBar(-1);
@@ -156,6 +163,7 @@ void Roivert::loadVideo(const QStringList fileList, const double frameRate, cons
 
     updateContrastWidget(impl->vidctrl->isDff());
     QGuiApplication::restoreOverrideCursor();
+    */
 }
 
 void Roivert::changeFrame(const size_t frame)

@@ -9,7 +9,10 @@ public:
     ~ImageDataWindow();
 
 signals:
-    void fileLoadRequested(QStringList filelist, std::vector<size_t> framesperfile);
+    void fileLoadRequested(std::vector<std::pair<QString,size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace);
+protected:
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 private:
     struct pimpl;

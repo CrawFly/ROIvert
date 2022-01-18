@@ -41,17 +41,20 @@ struct TiffMeta {
         width.push_back(QString::number(w));
         height.push_back(QString::number(h));
     }
+
+    size_t size() {
+        return name.size();
+    }
 };
 
 struct ImageDataTableModel::pimpl
 {
-    QList<QFileInfo> files;
     QStringList colnames = { "Name", "Date", "Frames", "Width", "Height"};
 
     TiffMeta imagedata;
     
     void retrieveFileData(QDir fp) {
-        files = fp.entryInfoList({"*.tif", "*.tiff"}, QDir::Files, QDir::Name);
+        QList<QFileInfo> files = fp.entryInfoList({"*.tif", "*.tiff"}, QDir::Files, QDir::Name);
         imagedata.clear();
         imagedata.reserve(files.size());
         for (auto& file : files) {
@@ -92,7 +95,7 @@ ImageDataTableModel::ImageDataTableModel(QObject* parent) : QAbstractTableModel(
 ImageDataTableModel::~ImageDataTableModel() { }
 
 int ImageDataTableModel::rowCount(const QModelIndex& parent) const { 
-    return(impl->files.size()); 
+    return(impl->imagedata.size()); 
 }
 
 int ImageDataTableModel::columnCount(const QModelIndex& parent) const { 
@@ -141,3 +144,11 @@ void ImageDataTableModel::setFileModelIndex(const QModelIndex &index, const QMod
     endResetModel();
 }
 
+QModelIndex ImageDataTableModel::getIndexFromName(QString filename) {
+    for (size_t i = 0; i < impl->imagedata.size(); ++i) {
+        if (impl->imagedata.name[i] == filename) {
+            return createIndex(i, 0);
+        }
+    }
+    return QModelIndex();
+}

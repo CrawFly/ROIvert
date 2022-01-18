@@ -16,7 +16,7 @@ public:
     QSize getScreenSize() const;
 
 public slots:
-    void loadVideo(const QStringList fileList, const double frameRate, const int dsTime, const int dsSpace, const bool isfolder);
+    void loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace);
     void changeFrame(const size_t frame);
     void imgSettingsChanged(ROIVert::imgsettings settings);
     void setInitialSettings(bool restore = true);

@@ -17,6 +17,8 @@
 #include <QSizePolicy>
 #include <QSplitter>
 #include <QTime>
+#include <QDragMoveEvent>
+#include <QMimeData>
 
 #include <QDebug>
 struct ImageDataWindow::pimpl
@@ -44,21 +46,45 @@ struct ImageDataWindow::pimpl
         connect(&spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double) { updateLabel();  });
     }
 
-    void getSelectedData(QStringList& files, std::vector<size_t>& frames) {
+    std::vector<std::pair<QString, size_t>> getSelectedData() {
         auto inds = fileview.selectionModel()->selectedIndexes();
-        files.reserve(inds.length());
-        frames.reserve(inds.length());
+        std::vector<std::pair<QString, size_t>> ret;
+
+        ret.reserve(inds.length());
 
         for (auto& ind : inds) {
-            files.push_back(ind.data(Qt::DisplayRole).toString());
-            frames.push_back(ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt());
+            auto file = ind.data(Qt::DisplayRole).toString();
+            auto frames = ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt();
+            ret.push_back({ file, frames });
         }
+
+        std::sort(ret.begin(), ret.end(), [](std::pair<QString, size_t> a, std::pair<QString, size_t> b) {
+            return a.first < b.first;
+        });
+
+        return ret;
     }
 
     QPushButton* getCancelButton() { return &cmdCancel; }
     QPushButton* getLoadButton() { return &cmdLoad; }
-
     
+    double getFrameRate() const { return spinFrameRate.value(); }
+    int getDownSpace() const { return spinDownSpace.value(); }
+    int getDownTime() const { return spinDownTime.value(); }
+    void setSelectedDir(QString theDir) {
+        auto ind = fsmodel.index(theDir);
+        if (ind.isValid()) {
+            folderview.setCurrentIndex(ind);
+        }
+    }
+    void setSelectedFiles(std::vector<QString> filenames) {
+        fileview.selectionModel()->clearSelection();
+        for (auto& filename : filenames) {
+            auto ind = immodel.getIndexFromName(filename);
+            fileview.selectionModel()->select(ind, QItemSelectionModel::SelectionFlag::Select);
+        }
+        fileview.setFocus();
+    }
 private:
     void updateLabel() {
         auto inds = fileview.selectionModel()->selectedIndexes();
@@ -180,7 +206,6 @@ private:
 
     QPushButton cmdCancel;
     QPushButton cmdLoad;
-    
 };
 
 ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint), impl(std::make_unique<pimpl>())
@@ -189,7 +214,7 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTi
     setModal(true);
     setWindowTitle("Load Dataset");
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
-
+    setAcceptDrops(true);
     
     auto toplay = new QGridLayout(this);
     impl->init(toplay);
@@ -197,13 +222,47 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTi
     connect(impl->getCancelButton(), &QPushButton::pressed, this, &QDialog::reject);
 
     connect(impl->getLoadButton(), &QPushButton::pressed, [&] {
-        QStringList filelist;
-        std::vector<size_t> frames;
-        impl->getSelectedData(filelist, frames);
-        emit fileLoadRequested(filelist, frames);
+        emit fileLoadRequested(impl->getSelectedData(), impl->getFrameRate(), impl->getDownTime(), impl->getDownSpace());
         hide();
     });
 }
 
 ImageDataWindow::~ImageDataWindow() {
+}
+
+
+void ImageDataWindow::dragEnterEvent(QDragEnterEvent* event) {
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+void ImageDataWindow::dropEvent(QDropEvent* event) {
+    {
+        auto urls = event->mimeData()->urls();
+
+        QString theDir = "";
+        std::vector<QString> theFiles;
+        theFiles.reserve(urls.size());
+
+        for (const auto& url : urls) {
+            if (url.isLocalFile()) {
+                auto finfo = QFileInfo(url.toLocalFile());
+                auto ext = finfo.completeSuffix();
+                auto istiff = ext.compare("tif", Qt::CaseInsensitive) > 0 || ext.compare("tiff", Qt::CaseInsensitive) > 0;
+
+                if (istiff) {
+                    auto thisDir = finfo.absolutePath();
+                    if (theDir.isEmpty())
+                        theDir = thisDir;
+                    else if (theDir != thisDir)
+                        return; // All (tiff) files must have the same path
+                    theFiles.push_back(finfo.fileName());
+                }
+            }
+        }
+        if (!theDir.isEmpty() && !theFiles.empty()) {
+            impl->setSelectedDir(theDir);
+            impl->setSelectedFiles(theFiles);
+        }
+    }
 }

@@ -77,6 +77,25 @@ void VideoData::load(QStringList filelist, int dst, int dss, bool isfolder)
     }
 }
 
+void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, int dst, int dss) {
+    if (filenameframelist.empty())
+        return;
+
+    size_t framecount = 0;
+    for (const auto& f : filenameframelist) {
+        framecount += f.second;
+    }
+    
+    impl->files.clear();
+    impl->dsTime = dst;
+    impl->dsSpace = dss;
+
+    int dsframecount = framecount / dst;
+
+
+    // downsampling with multipage files is a little trickier,
+
+}
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const
 {
     if (projmode > 0)
