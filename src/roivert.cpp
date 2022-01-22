@@ -149,7 +149,7 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
 
     /*
     impl->viddata->load(fileList, dsTime, dsSpace, isfolder);
-
+    */
     impl->imagedatawidget->setProgBar(-1);
     impl->vidctrl->setNFrames(impl->viddata->getNFrames());
     impl->vidctrl->setFrameRate(frameRate / dsTime);
@@ -163,7 +163,6 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
 
     updateContrastWidget(impl->vidctrl->isDff());
     QGuiApplication::restoreOverrideCursor();
-    */
 }
 
 void Roivert::changeFrame(const size_t frame)

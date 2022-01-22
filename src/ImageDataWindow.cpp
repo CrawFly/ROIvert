@@ -47,6 +47,7 @@ struct ImageDataWindow::pimpl
     }
 
     std::vector<std::pair<QString, size_t>> getSelectedData() {
+        auto fp = QDir(fsmodel.fileInfo(folderview.currentIndex()).absoluteFilePath());
         auto inds = fileview.selectionModel()->selectedIndexes();
         std::vector<std::pair<QString, size_t>> ret;
 
@@ -55,7 +56,8 @@ struct ImageDataWindow::pimpl
         for (auto& ind : inds) {
             auto file = ind.data(Qt::DisplayRole).toString();
             auto frames = ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt();
-            ret.push_back({ file, frames });
+            auto fullfile = fp.filePath(file);
+            ret.push_back({ fullfile, frames });
         }
 
         std::sort(ret.begin(), ret.end(), [](std::pair<QString, size_t> a, std::pair<QString, size_t> b) {
