@@ -103,7 +103,6 @@ namespace {
                 else
                     str.push_back(QString::number(mat.at<double>(i, j))+",");
             }
-            qDebug() << str;
         }
         
     }
@@ -185,15 +184,6 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
     if (impl->nframes==0) {
         return;
     }
-
-    qDebug() << "nframes:" << impl->nframes;
-
-    qDebug() << "RAW FR 1:";
-    qDebug() << "=========================";
-    print_mat(impl->rawdata[0]);
-    qDebug() << "=========================";
-
-
     // store width and height
     auto sz = impl->rawdata[0].size();  // todo: store?
     auto tp = impl->rawdata[0].type();  // todo: store 
@@ -202,8 +192,6 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
 
     impl->width = sz.width;
     impl->height = sz.height;
-    
-    qDebug() << "sz" << sz.width << "," << sz.height << "tp" << tp << "bd" << bd;
 
     auto& minproj = impl->rawproj[static_cast<size_t>(projection::MIN)];
     auto& maxproj = impl->rawproj[static_cast<size_t>(projection::MAX)];
@@ -227,22 +215,6 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
         impl->calcHist(&frame, impl->rawhistogram, true);
     }
     
-    qDebug() << "minproj";
-    qDebug() << "=========================";
-    print_mat(minproj);
-    qDebug() << "=========================";
-    
-    qDebug() << "maxproj";
-    qDebug() << "=========================";
-    print_mat(maxproj);
-    qDebug() << "=========================";
-    
-    
-    qDebug() << "sumprojd";
-    qDebug() << "=========================";
-    print_mat(sumprojd);
-    qDebug() << "=========================";
-
 
     // calculate mean
     meanprojd = sumprojd / impl->nframes;
