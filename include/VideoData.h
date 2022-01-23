@@ -3,7 +3,8 @@
 #include <QObject>
 #include "opencv2/opencv.hpp"
 class QStringList;
-namespace ROIVert {
+namespace ROIVert
+{
     enum class SHAPE;
 }
 
@@ -12,14 +13,20 @@ class VideoData : public QObject
     Q_OBJECT
 
 public:
-    VideoData(QObject* parent = nullptr);
+    VideoData(QObject *parent = nullptr);
     ~VideoData();
 
-    enum class projection { MIN, MAX, MEAN, SUM };
-    void load(std::vector<std::pair<QString,size_t>> filenameframelist, int dst, int dss);
+    enum class projection
+    {
+        MIN,
+        MAX,
+        MEAN,
+        SUM
+    };
+    void load(std::vector<std::pair<QString, size_t>> filenameframelist, int dst, int dss);
 
     cv::Mat get(bool isDff, int projmode, size_t framenum) const;
-    void getHistogram(bool isDff, std::vector<float>& histogram) const noexcept;
+    void getHistogram(bool isDff, std::vector<float> &histogram) const noexcept;
 
     int getWidth() const noexcept;
     int getHeight() const noexcept;
