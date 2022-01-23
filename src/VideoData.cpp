@@ -7,6 +7,16 @@
 
 #include "ROIVertEnums.h"
 
+// TODO: Consider exposing these for clearer API instead of bools etc.
+enum class datatype {
+    RAW = 0,
+    DFF = 1
+};
+enum class datadepth {
+    NATIVE = 0,
+    DOUBLE = 1
+};
+
 struct VideoData::pimpl
 {
     void init();
@@ -22,26 +32,198 @@ struct VideoData::pimpl
     void calcHist(const cv::Mat* frame, cv::Mat& histogram, bool accum);
 
     QStringList files;
-    int width = 0, height = 0, nframes = 0, mattype = 0;
+    //int width = 0, height = 0, nframes = 0, mattype = 0;
     cv::Mat proj[2][4]; // outer is raw|dff; inner is indexed by enum
     cv::Mat projdbl[2][4];
-    int dsTime = 1, dsSpace = 1, bitdepth = 0;
+    int dsTime = 1, dsSpace = 1;
     double dffminval = 0., dffmaxval = 0., dffrng = 0.;
     cv::Mat histogram[2]; // [raw|dff]
     std::vector<cv::Mat> data[2];
     float framerate;
 
+
+    cv::Size size;
+    size_t nframes{ 0 };
+    int mattype{ 0 };
+    int bitdepth{ 8 };
+
     // ** new stuff starts here
+    cv::Mat& getProjection(datatype dt, datadepth dd, projection dp) {
+        auto dti = static_cast<size_t>(dt);
+        auto ddi = static_cast<size_t>(dd);
+        auto dpi = static_cast<size_t>(dp);
+        return projection[dti][ddi][dpi];
+    }
+
+    // projections are 2(raw/dff) x 2(native/double) x 4(projection type)
+    std::array<std::array<std::array<cv::Mat, 4>, 2>, 2> projection;
+
     std::vector<cv::Mat> rawdata;
-    std::array<cv::Mat, 4> rawproj;
-    std::array<cv::Mat, 4> rawproj_dbl;
     cv::Mat rawhistogram;
     
     std::vector<cv::Mat> dffdata;
-    std::array<cv::Mat, 4> dffproj;
-    std::array<cv::Mat, 4> dffproj_dbl;
     cv::Mat dffhistogram;
 
+    
+    // a simple strategy for choosing correct frame numbers: 
+    struct loadinstructions {
+        loadinstructions(QString fn) : filename(fn) {}
+        QString filename;
+        bool hasmulti() const { return !sourceframenumber.empty() && sourceframenumber.back() > 0; };
+        std::vector<size_t> sourceframenumber;
+        std::vector<size_t> destinationframenumber;
+    };
+    std::vector<loadinstructions> li;
+
+    void inititalize(const std::vector<std::pair<QString, size_t>>& filenameframelist, const int dst, const int dss) {
+        dsTime = dst;
+        dsSpace = dss;
+
+        li.clear();
+        li.reserve(filenameframelist.size());
+        size_t framecntr = 0;
+        size_t cntr = 0;
+        for (const auto& f : filenameframelist) 
+        {
+            loadinstructions thisloadinst(f.first);
+            for (size_t i = 0; i < f.second; ++i) 
+            {
+                if (cntr++ % dst == 0) 
+                {
+                    thisloadinst.sourceframenumber.push_back(i);
+                    thisloadinst.destinationframenumber.push_back(framecntr++);
+                }
+            }
+            if (!thisloadinst.sourceframenumber.empty()) {
+                li.push_back(thisloadinst);
+            }
+        }
+        nframes = framecntr;
+    }
+    void load() {
+        rawdata.clear();
+        rawdata.resize(nframes);
+        std::vector<size_t> badframes; // in general the expectation is there are no bad frames, they might occur if tinytiff's header read somehow doesn't match what opencv finds (via tifflib)
+        
+        for (const auto& l : li) // iterate over load instructions
+        { 
+            std::string fn(l.filename.toLocal8Bit().constData());
+            if (l.hasmulti()) 
+            {
+                std::vector<cv::Mat> incoming;
+                cv::imreadmulti(fn, incoming, cv::IMREAD_GRAYSCALE);
+            
+                // now move them all into the dataset
+                size_t cntr = 0;
+                for (auto fr : l.destinationframenumber) {
+                    if (incoming.size() > cntr) 
+                    {
+                        if (dsSpace > 1) 
+                        {
+                            cv::resize(incoming[cntr], incoming[cntr], incoming[cntr].size() / dsSpace, 0, 0, cv::INTER_NEAREST);
+                        }
+                        rawdata[fr] = std::move(incoming[cntr++]);
+                    }
+                    else 
+                    {
+                        // shouldn't end up here, this would happen if there was disagreement between header number of frames and what imreadmulti produces
+                        badframes.push_back(cntr++);
+                    }
+                }
+            }
+            else {
+                rawdata[l.destinationframenumber[0]] = cv::imread(fn, cv::IMREAD_GRAYSCALE);
+                if (dsSpace > 1) 
+                {
+                    cv::resize(rawdata[l.destinationframenumber[0]], rawdata[l.destinationframenumber[0]], rawdata[l.destinationframenumber[0]].size() / dsSpace, 0, 0, cv::INTER_NEAREST);
+                }
+            }
+        }
+        // clean up bad frames:
+        size_t cntr = 0;
+        for (const auto& frame:badframes) {
+            rawdata.erase(rawdata.begin() + frame - cntr++);
+        }
+        // store final nframes
+        nframes = rawdata.size();
+    }
+    void setmetafromraw() {
+        if (nframes > 0) 
+        {
+            size = rawdata[0].size();
+            mattype = rawdata[0].type();
+            bitdepth = rawdata[0].depth() == CV_8U ? 8 : 16;
+        }
+    }
+
+    void accumulateraw() {
+        // accumulate finds the projections and histogram
+        auto& minproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MIN);
+        auto& maxproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MAX);
+        auto& meanproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MEAN);
+        auto& sumproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::SUM);
+    
+        auto& minprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MIN);
+        auto& maxprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MAX);
+        auto& meanprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MEAN);
+        auto& sumprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::SUM);
+        
+        // loop to get min, max, and sum (stored as double)
+        minproj = cv::Mat(size, mattype, pow(2, bitdepth) - 1);
+        maxproj = cv::Mat::zeros(size, mattype);
+        sumprojd = cv::Mat::zeros(size, CV_64FC1);
+        for (const auto& frame : rawdata) 
+        {
+            minproj = cv::min(minproj, frame);
+            maxproj = cv::max(maxproj, frame);
+            cv::accumulate(frame, sumprojd);
+            calcHist(&frame, rawhistogram, true);
+        }
+        // now can calculate mean (as double) and then put it into native
+        meanprojd = sumprojd / nframes;
+        meanprojd.assignTo(meanproj, mattype);
+        
+        minproj.assignTo(minprojd, CV_64FC1);
+        maxproj.assignTo(maxprojd, CV_64FC1);
+    }
+    void initializedff() {
+        
+        auto& dff_minprojd = getProjection(datatype::DFF, datadepth::DOUBLE, projection::MIN);
+        auto& dff_maxprojd = getProjection(datatype::DFF, datadepth::DOUBLE, projection::MAX);
+        auto& dff_sumprojd = getProjection(datatype::DFF, datadepth::DOUBLE, projection::SUM);
+        auto& dff_meanprojd = getProjection(datatype::DFF, datadepth::DOUBLE, projection::MEAN);
+    
+        // min and max double can be accomplished by transform. Use these values to define global min/max for depth scaling
+        dff_minprojd = calcDffDouble(getProjection(datatype::RAW, datadepth::DOUBLE, projection::MIN));
+        dff_maxprojd = calcDffDouble(getProjection(datatype::RAW, datadepth::DOUBLE, projection::MAX));;
+        cv::minMaxLoc(dff_minprojd, &dffminval, NULL);
+        cv::minMaxLoc(dff_maxprojd, NULL, &dffmaxval);
+        dffrng = dffmaxval - dffminval;
+        
+        // initialize mean as 0s
+        dff_meanprojd = cv::Mat::zeros(size, CV_64FC1);
+
+    }
+    void calculatedff() {
+        dffdata.clear();
+        dffdata.reserve(nframes);
+        
+        auto& dff_minproj = getProjection(datatype::DFF, datadepth::NATIVE, projection::MIN);
+        auto& dff_maxproj = getProjection(datatype::DFF, datadepth::NATIVE, projection::MAX);
+        auto& dff_meanproj = getProjection(datatype::DFF, datadepth::NATIVE, projection::MEAN);
+        
+        dff_meanproj = cv::Mat::zeros(size, mattype);
+        dff_minproj = cv::Mat(size, mattype, pow(2, bitdepth) - 1);
+        dff_maxproj = cv::Mat::zeros(size, mattype);
+        for (const auto& frame : rawdata) 
+        {
+            auto d = calcDffNative(frame);
+            dffdata.push_back(d);
+            dff_minproj = cv::min(dff_minproj, d);
+            dff_maxproj = cv::max(dff_maxproj, d);
+            calcHist(&d, dffhistogram, true);
+        }
+    }
 };
 
 VideoData::VideoData(QObject* parent) : QObject(parent), impl(std::make_unique<pimpl>()) {}
@@ -112,178 +294,35 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
     if (filenameframelist.empty())
         return;
 
-    impl->dsTime = dst;
-    impl->dsSpace = dss;
+    impl->inititalize(filenameframelist, dst, dss);
+    impl->load();
 
-    // a simple 'dumb' strategy for choosing correct frame numbers: 
-    struct loadinstructions {
-        loadinstructions(QString fn) : filename(fn) {}
-        QString filename;
-        bool hasmulti() const { return !sourceframenumber.empty() && sourceframenumber.back() > 0; };
-        std::vector<size_t> sourceframenumber;
-        std::vector<size_t> destinationframenumber;
-    };
-    
-    std::vector<loadinstructions> loadinst;
-    loadinst.reserve(filenameframelist.size());
-    size_t framecntr = 0;
-    size_t cntr = 0;
-    for (const auto& f : filenameframelist) {
-        loadinstructions thisloadinst(f.first);
-        for (size_t i = 0; i < f.second; ++i) {
-            if (cntr++ % dst == 0) {
-                thisloadinst.sourceframenumber.push_back(i);
-                thisloadinst.destinationframenumber.push_back(framecntr++);
-            }
-        }
-        if (!thisloadinst.sourceframenumber.empty()) {
-            loadinst.push_back(thisloadinst);
-        }
-    }
-
-    // now we have everything needed to load...
-    impl->rawdata.clear();
-    impl->rawdata.resize(framecntr);
-    std::vector<size_t> badframes;
-    for (const auto& l : loadinst) {
-        std::string fn(l.filename.toLocal8Bit().constData());
-        if (l.hasmulti()) {
-            std::vector<cv::Mat> incoming;
-            cv::imreadmulti(fn, incoming, cv::IMREAD_GRAYSCALE);
-            
-            // now move them all into the dataset
-            size_t cntr = 0;
-            for (auto fr : l.destinationframenumber) {
-                if (incoming.size() > cntr) {
-                    if (dss > 1) {
-                        cv::resize(incoming[cntr], incoming[cntr], incoming[cntr].size() / dss, 0, 0, cv::INTER_NEAREST);
-                    }
-                    impl->rawdata[fr] = std::move(incoming[cntr++]);
-                }
-                else {
-                    // shouldn't end up here, this would happen if there was disagreement between header number of frames and what imreadmulti produces
-                    badframes.push_back(cntr++);
-                }
-            }
-        }
-        else {
-            impl->rawdata[l.destinationframenumber[0]] = cv::imread(fn, cv::IMREAD_GRAYSCALE);
-            if (dss > 1) {
-                cv::resize(impl->rawdata[l.destinationframenumber[0]], impl->rawdata[l.destinationframenumber[0]], impl->rawdata[l.destinationframenumber[0]].size() / dss, 0, 0, cv::INTER_NEAREST);
-            }
-        }
-    }
-    
-    cntr = 0;
-    for (const auto& frame:badframes) {
-        impl->rawdata.erase(impl->rawdata.begin() + frame - cntr++);
-    }
-    
-    
-    impl->nframes = impl->rawdata.size();
-    if (impl->nframes==0) {
+    if (impl->nframes == 0) {
         return;
     }
-    // store width and height
-    auto sz = impl->rawdata[0].size();  // todo: store?
-    auto tp = impl->rawdata[0].type();  // todo: store 
-    auto bd = impl->rawdata[0].depth() == CV_8U ? 8 : 16; // todo: store (i already have storage for this, it's called bitdepth)
-    impl->bitdepth = bd;
 
-    impl->width = sz.width;
-    impl->height = sz.height;
-
-    auto& minproj = impl->rawproj[static_cast<size_t>(projection::MIN)];
-    auto& maxproj = impl->rawproj[static_cast<size_t>(projection::MAX)];
-    auto& meanproj = impl->rawproj[static_cast<size_t>(projection::MEAN)];
-    auto& sumproj = impl->rawproj[static_cast<size_t>(projection::SUM)];
-    
-    auto& minprojd = impl->rawproj_dbl[static_cast<size_t>(projection::MIN)];
-    auto& maxprojd = impl->rawproj_dbl[static_cast<size_t>(projection::MAX)];
-    auto& meanprojd = impl->rawproj_dbl[static_cast<size_t>(projection::MEAN)];
-    auto& sumprojd = impl->rawproj_dbl[static_cast<size_t>(projection::SUM)];
-
-    minproj = cv::Mat(sz, tp, pow(2,bd)-1);
-    maxproj = cv::Mat::zeros(sz, tp);
-    sumprojd = cv::Mat::zeros(sz, CV_64FC1);
-
-    for (const auto& frame : impl->rawdata) 
-    {
-        minproj = cv::min(minproj, frame);
-        maxproj = cv::max(maxproj, frame);
-        cv::accumulate(frame, sumprojd);
-        impl->calcHist(&frame, impl->rawhistogram, true);
-    }
-    
-
-    // calculate mean
-    meanprojd = sumprojd / impl->nframes;
-    meanprojd.assignTo(meanproj, tp);
-
-    // make doubles out of min and max
-    minproj.assignTo(minprojd, CV_64FC1);
-    maxproj.assignTo(maxprojd, CV_64FC1);
-    // calculate min/max df/f projections
-    auto& dff_minprojd = impl->dffproj_dbl[static_cast<size_t>(projection::MIN)];
-    auto& dff_maxprojd = impl->dffproj_dbl[static_cast<size_t>(projection::MAX)];
-    auto& dff_sumprojd = impl->dffproj_dbl[static_cast<size_t>(projection::SUM)];
-    auto& dff_meanprojd = impl->dffproj_dbl[static_cast<size_t>(projection::SUM)];
-    dff_minprojd = impl->calcDffDouble(minprojd);
-    dff_maxprojd = impl->calcDffDouble(maxprojd);
-    dff_meanprojd = cv::Mat::zeros(sz, CV_64FC1);
-
-
-    // find min/max values for int scaling
-    cv::minMaxLoc(dff_minprojd, &impl->dffminval, NULL);
-    cv::minMaxLoc(dff_maxprojd, NULL, &impl->dffmaxval);
-    impl->dffrng = impl->dffmaxval - impl->dffminval;
-    
-    qDebug()<< "minmax" << impl->dffminval<< "," << impl->dffmaxval;
-
-    // calcualte df/f
-    impl->dffdata.clear();
-    impl->dffdata.reserve(impl->nframes);
-    
-    auto& dff_minproj = impl->dffproj[static_cast<size_t>(projection::MIN)];
-    auto& dff_maxproj = impl->dffproj[static_cast<size_t>(projection::MAX)];
-    auto& dff_sumproj = impl->dffproj[static_cast<size_t>(projection::SUM)];
-    auto& dff_meanproj = impl->dffproj[static_cast<size_t>(projection::MEAN)];
-    dff_sumproj = cv::Mat::zeros(sz, tp);
-    dff_meanproj = cv::Mat::zeros(sz, tp);
-    dff_minproj = cv::Mat(sz, tp, pow(2,bd)-1);
-    dff_maxproj = cv::Mat::zeros(sz, tp);
-    for (const auto& frame : impl->rawdata) 
-    {
-        auto d = impl->calcDffNative(frame);
-        impl->dffdata.push_back(d);
-        dff_minproj = cv::min(dff_minproj, d);
-        dff_maxproj = cv::max(dff_maxproj, d);
-        cv::accumulate(d, dff_sumprojd);
-        impl->calcHist(&d, impl->dffhistogram, true);
-    }
-    
-    dff_sumproj.assignTo(dff_sumprojd, CV_64FC1);
+    impl->setmetafromraw();
+    impl->accumulateraw();
+    impl->initializedff();
+    impl->calculatedff();
 }
+
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const
 {
     if (projmode == 0 && framenum >= getNFrames())
     {
         return cv::Mat();
     }
-        
-    if (!isDff) 
-    {
-        if (projmode > 0) 
-        {
-            return impl->rawproj[static_cast<size_t>(projmode - 1)];
-        }
-        return impl->rawdata[framenum];
-    }
+
+    // cast the bool into the enum...
     
-    if (projmode > 0) 
-    {
-        return impl->dffproj[static_cast<size_t>(projmode - 1)];
+    if (projmode > 0) {
+        return impl->getProjection(static_cast<datatype>(isDff), datadepth::NATIVE, static_cast<projection>(projmode - 1));
     }
+
+
+    if (!isDff) 
+        return impl->rawdata[framenum];
     return impl->dffdata[framenum];
 }
 
@@ -291,8 +330,8 @@ void VideoData::getHistogram(bool isDff, std::vector<float> &h) const noexcept
 {
     impl->histogram[isDff].copyTo(h);
 }
-int VideoData::getWidth() const noexcept { return impl->width; }
-int VideoData::getHeight() const noexcept { return impl->height; }
+int VideoData::getWidth() const noexcept { return impl->size.width; }
+int VideoData::getHeight() const noexcept { return impl->size.height; }
 size_t VideoData::getNFrames() const noexcept { return impl->nframes; }
 int VideoData::getdsTime() const noexcept { return impl->dsTime; }
 int VideoData::getdsSpace() const noexcept { return impl->dsSpace; }
@@ -325,8 +364,8 @@ void VideoData::pimpl::init()
     {
         cv::resize(first, first, cv::Size(), 1. / dsSpace, 1. / dsSpace, cv::INTER_NEAREST);
     }
-    width = first.size().width;
-    height = first.size().height;
+    auto width = first.size().width;
+    auto height = first.size().height;
     nframes = files.size();
     mattype = first.type();
 
@@ -382,14 +421,15 @@ void VideoData::pimpl::dffNativeToOrig(double& val)
     double maxval = pow(2, bitdepth); // intmax for this depth
     val = dffminval + dffrng * val / maxval;
 }
-cv::Mat VideoData::pimpl::calcDffDouble(const cv::Mat & frame)
+cv::Mat VideoData::pimpl::calcDffDouble(const cv::Mat& frame)
 {
     // This calculates the df/f as a double
     cv::Mat ret(frame.size(), CV_64FC1);
     frame.convertTo(ret, CV_64FC1); // convert frame to double
 
-    cv::subtract(ret, rawproj_dbl[static_cast<size_t>(VideoData::projection::MEAN)], ret);
-    cv::divide(ret, rawproj_dbl[static_cast<size_t>(VideoData::projection::MEAN)], ret);
+    auto& mu = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MEAN);
+    cv::subtract(ret, mu, ret);
+    cv::divide(ret, mu, ret);
     return ret;
 }
 cv::Mat VideoData::pimpl::calcDffNative(const cv::Mat & frame)
@@ -410,7 +450,7 @@ cv::Mat VideoData::pimpl::calcDffNative(const cv::Mat & frame)
 
 void VideoData::pimpl::readframe(size_t ind)
 {
-    data[0][ind] = cv::Mat(height, width, mattype);
+    data[0][ind] = cv::Mat(size.height, size.width, mattype);
 
     std::string filename = files[ind].toLocal8Bit().constData();
     cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
