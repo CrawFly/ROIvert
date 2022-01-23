@@ -10,6 +10,7 @@
 #include <QDesktopWidget>
 
 #include "ImageDataWindow.h"
+#include "ImageLoadingProgressWindow.h"
 
 #include "DisplaySettings.h"
 #include "FileIO.h"
@@ -45,6 +46,7 @@ struct Roivert::pimpl
     std::unique_ptr<StyleWidget> stylewidget{ nullptr };
     std::unique_ptr<FileIOWidget> fileiowidget{ nullptr };
     std::unique_ptr<TraceViewWidget> traceviewwidget{ nullptr };
+    std::unique_ptr<ImageLoadingProgressWindow> imageloadingprogresswindow{ nullptr };
 
     std::unique_ptr<ImageView> imageview{ nullptr };
     std::unique_ptr<VideoControllerWidget> vidctrl{ nullptr };
@@ -97,7 +99,6 @@ Roivert::~Roivert() = default;
 void Roivert::doConnect()
 {
     connect(impl->imagedatawindow.get(), &ImageDataWindow::fileLoadRequested, this, &Roivert::loadVideo);
-    //connect(impl->imagedatawidget.get(), &ImageDataWidget::fileLoadRequested, this, &Roivert::loadVideo);
 
     connect(impl->vidctrl.get(), &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
     connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
@@ -113,7 +114,7 @@ void Roivert::doConnect()
     { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
 
     // progress for loading
-    connect(impl->viddata.get(), &VideoData::loadProgress, impl->imagedatawidget.get(), &ImageDataWidget::setProgBar);
+    connect(impl->viddata.get(), &VideoData::loadProgress, impl->imageloadingprogresswindow.get(), &ImageLoadingProgressWindow::setProgress);
 
     // clicked the dff button, update contrast widget
     connect(impl->vidctrl.get(), &VideoControllerWidget::dffToggled, this, &Roivert::updateContrastWidget);
@@ -143,13 +144,13 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
         impl->rois->deleteAllROIs();
     }
 
+    impl->imagedatawindow->hide();
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
+    impl->imageloadingprogresswindow->show();
     impl->viddata->load(filenameframelist, dsTime, dsSpace);
+    impl->imageloadingprogresswindow->hide();
 
-    /*
-    impl->viddata->load(fileList, dsTime, dsSpace, isfolder);
-    */
     impl->imagedatawidget->setProgBar(-1);
     impl->vidctrl->setNFrames(impl->viddata->getNFrames());
     impl->vidctrl->setFrameRate(frameRate / dsTime);
@@ -271,6 +272,7 @@ void Roivert::pimpl::makeObjects(Roivert * par)
     viddata = std::make_unique<VideoData>(par);
 
     imagedatawindow = std::make_unique<ImageDataWindow>(par);
+    imageloadingprogresswindow = std::make_unique<ImageLoadingProgressWindow>(imagedatawindow.get());
     imagedatawidget = std::make_unique<ImageDataWidget>(par);
     imagesettingswidget = std::make_unique<ImageSettingsWidget>(par, &dispSettings);
     stylewidget = std::make_unique<StyleWidget>(par);

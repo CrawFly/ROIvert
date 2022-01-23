@@ -65,7 +65,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvcoredll_dbg}>$<$<CONFIG:release>:${cvcoredll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgprocdll_dbg}>$<$<CONFIG:release>:${cvimgprocdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<$<CONFIG:debug>:${cvimgcodecsdll_dbg}>$<$<CONFIG:release>:${cvimgcodecsdll_rel}>" $<TARGET_FILE_DIR:ROIVert> 
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TinyTIFFShared_DIR}\\..\\..\\..\\bin\\$<$<CONFIG:debug>:TinyTIFFShared_Debug.dll>$<$<CONFIG:release>:$TinyTIFFShared_Release.dll>" $<TARGET_FILE_DIR:ROIVert>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "${TinyTIFFShared_DIR}\\..\\..\\..\\bin\\$<$<CONFIG:debug>:TinyTIFFShared_Debug.dll>$<$<CONFIG:release>:TinyTIFFShared_Release.dll>" $<TARGET_FILE_DIR:ROIVert>
     )
 
     add_custom_command(TARGET ROIVertTest POST_BUILD

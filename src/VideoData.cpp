@@ -21,7 +21,7 @@ enum class datadepth
 
 struct VideoData::pimpl
 {
-
+    pimpl::pimpl(VideoData* parent = nullptr) : par(parent) { }
     void dffNativeToOrig(double &val);
     cv::Mat calcDffDouble(const cv::Mat &frame);
     cv::Mat calcDffNative(const cv::Mat &frame);
@@ -93,13 +93,18 @@ struct VideoData::pimpl
     }
     void load()
     {
+        emit par->loadProgress(0, 0);
         auto &rawdata = getData(datatype::RAW);
         rawdata.clear();
         rawdata.resize(nframes);
         std::vector<size_t> badframes; // in general the expectation is there are no bad frames, they might occur if tinytiff's header read somehow doesn't match what opencv finds (via tifflib)
 
+        int progcntr = 0;
+        
         for (const auto &l : li) // iterate over load instructions
         {
+            emit par->loadProgress(0, (100*progcntr++)/li.size());
+
             std::string fn(l.filename.toLocal8Bit().constData());
             if (l.hasmulti())
             {
@@ -142,6 +147,7 @@ struct VideoData::pimpl
         }
         // store final nframes
         nframes = rawdata.size();
+        emit par->loadProgress(0, 100);
     }
     void setmetafromraw()
     {
@@ -170,8 +176,13 @@ struct VideoData::pimpl
         minproj = cv::Mat(size, mattype, pow(2, bitdepth) - 1);
         maxproj = cv::Mat::zeros(size, mattype);
         sumprojd = cv::Mat::zeros(size, CV_64FC1);
+
+
+        emit par->loadProgress(1, 0);
+        int progcntr = 0;
         for (const auto &frame : getData(datatype::RAW))
         {
+            emit par->loadProgress(1, (100*progcntr++)/nframes);
             minproj = cv::min(minproj, frame);
             maxproj = cv::max(maxproj, frame);
             cv::accumulate(frame, sumprojd);
@@ -183,6 +194,7 @@ struct VideoData::pimpl
 
         minproj.assignTo(minprojd, CV_64FC1);
         maxproj.assignTo(maxprojd, CV_64FC1);
+        emit par->loadProgress(1, 100);
     }
     void initializedff()
     {
@@ -195,7 +207,7 @@ struct VideoData::pimpl
         // min and max double can be accomplished by transform. Use these values to define global min/max for depth scaling
         dff_minprojd = calcDffDouble(getProjection(datatype::RAW, datadepth::DOUBLE, projection::MIN));
         dff_maxprojd = calcDffDouble(getProjection(datatype::RAW, datadepth::DOUBLE, projection::MAX));
-        ;
+
         cv::minMaxLoc(dff_minprojd, &dffminval, NULL);
         cv::minMaxLoc(dff_maxprojd, NULL, &dffmaxval);
         dffrng = dffmaxval - dffminval;
@@ -216,14 +228,18 @@ struct VideoData::pimpl
         dff_meanproj = cv::Mat::zeros(size, mattype);
         dff_minproj = cv::Mat(size, mattype, pow(2, bitdepth) - 1);
         dff_maxproj = cv::Mat::zeros(size, mattype);
+        emit par->loadProgress(2, 0);
+        int progcntr = 0;
         for (const auto &frame : getData(datatype::RAW))
         {
+            emit par->loadProgress(2, (100*progcntr++)/nframes);
             auto d = calcDffNative(frame);
             dffdata.push_back(d);
             dff_minproj = cv::min(dff_minproj, d);
             dff_maxproj = cv::max(dff_maxproj, d);
             calcHist(&d, getHistogram(datatype::DFF), true);
         }
+        emit par->loadProgress(2, 100);
     }
 
 private:
@@ -231,9 +247,10 @@ private:
     std::array<std::array<std::array<cv::Mat, 4>, 2>, 2> projection;
     std::array<std::vector<cv::Mat>, 2> data;
     std::array<cv::Mat, 2> histogram;
+    VideoData* par;
 };
 
-VideoData::VideoData(QObject *parent) : QObject(parent), impl(std::make_unique<pimpl>()) {}
+VideoData::VideoData(QObject *parent) : QObject(parent), impl(std::make_unique<pimpl>(this)) {}
 VideoData::~VideoData() = default;
 void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, int dst, int dss)
 {

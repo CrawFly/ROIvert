@@ -225,7 +225,6 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTi
 
     connect(impl->getLoadButton(), &QPushButton::pressed, [&] {
         emit fileLoadRequested(impl->getSelectedData(), impl->getFrameRate(), impl->getDownTime(), impl->getDownSpace());
-        hide();
     });
 }
 

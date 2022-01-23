@@ -11,6 +11,7 @@ target_sources(ROIVertLib
         VideoData.cpp
         ZoomPan.cpp
         roivert.cpp
+        ImageLoadingProgressWindow.cpp
 )
 
 target_sources(ROIVert

@@ -41,7 +41,7 @@ public:
     cv::Mat computeTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>) const;
 
 signals:
-    void loadProgress(int progress);
+    void loadProgress(const int level, const int progress);
 
 private:
     struct pimpl;

@@ -5,6 +5,7 @@ target_sources(ROIVertLib
         DockWidgetWithSettings.h
         FileIO.h
         ImageDataWindow.h
+        ImageLoadingProgressWindow.h
         ImageView.h
         roivert.h
         roivertcore.h
