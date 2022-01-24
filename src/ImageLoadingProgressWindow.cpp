@@ -38,9 +38,14 @@ ImageLoadingProgressWindow::ImageLoadingProgressWindow(QWidget *parent) : QDialo
     setLayout(&impl->lay);
 }
 
-ImageLoadingProgressWindow::~ImageLoadingProgressWindow()
-{
+void ImageLoadingProgressWindow::reset() {
+    for (size_t i = 0; i < 3; ++i) {
+        impl->progbars[i]->setValue(0);
+        impl->proglbls[i]->setEnabled(false);
+    }
 }
+
+ImageLoadingProgressWindow::~ImageLoadingProgressWindow() = default;
 
 void ImageLoadingProgressWindow::setProgress(int level, int value)
 {

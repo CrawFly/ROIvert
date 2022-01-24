@@ -1,5 +1,3 @@
-// What a MESS! this clearly needs a detailed pass
-
 #include "roivert.h"
 #include "ui_roivert.h"
 
@@ -60,6 +58,8 @@ struct Roivert::pimpl
     std::unique_ptr<QAction> actROIRect{ nullptr };
     std::unique_ptr<QAction> actROISelect{ nullptr };
     std::unique_ptr<QAction> actReset{ nullptr };
+    
+    std::unique_ptr<QAction> actShowImageDataWindow{ nullptr };
 
     std::unique_ptr<ROIVertSettings> roivertsettings{ nullptr };
 
@@ -104,14 +104,10 @@ void Roivert::doConnect()
     connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
 
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, [=](QString fn, bool dohdr, bool dotime)
-    { impl->fileio->exportTraces(fn, dohdr, dotime); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, [=](QString fn)
-    { impl->fileio->exportROIs(fn); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, [=](QString fn)
-    { impl->fileio->importROIs(fn); });
-    connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, [=](QString fn, int width, int height, int quality, bool ridge)
-    { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, [=](QString fn, bool dohdr, bool dotime) { impl->fileio->exportTraces(fn, dohdr, dotime); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportROIs, [=](QString fn) { impl->fileio->exportROIs(fn); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::importROIs, [=](QString fn) { impl->fileio->importROIs(fn); });
+    connect(impl->fileiowidget.get(), &FileIOWidget::exportCharts, [=](QString fn, int width, int height, int quality, bool ridge) { impl->fileio->exportCharts(fn, width, height, quality, ridge); });
 
     // progress for loading
     connect(impl->viddata.get(), &VideoData::loadProgress, impl->imageloadingprogresswindow.get(), &ImageLoadingProgressWindow::setProgress);
@@ -147,6 +143,7 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
     impl->imagedatawindow->hide();
     QGuiApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
+    impl->imageloadingprogresswindow->reset();
     impl->imageloadingprogresswindow->show();
     impl->viddata->load(filenameframelist, dsTime, dsSpace);
     impl->imageloadingprogresswindow->hide();
@@ -229,7 +226,6 @@ void Roivert::setInitialSettings(bool restore) {
     }
     impl->vidctrl->setEnabled(false);
 
-    
     impl->imagedatawindow->setGeometry(geometry());
     impl->imagedatawindow->show();
 }
@@ -291,6 +287,8 @@ void Roivert::pimpl::makeObjects(Roivert * par)
     actROIPoly = std::make_unique<QAction>(QIcon(":/icons/ROIPoly.png"), "", ROIGroup.get());
     actROIRect = std::make_unique<QAction>(QIcon(":/icons/ROIRect.png"), "", ROIGroup.get());
     actROISelect = std::make_unique<QAction>(QIcon(":/icons/ROISelect.png"), "", ROIGroup.get());
+    
+    actShowImageDataWindow = std::make_unique<QAction>(QIcon(":/icons/t_ImgData.png"), "", par);
 
     actReset = std::make_unique<QAction>(QIcon(":/icons/dockreset.png"), "");
     actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
@@ -354,6 +352,14 @@ void Roivert::pimpl::layout()
 
 void Roivert::pimpl::makeToolbar(Roivert * par)
 {
+    ui.mainToolBar->addAction(actShowImageDataWindow.get());
+    connect(actShowImageDataWindow.get(), &QAction::triggered, [=](bool) {
+        imagedatawindow->setGeometry(par->geometry());
+        imagedatawindow->show();
+    });
+    ui.mainToolBar->addSeparator();
+
+
     actROIEllipse->setCheckable(true);
     actROIPoly->setCheckable(true);
     actROIRect->setCheckable(true);
@@ -391,19 +397,17 @@ void Roivert::pimpl::makeToolbar(Roivert * par)
         rois->setROIShape(shp);
     });
 
-    imagedatawidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgData.png"));
+
     imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
     traceviewwidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
     fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
     stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
 
-    ui.mainToolBar->addAction(imagedatawidget->toggleViewAction());
     ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
     ui.mainToolBar->addAction(traceviewwidget->toggleViewAction());
     ui.mainToolBar->addAction(fileiowidget->toggleViewAction());
     ui.mainToolBar->addAction(stylewidget->toggleViewAction());
 
-    imagedatawidget->toggleViewAction()->setShortcut(Qt::Key_5);
     imagesettingswidget->toggleViewAction()->setShortcut(Qt::Key_6);
     traceviewwidget->toggleViewAction()->setShortcut(Qt::Key_7);
     fileiowidget->toggleViewAction()->setShortcut(Qt::Key_8);

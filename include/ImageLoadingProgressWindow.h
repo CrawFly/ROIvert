@@ -12,6 +12,7 @@ class ImageLoadingProgressWindow : public QDialog
 public:
     explicit ImageLoadingProgressWindow(QWidget *parent = nullptr);
     ~ImageLoadingProgressWindow();
+    void reset();
 
 public slots:
     void setProgress(const int level, const int value);
