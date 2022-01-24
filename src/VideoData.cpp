@@ -20,8 +20,9 @@ enum class datadepth
 };
 
 namespace {
-    std::mutex dffminmutex;
-    std::mutex dffmaxmutex;
+    std::mutex minprojmutex;
+    std::mutex maxprojmutex;
+    std::mutex sumprojmutex;
     std::mutex histmutex;
     std::mutex cntrmutex;
 
@@ -35,14 +36,13 @@ namespace {
                          double dffmaxval,
                          int bitdepth,
                          size_t& ncomplete,
-                         std::vector<size_t> frames = {}) {
+                         std::pair<size_t,size_t> frames = {1, 0}) {
 
         if (raw.empty())
             return;
 
-        if (frames.empty()) {
-            frames.resize(raw.size());
-            std::iota(frames.begin(), frames.end(), 0);
+        if (frames.first > frames.second) {
+            frames = { 0, raw.size() };
         }
     
         auto sz = raw[0].size();
@@ -57,7 +57,7 @@ namespace {
         const float range[] = {0, static_cast<float>(pow(2, bitdepth)) + 1};
         const float *histRange = {range};
 
-        for (const auto& frame : frames) {
+        for (size_t frame = frames.first; frame <= frames.second; ++frame) {
             cv::Mat thisraw = raw[frame];
             cv::Mat thisdff(sz, CV_64FC1);
             thisraw.convertTo(thisdff, CV_64FC1);
@@ -68,11 +68,11 @@ namespace {
             dff[frame] = thisdff_int;
 
             {
-                std::lock_guard<std::mutex> guard(dffminmutex);
+                std::lock_guard<std::mutex> guard(minprojmutex);
                 dffminproj = cv::min(dffminproj, thisdff_int);
             }
             {
-                std::lock_guard<std::mutex> guard(dffmaxmutex);
+                std::lock_guard<std::mutex> guard(maxprojmutex);
                 dffmaxproj = cv::max(dffmaxproj, thisdff_int);
             }
             {
@@ -86,6 +86,54 @@ namespace {
         }
     }
 
+    void calc_raw_static(std::vector<cv::Mat>& data,
+                            cv::Mat& minproj,
+                            cv::Mat& maxproj,
+                            cv::Mat& sumprojd,
+                            cv::Mat& histogram,
+                            size_t& ncomplete,
+                            int bitdepth,
+                         std::pair<size_t,size_t> frames = {1, 0}) 
+    {
+        if (data.empty())
+            return;
+
+        if (frames.first > frames.second) {
+            frames = { 0, data.size() };
+        }
+        constexpr int chnl = 0;
+        constexpr int histsize = 256;
+        const float range[] = {0, static_cast<float>(pow(2, bitdepth)) + 1};
+        const float *histRange = {range};
+
+        for (size_t frame = frames.first; frame <= frames.second; ++frame) {
+            
+            cv::Mat& thisdata = data[frame];
+            
+
+            {
+                std::lock_guard<std::mutex> guard(minprojmutex);
+                minproj = cv::min(minproj, thisdata);
+            }
+            {
+                std::lock_guard<std::mutex> guard(maxprojmutex);
+                maxproj = cv::max(maxproj, thisdata);
+            }
+            
+            {
+                std::lock_guard<std::mutex> guard(sumprojmutex);
+                cv::accumulate(thisdata, sumprojd);
+            }
+            {
+                std::lock_guard<std::mutex> guard(histmutex);
+                cv::calcHist(&thisdata, 1, &chnl, cv::Mat(), histogram, 1, &histsize, &histRange, true, true);
+            }
+            {
+                std::mutex cntrmutex;
+                ncomplete++;
+            }
+        }
+    }
 }
 
 
@@ -173,7 +221,8 @@ struct VideoData::pimpl
         
         for (const auto &l : li) // iterate over load instructions
         {
-            emit par->loadProgress(0, (100*progcntr++)/li.size());
+            int perc = (100 * progcntr++) / (int)li.size();
+            emit par->loadProgress(0, perc);
 
             std::string fn(l.filename.toLocal8Bit().constData());
             if (l.hasmulti())
@@ -252,7 +301,8 @@ struct VideoData::pimpl
         int progcntr = 0;
         for (const auto &frame : getData(datatype::RAW))
         {
-            emit par->loadProgress(1, (100*progcntr++)/nframes);
+            int perc = (100 * progcntr++) / (int)nframes;
+            emit par->loadProgress(1, perc);
             minproj = cv::min(minproj, frame);
             maxproj = cv::max(maxproj, frame);
             cv::accumulate(frame, sumprojd);
@@ -266,6 +316,58 @@ struct VideoData::pimpl
         maxproj.assignTo(maxprojd, CV_64FC1);
         emit par->loadProgress(1, 100);
     }
+    void accumulateraw_p() {
+        auto &minproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MIN);
+        auto &maxproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MAX);
+        auto &sumprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::SUM);
+        
+        minproj = cv::Mat(size, mattype, pow(2, bitdepth) - 1);
+        maxproj = cv::Mat::zeros(size, mattype);
+        sumprojd = cv::Mat::zeros(size, CV_64FC1);
+
+        
+        const auto proccount = std::thread::hardware_concurrency();
+        const auto nthreads = std::max(proccount - 1, static_cast<uint>(2));
+        size_t threadsize = std::ceil(nframes / nthreads);
+        
+        size_t ncomplete = 0;
+        for (size_t i = 0; i < nframes; i += threadsize) {
+            size_t nframes_i = i + threadsize > nframes ? nframes - i : threadsize;
+            std::pair<size_t, size_t> frames = { i, i + nframes_i - 1 };
+            std::thread t(calc_raw_static,std::ref(getData(datatype::RAW)),
+                std::ref(getProjection(datatype::RAW, datadepth::NATIVE, projection::MIN)),
+                std::ref(getProjection(datatype::RAW, datadepth::NATIVE, projection::MAX)),
+                std::ref(getProjection(datatype::RAW, datadepth::DOUBLE, projection::SUM)),
+                std::ref(getHistogram(datatype::RAW)),
+                std::ref(ncomplete), bitdepth, frames);
+
+            t.detach();
+        }
+        
+        while (ncomplete < nframes) {
+            int perc = (98 * (int)ncomplete) / (int)nframes;
+            emit par->loadProgress(1, perc);
+        }
+
+        // the last two percent are feeding out to the last couple of projections:
+
+
+        auto &meanproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::MEAN);
+        auto &sumproj = getProjection(datatype::RAW, datadepth::NATIVE, projection::SUM);
+
+        auto &minprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MIN);
+        auto &maxprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MAX);
+        auto &meanprojd = getProjection(datatype::RAW, datadepth::DOUBLE, projection::MEAN);
+
+        
+        meanprojd = sumprojd / nframes;
+        emit par->loadProgress(1, 99);
+        meanprojd.assignTo(meanproj, mattype);
+        minproj.assignTo(minprojd, CV_64FC1);
+        maxproj.assignTo(maxprojd, CV_64FC1);
+        emit par->loadProgress(1, 100);
+    }
+    
     void initializedff()
     {
 
@@ -285,6 +387,8 @@ struct VideoData::pimpl
         // initialize mean as 0s
         dff_meanprojd = cv::Mat::zeros(size, CV_64FC1);
     }
+    
+    
     void accumulatedff()
     {
         auto &dffdata = getData(datatype::DFF);
@@ -301,7 +405,8 @@ struct VideoData::pimpl
         int progcntr = 0;
         for (const auto &frame : getData(datatype::RAW))
         {
-            emit par->loadProgress(2, (100*progcntr++)/nframes);
+            int perc = (100 * progcntr++) / (int)nframes;
+            emit par->loadProgress(2, perc);
             auto d = calcDffNative(frame);
             //dffdata.push_back(d);
             dff_minproj = cv::min(dff_minproj, d);
@@ -325,13 +430,12 @@ struct VideoData::pimpl
 
         const auto proccount = std::thread::hardware_concurrency();
         const auto nthreads = std::max(proccount - 1, static_cast<uint>(2)); // From experimentation, this seems to asymptote around 3 threads, but no loss with more
-        size_t threadsize = std::ceil(nframes / nthreads);                    
+        size_t threadsize = std::ceil(nframes / nthreads);
         
         size_t ncomplete = 0;
         for (size_t i = 0; i < nframes; i += threadsize) {
             size_t nframes_i = i + threadsize > nframes ? nframes - i : threadsize;
-            std::vector<size_t> frames(nframes_i);
-            std::iota(frames.begin(), frames.end(), i);
+            std::pair<size_t, size_t> frames = { i, i + nframes_i - 1 };
             
             std::thread t(calc_dff_static, std::ref(rawdata), std::ref(dffdata),
                         std::ref(getProjection(datatype::RAW, datadepth::DOUBLE, projection::MEAN)),
@@ -343,9 +447,11 @@ struct VideoData::pimpl
         }
 
         while (ncomplete < nframes) {
-            emit par->loadProgress(2, (100 * ncomplete) / nframes);
+            int perc = (100 * (int)ncomplete) / (int)nframes;
+            emit par->loadProgress(2, perc);
         }
     }
+
 private:
     // projections are 2(raw/dff) x 2(native/double) x 4(projection type)
     std::array<std::array<std::array<cv::Mat, 4>, 2>, 2> projection;
@@ -370,7 +476,8 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
     }
 
     impl->setmetafromraw();
-    impl->accumulateraw();
+    //impl->accumulateraw();
+    impl->accumulateraw_p();
     impl->initializedff();
     //impl->accumulatedff();
     impl->accumulatedff_p();
