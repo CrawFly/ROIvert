@@ -7,6 +7,9 @@
 
 #include "ROIVertEnums.h"
 
+
+// TODO: Consider making nthreads an option, something that can be set through command line (?) 
+//     :: until I've made this decision, don't yank the singlethreaded versions...
 // TODO: Consider exposing these for clearer API instead of bools etc.
 enum class datatype
 {
@@ -332,7 +335,7 @@ struct VideoData::pimpl
         // todo: pull this out to use for both dff and raw, and give users a way to override this and fallback to single thread load!
         const auto proccount = std::thread::hardware_concurrency();
         const auto nthreads = std::max(proccount - 1, static_cast<uint>(2));
-        size_t threadsize = std::ceil(nframes / nthreads);
+        size_t threadsize = std::max(std::ceil(nframes / nthreads), 1.);
 
         size_t ncomplete = 0;
         for (size_t i = 0; i < nframes; i += threadsize)
@@ -434,7 +437,7 @@ struct VideoData::pimpl
 
         const auto proccount = std::thread::hardware_concurrency();
         const auto nthreads = std::max(proccount - 1, static_cast<uint>(2)); // From experimentation, this seems to asymptote around 3 threads, but no loss with more
-        size_t threadsize = std::ceil(nframes / nthreads);
+        size_t threadsize = std::max(std::ceil(nframes / nthreads), 1.);
 
         size_t ncomplete = 0;
         for (size_t i = 0; i < nframes; i += threadsize)
