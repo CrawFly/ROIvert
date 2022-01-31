@@ -23,8 +23,13 @@
 #include <QDebug>
 struct ImageDataWindow::pimpl
 {
-    void init(QGridLayout* top) {
-        top->addWidget(&splitter,0,0);
+    void init(QVBoxLayout *top)
+    {
+
+        auto grid = new QGridLayout;
+        top->addLayout(grid);
+        top->setContentsMargins(10, 0, 10, 10);
+        grid->addWidget(&splitter,0,0);
 
         splitter.addWidget(&folderview);
 
@@ -46,23 +51,24 @@ struct ImageDataWindow::pimpl
         connect(&spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double) { updateLabel();  });
     }
 
-    std::vector<std::pair<QString, size_t>> getSelectedData() {
+    std::vector<std::pair<QString, size_t>> getSelectedData()
+    {
         auto fp = QDir(fsmodel.fileInfo(folderview.currentIndex()).absoluteFilePath());
         auto inds = fileview.selectionModel()->selectedIndexes();
         std::vector<std::pair<QString, size_t>> ret;
 
         ret.reserve(inds.length());
 
-        for (auto& ind : inds) {
+        for (auto &ind : inds)
+        {
             auto file = ind.data(Qt::DisplayRole).toString();
             auto frames = ind.siblingAtColumn(2).data(Qt::DisplayRole).toInt();
             auto fullfile = fp.filePath(file);
-            ret.push_back({ fullfile, frames });
+            ret.push_back({fullfile, frames});
         }
 
-        std::sort(ret.begin(), ret.end(), [](std::pair<QString, size_t> a, std::pair<QString, size_t> b) {
-            return a.first < b.first;
-        });
+        std::sort(ret.begin(), ret.end(), [](std::pair<QString, size_t> a, std::pair<QString, size_t> b)
+                  { return a.first < b.first; });
 
         return ret;
     }
@@ -210,16 +216,15 @@ private:
     QPushButton cmdLoad;
 };
 
-ImageDataWindow::ImageDataWindow(QWidget* parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint), impl(std::make_unique<pimpl>())
+ImageDataWindow::ImageDataWindow(QWidget* parent) : DialogWithSettings(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint), impl(std::make_unique<pimpl>())
 {
-    
+ 
     setModal(true);
     setWindowTitle("Load Dataset");
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     setAcceptDrops(true);
     
-    auto toplay = new QGridLayout(this);
-    impl->init(toplay);
+    impl->init(&toplay);
 
     connect(impl->getCancelButton(), &QPushButton::pressed, this, &QDialog::reject);
 
@@ -266,4 +271,18 @@ void ImageDataWindow::dropEvent(QDropEvent* event) {
             impl->setSelectedFiles(theFiles);
         }
     }
+}
+
+
+void ImageDataWindow::saveSettings(QSettings& settings) const 
+{
+
+}
+void ImageDataWindow::restoreSettings(QSettings& settings) 
+{
+
+}
+void ImageDataWindow::resetSettings() 
+{
+    
 }

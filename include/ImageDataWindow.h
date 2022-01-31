@@ -1,18 +1,23 @@
 #pragma once
-#include <QDialog>
-class ImageDataWindow : public QDialog 
-{
-Q_OBJECT
+#include "DialogWithSettings.h"
 
-public: 
-    explicit ImageDataWindow(QWidget* parent = nullptr);
+class ImageDataWindow : public DialogWithSettings
+{
+    Q_OBJECT
+
+public:
+    explicit ImageDataWindow(QWidget *parent = nullptr);
     ~ImageDataWindow();
+    void saveSettings(QSettings &settings) const override;
+    void restoreSettings(QSettings &settings) override;
+    void resetSettings() override;
 
 signals:
-    void fileLoadRequested(std::vector<std::pair<QString,size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace);
+    void fileLoadRequested(std::vector<std::pair<QString, size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace);
+
 protected:
-    void dragEnterEvent(QDragEnterEvent* event) override;
-    void dropEvent(QDropEvent* event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 
 private:
     struct pimpl;

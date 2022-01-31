@@ -2,6 +2,8 @@ target_sources(ROIVertLib
     PRIVATE
         ChartStyle.h
         DisplaySettings.h
+        Settingsable.h
+        DialogWithSettings.h
         DockWidgetWithSettings.h
         FileIO.h
         ImageDataWindow.h

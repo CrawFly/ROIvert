@@ -2,6 +2,8 @@ target_sources(ROIVertLib
     PRIVATE
         ChartStyle.cpp
         DisplaySettings.cpp
+        Settingsable.cpp
+        DialogWithSettings.cpp
         DockWidgetWithSettings.cpp
         FileIO.cpp
         ImageDataTableModel.cpp
