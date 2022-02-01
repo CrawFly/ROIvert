@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 class Roivert;
-class ImageDataWidget;
+class ImageDataWindow;
 class ImageSettingsWidget;
 class StyleWidget;
 class FileIOWidget;
@@ -9,7 +9,7 @@ class FileIOWidget;
 class ROIVertSettings
 {
 public:
-    ROIVertSettings(Roivert*, ImageDataWidget*, ImageSettingsWidget*, StyleWidget*, FileIOWidget*);
+    ROIVertSettings(Roivert*, ImageDataWindow*, ImageSettingsWidget*, StyleWidget*, FileIOWidget*);
     ~ROIVertSettings();
 
     void saveSettings();

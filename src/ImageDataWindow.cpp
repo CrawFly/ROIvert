@@ -73,19 +73,34 @@ struct ImageDataWindow::pimpl
         return ret;
     }
 
+    QString getFilePath() const { return fsmodel.fileInfo(folderview.currentIndex()).absoluteFilePath(); }
+    QStringList getFileNames() const {
+        QStringList ret;
+        auto inds = fileview.selectionModel()->selectedIndexes();
+        for (auto& ind : inds)
+        {
+            ret.push_back(ind.data(Qt::DisplayRole).toString());
+        }
+        return ret;        
+    }
+
     QPushButton* getCancelButton() { return &cmdCancel; }
     QPushButton* getLoadButton() { return &cmdLoad; }
     
     double getFrameRate() const { return spinFrameRate.value(); }
     int getDownSpace() const { return spinDownSpace.value(); }
     int getDownTime() const { return spinDownTime.value(); }
+    void setDownSpace(int val) { spinDownSpace.setValue(val); }
+    void setDownTime(int val) { spinDownTime.setValue(val); }
+    void setFrameRate(double val) { spinFrameRate.setValue(val); }
+
     void setSelectedDir(QString theDir) {
         auto ind = fsmodel.index(theDir);
         if (ind.isValid()) {
             folderview.setCurrentIndex(ind);
         }
     }
-    void setSelectedFiles(std::vector<QString> filenames) {
+    void setSelectedFiles(QStringList filenames) {
         fileview.selectionModel()->clearSelection();
         for (auto& filename : filenames) {
             auto ind = immodel.getIndexFromName(filename);
@@ -247,7 +262,7 @@ void ImageDataWindow::dropEvent(QDropEvent* event) {
         auto urls = event->mimeData()->urls();
 
         QString theDir = "";
-        std::vector<QString> theFiles;
+        QStringList theFiles;
         theFiles.reserve(urls.size());
 
         for (const auto& url : urls) {
@@ -276,13 +291,37 @@ void ImageDataWindow::dropEvent(QDropEvent* event) {
 
 void ImageDataWindow::saveSettings(QSettings& settings) const 
 {
-
+    settings.beginGroup("ImageData");
+    settings.setValue("dorestore", getSettingsStorage());
+    if (getSettingsStorage()) {
+        auto fp = impl->getFilePath();
+        auto fn = impl->getFileNames();
+        settings.setValue("filepath", impl->getFilePath());
+        settings.setValue("filenames", impl->getFileNames());
+        settings.setValue("framerate", impl->getFrameRate());
+        settings.setValue("downtime", impl->getDownTime());
+        settings.setValue("downspace", impl->getDownSpace());
+    }
+    settings.endGroup();
 }
 void ImageDataWindow::restoreSettings(QSettings& settings) 
 {
-
+    settings.beginGroup("ImageData");
+    setSettingsStorage(settings.value("dorestore", true).toBool());
+    if (getSettingsStorage()) {
+        impl->setSelectedDir(settings.value("filepath", QDir::currentPath()).toString());
+        impl->setSelectedFiles(settings.value("filenames", { }).toStringList());
+        impl->setFrameRate(settings.value("framerate", 10.).toDouble());
+        impl->setDownTime(settings.value("downtime", 1).toInt());
+        impl->setDownSpace(settings.value("downspace", 1).toInt());
+    }
+    settings.endGroup();
 }
 void ImageDataWindow::resetSettings() 
 {
-    
+    impl->setSelectedDir(QDir::currentPath());
+    impl->setSelectedFiles({});
+    impl->setFrameRate(10.);
+    impl->setDownTime(1);
+    impl->setDownSpace(1);
 }

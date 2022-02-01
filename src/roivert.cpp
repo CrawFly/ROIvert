@@ -215,7 +215,6 @@ void Roivert::imgSettingsChanged(ROIVert::imgsettings settings)
 }
 
 void Roivert::closeEvent(QCloseEvent * event) {
-    // todo: call ROIVertSettings::saveSettings();
     impl->roivertsettings->saveSettings();
 }
 
@@ -294,7 +293,7 @@ void Roivert::pimpl::makeObjects(Roivert * par)
     actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
     par->addAction(actReset.get());
 
-    roivertsettings = std::make_unique<ROIVertSettings>(par, imagedatawidget.get(), imagesettingswidget.get(), stylewidget.get(), fileiowidget.get());
+    roivertsettings = std::make_unique<ROIVertSettings>(par, imagedatawindow.get(), imagesettingswidget.get(), stylewidget.get(), fileiowidget.get());
 }
 
 void Roivert::pimpl::setWidgetParams()

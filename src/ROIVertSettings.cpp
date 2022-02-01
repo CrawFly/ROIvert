@@ -3,14 +3,14 @@
 #include <QSettings>
 
 #include "roivert.h"
-#include "dockwidgets/ImageDataWidget.h"
+#include "ImageDataWindow.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/FileIOWidget.h"
 
 struct ROIVertSettings::pimpl {
     Roivert* roivert{ nullptr };
-    ImageDataWidget* imagedatawidget{ nullptr };
+    ImageDataWindow* imagedatawindow{ nullptr };
     ImageSettingsWidget* imagesettingswidget{ nullptr };
     StyleWidget* stylewidget{ nullptr };
     FileIOWidget* fileiowidget{ nullptr };
@@ -22,7 +22,7 @@ struct ROIVertSettings::pimpl {
         settings.setValue("windowState", roivert->saveState());
         settings.endGroup();
 
-        imagedatawidget->saveSettings(settings);
+        imagedatawindow->saveSettings(settings);
         imagesettingswidget->saveSettings(settings);
         stylewidget->saveSettings(settings);
         fileiowidget->saveSettings(settings);
@@ -33,7 +33,7 @@ struct ROIVertSettings::pimpl {
         roivert->restoreState(settings.value("windowState").toByteArray());
         settings.endGroup();
 
-        imagedatawidget->restoreSettings(settings);
+        imagedatawindow->restoreSettings(settings);
         imagesettingswidget->restoreSettings(settings);
         stylewidget->restoreSettings(settings);
         fileiowidget->restoreSettings(settings);
@@ -41,17 +41,17 @@ struct ROIVertSettings::pimpl {
     void resetsettings() {
         // needs bitmask with default reset everything
         roivert->setDefaultGeometry();
-        imagedatawidget->resetSettings();
+        imagedatawindow->resetSettings();
         imagesettingswidget->resetSettings();
         stylewidget->resetSettings();
         fileiowidget->resetSettings();
     }
 };
 
-ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWidget* id, ImageSettingsWidget* is, StyleWidget* s, FileIOWidget* fio) : impl(std::make_unique<pimpl>())
+ROIVertSettings::ROIVertSettings(Roivert* r, ImageDataWindow* id, ImageSettingsWidget* is, StyleWidget* s, FileIOWidget* fio) : impl(std::make_unique<pimpl>())
 {
     impl->roivert = r;
-    impl->imagedatawidget = id;
+    impl->imagedatawindow = id;
     impl->imagesettingswidget = is;
     impl->stylewidget = s;
     impl->fileiowidget = fio;
