@@ -11,7 +11,7 @@
 #include "widgets/RGBWidget.h"
 #include "widgets/ProjectionPickWidget.h"
 #include "dockwidgets/FileIOWidget.h"
-#include "dockwidgets/ImageDataWidget.h"
+#include "ImageDataWindow.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "DisplaySettings.h"
 
@@ -140,7 +140,7 @@ void tMiscSmallWidgets::tFileIOWidget() {
         QVERIFY(actisridge);
     }
 }
-
+/*
 void tMiscSmallWidgets::tImageDataWidget() {
     ImageDataWidget w;
 
@@ -170,6 +170,8 @@ void tMiscSmallWidgets::tImageDataWidget() {
     spinFrameRate->valueChanged(42.1);
     QVERIFY(didfire);
 }
+*/
+
 void tMiscSmallWidgets::tImageSettingsWidget() {
     DisplaySettings sets;
     sets.setProjectionMode(3);

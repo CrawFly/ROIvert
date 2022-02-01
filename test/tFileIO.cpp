@@ -18,11 +18,15 @@ private:
     QFile* file;
 };
 
+tFileIO::tFileIO() { };
+
+/*
 struct tFileIO::objptrs {
     ImageView iview;
     TraceViewWidget tview;
     VideoData vdata;
     ROIs* rois = nullptr;
+
 
     objptrs() {
         QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
@@ -200,3 +204,5 @@ void tFileIO::texportcharts() {
     QCOMPARE(im.size().width(), 500);
     QCOMPARE(im.size().height(), 600);
 }
+
+*/

@@ -7,7 +7,7 @@ class VideoData;
 class tVideoData : public QObject
 {
     Q_OBJECT
-
+/*
 private slots:
     void init();
     void cleanup();
@@ -31,6 +31,7 @@ private slots:
     void tnowidthtrace();
 
     void thistogram();
+*/
 private:
     VideoData* data;
     std::vector<cv::Mat> expraw;

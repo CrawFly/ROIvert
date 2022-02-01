@@ -19,7 +19,6 @@
 #include "ROIVertEnums.h"
 #include "ROIVertSettings.h"
 
-#include "dockwidgets/ImageDataWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/FileIOWidget.h"
@@ -39,7 +38,6 @@ struct Roivert::pimpl
     
     std::unique_ptr<ImageDataWindow> imagedatawindow{ nullptr };
 
-    std::unique_ptr<ImageDataWidget> imagedatawidget{ nullptr };
     std::unique_ptr<ImageSettingsWidget> imagesettingswidget{ nullptr };
     std::unique_ptr<StyleWidget> stylewidget{ nullptr };
     std::unique_ptr<FileIOWidget> fileiowidget{ nullptr };
@@ -101,7 +99,6 @@ void Roivert::doConnect()
     connect(impl->imagedatawindow.get(), &ImageDataWindow::fileLoadRequested, this, &Roivert::loadVideo);
 
     connect(impl->vidctrl.get(), &VideoControllerWidget::frameChanged, this, &Roivert::changeFrame);
-    connect(impl->imagedatawidget.get(), &ImageDataWidget::frameRateChanged, this, &Roivert::frameRateChanged);
     connect(impl->imagesettingswidget.get(), &ImageSettingsWidget::imgSettingsChanged, this, &Roivert::imgSettingsChanged);
 
     connect(impl->fileiowidget.get(), &FileIOWidget::exportTraces, [=](QString fn, bool dohdr, bool dotime) { impl->fileio->exportTraces(fn, dohdr, dotime); });
@@ -148,7 +145,6 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
     impl->viddata->load(filenameframelist, dsTime, dsSpace);
     impl->imageloadingprogresswindow->hide();
 
-    impl->imagedatawidget->setProgBar(-1);
     impl->vidctrl->setNFrames(impl->viddata->getNFrames());
     impl->vidctrl->setFrameRate(frameRate / dsTime);
     impl->viddata->setFrameRate(frameRate / dsTime); // duplicated for convenience
@@ -230,19 +226,16 @@ void Roivert::setInitialSettings(bool restore) {
 }
 void Roivert::setDefaultGeometry() {
     impl->traceviewwidget->setFloating(true);
-    impl->imagedatawidget->setFloating(false);
     impl->imagesettingswidget->setFloating(false);
     impl->fileiowidget->setFloating(false);
     impl->stylewidget->setFloating(false);
 
     impl->traceviewwidget->setVisible(true);
-    impl->imagedatawidget->setVisible(true);
     impl->imagesettingswidget->setVisible(false);
     impl->fileiowidget->setVisible(false);
     impl->stylewidget->setVisible(false);
 
     addDockWidget(Qt::BottomDockWidgetArea, impl->traceviewwidget.get());
-    addDockWidget(Qt::RightDockWidgetArea, impl->imagedatawidget.get());
     addDockWidget(Qt::RightDockWidgetArea, impl->imagesettingswidget.get());
     addDockWidget(Qt::RightDockWidgetArea, impl->fileiowidget.get());
     addDockWidget(Qt::RightDockWidgetArea, impl->stylewidget.get());
@@ -268,7 +261,6 @@ void Roivert::pimpl::makeObjects(Roivert * par)
 
     imagedatawindow = std::make_unique<ImageDataWindow>(par);
     imageloadingprogresswindow = std::make_unique<ImageLoadingProgressWindow>(imagedatawindow.get());
-    imagedatawidget = std::make_unique<ImageDataWidget>(par);
     imagesettingswidget = std::make_unique<ImageSettingsWidget>(par, &dispSettings);
     stylewidget = std::make_unique<StyleWidget>(par);
     fileiowidget = std::make_unique<FileIOWidget>(par);
@@ -298,10 +290,6 @@ void Roivert::pimpl::makeObjects(Roivert * par)
 
 void Roivert::pimpl::setWidgetParams()
 {
-    imagedatawidget->setWindowTitle("Image Data");
-    imagedatawidget->setContentsEnabled(true);
-    imagedatawidget->setVisible(false);
-
     imagesettingswidget->setWindowTitle("Image Settings");
     imagesettingswidget->setContentsEnabled(false);
     imagesettingswidget->setVisible(false);
@@ -330,13 +318,11 @@ void Roivert::pimpl::setWidgetParams()
 
 void Roivert::pimpl::initDockWidgets(Roivert * par)
 {
-    par->addDockWidget(Qt::RightDockWidgetArea, imagedatawidget.get());
     par->addDockWidget(Qt::RightDockWidgetArea, imagesettingswidget.get());
     par->addDockWidget(Qt::RightDockWidgetArea, fileiowidget.get());
     par->addDockWidget(Qt::RightDockWidgetArea, stylewidget.get());
     par->addDockWidget(Qt::BottomDockWidgetArea, traceviewwidget.get());
 
-    imagedatawidget->setObjectName("imagedatawidget");
     imagesettingswidget->setObjectName("imagesettingswidget");
     fileiowidget->setObjectName("fileiowidget");
     stylewidget->setObjectName("stylewidget");

@@ -4,7 +4,7 @@
 
 #include "roivert.h"
 #include "ROIVertSettings.h"
-#include "dockwidgets/ImageDataWidget.h"
+#include "ImageDataWindow.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/FileIOWidget.h"
@@ -21,7 +21,7 @@ void tSettings::init() {
     r = new Roivert;
     r->setInitialSettings(false);
 
-    auto idw = r->findChild<ImageDataWidget*>();
+    auto idw = r->findChild<ImageDataWindow*>();
     auto isw = r->findChild<ImageSettingsWidget*>();
     auto sw = r->findChild<StyleWidget*>();
     auto fw = r->findChild<FileIOWidget*>();

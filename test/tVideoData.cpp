@@ -4,7 +4,7 @@
 #include "tVideoData.h"
 #include "VideoData.h"
 #include "ROIVertEnums.h"
-
+/*
 void tVideoData::init() {
     data = new VideoData;
     loadjsonexpected();
@@ -315,3 +315,4 @@ void tVideoData::thistogram() {
     QCOMPARE(1, 2);
 #endif // NDEBUG
 }
+*/

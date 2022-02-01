@@ -8,6 +8,7 @@
 #include "ImageView.h"
 #include "widgets/TraceChartWidget.h"
 
+/*
 void tROIs::initTestCase() {
     data = new VideoData;
     QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
@@ -182,3 +183,5 @@ void tROIs::tchartclicked() {
         QCOMPARE(rois->getSelected(), { 0 });
     }
 }
+
+*/

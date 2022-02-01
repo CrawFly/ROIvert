@@ -19,7 +19,7 @@
 #include "dockwidgets/StyleWidget.h"
 #include "dockwidgets/TraceViewWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
-#include "dockwidgets/ImageDataWidget.h"
+#include "ImageDataWindow.h"
 #include "ImageView.h"
 #include "VideoData.h"
 #include "ROI/ROIShape.h"
@@ -30,7 +30,7 @@
 #include <QElapsedTimer>
 
 namespace dw {
-    ImageDataWidget* imagedata(Roivert* r) { return r->findChild<ImageDataWidget*>(); }
+    ImageDataWindow* imagedata(Roivert* r) { return r->findChild<ImageDataWindow*>(); }
     ImageSettingsWidget* imagesettings(Roivert* r) { return r->findChild<ImageSettingsWidget*>(); };
     StyleWidget* style(Roivert* r) { return r->findChild<StyleWidget*>(); };
     FileIOWidget* fileio(Roivert* r) { return r->findChild<FileIOWidget*>(); };
