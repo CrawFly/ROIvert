@@ -7,13 +7,13 @@ class VideoData;
 class tVideoData : public QObject
 {
     Q_OBJECT
-/*
 private slots:
     void init();
     void cleanup();
 
     void tload();
     void tload_data();
+/*
     void tproj();
     void tdowns();
     void tdowns_data();
@@ -34,20 +34,6 @@ private slots:
 */
 private:
     VideoData* data;
-    std::vector<cv::Mat> expraw;
-    std::vector<cv::Mat> expdffi;
-    std::vector<cv::Mat> deadpix;
-    cv::Mat expmeanraw;
-    cv::Mat expmaxraw;
-    cv::Mat expminraw;
-    cv::Mat expmaxdff;
-    cv::Mat expmindff;
-    std::vector<float> roiwholefield;
-    std::vector<float> roiellipse;
-    std::vector<float> roitril;
-
-    void loadmultipage(int dst = 1, int dss = 1);
-    void loadjsonexpected();
 };
 
 //todo:

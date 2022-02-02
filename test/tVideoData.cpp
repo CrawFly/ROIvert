@@ -4,105 +4,60 @@
 #include "tVideoData.h"
 #include "VideoData.h"
 #include "ROIVertEnums.h"
-/*
+#include "testUtils.h"
+
 void tVideoData::init() {
     data = new VideoData;
-    loadjsonexpected();
-    loadmultipage(); // default load with no downsampling
 }
 void tVideoData::cleanup() {
     delete data;
     data = nullptr;
 }
 
-void tVideoData::loadmultipage(int dst, int dss) {
-    QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
-    QVERIFY(QFile(f[0]).exists());
-    data->load(f, dst, dss, false);
-}
-
-void tVideoData::loadjsonexpected() {
-    QFile file(TEST_RESOURCE_DIR "/roiverttestdata.json");
-    auto isopen = file.open(QIODevice::ReadOnly);
-    QVERIFY(isopen);
-
-    QByteArray jdata = file.readAll();
-    auto doc = QJsonDocument::fromJson(jdata);
-
-    auto raw = doc.object()["raw"].toArray();
-    int nframes(raw.size());
-    int w = raw[0].toArray().size();
-    int h = raw[0].toArray()[0].toArray().size();
-
-    expraw.clear();
-    expraw.resize(nframes);
-    for (int f = 0; f < nframes; ++f) {
-        expraw[f] = cv::Mat(h, w, CV_8UC1);
-        for (int c = 0; c < w; ++c) {
-            for (int r = 0; r < h; ++r) {
-                expraw[f].at<uint8_t>(r, c) = raw[f].toArray()[c].toArray()[r].toInt();
-            }
-        }
-    }
-
-    auto dffi = doc.object()["dffi"].toArray();
-    expdffi.clear();
-    expdffi.resize(nframes);
-    for (int f = 0; f < nframes; ++f) {
-        expdffi[f] = cv::Mat(h, w, CV_8UC1);
-        for (int c = 0; c < w; ++c) {
-            for (int r = 0; r < h; ++r) {
-                expdffi[f].at<uint8_t>(r, c) = dffi[f].toArray()[c].toArray()[r].toInt();
-            }
-        }
-    }
-
-    auto rawmean = doc.object()["rawmean"].toArray();
-    auto rawmax = doc.object()["rawmax"].toArray();
-    auto rawmin = doc.object()["rawmin"].toArray();
-    auto dffmax = doc.object()["dffmax"].toArray();
-    auto dffmin = doc.object()["dffmin"].toArray();
-    expmeanraw = cv::Mat(h, w, CV_8UC1);
-    expmaxraw = cv::Mat(h, w, CV_8UC1);
-    expminraw = cv::Mat(h, w, CV_8UC1);
-    expmaxdff = cv::Mat(h, w, CV_8UC1);
-    expmindff = cv::Mat(h, w, CV_8UC1);
-    for (int c = 0; c < w; ++c) {
-        for (int r = 0; r < h; ++r) {
-            expmeanraw.at<uint8_t>(r, c) = rawmean[c].toArray()[r].toInt();
-            expmaxraw.at<uint8_t>(r, c) = rawmax[c].toArray()[r].toInt();
-            expminraw.at<uint8_t>(r, c) = rawmin[c].toArray()[r].toInt();
-            expmaxdff.at<uint8_t>(r, c) = dffmax[c].toArray()[r].toInt();
-            expmindff.at<uint8_t>(r, c) = dffmin[c].toArray()[r].toInt();
-        }
-    }
-
-    auto jroiwf = doc.object()["roi_wholefield"].toArray();
-    for (const auto& val : jroiwf) {
-        roiwholefield.push_back(static_cast<float>(val.toDouble()));
-    }
-
-    auto jroiel = doc.object()["roi_wholeellipse"].toArray();
-    for (const auto& val : jroiel) {
-        roiellipse.push_back(static_cast<float>(val.toDouble()));
-    }
-
-    auto jroitril = doc.object()["roi_tril"].toArray();
-    for (const auto& val : jroitril) {
-        roitril.push_back(static_cast<float>(val.toDouble()));
-    }
-}
-
 void tVideoData::tload_data() {
-    // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
-
-    QTest::addColumn<int>("frame");
-    for (int i = 0; i < 7; ++i) {
-        QTest::newRow(std::to_string(i).c_str()) << i;
-    }
+    QTest::addColumn<int>("dstype_int");
+    QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK);
+    QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES);
+    QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);
 }
+
 
 void tVideoData::tload() {
+    QFETCH(int, dstype_int);
+    auto dstype = static_cast<datasettype>(dstype_int);
+    loaddataset(data, dstype);
+    QCOMPARE(data->getNFrames(), 8);
+    QCOMPARE(data->getdsSpace(), 1);
+    QCOMPARE(data->getdsTime(), 1);
+    QCOMPARE(data->getHeight(), 5);
+    QCOMPARE(data->getWidth(), 6);
+
+    // now compare the matrix
+    std::vector<std::vector<std::vector<uint8_t>>> expected(data->getNFrames());
+    std::vector<uint8_t> expected_flat(data->getHeight() * data->getWidth() * data->getNFrames());
+    std::iota(expected_flat.begin(), expected_flat.end(), 1);
+    
+    size_t cntr = 0;
+    for (auto& frame : expected) {
+        frame.resize(data->getHeight());
+        for (auto& row : frame) {
+            row.resize(data->getWidth());
+            for (auto& val : row) {
+                val = expected_flat[cntr++];
+            }
+        }
+    }
+    for (size_t i = 0; i < data->getNFrames(); ++i) { 
+        cv::Mat mframe = data->get(false, 0, i);
+        QCOMPARE(mframe.size().height, data->getHeight());
+        QCOMPARE(mframe.size().width, data->getWidth());
+        auto frame = getMat2d<uint8_t>(&mframe);
+        QCOMPARE(frame, expected[i]);        
+    }
+}
+
+
+/*
     // if this test needs debugging, consider moving to the less performant but more debuggable strategy used for tdown*
     QCOMPARE(data->getNFrames(), 7);
     QCOMPARE(data->getdsSpace(), 1);
