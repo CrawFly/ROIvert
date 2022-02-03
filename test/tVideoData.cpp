@@ -283,6 +283,36 @@ void tVideoData::ttrace() {
     }
 
     // todo: poly
+    {
+        auto trace = data->computeTrace(ROIVert::SHAPE::POLYGON, QRect(0, 0, 7, 6), { QPoint(0, 0), QPoint(7, 6), QPoint(0, 6)});
+        
+        ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+        auto Act = tracemat.getAsVectors()[0][0];
+
+        auto dff = getExpectedDff_double(data);
+        std::vector<double> Exp(data->getNFrames(), 0);
+
+        // row, col to be included (note
+        std::vector<std::pair<size_t, size_t>> pixlist = {
+            {0,0},
+            {1,0}, {1,1},
+            {2,0}, {2,1}, {2,2}, {2,3},
+            {3,0}, {3,1}, {3,2}, {3,3}, {3,4},
+            {4,0}, {4,1}, {4,2}, {4,3}, {4,4}, {4,5}
+        };
+
+        for (const auto& [row, col] : pixlist) {
+            auto pixel = dff.getPixel(row, col);
+            for (size_t f = 0; f < pixel.size(); ++f) {
+                Exp[f] += pixel[f];
+            }
+        }
+
+        for (auto& val : Exp) {
+            val /= pixlist.size();
+        }
+        QVERIFY(nearlyequal(Act, Exp));
+    }
 }
 
 /*
