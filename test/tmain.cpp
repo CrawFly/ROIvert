@@ -188,6 +188,8 @@ private:
 int main(int argc, char** argv)
 {
     TestBank bank;
+    
+
     bank.addSuite<tChartStyle>();
     bank.addSuite<tColormapPickWidget>();
     bank.addSuite<tContrastWidget>();
@@ -198,8 +200,8 @@ int main(int argc, char** argv)
     bank.addSuite<tROIStyle>();
     bank.addSuite<tSettings>();
     bank.addSuite<tTraceChartWidget>();
-    bank.addSuite<tVideoData>();
     bank.addSuite<tVideoControllerWidget>();
+    bank.addSuite<tVideoData>();
     bank.addSuite<tWorkflow>();
 
     //QGuiApplication app(argc, argv);

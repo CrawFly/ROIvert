@@ -93,6 +93,16 @@ public:
         }
         return ROIVertMat3D<T>(slicedata, 1, nrows, ncols);
     }
+    std::vector<T> getPixel(size_t r, size_t c) {
+        Q_ASSERT(r < nrows && c < ncols);
+        std::vector<T> ret(nframes);
+        for (size_t f = 0; f < nframes; ++f) {
+            ret[f] = data[f*nrows*ncols + r*ncols + c];
+        }
+        
+        return ret;
+    }
+
 
     static ROIVertMat3D<T> max(const ROIVertMat3D<T> &A, const ROIVertMat3D<T> &B) {
         Q_ASSERT(A.data.size() == B.data.size() &&
@@ -332,7 +342,22 @@ private:
 
 //void generatedatasets();
 void loaddataset(VideoData* data, datasettype = datasettype::ONESTACK, double framerate = 10., int downspace = 1, int downtime = 1);
-template<class Ta, class Tb> inline bool nearlyequal(Ta a, Tb b){ return abs(a - b) < EPS; }
+template<class Ta, class Tb> inline bool nearlyequal(Ta a, Tb b, double eps = EPS){ return abs(a - b) < eps; }
+template<class Ta, class Tb> inline bool nearlyequal(std::vector<Ta> a, std::vector<Tb> b, double eps = EPS){ 
+    if (a.size() != b.size())
+    {
+        return false;
+    }
+        
+    auto it1 = a.begin();
+    auto it2 = b.begin();
+    for (; it1 < a.end(); ++it1, ++it2) {
+        if (!nearlyequal(*it1, *it2, eps)) {
+            return false;
+        }
+    }
+    return true;
+}
 template<class T> std::vector<std::vector<T>> getMat2d(cv::Mat* mat) {
     auto sz = mat->size();
     std::vector<std::vector<T>> ret = std::vector<std::vector<T>>(sz.height);

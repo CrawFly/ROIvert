@@ -23,9 +23,9 @@ private slots:
 
     void tfr();
 
+    void ttrace();
     /*
     
-    void ttrace();
     void tdeadpixel();
 
     void tmultifile();

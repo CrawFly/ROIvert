@@ -1,6 +1,5 @@
 #include <QtTest/QtTest>
 #include <QJsonDocument>
-
 #include "tVideoData.h"
 #include "VideoData.h"
 #include "ROIVertEnums.h"
@@ -19,14 +18,31 @@ namespace {
         std::iota(vecExpectedRawData.begin(), vecExpectedRawData.end(), 1);
         return ROIVertMat3D<uint8_t>(vecExpectedRawData, nframes, height, width);
     }
-    ROIVertMat3D<uint8_t> getExpectedDff(size_t nframes, size_t height, size_t width) {
+
+    ROIVertMat3D<uint8_t> getExpectedRaw(VideoData* data) {
+        return getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
+    }
+    
+    ROIVertMat3D<double> getExpectedDff_double(size_t nframes, size_t height, size_t width) {
         auto raw = getExpectedRaw(nframes, height, width);
         auto mu = raw.getMeanProjection().cast<double>();
         auto expectedDff = (raw.cast<double>() - mu) / mu;
+        return expectedDff;
+    }
+    ROIVertMat3D<double> getExpectedDff_double(VideoData* data) {
+        return getExpectedDff_double(data->getNFrames(), data->getHeight(), data->getWidth());
+    }
+    ROIVertMat3D<uint8_t> getExpectedDff(size_t nframes, size_t height, size_t width) {
+        auto expectedDff = getExpectedDff_double(nframes, height, width);
         auto dffmin = expectedDff.globalMin(), dffmax = expectedDff.globalMax();
         auto expectedDffNative = (((expectedDff - dffmin) / (dffmax - dffmin)) * 255.).cast<uint8_t>();
         return expectedDffNative;
     }
+    ROIVertMat3D<uint8_t> getExpectedDff(VideoData* data) {
+        return getExpectedDff(data->getNFrames(), data->getHeight(), data->getWidth());
+    }
+
+
 }
 
 
@@ -67,19 +83,19 @@ void tVideoData::tload() {
         QCOMPARE(cvDffData[i].size().width, data->getWidth());
     }
     auto RawData = ROIVertMat3D<uint8_t>(cvRawData);
-    auto ExpectedRaw = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
+    auto ExpectedRaw = getExpectedRaw(data);
     QCOMPARE(RawData, ExpectedRaw);
 
     // compute expected df/f
     auto DffData = ROIVertMat3D<uint8_t>(cvDffData);
-    auto ExpectedDff = getExpectedDff(data->getNFrames(), data->getHeight(), data->getWidth());
+    auto ExpectedDff = getExpectedDff(data);
     bool issame = ROIVertMat3D<uint8_t>::almostequal(DffData, ExpectedDff, 2);
     QVERIFY(issame);
 }
 
 void tVideoData::tproj_raw() {
     loaddataset(data);
-    auto exp = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
+    auto exp = getExpectedRaw(data);
 
     auto cvActMin = data->get(false, static_cast<int>(VideoData::projection::MIN)+1, 0);
     ROIVertMat3D<uint8_t> ActMin(std::vector<cv::Mat>({ cvActMin }));
@@ -98,7 +114,7 @@ void tVideoData::tproj_raw() {
 }
 void tVideoData::tproj_dff() {
     loaddataset(data);
-    auto exp = getExpectedDff(data->getNFrames(), data->getHeight(), data->getWidth());
+    auto exp = getExpectedDff(data);
 
     auto cvActMin = data->get(true, static_cast<int>(VideoData::projection::MIN)+1, 0);
     ROIVertMat3D<uint8_t> ActMin(std::vector<cv::Mat>({ cvActMin }));
@@ -135,7 +151,6 @@ void tVideoData::tdowns() {
     QCOMPARE(data->getdsTime(), 1);
     QCOMPARE(data->getHeight(), 2);
     QCOMPARE(data->getWidth(), 3);
-
     {
         auto cvActData = data->get(false, 0, 0);
         auto ActData = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ cvActData });
@@ -173,8 +188,6 @@ void tVideoData::tdownt() {
     QCOMPARE(data->getdsTime(), 2);
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
-
-
     auto expraw = getExpectedRaw(8, 5, 6);
     
     for (size_t i = 0; i < 4; ++i) {
@@ -184,8 +197,6 @@ void tVideoData::tdownt() {
         QCOMPARE(ActData, ExpData);
     }
 }
-
-
 
 void tVideoData::tfr() {
     loaddataset(data);
@@ -198,30 +209,83 @@ void tVideoData::tfr() {
     QCOMPARE(data->getTMax(), .5);
 }
 
-/*
 void tVideoData::ttrace() {
-    {
-        auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
-        for (size_t i = 0; i < trace.size().width; ++i) {
-            QVERIFY(std::abs(trace.at<float>(0, i) - roiwholefield[i]) < .001);
-        }
+    loaddataset(data);
+    
+    { // One Pixel ROI:
+        auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 2, 2), { QPoint(0, 0), QPoint(2, 2) });
+        ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+        auto Act = tracemat.getAsVectors()[0][0];
+        auto Exp = getExpectedDff_double(data).getPixel(0,0);
+        QVERIFY(nearlyequal(Act, Exp));
     }
-    {
-        // Testing ellipse with such a small size doesn't make much sense. This ended up cropping out two points (top and bottom left corners)
-        // Not sure if there's a pixel offset issue wherein we should also be cropping out the right side?
-        auto trace = data->computeTrace(ROIVert::SHAPE::ELLIPSE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
-        for (size_t i = 0; i < trace.size().width; ++i) {
-            QVERIFY(std::abs(trace.at<float>(0, i) - roiellipse[i]) < .001);
+    { // 1x2 ROI:
+        auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 3, 2), { QPoint(0, 0), QPoint(3, 2) });
+        ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+        auto Act = tracemat.getAsVectors()[0][0];
+        
+        auto Exp1 = getExpectedDff_double(data).getPixel(0,0);
+        auto Exp2 = getExpectedDff_double(data).getPixel(0,1);
+        std::vector<double> Exp(Exp1.size());
+        for (size_t i = 0; i < Exp.size(); ++i) {
+            Exp[i] = (Exp1[i] + Exp2[i])/2.;
         }
+        QVERIFY(nearlyequal(Act, Exp));
     }
-    {
-        auto trace = data->computeTrace(ROIVert::SHAPE::POLYGON, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(0,5), QPoint(5,5) });
-        for (size_t i = 0; i < trace.size().width; ++i) {
-            QVERIFY(std::abs(trace.at<float>(0, i) - roitril[i]) < .001);
+    { // WholeField:
+        auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0, 0), QPoint(7, 6) });
+        ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+        auto Act = tracemat.getAsVectors()[0][0];
+
+        auto dff = getExpectedDff_double(data);
+        std::vector<double> Exp(data->getNFrames(), 0);
+        for (size_t i = 0; i < data->getHeight(); ++i) {
+            for (size_t j = 0; j < data->getWidth(); ++j) {
+                auto pixel = dff.getPixel(i, j);
+                for (size_t f = 0; f < pixel.size(); ++f) {
+                    Exp[f] += pixel[f];
+                }
+            }
         }
+        for (auto& val : Exp) {
+            val /= (data->getWidth() * data->getHeight());
+        }
+        QVERIFY(nearlyequal(Act, Exp));
     }
+    { // WholeField Ellipse: (note that ellipses are weird when things are so small)
+        auto trace = data->computeTrace(ROIVert::SHAPE::ELLIPSE, QRect(0, 0, 6, 5), { QPoint(0, 0), QPoint(6, 5) });
+        ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+        auto Act = tracemat.getAsVectors()[0][0];
+
+        auto dff = getExpectedDff_double(data);
+        std::vector<double> Exp(data->getNFrames(), 0);
+
+        // row, col to be included (note
+        std::vector<std::pair<size_t, size_t>> pixlist = {
+                          {0,2},
+                   {1,1}, {1,2}, {1,3},
+            {2,0}, {2,1}, {2,2}, {2,3}, {2,4},
+                   {3,1}, {3,2}, {3,3}
+        };
+
+        for (const auto& [row, col] : pixlist) {
+            auto pixel = dff.getPixel(row, col);
+            for (size_t f = 0; f < pixel.size(); ++f) {
+                Exp[f] += pixel[f];
+            }
+        }
+
+        for (auto& val : Exp) {
+            val /= pixlist.size();
+        }
+        
+        QVERIFY(nearlyequal(Act, Exp));
+    }
+
+    // todo: poly
 }
 
+/*
 void tVideoData::tdeadpixel() {
     QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata_deadpix.tiff" };
     data->load(f, 1, 1, false);
