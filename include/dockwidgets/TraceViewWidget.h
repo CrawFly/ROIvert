@@ -24,7 +24,7 @@ public:
 
     void scrollToChart(TraceChartWidget*);
     double makeAllTimeLimitsAuto();
-    void updateTMax();
+    void updateTMax(float tmax);
 
 signals:
     void keyPressed(int key, Qt::KeyboardModifiers mod);

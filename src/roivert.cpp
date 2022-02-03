@@ -154,7 +154,9 @@ void Roivert::loadVideo(std::vector<std::pair<QString,size_t>> filenameframelist
     impl->imageview->setEnabled(true);
     impl->stylewidget->setContentsEnabled(true);
     impl->fileiowidget->setContentsEnabled(true);
-
+    
+    
+    impl->traceviewwidget->updateTMax(impl->viddata->getTMax());
     updateContrastWidget(impl->vidctrl->isDff());
     QGuiApplication::restoreOverrideCursor();
 }
@@ -171,15 +173,6 @@ void Roivert::changeFrame(const size_t frame)
         QImage qimg(proc.data, proc.cols, proc.rows, proc.step, fmt);
         impl->imageview->setImage(qimg);
     }
-}
-void Roivert::frameRateChanged(double frameRate)
-{
-    impl->vidctrl->setFrameRate(frameRate / impl->viddata->getdsTime());
-    impl->viddata->setFrameRate(frameRate / impl->viddata->getdsTime());
-    impl->traceviewwidget->updateTMax();
-    
-
-    impl->rois->updateROITraces();
 }
 
 void Roivert::updateContrastWidget(bool isDff)

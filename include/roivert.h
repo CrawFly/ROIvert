@@ -29,6 +29,5 @@ private:
     std::unique_ptr<pimpl> impl;
 
     void doConnect();
-    void frameRateChanged(double frameRate);
     void updateContrastWidget(bool isDff);
 };

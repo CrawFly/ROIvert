@@ -113,6 +113,8 @@ struct TraceViewWidget::pimpl
         ridgeChart->getXAxis()->setManualLimits(tmin, tmax);
         ridgeChart->updateStyle();
     };
+
+    float tmaxifnocharts;
 private:
     // todo: make these all unique/scoped (be careful with order)
     QTabWidget* tab{ new QTabWidget };
@@ -196,11 +198,16 @@ void TraceViewWidget::updateMinimumHeight() {
         impl->chartcontrols->changeMinimumLineChartHeight(minheight);
     }
 }
-void TraceViewWidget::updateTMax() {
+void TraceViewWidget::updateTMax(float tmax) {
+    impl->tmaxifnocharts = tmax;
     impl->chartcontrols->setAutoTMax();
+
 }
 double TraceViewWidget::makeAllTimeLimitsAuto() {
     auto charts = impl->getLineCharts();
+    if (charts.empty()) {
+        return impl->tmaxifnocharts;
+    }
     for (auto& chart : charts) {
         auto cs = chart->getStyle();
         cs->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);

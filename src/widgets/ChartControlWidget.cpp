@@ -26,6 +26,7 @@ struct ChartControlWidget::pimpl {
         cmdAutoTimeRange.setCheckable(true);
         cmdAutoTimeRange.setChecked(true);
 
+        spinTMax.setMaximum(86400);
     }
 
     void doLayout() {
