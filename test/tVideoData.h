@@ -13,7 +13,9 @@ private slots:
 
     void tload();
     void tload_data();
-    void tproj();
+    void tproj_raw();
+    void tproj_dff();
+
 
     /*
     void tdowns();

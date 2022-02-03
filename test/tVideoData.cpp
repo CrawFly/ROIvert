@@ -77,29 +77,45 @@ void tVideoData::tload() {
     QVERIFY(issame);
 }
 
-
-
-void tVideoData::tproj() {
+void tVideoData::tproj_raw() {
     loaddataset(data);
-    auto expraw = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
+    auto exp = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
 
-    auto cvActRawMinProj = data->get(false, static_cast<int>(VideoData::projection::MIN)+1, 0);
-    ROIVertMat3D<uint8_t> ActRawMinProj(std::vector<cv::Mat>({ cvActRawMinProj }));
-    auto ExpRawMinProj = expraw.getMinProjection();
-    QCOMPARE(ActRawMinProj, ExpRawMinProj);
+    auto cvActMin = data->get(false, static_cast<int>(VideoData::projection::MIN)+1, 0);
+    ROIVertMat3D<uint8_t> ActMin(std::vector<cv::Mat>({ cvActMin }));
+    auto ExpMin = exp.getMinProjection();
+    QCOMPARE(ActMin, ExpMin);
 
-    auto cvActRawMaxProj = data->get(false, static_cast<int>(VideoData::projection::MAX)+1, 0);
-    ROIVertMat3D<uint8_t> ActRawMaxProj(std::vector<cv::Mat>({ cvActRawMaxProj }));
-    auto ExpRawMaxProj = expraw.getMaxProjection();
-    QCOMPARE(ActRawMaxProj, ExpRawMaxProj);
+    auto cvActMax = data->get(false, static_cast<int>(VideoData::projection::MAX)+1, 0);
+    ROIVertMat3D<uint8_t> ActMax(std::vector<cv::Mat>({ cvActMax }));
+    auto ExpMax = exp.getMaxProjection();
+    QCOMPARE(ActMax, ExpMax);
 
-    auto cvActRawMeanProj = data->get(false, static_cast<int>(VideoData::projection::MEAN)+1, 0);
-    ROIVertMat3D<uint8_t> ActRawMeanProj(std::vector<cv::Mat>({ cvActRawMeanProj }));
-    auto ExpRawMeanProj = expraw.getMeanProjection();
-    QCOMPARE(ActRawMeanProj, ExpRawMeanProj);
+    auto cvActMean = data->get(false, static_cast<int>(VideoData::projection::MEAN)+1, 0);
+    ROIVertMat3D<uint8_t> ActMean(std::vector<cv::Mat>({ cvActMean }));
+    auto ExpMean = exp.getMeanProjection();
+    QCOMPARE(ActMean, ExpMean);
+}
+void tVideoData::tproj_dff() {
+    loaddataset(data);
+    auto exp = getExpectedDff(data->getNFrames(), data->getHeight(), data->getWidth());
 
-    // todo: sumproj
-    // todo: dff
+    auto cvActMin = data->get(true, static_cast<int>(VideoData::projection::MIN)+1, 0);
+    ROIVertMat3D<uint8_t> ActMin(std::vector<cv::Mat>({ cvActMin }));
+    auto ExpMin = exp.getMinProjection();
+    QVERIFY(ROIVertMat3D<uint8_t>::almostequal(ActMin, ExpMin, 2));
+    
+
+    auto cvActMax = data->get(true, static_cast<int>(VideoData::projection::MAX)+1, 0);
+    ROIVertMat3D<uint8_t> ActMax(std::vector<cv::Mat>({ cvActMax }));
+    auto ExpMax = exp.getMaxProjection();
+    QVERIFY(ROIVertMat3D<uint8_t>::almostequal(ActMax, ExpMax, 2));
+    
+    auto cvActMean = data->get(true, static_cast<int>(VideoData::projection::MEAN)+1, 0);
+    ROIVertMat3D<uint8_t> ActMean(std::vector<cv::Mat>({ cvActMean }));
+    auto cvExpMean = cv::Mat::zeros(cvActMean.size(), cvActMean.type());
+    ROIVertMat3D<uint8_t> ExpMean(std::vector<cv::Mat>({ cvExpMean }));
+    QCOMPARE(ActMean, ExpMean);
 }
 
 /*
