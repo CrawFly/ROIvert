@@ -9,7 +9,6 @@ class tFileIO : public QObject
 public:
     tFileIO();
 
-    /*
 private slots:
     void init();
     void cleanup();
@@ -18,10 +17,10 @@ private slots:
     void timportrois();
     void texportcharts_data();
     void texportcharts();
-    */
+
 private:
-    //struct objptrs;
-    //std::unique_ptr<objptrs> ptrs;
+    struct objptrs;
+    std::unique_ptr<objptrs> ptrs;
     FileIO* fileio;
 };
 // void exportROIs(QString filename) const;

@@ -10,17 +10,9 @@
 #include "dockwidgets/TraceViewWidget.h"
 #include "VideoData.h"
 
-class filescopeguard {
-public:
-    filescopeguard(QFile* f) : file(f) { }
-    ~filescopeguard() { file->remove(); }
-private:
-    QFile* file;
-};
+#include "testUtils.h"
 
-tFileIO::tFileIO() { };
 
-/*
 struct tFileIO::objptrs {
     ImageView iview;
     TraceViewWidget tview;
@@ -30,7 +22,7 @@ struct tFileIO::objptrs {
 
     objptrs() {
         QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata.tiff" };
-        vdata.load(f, 1, 1, false);
+        loaddataset(&vdata);
         vdata.setFrameRate(1);
 
         rois = new ROIs(&iview, &tview, &vdata);
@@ -105,9 +97,9 @@ void tFileIO::texporttraces() {
     QVERIFY(actstring.startsWith("\"Time\",\"ROI 1\",\"ROI 2\",\"ROI 3\"\n"));
 
     auto splitstring = actstring.split('\n');
-    QCOMPARE(splitstring.length(), 9); /// header + 7 frames + newline at end
+    QCOMPARE(splitstring.length(), 10); /// header + 8 frames + newline at end
 
-    for (size_t i = 0; i < 7; ++i) {
+    for (size_t i = 0; i < 8; ++i) {
         auto splitsplit = splitstring[i + 1].split(',');
         QVERIFY(!splitsplit.isEmpty());
         QCOMPARE(splitsplit[0], QString::number(i));
@@ -171,8 +163,10 @@ void tFileIO::timportrois() {
     auto& shp = (*rois2)[0].graphicsShape;
     (*rois2)[0].Trace->updateTrace(ROIVert::SHAPE::RECTANGLE, shp->getTightBoundingBox(), shp->getVertices());
     auto t1 = (*rois2)[0].Trace->getTrace();
-    QCOMPARE(t1.size(), 7);
-    QVERIFY(std::abs(t1[0] - 0.273959) < .00001);
+    QCOMPARE(t1.size(), 8);
+
+    QVERIFY(nearlyequal(t1[0], -0.9019022584));
+
 }
 
 void tFileIO::texportcharts_data() {
@@ -204,5 +198,3 @@ void tFileIO::texportcharts() {
     QCOMPARE(im.size().width(), 500);
     QCOMPARE(im.size().height(), 600);
 }
-
-*/
