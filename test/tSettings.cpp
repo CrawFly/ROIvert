@@ -49,7 +49,7 @@ void tSettings::checkWidgetValuesDefault() {
     auto linewidth = r->findChild<QSpinBox*>("linewidth");
 
     QCOMPARE(spinChartQuality->value(), 100);
-    QCOMPARE(spinFrameRate->value(), 30);
+    QCOMPARE(spinFrameRate->value(), 10);
     QCOMPARE(isw->getContrast(), ROIVert::contrast({ 0, 1, 1 }));
     QCOMPARE(linewidth->value(), 2);
 }
