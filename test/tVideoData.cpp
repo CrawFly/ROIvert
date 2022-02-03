@@ -6,6 +6,30 @@
 #include "ROIVertEnums.h"
 #include "testUtils.h"
 
+namespace {
+    // ** a little matrix type would help clean this all up!
+    // ... just make it a flat vector
+    // ... method to get a projection
+    // ... method to find grand max/min
+    // ... method to convert between double and uint8_t
+    // ... method to convert to vector vector vector
+    // 
+    ROIVertMat3D<uint8_t> getExpectedRaw(size_t nframes, size_t height, size_t width) {
+        std::vector<uint8_t> vecExpectedRawData(nframes * height * width);
+        std::iota(vecExpectedRawData.begin(), vecExpectedRawData.end(), 1);
+        return ROIVertMat3D<uint8_t>(vecExpectedRawData, nframes, height, width);
+    }
+    ROIVertMat3D<uint8_t> getExpectedDff(size_t nframes, size_t height, size_t width) {
+        auto raw = getExpectedRaw(nframes, height, width);
+        auto mu = raw.getMeanProjection().cast<double>();
+        auto expectedDff = (raw.cast<double>() - mu) / mu;
+        auto dffmin = expectedDff.globalMin(), dffmax = expectedDff.globalMax();
+        auto expectedDffNative = (((expectedDff - dffmin) / (dffmax - dffmin)) * 255.).cast<uint8_t>();
+        return expectedDffNative;
+    }
+}
+
+
 void tVideoData::init() {
     data = new VideoData;
 }
@@ -21,7 +45,6 @@ void tVideoData::tload_data() {
     QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);
 }
 
-
 void tVideoData::tload() {
     QFETCH(int, dstype_int);
     auto dstype = static_cast<datasettype>(dstype_int);
@@ -32,72 +55,54 @@ void tVideoData::tload() {
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
 
-    // now compare the matrix
-    std::vector<std::vector<std::vector<uint8_t>>> expected(data->getNFrames());
-    std::vector<uint8_t> expected_flat(data->getHeight() * data->getWidth() * data->getNFrames());
-    std::iota(expected_flat.begin(), expected_flat.end(), 1);
-    
-    size_t cntr = 0;
-    for (auto& frame : expected) {
-        frame.resize(data->getHeight());
-        for (auto& row : frame) {
-            row.resize(data->getWidth());
-            for (auto& val : row) {
-                val = expected_flat[cntr++];
-            }
-        }
+
+    std::vector<cv::Mat> cvRawData(data->getNFrames());
+    std::vector<cv::Mat> cvDffData(data->getNFrames());
+    for (size_t i = 0; i < data->getNFrames(); ++i) {
+        cvRawData[i] = data->get(false, 0, i);
+        cvDffData[i] = data->get(true, 0, i);
+        QCOMPARE(cvRawData[i].size().height, data->getHeight());
+        QCOMPARE(cvRawData[i].size().width, data->getWidth());
+        QCOMPARE(cvDffData[i].size().height, data->getHeight());
+        QCOMPARE(cvDffData[i].size().width, data->getWidth());
     }
-    for (size_t i = 0; i < data->getNFrames(); ++i) { 
-        cv::Mat mframe = data->get(false, 0, i);
-        QCOMPARE(mframe.size().height, data->getHeight());
-        QCOMPARE(mframe.size().width, data->getWidth());
-        auto frame = getMat2d<uint8_t>(&mframe);
-        QCOMPARE(frame, expected[i]);        
-    }
+    auto RawData = ROIVertMat3D<uint8_t>(cvRawData);
+    auto ExpectedRaw = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
+    QCOMPARE(RawData, ExpectedRaw);
+
+    // compute expected df/f
+    auto DffData = ROIVertMat3D<uint8_t>(cvDffData);
+    auto ExpectedDff = getExpectedDff(data->getNFrames(), data->getHeight(), data->getWidth());
+    bool issame = ROIVertMat3D<uint8_t>::almostequal(DffData, ExpectedDff, 2);
+    QVERIFY(issame);
 }
 
 
-/*
-    // if this test needs debugging, consider moving to the less performant but more debuggable strategy used for tdown*
-    QCOMPARE(data->getNFrames(), 7);
-    QCOMPARE(data->getdsSpace(), 1);
-    QCOMPARE(data->getdsTime(), 1);
-    QCOMPARE(data->getHeight(), 5);
-    QCOMPARE(data->getWidth(), 6);
-    QFETCH(int, frame);
-
-    double minval, maxval;
-
-    cv::minMaxLoc(data->get(false, 0, frame) - expraw[frame], &minval, &maxval);
-    QCOMPARE(maxval, 0);
-
-    cv::minMaxLoc(data->get(true, 0, frame) - expdffi[frame], &minval, &maxval);
-    QVERIFY(maxval <= 1); // allow off-by-one errors, due to rounding (?)
-}
 
 void tVideoData::tproj() {
-    double minval, maxval;
-    auto actproj = data->get(false, (int)VideoData::projection::MEAN + 1, 0); // This interface is somewhat unclear!
-    cv::minMaxLoc(actproj - expmeanraw, &minval, &maxval);
-    QCOMPARE(maxval, 0);
+    loaddataset(data);
+    auto expraw = getExpectedRaw(data->getNFrames(), data->getHeight(), data->getWidth());
 
-    actproj = data->get(false, (int)VideoData::projection::MIN + 1, 0);
-    cv::minMaxLoc(actproj - expminraw, &minval, &maxval);
-    QCOMPARE(maxval, 0);
+    auto cvActRawMinProj = data->get(false, static_cast<int>(VideoData::projection::MIN)+1, 0);
+    ROIVertMat3D<uint8_t> ActRawMinProj(std::vector<cv::Mat>({ cvActRawMinProj }));
+    auto ExpRawMinProj = expraw.getMinProjection();
+    QCOMPARE(ActRawMinProj, ExpRawMinProj);
 
-    actproj = data->get(false, (int)VideoData::projection::MAX + 1, 0);
-    cv::minMaxLoc(actproj - expmaxraw, &minval, &maxval);
-    QCOMPARE(maxval, 0);
+    auto cvActRawMaxProj = data->get(false, static_cast<int>(VideoData::projection::MAX)+1, 0);
+    ROIVertMat3D<uint8_t> ActRawMaxProj(std::vector<cv::Mat>({ cvActRawMaxProj }));
+    auto ExpRawMaxProj = expraw.getMaxProjection();
+    QCOMPARE(ActRawMaxProj, ExpRawMaxProj);
 
-    actproj = data->get(true, (int)VideoData::projection::MIN + 1, 0);
-    cv::minMaxLoc(actproj - expmindff, &minval, &maxval);
-    QVERIFY(maxval <= 1);
+    auto cvActRawMeanProj = data->get(false, static_cast<int>(VideoData::projection::MEAN)+1, 0);
+    ROIVertMat3D<uint8_t> ActRawMeanProj(std::vector<cv::Mat>({ cvActRawMeanProj }));
+    auto ExpRawMeanProj = expraw.getMeanProjection();
+    QCOMPARE(ActRawMeanProj, ExpRawMeanProj);
 
-    actproj = data->get(true, (int)VideoData::projection::MAX + 1, 0);
-    cv::minMaxLoc(actproj - expmaxdff, &minval, &maxval);
-    QVERIFY(maxval <= 1);
+    // todo: sumproj
+    // todo: dff
 }
 
+/*
 void tVideoData::tdowns_data() {
     // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
     QTest::addColumn<int>("frame");
