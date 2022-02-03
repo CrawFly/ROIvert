@@ -10,7 +10,6 @@ class tROIs : public QObject
 {
     Q_OBJECT
 
-        /*
 private slots:
     void init();
     void initTestCase();
@@ -24,7 +23,7 @@ private slots:
     void tmatchy();
     void tpalettepush();
     void tchartclicked();
-*/
+
 private:
     ROIs* rois;
     VideoData* data;
