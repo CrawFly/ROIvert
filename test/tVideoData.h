@@ -24,19 +24,11 @@ private slots:
     void tfr();
 
     void ttrace();
-    /*
-    
     void tdeadpixel();
-
-    void tmultifile();
-    void tmultifile_data();
-
-    void temptyfilelist();
+ 
     void tgetoverflow();
     void tnowidthtrace();
-
     void thistogram();
-*/
 private:
     VideoData* data;
 };

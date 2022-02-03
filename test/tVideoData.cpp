@@ -211,12 +211,13 @@ void tVideoData::tfr() {
 
 void tVideoData::ttrace() {
     loaddataset(data);
+        auto dff = getExpectedDff_double(data);
     
     { // One Pixel ROI:
         auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 2, 2), { QPoint(0, 0), QPoint(2, 2) });
         ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
         auto Act = tracemat.getAsVectors()[0][0];
-        auto Exp = getExpectedDff_double(data).getPixel(0,0);
+        auto Exp = dff.getPixel(0,0);
         QVERIFY(nearlyequal(Act, Exp));
     }
     { // 1x2 ROI:
@@ -224,8 +225,8 @@ void tVideoData::ttrace() {
         ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
         auto Act = tracemat.getAsVectors()[0][0];
         
-        auto Exp1 = getExpectedDff_double(data).getPixel(0,0);
-        auto Exp2 = getExpectedDff_double(data).getPixel(0,1);
+        auto Exp1 = dff.getPixel(0,0);
+        auto Exp2 = dff.getPixel(0,1);
         std::vector<double> Exp(Exp1.size());
         for (size_t i = 0; i < Exp.size(); ++i) {
             Exp[i] = (Exp1[i] + Exp2[i])/2.;
@@ -237,7 +238,6 @@ void tVideoData::ttrace() {
         ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
         auto Act = tracemat.getAsVectors()[0][0];
 
-        auto dff = getExpectedDff_double(data);
         std::vector<double> Exp(data->getNFrames(), 0);
         for (size_t i = 0; i < data->getHeight(); ++i) {
             for (size_t j = 0; j < data->getWidth(); ++j) {
@@ -256,11 +256,8 @@ void tVideoData::ttrace() {
         auto trace = data->computeTrace(ROIVert::SHAPE::ELLIPSE, QRect(0, 0, 6, 5), { QPoint(0, 0), QPoint(6, 5) });
         ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
         auto Act = tracemat.getAsVectors()[0][0];
-
-        auto dff = getExpectedDff_double(data);
         std::vector<double> Exp(data->getNFrames(), 0);
 
-        // row, col to be included (note
         std::vector<std::pair<size_t, size_t>> pixlist = {
                           {0,2},
                    {1,1}, {1,2}, {1,3},
@@ -282,17 +279,14 @@ void tVideoData::ttrace() {
         QVERIFY(nearlyequal(Act, Exp));
     }
 
-    // todo: poly
     {
         auto trace = data->computeTrace(ROIVert::SHAPE::POLYGON, QRect(0, 0, 7, 6), { QPoint(0, 0), QPoint(7, 6), QPoint(0, 6)});
         
         ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
         auto Act = tracemat.getAsVectors()[0][0];
 
-        auto dff = getExpectedDff_double(data);
         std::vector<double> Exp(data->getNFrames(), 0);
 
-        // row, col to be included (note
         std::vector<std::pair<size_t, size_t>> pixlist = {
             {0,0},
             {1,0}, {1,1},
@@ -315,47 +309,49 @@ void tVideoData::ttrace() {
     }
 }
 
-/*
 void tVideoData::tdeadpixel() {
-    QStringList f = { TEST_RESOURCE_DIR "/roiverttestdata_deadpix.tiff" };
-    data->load(f, 1, 1, false);
-    auto m = data->get(true, 0, 0);
-    auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
-    for (size_t i = 0; i < trace.size().width; ++i) {
-        QVERIFY(!isnan(trace.at<float>(0, i)));
+    // This test guards against a bug where a dead pixel killed traces (due to div0)
+    loaddataset(data, datasettype::DEADPIX);
+    auto dff_frame0 = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ data->get(true, 0, 1)} );
+    QCOMPARE(dff_frame0.getPixel(0, 0)[0], 0);
+    QCOMPARE(dff_frame0.getPixel(0, 1)[0], 37);
+    QCOMPARE(dff_frame0.getPixel(0, 2)[0], 0);
+
+    auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0, 0), QPoint(7, 6) });
+    ROIVertMat3D<float> tracemat(std::vector<cv::Mat>({ trace }));
+    auto Act = tracemat.getAsVectors()[0][0];
+    auto dff = getExpectedDff_double(data);
+    std::vector<double> Exp(data->getNFrames(), 0);
+
+    
+    std::vector<std::pair<size_t, size_t>> pixlist = {
+               {0,1},        {0,3},        {0,5},
+        {1,0}, {1,1}, {1,2}, {1,3}, {1,4}, {1,5},
+               {2,1},        {2,3},        {2,5},
+        {3,0}, {3,1}, {3,2}, {3,3}, {3,4}, {3,5},
+               {4,1},        {4,3},        {4,5}
+    };
+
+    for (const auto& [row, col] : pixlist) {
+        auto pixel = dff.getPixel(row, col);
+        for (size_t f = 0; f < pixel.size(); ++f) {
+            Exp[f] += pixel[f];
+        }
     }
-}
 
-void tVideoData::tmultifile_data() {
-    QTest::addColumn<int>("frame");
-    for (int i = 0; i < 7; ++i) {
-        QTest::newRow(std::to_string(i).c_str()) << i;
+    for (auto& val : Exp) {
+        val /= pixlist.size();
     }
+    QVERIFY(nearlyequal(Act, Exp));
 }
-void tVideoData::temptyfilelist() {
-    // an empty file list is currently a no-op, i.e. all data unchanged
-
-    QStringList f;
-    data->load(f, 1, 1, true);
-
-    QCOMPARE(data->getNFrames(), 7);
-    QCOMPARE(data->getdsSpace(), 1);
-    QCOMPARE(data->getdsTime(), 1);
-    QCOMPARE(data->getHeight(), 5);
-    QCOMPARE(data->getWidth(), 6);
-
-    auto m = data->get(false, 0, 0);
-    QCOMPARE(m.size().height, 5);
-    QCOMPARE(m.size().width, 6);
-}
-
 void tVideoData::tgetoverflow() {
+    loaddataset(data);
     auto m = data->get(false, 0, 100);
     QCOMPARE(m.size().height, 0);
     QCOMPARE(m.size().width, 0);
 }
-
 void tVideoData::tnowidthtrace() {
+    loaddataset(data);
     auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 0, 0), { QPoint(0,0), QPoint(0,0) });
     for (size_t i = 0; i < 7; ++i) {
         QCOMPARE(trace.at<float>(i), 0);
@@ -363,16 +359,16 @@ void tVideoData::tnowidthtrace() {
 }
 
 void tVideoData::thistogram() {
+    loaddataset(data);
     std::vector<float> histogram(255);
     data->getHistogram(true, histogram);
 #ifdef NDEBUG
     QCOMPARE(histogram.size(), 256);
-    QCOMPARE(histogram[0], 3);
+    QCOMPARE(histogram[0], 2);
     auto histsum = std::accumulate(histogram.begin(), histogram.end(), 0);
-    QCOMPARE(histsum, 210);
+    QCOMPARE(histsum, 240);
 #else
     QEXPECT_FAIL("", "opencv histograms fail sporadically in DEBUG builds", Abort);
     QCOMPARE(1, 2);
 #endif // NDEBUG
 }
-*/
