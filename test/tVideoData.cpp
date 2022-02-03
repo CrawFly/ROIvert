@@ -118,68 +118,77 @@ void tVideoData::tproj_dff() {
     QCOMPARE(ActMean, ExpMean);
 }
 
-/*
 void tVideoData::tdowns_data() {
-    // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
-    QTest::addColumn<int>("frame");
-    QTest::addColumn<int>("row");
-    QTest::addColumn<int>("col");
-    for (int i = 0; i < 7; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            for (int k = 0; k < 2; ++k) {
-                const auto name = "fr:" + std::to_string(i) + ", row:" + std::to_string(j) + ", col:" + std::to_string(k);
-                QTest::newRow(name.c_str()) << i << j << k;
-            }
-        }
-    }
+    QTest::addColumn<int>("dstype_int");
+    QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK);
+    QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES);
+    QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);
 }
 
 void tVideoData::tdowns() {
-    loadmultipage(1, 2);
-
-    QCOMPARE(data->getNFrames(), 7);
+    QFETCH(int, dstype_int);
+    auto dstype = static_cast<datasettype>(dstype_int);
+    loaddataset(data, dstype, 10., 2);
+    
+    QCOMPARE(data->getNFrames(), 8);
     QCOMPARE(data->getdsSpace(), 2);
     QCOMPARE(data->getdsTime(), 1);
     QCOMPARE(data->getHeight(), 2);
     QCOMPARE(data->getWidth(), 3);
 
-    QFETCH(int, frame);
-    QFETCH(int, row);
-    QFETCH(int, col);
-
-    auto m = data->get(false, 0, frame);
-    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame].at<uint8_t>(row * 2, col * 2));
-}
-
-void tVideoData::tdownt_data() {
-    // data is just frame number...that gives a way to avoid a loop in the test and have debug information on a fail
-    QTest::addColumn<int>("frame");
-    QTest::addColumn<int>("row");
-    QTest::addColumn<int>("col");
-    for (int i = 0; i < 3; ++i) {
-        for (int j = 0; j < 2; ++j) {
-            for (int k = 0; k < 2; ++k) {
-                const auto name = "fr:" + std::to_string(i) + ", row:" + std::to_string(j) + ", col:" + std::to_string(k);
-                QTest::newRow(name.c_str()) << i << j << k;
-            }
-        }
+    {
+        auto cvActData = data->get(false, 0, 0);
+        auto ActData = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ cvActData });
+        auto ExpData = ROIVertMat3D<uint8_t>({ 1, 3, 5, 13, 15, 17 }, 1, 2, 3);
+        QCOMPARE(ActData, ExpData);
+    }    
+    {
+        auto cvActData = data->get(false, 0, 7);
+        auto ActData = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ cvActData });
+        auto ExpData = ROIVertMat3D<uint8_t>({ 211, 213, 215, 223, 225, 227 }, 1, 2, 3);
+        QCOMPARE(ActData, ExpData);
+    }
+    {
+        auto cvActData = data->get(true, 0, 7);
+        auto ActData = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ cvActData });
+        auto ExpData = ROIVertMat3D<uint8_t>({ 255, 254, 251, 243, 241, 239 }, 1, 2, 3);
+        QCOMPARE(ActData, ExpData);
     }
 }
 
+void tVideoData::tdownt_data() {
+    QTest::addColumn<int>("dstype_int");
+    QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK);
+    QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES);
+    QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);
+}
+
 void tVideoData::tdownt() {
-    loadmultipage(2, 1);
-    QCOMPARE(data->getNFrames(), 3);
+    QFETCH(int, dstype_int);
+    auto dstype = static_cast<datasettype>(dstype_int);
+    loaddataset(data, dstype, 10., 1, 2);
+    
+    QCOMPARE(data->getNFrames(), 4);
     QCOMPARE(data->getdsSpace(), 1);
     QCOMPARE(data->getdsTime(), 2);
     QCOMPARE(data->getHeight(), 5);
     QCOMPARE(data->getWidth(), 6);
 
-    QFETCH(int, frame);
-    QFETCH(int, row);
-    QFETCH(int, col);
-    auto m = data->get(false, 0, frame);
-    QCOMPARE(m.at<uint8_t>(row, col), expraw[frame * 2 + 1].at<uint8_t>(row, col));
+
+    auto expraw = getExpectedRaw(8, 5, 6);
+    
+    for (size_t i = 0; i < 4; ++i) {
+        auto cvActData = data->get(false, 0, i);
+        auto ActData = ROIVertMat3D<uint8_t>(std::vector<cv::Mat>{ cvActData });
+        auto ExpData = expraw.getSlice(i*2);
+        QCOMPARE(ActData, ExpData);
+    }
 }
+
+
+
+
+/*
 
 void tVideoData::tfr() {
     data->setFrameRate(14);

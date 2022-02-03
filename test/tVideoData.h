@@ -10,18 +10,18 @@ class tVideoData : public QObject
 private slots:
     void init();
     void cleanup();
-
-    void tload();
+    
     void tload_data();
+    void tload();
     void tproj_raw();
     void tproj_dff();
-
+    
+    void tdowns_data();
+    void tdowns();
+    void tdownt_data();
+    void tdownt();
 
     /*
-    void tdowns();
-    void tdowns_data();
-    void tdownt();
-    void tdownt_data();
     void tfr();
     void ttrace();
     void tdeadpixel();

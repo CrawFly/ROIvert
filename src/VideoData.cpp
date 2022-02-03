@@ -247,13 +247,14 @@ struct VideoData::pimpl
                         {
                             cv::resize(incoming[cntr], incoming[cntr], incoming[cntr].size() / dsSpace, 0, 0, cv::INTER_NEAREST);
                         }
-                        rawdata[fr] = std::move(incoming[cntr++]);
+                        rawdata[fr] = std::move(incoming[cntr]);
                     }
                     else
                     {
                         // shouldn't end up here, this would happen if there was disagreement between header number of frames and what imreadmulti produces
-                        badframes.push_back(cntr++);
+                        badframes.push_back(cntr);
                     }
+                    cntr += dsTime;
                 }
             }
             else
