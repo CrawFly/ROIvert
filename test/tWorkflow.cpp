@@ -13,6 +13,10 @@
 #include <QKeyEvent>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QTreeView>
+#include <QTableView>
+#include <QFileSystemModel>
+
 
 #include "roivert.h"
 #include "dockwidgets/FileIOWidget.h"
@@ -20,6 +24,7 @@
 #include "dockwidgets/TraceViewWidget.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "ImageDataWindow.h"
+#include "ImageDataTableModel.h"
 #include "ImageView.h"
 #include "VideoData.h"
 #include "ROI/ROIShape.h"
@@ -28,6 +33,9 @@
 #include "ZoomPan.h"
 
 #include <QElapsedTimer>
+
+
+// todo: rewrite for new ImageDataWindow!
 
 namespace dw {
     ImageDataWindow* imagedata(Roivert* r) { return r->findChild<ImageDataWindow*>(); }
@@ -67,29 +75,35 @@ namespace {
         qApp->processEvents();
     }
 
-    void loaddataset(Roivert* r, int downtime = 1, int downspace = 1, int fr = 7) {
-        auto optFolder = dw::imagedata(r)->findChild<QRadioButton*>("optFolder");
-        auto optFile = dw::imagedata(r)->findChild<QRadioButton*>("optFile");
-        auto txtFilePath = dw::imagedata(r)->findChild<QLineEdit*>("txtFilePath");
+    void loaddataset(Roivert* r, int downtime = 1, int downspace = 1, int fr = 8) {
         auto cmdLoad = dw::imagedata(r)->findChild<QPushButton*>("cmdLoad");
         auto spinDownTime = dw::imagedata(r)->findChild<QSpinBox*>("spinDownTime");
         auto spinDownSpace = dw::imagedata(r)->findChild<QSpinBox*>("spinDownSpace");
         auto spinFrameRate = dw::imagedata(r)->findChild<QDoubleSpinBox*>("spinFrameRate");
+        auto folderview = dw::imagedata(r)->findChild<QTreeView*>("folderview");
+        auto fileview = dw::imagedata(r)->findChild<QTableView*>("fileview");
+        auto fsmodel = dw::imagedata(r)->findChild<QFileSystemModel*>("fsmodel");
+        auto immodel = dw::imagedata(r)->findChild<ImageDataTableModel*>("immodel");
+        dw::imagedata(r)->show();
 
-        QVERIFY(optFolder);
-        QVERIFY(optFile);
-        QVERIFY(txtFilePath);
         QVERIFY(cmdLoad);
         QVERIFY(spinDownTime);
         QVERIFY(spinDownSpace);
         QVERIFY(spinFrameRate);
+        QVERIFY(folderview);
+        QVERIFY(fileview);
+        QVERIFY(fsmodel);
 
-        optFolder->setChecked(false);
-        optFile->setChecked(true);
         spinDownTime->setValue(downtime);
         spinDownSpace->setValue(downspace);
         spinFrameRate->setValue(fr);
-        txtFilePath->setText(TEST_RESOURCE_DIR "/roiverttestdata.tiff");
+        
+        auto folderind = fsmodel->index(TEST_RESOURCE_DIR);
+        folderview->setCurrentIndex(folderind);
+        fileview->selectionModel()->clearSelection();
+        auto fileind = immodel->getIndexFromName("roivert_testdata_onestack.tiff");
+        fileview->selectionModel()->select(fileind, QItemSelectionModel::SelectionFlag::Select);
+
         update();
         cmdLoad->click();
         update();
@@ -174,29 +188,27 @@ void tWorkflow::cleanup() {
 
 void tWorkflow::tload() {
     loaddataset(r);
-    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
+
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 8, 1000);
     QCOMPARE(vdata(r)->getdsSpace(), 1);
     QCOMPARE(vdata(r)->getdsTime(), 1);
-    QCOMPARE(vdata(r)->get(false, 0, 0).at<uint8_t>(0), 208);
-    QCOMPARE(vdata(r)->get(true, 0, 0).at<uint8_t>(0), 161);
+    QCOMPARE(vdata(r)->get(false, 0, 0).at<uint8_t>(0), 1);
+    QCOMPARE(vdata(r)->get(false, 0, 1).at<uint8_t>(0), 31);
+    QCOMPARE(vdata(r)->get(true, 0, 0).at<uint8_t>(0), 0);
+    QCOMPARE(vdata(r)->get(true, 0, 1).at<uint8_t>(0), 37);
     QCOMPARE(vdata(r)->getTMax(), 1);
     QCOMPARE(vdata(r)->getWidth(), 6);
     QCOMPARE(vdata(r)->getHeight(), 5);
 
-    // changing framerate should have an instant effect
-    auto spinFrameRate = dw::imagedata(r)->findChild<QDoubleSpinBox*>("spinFrameRate");
-    spinFrameRate->setValue(14);
-    QCOMPARE(vdata(r)->getTMax(), .5);
-
     loaddataset(r, 2);
-    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 3, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 4, 1000);
     QCOMPARE(vdata(r)->getdsTime(), 2);
     QCOMPARE(vdata(r)->getdsSpace(), 1);
     QCOMPARE(vdata(r)->getWidth(), 6);
     QCOMPARE(vdata(r)->getHeight(), 5);
 
     loaddataset(r, 1, 2);
-    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 7, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(vdata(r)->getNFrames(), 8, 1000);
     QCOMPARE(vdata(r)->getdsTime(), 1);
     QCOMPARE(vdata(r)->getdsSpace(), 2);
     QCOMPARE(vdata(r)->getWidth(), 3);

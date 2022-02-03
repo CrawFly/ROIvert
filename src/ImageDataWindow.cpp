@@ -49,6 +49,12 @@ struct ImageDataWindow::pimpl
         connect(&immodel, &ImageDataTableModel::modelReset, [=]() {fileview.resizeColumnsToContents();});
         connect(fileview.selectionModel(), &QItemSelectionModel::selectionChanged, [&](const QItemSelection& selected, const QItemSelection) { updateLabel(); });
         connect(&spinFrameRate, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [&](double) { updateLabel();  });
+
+
+        // these are just for finding the objects in workflow tests
+        // these are just for finding the objects in workflow tests
+        fsmodel.setParent(top);
+        immodel.setParent(top); 
     }
 
     std::vector<std::pair<QString, size_t>> getSelectedData()
@@ -185,6 +191,7 @@ private:
             lay->addWidget(&cmdLoad);
             cmdCancel.setText(tr("Cancel"));
             cmdLoad.setText(tr("Load"));
+            cmdLoad.setObjectName("cmdLoad");
             cmdCancel.setAutoDefault(false);
 
             ret->addLayout(lay);
@@ -195,8 +202,10 @@ private:
         fsmodel.setRootPath(QDir::currentPath());
         fsmodel.setFilter(QDir::AllDirs | QDir::NoDotAndDotDot);
         fsmodel.setOption(QFileSystemModel::DontUseCustomDirectoryIcons, true);
+        fsmodel.setObjectName("fsmodel");
 
         immodel_proxy.setSourceModel(&immodel);
+        immodel.setObjectName("immodel");
 
     }
     void initviews() {
@@ -205,11 +214,13 @@ private:
         for (int i = 1; i < fsmodel.columnCount(); ++i) {
             folderview.hideColumn(i);
         }
+        folderview.setObjectName("folderview");
         
         fileview.setModel(&immodel_proxy);
         fileview.setSortingEnabled(true);
         fileview.sortByColumn(0,Qt::SortOrder::AscendingOrder);
         fileview.verticalHeader()->setVisible(false);
+        fileview.setObjectName("fileview");
     }
 
 
@@ -233,7 +244,6 @@ private:
 
 ImageDataWindow::ImageDataWindow(QWidget* parent) : DialogWithSettings(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint), impl(std::make_unique<pimpl>())
 {
- 
     setModal(true);
     setWindowTitle("Load Dataset");
     setWindowIcon(QIcon(":/icons/GreenCrown.png"));
@@ -250,8 +260,6 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : DialogWithSettings(parent, Q
 
 ImageDataWindow::~ImageDataWindow() {
 }
-
-
 void ImageDataWindow::dragEnterEvent(QDragEnterEvent* event) {
     if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
@@ -287,8 +295,6 @@ void ImageDataWindow::dropEvent(QDropEvent* event) {
         }
     }
 }
-
-
 void ImageDataWindow::saveSettings(QSettings& settings) const 
 {
     settings.beginGroup("ImageData");
