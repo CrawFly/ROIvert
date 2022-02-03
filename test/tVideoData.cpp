@@ -187,14 +187,18 @@ void tVideoData::tdownt() {
 
 
 
-
-/*
-
 void tVideoData::tfr() {
-    data->setFrameRate(14);
+    loaddataset(data);
+    QCOMPARE(data->getNFrames(), 8);
+    data->setFrameRate(8);
+    QCOMPARE(data->getTMax(), 1.);
+    data->setFrameRate(4);
+    QCOMPARE(data->getTMax(), 2.);
+    data->setFrameRate(16);
     QCOMPARE(data->getTMax(), .5);
 }
 
+/*
 void tVideoData::ttrace() {
     {
         auto trace = data->computeTrace(ROIVert::SHAPE::RECTANGLE, QRect(0, 0, 7, 6), { QPoint(0,0), QPoint(6,5) });
@@ -234,29 +238,6 @@ void tVideoData::tmultifile_data() {
         QTest::newRow(std::to_string(i).c_str()) << i;
     }
 }
-
-void tVideoData::tmultifile() {
-    QStringList f;
-    for (size_t i = 0; i < 7; ++i) {
-        f << (TEST_RESOURCE_DIR "/roiverttestdata_mf" + std::to_string(i + 1) + ".tiff").c_str();
-    }
-    data->load(f, 1, 1, true);
-
-    QCOMPARE(data->getNFrames(), 7);
-    QCOMPARE(data->getdsSpace(), 1);
-    QCOMPARE(data->getdsTime(), 1);
-    QCOMPARE(data->getHeight(), 5);
-    QCOMPARE(data->getWidth(), 6);
-    QFETCH(int, frame);
-
-    double minval, maxval;
-    cv::minMaxLoc(data->get(false, 0, frame) - expraw[frame], &minval, &maxval);
-    QCOMPARE(maxval, 0);
-
-    cv::minMaxLoc(data->get(true, 0, frame) - expdffi[frame], &minval, &maxval);
-    QVERIFY(maxval <= 1); // allow off-by-one errors, due to rounding (?)
-}
-
 void tVideoData::temptyfilelist() {
     // an empty file list is currently a no-op, i.e. all data unchanged
 

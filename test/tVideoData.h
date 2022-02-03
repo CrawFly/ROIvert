@@ -21,8 +21,10 @@ private slots:
     void tdownt_data();
     void tdownt();
 
-    /*
     void tfr();
+
+    /*
+    
     void ttrace();
     void tdeadpixel();
 
