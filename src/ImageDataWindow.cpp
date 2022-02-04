@@ -141,7 +141,7 @@ private:
         auto seconds = nseconds % 60;
 
             
-        lblDatasetInfo.setText(QString("Files Selected: %1\nFrames: %2\nDuration %3:%4").arg(inds.size()).arg(nframes).arg(minutes).arg(seconds,2,'f',0,'0'));
+        lblDatasetInfo.setText(QString("Files Selected: %1\nFrames: %2\nDuration: %3:%4").arg(inds.size()).arg(nframes).arg(minutes).arg(seconds,2,'f',0,'0'));
     }
     QVBoxLayout* makeControlPanel() {
 
@@ -183,6 +183,7 @@ private:
             ret->addWidget(&lblDatasetInfo);
             lblDatasetInfo.setText(tr("\n\n\n"));
             lblDatasetInfo.setWordWrap(true);
+            lblDatasetInfo.setObjectName("lblDatasetInfo");
         }
         {
             auto lay = new QHBoxLayout;

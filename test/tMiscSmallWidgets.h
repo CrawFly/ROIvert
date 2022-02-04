@@ -12,6 +12,6 @@ private slots:
     void tRGBWidget();
     void tProjectionPickWidget();
     void tFileIOWidget();
-    //void tImageDataWidget();
+    void tImageDataWindow();
     void tImageSettingsWidget();
 };

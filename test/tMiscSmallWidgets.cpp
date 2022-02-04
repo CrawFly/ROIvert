@@ -6,6 +6,10 @@
 #include <QPushButton>
 #include <QCompleter>
 #include <QFileSystemModel>
+#include <QTreeView>
+#include <QTableView>
+#include <QLabel>
+
 #include "tMiscSmallWidgets.h"
 #include "widgets/SmoothingPickWidget.h"
 #include "widgets/RGBWidget.h"
@@ -14,6 +18,7 @@
 #include "ImageDataWindow.h"
 #include "dockwidgets/ImageSettingsWidget.h"
 #include "DisplaySettings.h"
+#include "ImageDataTableModel.h"
 
 void tMiscSmallWidgets::tSmoothingPickWidget_data() {
     QTest::addColumn<int>("type");
@@ -140,38 +145,82 @@ void tMiscSmallWidgets::tFileIOWidget() {
         QVERIFY(actisridge);
     }
 }
-/*
-void tMiscSmallWidgets::tImageDataWidget() {
-    ImageDataWidget w;
 
-    auto optFile = w.findChild<QRadioButton*>("optFile");
-    auto optFolder = w.findChild<QRadioButton*>("optFolder");
-    auto completer = w.findChild<QCompleter*>();
+void tMiscSmallWidgets::tImageDataWindow() {
+    ImageDataWindow w;
+        
+    auto cmdLoad = w.findChild<QPushButton*>("cmdLoad");
+    auto folderview = w.findChild<QTreeView*>("folderview");
+    auto fileview = w.findChild<QTableView*>("fileview");
+    auto fsmodel = w.findChild<QFileSystemModel*>("fsmodel");
+    auto immodel = w.findChild<ImageDataTableModel*>("immodel");
+    auto lblDatasetInfo = w.findChild<QLabel*>("lblDatasetInfo");        
+    auto spinFrameRate = w.findChild<QDoubleSpinBox*>("spinFrameRate");        
+    auto spinDownTime = w.findChild<QSpinBox*>("spinDownTime");
+    auto spinDownSpace = w.findChild<QSpinBox*>("spinDownSpace");
 
-    {
-        optFile->setChecked(true);
-        optFolder->setChecked(false);
-        auto model = dynamic_cast<QFileSystemModel*>(completer->model());
-        QVERIFY(!(model->filter() & QDir::AllDirs));
-        QVERIFY(model->filter() & QDir::Files);
-    }
 
-    {
-        optFile->setChecked(false);
-        optFolder->setChecked(true);
-        auto model = dynamic_cast<QFileSystemModel*>(completer->model());
-        QVERIFY(model->filter() & QDir::AllDirs);
-        QVERIFY(!(model->filter() & QDir::Files));
-    }
+    
+    QVERIFY(cmdLoad);
+    QVERIFY(folderview);
+    QVERIFY(fileview);
+    QVERIFY(fsmodel);
+    QVERIFY(immodel);
+    QVERIFY(lblDatasetInfo);
+    QVERIFY(spinFrameRate);
+    QVERIFY(spinDownTime);
+    QVERIFY(spinDownSpace);
+    
+    auto folderind = fsmodel->index(TEST_RESOURCE_DIR);
+    folderview->setCurrentIndex(folderind);
+    fileview->selectionModel()->clearSelection();
+    auto fileind = immodel->getIndexFromName("roivert_testdata_onestack.tiff");
+    fileview->selectionModel()->select(fileind, QItemSelectionModel::SelectionFlag::Select);
+    
+    spinFrameRate->setValue(1.);
+    QString lbl = lblDatasetInfo->text();
+    auto lbllist = lbl.split("\n");
+    QCOMPARE(lbllist.size(), 3);
+    QCOMPARE(lbllist[0], "Files Selected: 1");
+    QCOMPARE(lbllist[1], "Frames: 8");
+    QCOMPARE(lbllist[2], "Duration: 0:08");
+    
+    spinFrameRate->setValue(2.);
+    lbl = lblDatasetInfo->text();
+    lbllist = lbl.split("\n");
+    QCOMPARE(lbllist.size(), 3);
+    QCOMPARE(lbllist[0], "Files Selected: 1");
+    QCOMPARE(lbllist[1], "Frames: 8");
+    QCOMPARE(lbllist[2], "Duration: 0:04");
 
-    bool didfire = false;
-    connect(&w, &ImageDataWidget::frameRateChanged, [&](double) { didfire = true; });
-    auto spinFrameRate = w.findChild<QDoubleSpinBox*>("spinFrameRate");
-    spinFrameRate->valueChanged(42.1);
-    QVERIFY(didfire);
+
+    // push button and check signal
+    spinDownTime->setValue(2);
+    spinDownSpace->setValue(3);
+    bool waspressed{ false };
+    std::vector<std::pair<QString, size_t>> fnfl;
+    double fr;
+    int dst, dss;
+
+    connect(&w, &ImageDataWindow::fileLoadRequested, [&](std::vector<std::pair<QString, size_t>> filenameframelist, const double frameRate, const int dsTime, const int dsSpace) {
+        waspressed = true;
+        fnfl = filenameframelist;
+        fr = frameRate;
+        dst = dsTime;
+        dss = dsSpace;
+    });
+    cmdLoad->pressed();
+
+    QVERIFY(waspressed);
+    QCOMPARE(fr, 2.);
+    QCOMPARE(dst, 2);
+    QCOMPARE(dss, 3);
+
+    QString fp(TEST_RESOURCE_DIR);
+    auto fn = fp + "/roivert_testdata_onestack.tiff";
+    std::vector<std::pair<QString, size_t>> exp = { {fn, 8} };
+    QCOMPARE(fnfl, exp);
 }
-*/
-
 void tMiscSmallWidgets::tImageSettingsWidget() {
     DisplaySettings sets;
     sets.setProjectionMode(3);

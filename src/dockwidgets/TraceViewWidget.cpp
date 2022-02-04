@@ -33,6 +33,7 @@ struct TraceViewWidget::pimpl
 
     void init(TraceViewWidget* par) {
         chartcontrols = std::make_unique<ChartControlWidget>(par);
+        chartcontrols->setObjectName("chartcontrols");
     }
     void doLayout()
     {
