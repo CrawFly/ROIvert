@@ -9,6 +9,9 @@
 #include "tinytiffreader.h"
 
 #include <QDebug>
+#include <QProgressDialog>
+#include <QApplication>
+
 
 struct TiffMeta {
     // store everything in a stringlist, note that data are retrieved columnwise, so these should be adjacent
@@ -57,6 +60,16 @@ struct ImageDataTableModel::pimpl
         QList<QFileInfo> files = fp.entryInfoList({"*.tif", "*.tiff"}, QDir::Files, QDir::Name);
         imagedata.clear();
         imagedata.reserve(files.size());
+
+        auto cntr = 0;
+        QProgressDialog progress("Processing Files In Folder", "", 0, 100);
+        if (files.size() > 10) {
+            progress.setWindowModality(Qt::WindowModal);
+            progress.setCancelButton(nullptr);
+            progress.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
+            progress.show();
+        }
+
         for (auto& file : files) {
             int frames=0, width=0, height=0;
             
@@ -68,7 +81,10 @@ struct ImageDataTableModel::pimpl
             }
             TinyTIFFReader_close(tiff);
             imagedata.push_back(file.fileName(), file.lastModified(), frames, width, height);
+            progress.setValue((100 * cntr++) / files.size());
+            qApp->processEvents();
         }
+        progress.reset();
     }
 
     QString getData(const QModelIndex& index){
@@ -140,7 +156,9 @@ void ImageDataTableModel::setFileModelIndex(const QModelIndex &index, const QMod
 
     auto model = dynamic_cast<const QFileSystemModel*>(index.model());
     auto filepath = QDir(model->fileInfo(index).absoluteFilePath());
+
     impl->retrieveFileData(filepath);
+
     endResetModel();
 }
 
