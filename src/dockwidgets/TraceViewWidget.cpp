@@ -146,6 +146,7 @@ TraceViewWidget::TraceViewWidget(QWidget* parent) :
     connect(impl->scrollArea, &RScrollArea::modwheel, [&](int delta) { impl->wheelToScroll(delta); });
     connect(impl->chartcontrols.get(), &ChartControlWidget::lineChartHeightChanged, [&](int newheight) { impl->setChartHeight(newheight); });
     connect(impl->chartcontrols.get(), &ChartControlWidget::timeRangeChanged, [&](double tmin, double tmax) { impl->setTimeRange(tmin, tmax); });
+    connect(impl->ridgeChart.get(), &TraceChartWidget::chartTimeLimitsSelected, [&](double min, double max) { impl->chartcontrols->setTRange(min, max); });
 }
 
 TraceViewWidget::~TraceViewWidget() = default;
