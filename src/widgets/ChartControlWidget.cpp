@@ -26,6 +26,7 @@ struct ChartControlWidget::pimpl {
         cmdAutoTimeRange.setCheckable(true);
         cmdAutoTimeRange.setChecked(true);
 
+        spinTMin.setMaximum(86400);
         spinTMax.setMaximum(86400);
     }
 
@@ -38,6 +39,8 @@ struct ChartControlWidget::pimpl {
         toplay.addWidget(new QLabel("-"));
         toplay.addWidget(&spinTMax);
         toplay.addWidget(&cmdAutoTimeRange);
+
+        toplay.setContentsMargins(0, 0, 0, 0);
     }
 
     void adjustTimeSpinners(ChartControlWidget* w) {
@@ -51,6 +54,7 @@ struct ChartControlWidget::pimpl {
 ChartControlWidget::ChartControlWidget(TraceViewWidget* par) : impl(std::make_unique<pimpl>()) {
     impl->tview = par;
     setLayout(&impl->toplay);
+    
     impl->doLayout();
     impl->configureWidgets();
 

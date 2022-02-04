@@ -38,6 +38,7 @@ struct TraceViewWidget::pimpl
     {
         topGridLayout->addWidget(chartcontrols.get());
         topGridLayout->addWidget(tab);
+        topGridLayout->setContentsMargins(10,0,10,10);
 
         tab->addTab(tabLine, "Line");
         tab->addTab(tabRidgeLine, "Ridge");
