@@ -40,6 +40,9 @@ public:
     cv::Mat computeTrace(const cv::Rect cvbb, const cv::Mat mask) const;
     cv::Mat computeTrace(ROIVert::SHAPE, QRect, std::vector<QPoint>) const;
 
+    void setNthreads(unsigned int nthreads);
+    unsigned int getNthreads() const noexcept;
+
 signals:
     void loadProgress(const int level, const int progress);
 

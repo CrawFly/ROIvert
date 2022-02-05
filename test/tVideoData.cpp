@@ -6,13 +6,6 @@
 #include "testUtils.h"
 
 namespace {
-    // ** a little matrix type would help clean this all up!
-    // ... just make it a flat vector
-    // ... method to get a projection
-    // ... method to find grand max/min
-    // ... method to convert between double and uint8_t
-    // ... method to convert to vector vector vector
-    // 
     ROIVertMat3D<uint8_t> getExpectedRaw(size_t nframes, size_t height, size_t width) {
         std::vector<uint8_t> vecExpectedRawData(nframes * height * width);
         std::iota(vecExpectedRawData.begin(), vecExpectedRawData.end(), 1);
@@ -56,13 +49,23 @@ void tVideoData::cleanup() {
 
 void tVideoData::tload_data() {
     QTest::addColumn<int>("dstype_int");
-    QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK);
-    QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES);
-    QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);
+    QTest::addColumn<bool>("multithread");
+    
+    QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK) << true;
+    QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES) << true;
+    QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS) << true;
+    
+    QTest::newRow("ONESTACK: SingleThreaded") << static_cast<int>(datasettype::ONESTACK) << false;
+    QTest::newRow("SINGLEFRAMES: SingleThreaded") << static_cast<int>(datasettype::SINGLEFRAMES) << false;
+    QTest::newRow("MULTIPLESTACKS: SingleThreaded") << static_cast<int>(datasettype::MULTIPLESTACKS) << false;
 }
 
 void tVideoData::tload() {
     QFETCH(int, dstype_int);
+    QFETCH(bool, multithread);
+    if (!multithread) {
+        data->setNthreads(1);
+    }
     auto dstype = static_cast<datasettype>(dstype_int);
     loaddataset(data, dstype);
     QCOMPARE(data->getNFrames(), 8);
@@ -91,6 +94,13 @@ void tVideoData::tload() {
     auto ExpectedDff = getExpectedDff(data);
     bool issame = ROIVertMat3D<uint8_t>::almostequal(DffData, ExpectedDff, 2);
     QVERIFY(issame);
+    
+    //if (multithread) {
+      //  QVERIFY(data->getNthreads() > 1);
+    //}
+    //else {
+        //QCOMPARE(data->getNthreads(), 1);
+    //}
 }
 
 void tVideoData::tproj_raw() {
@@ -136,6 +146,7 @@ void tVideoData::tproj_dff() {
 
 void tVideoData::tdowns_data() {
     QTest::addColumn<int>("dstype_int");
+    
     QTest::newRow("ONESTACK") << static_cast<int>(datasettype::ONESTACK);
     QTest::newRow("SINGLEFRAMES") << static_cast<int>(datasettype::SINGLEFRAMES);
     QTest::newRow("MULTIPLESTACKS") << static_cast<int>(datasettype::MULTIPLESTACKS);

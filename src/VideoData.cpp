@@ -146,7 +146,10 @@ namespace
 
 struct VideoData::pimpl
 {
-    pimpl::pimpl(VideoData *parent = nullptr) : par(parent) {}
+    pimpl::pimpl(VideoData *parent = nullptr) : par(parent) {
+        const auto proccount = std::thread::hardware_concurrency();
+        nthreads = std::max(proccount - 1, static_cast<uint>(2));
+    }
     void dffNativeToOrig(double &val);
     cv::Mat calcDffDouble(const cv::Mat &frame);
     cv::Mat calcDffNative(const cv::Mat &frame);
@@ -333,9 +336,6 @@ struct VideoData::pimpl
         maxproj = cv::Mat::zeros(size, mattype);
         sumprojd = cv::Mat::zeros(size, CV_64FC1);
 
-        // todo: pull this out to use for both dff and raw, and give users a way to override this and fallback to single thread load!
-        const auto proccount = std::thread::hardware_concurrency();
-        const auto nthreads = std::max(proccount - 1, static_cast<uint>(2));
         size_t threadsize = std::max(std::ceil(nframes / nthreads), 1.);
 
         size_t ncomplete = 0;
@@ -415,7 +415,7 @@ struct VideoData::pimpl
             int perc = (100 * progcntr++) / (int)nframes;
             emit par->loadProgress(2, perc);
             auto d = calcDffNative(frame);
-            // dffdata.push_back(d);
+            dffdata.push_back(d);
             dff_minproj = cv::min(dff_minproj, d);
             dff_maxproj = cv::max(dff_maxproj, d);
             calcHist(&d, getHistogram(datatype::DFF), true);
@@ -436,8 +436,6 @@ struct VideoData::pimpl
         dffdata.clear();
         dffdata.resize(nframes);
 
-        const auto proccount = std::thread::hardware_concurrency();
-        const auto nthreads = std::max(proccount - 1, static_cast<uint>(2)); // From experimentation, this seems to asymptote around 3 threads, but no loss with more
         size_t threadsize = std::max(std::ceil(nframes / nthreads), 1.);
 
         size_t ncomplete = 0;
@@ -462,6 +460,7 @@ struct VideoData::pimpl
         }
     }
 
+    unsigned int nthreads;
 private:
     // projections are 2(raw/dff) x 2(native/double) x 4(projection type)
     std::array<std::array<std::array<cv::Mat, 4>, 2>, 2> projection;
@@ -486,11 +485,9 @@ void VideoData::load(std::vector<std::pair<QString, size_t>> filenameframelist, 
     }
 
     impl->setmetafromraw();
-    // impl->accumulateraw();
-    impl->accumulateraw_p();
+    impl->nthreads > 1 ? impl->accumulateraw_p() : impl->accumulateraw();
     impl->initializedff();
-    // impl->accumulatedff();
-    impl->accumulatedff_p();
+    impl->nthreads > 1 ? impl->accumulatedff_p() : impl->accumulatedff();
 }
 cv::Mat VideoData::get(bool isDff, int projmode, size_t framenum) const
 {
@@ -628,4 +625,13 @@ cv::Mat VideoData::computeTrace(const cv::Rect cvbb, const cv::Mat mask) const
     }
 
     return res;
+}
+
+
+void VideoData::setNthreads(unsigned int nthreads) {
+    impl->nthreads = nthreads;
+}
+
+unsigned int VideoData::getNthreads() const noexcept {
+    return impl->nthreads;
 }

@@ -341,7 +341,6 @@ void tStyleWidget::tRidgeStyle()
     ridgegrid->setChecked(true);
     ridgeoverlap->setValue(22);
 
-
     QCOMPARE(getRidgeChartStyle()->getTracePen().width(), 3);
     QCOMPARE(getRidgeChartStyle()->getTraceBrush().color().alpha(), 120);
     QCOMPARE(getRidgeChartStyle()->getTraceFillGradient(), true);
