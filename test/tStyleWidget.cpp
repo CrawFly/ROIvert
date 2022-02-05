@@ -140,12 +140,87 @@ void tStyleWidget::tChartColors()
 {
     auto chartforecolor = s->findChild<RGBWidget*>("chartforecolor");
     auto chartbackcolor = s->findChild<RGBWidget*>("chartbackcolor");
-    auto black = s->findChild<QToolButton*>("black");
-    auto white = s->findChild<QToolButton*>("white");
+    auto blackfore = s->findChild<QToolButton*>("blackfore");
+    auto whitefore = s->findChild<QToolButton*>("whitefore");
+    auto blackback = s->findChild<QToolButton*>("blackback");
+    auto whiteback = s->findChild<QToolButton*>("whiteback");
     QVERIFY(chartforecolor);
     QVERIFY(chartbackcolor);
-    QVERIFY(black);
-    QVERIFY(white);
+    QVERIFY(blackfore);
+    QVERIFY(whitefore);
+    QVERIFY(blackback);
+    QVERIFY(whiteback);
+    
+    addROI();
+    addROI();
+    QColor fcolor(12, 34, 56);
+    QColor bcolor(112, 134, 156);
+    
+    { //custom fore and back
+        chartforecolor->setColor(fcolor);
+        chartbackcolor->setColor(bcolor);
+        auto css = getLineChartStyles();
+        for (auto& cs : css) {
+            QCOMPARE(cs->getAxisPen().color(), fcolor);
+            QCOMPARE(cs->getBackgroundColor(), bcolor);
+        }
+        QCOMPARE(getRidgeChartStyle()->getAxisPen().color(), fcolor);
+        QCOMPARE(getRidgeChartStyle()->getBackgroundColor(), bcolor);
+
+    }
+    { // black fore, and post color add
+        blackfore->clicked();
+        QCOMPARE(chartforecolor->getColor(), Qt::black);
+        QCOMPARE(chartbackcolor->getColor(), bcolor);
+        addROI();
+        auto css = getLineChartStyles();
+        for (auto& cs : css) {
+            QCOMPARE(cs->getAxisPen().color(), Qt::black);
+            QCOMPARE(cs->getBackgroundColor(), bcolor);
+        }
+        QCOMPARE(getRidgeChartStyle()->getAxisPen().color(), Qt::black);
+        QCOMPARE(getRidgeChartStyle()->getBackgroundColor(), bcolor);
+    }
+    { // white fore, and post color add
+        whitefore->clicked();
+        QCOMPARE(chartforecolor->getColor(), Qt::white);
+        QCOMPARE(chartbackcolor->getColor(), bcolor);
+        addROI();
+        auto css = getLineChartStyles();
+        for (auto& cs : css) {
+            QCOMPARE(cs->getAxisPen().color(), Qt::white);
+            QCOMPARE(cs->getBackgroundColor(), bcolor);
+        }
+        QCOMPARE(getRidgeChartStyle()->getAxisPen().color(), Qt::white);
+        QCOMPARE(getRidgeChartStyle()->getBackgroundColor(), bcolor);
+    }
+    
+    { // black back, and post color add
+        blackback->clicked();
+        QCOMPARE(chartforecolor->getColor(), Qt::white);
+        QCOMPARE(chartbackcolor->getColor(), Qt::black);
+        addROI();
+        auto css = getLineChartStyles();
+        for (auto& cs : css) {
+            QCOMPARE(cs->getAxisPen().color(), Qt::white);
+            QCOMPARE(cs->getBackgroundColor(), Qt::black);
+        }
+        QCOMPARE(getRidgeChartStyle()->getAxisPen().color(), Qt::white);
+        QCOMPARE(getRidgeChartStyle()->getBackgroundColor(), Qt::black);
+    }
+    { // white back, and post color add
+        whiteback->clicked();
+        QCOMPARE(chartforecolor->getColor(), Qt::white);
+        QCOMPARE(chartbackcolor->getColor(), Qt::white);
+        addROI();
+        auto css = getLineChartStyles();
+        for (auto& cs : css) {
+            QCOMPARE(cs->getAxisPen().color(), Qt::white);
+            QCOMPARE(cs->getBackgroundColor(), Qt::white);
+        }
+        QCOMPARE(getRidgeChartStyle()->getAxisPen().color(), Qt::white);
+        QCOMPARE(getRidgeChartStyle()->getBackgroundColor(), Qt::white);
+    }
 
 }
 void tStyleWidget::tChartFonts() 

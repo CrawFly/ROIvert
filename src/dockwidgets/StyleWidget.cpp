@@ -129,8 +129,8 @@ struct StyleWidget::pimpl
             auto rowlay2 = new QHBoxLayout;
             auto black = new QToolButton;
             auto white = new QToolButton;
-            black->setObjectName("black");
-            white->setObjectName("white");
+            black->setObjectName("blackfore");
+            white->setObjectName("whitefore");
             rowlay2->addWidget(black);
             rowlay2->addWidget(white);
 
@@ -167,6 +167,8 @@ struct StyleWidget::pimpl
             { chartbackcolor->setColor(Qt::black); });
             connect(white, &QToolButton::clicked, white, [=]
             { chartbackcolor->setColor(Qt::white); });
+            black->setObjectName("blackback");
+            white->setObjectName("whiteback");
         }
 
         lay->addWidget(chartbackcolor);
