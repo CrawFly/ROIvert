@@ -230,7 +230,41 @@ void tStyleWidget::tChartFonts()
     auto charttickfontsize = s->findChild<QSpinBox*>("charttickfontsize");
     QVERIFY(chartfont);
     QVERIFY(chartlabelfontsize);
-    QVERIFY(chartlabelfontsize);
+    QVERIFY(charttickfontsize);
+
+    addROI();
+    addROI();
+
+    auto fontind = chartfont->count() - 1;
+    QVERIFY(fontind != chartfont->currentIndex() && fontind > 0);
+    chartfont->setCurrentIndex(fontind);
+    chartfont->currentIndexChanged(fontind);
+    chartlabelfontsize->setValue(22);
+    charttickfontsize->setValue(23);
+    
+    auto css = getLineChartStyles();
+    for (auto& cs : css) {
+        QCOMPARE(cs->getLabelFont().family(), chartfont->currentText());
+        QCOMPARE(cs->getLabelFont().pointSize(), 22);
+        QCOMPARE(cs->getTickLabelFont().pointSize(), 23);
+    }
+    QCOMPARE(getRidgeChartStyle()->getLabelFont().pointSize(), 22);
+    QCOMPARE(getRidgeChartStyle()->getTickLabelFont().pointSize(), 23);
+    QCOMPARE(getRidgeChartStyle()->getLabelFont().family(), chartfont->currentText());
+    
+    addROI();
+    addROI();
+    css = getLineChartStyles();
+    for (auto& cs : css) {
+        QCOMPARE(cs->getLabelFont().family(), chartfont->currentText());
+        QCOMPARE(cs->getLabelFont().pointSize(), 22);
+        QCOMPARE(cs->getTickLabelFont().pointSize(), 23);
+    }
+    QCOMPARE(getRidgeChartStyle()->getLabelFont().pointSize(), 22);
+    QCOMPARE(getRidgeChartStyle()->getTickLabelFont().pointSize(), 23);
+    QCOMPARE(getRidgeChartStyle()->getLabelFont().family(), chartfont->currentText());
+
+
 }
 void tStyleWidget::tLineStyle()
 {
@@ -240,6 +274,7 @@ void tStyleWidget::tLineStyle()
     auto linegrid = s->findChild<QCheckBox*>("linegrid");
     auto linematchy = s->findChild<QCheckBox*>("linematchy");
     auto linenorm = s->findChild<QComboBox*>("linenorm");
+    
 
     QVERIFY(linewidth);
     QVERIFY(linefill);
@@ -248,6 +283,36 @@ void tStyleWidget::tLineStyle()
     QVERIFY(linematchy);
     QVERIFY(linenorm);
 
+    addROI();
+    addROI();
+    linewidth->setValue(3);
+    linefill->setValue(120);
+    linegradient->setChecked(true);
+    linegrid->setChecked(true);
+    linematchy->setChecked(true);
+    linenorm->setCurrentIndex(5);
+    auto css = getLineChartStyles();
+    for (auto& cs : css) {
+        QCOMPARE(cs->getTracePen().width(), 3);
+        QCOMPARE(cs->getTraceBrush().color().alpha(), 120);
+        QCOMPARE(cs->getTraceFillGradient(), true);
+        QCOMPARE(cs->getGrid(), true);
+        QCOMPARE(cs->getYLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
+        QCOMPARE(cs->getNormalization(), ROIVert::NORMALIZATION::MEDIQR);
+    }
+    addROI();
+    addROI();
+
+    rois->update(); // this happens automatically outside of test.
+    css = getLineChartStyles();
+    for (auto& cs : css) {
+        QCOMPARE(cs->getTracePen().width(), 3);
+        QCOMPARE(cs->getTraceBrush().color().alpha(), 120);
+        QCOMPARE(cs->getTraceFillGradient(), true);
+        QCOMPARE(cs->getGrid(), true);
+        QCOMPARE(cs->getYLimitStyle(), ROIVert::LIMITSTYLE::MANAGED);
+        QCOMPARE(cs->getNormalization(), ROIVert::NORMALIZATION::MEDIQR);
+    }
 
 }
 void tStyleWidget::tRidgeStyle() 
@@ -263,5 +328,43 @@ void tStyleWidget::tRidgeStyle()
     QVERIFY(ridgeoverlap);
     QVERIFY(ridgegradient);
     QVERIFY(ridgegrid);
+    
+    auto tview = r->findChild<TraceViewWidget*>();
+    auto& ridgechart = tview->getRidgeChart();
+    
+    
+    addROI();
+    addROI();
+    ridgewidth->setValue(3);
+    ridgefill->setValue(120);
+    ridgegradient->setChecked(true);
+    ridgegrid->setChecked(true);
+    ridgeoverlap->setValue(22);
+
+
+    QCOMPARE(getRidgeChartStyle()->getTracePen().width(), 3);
+    QCOMPARE(getRidgeChartStyle()->getTraceBrush().color().alpha(), 120);
+    QCOMPARE(getRidgeChartStyle()->getTraceFillGradient(), true);
+    QCOMPARE(getRidgeChartStyle()->getGrid(), true);
+    auto& ridgeser = ridgechart.getSeries();
+    QCOMPARE(ridgeser.size(), 2);
+    QCOMPARE(ridgeser[0]->getOffset(), 0.f);
+    QCOMPARE(ridgeser[1]->getOffset(), -.22f);
+    
+
+
+    addROI();
+    addROI();
+
+    QCOMPARE(getRidgeChartStyle()->getTracePen().width(), 3);
+    QCOMPARE(getRidgeChartStyle()->getTraceBrush().color().alpha(), 120);
+    QCOMPARE(getRidgeChartStyle()->getTraceFillGradient(), true);
+    QCOMPARE(getRidgeChartStyle()->getGrid(), true);
+    ridgeser = ridgechart.getSeries();
+    QCOMPARE(ridgeser.size(), 4);
+    QCOMPARE(ridgeser[0]->getOffset(), 0.f);
+    QCOMPARE(ridgeser[1]->getOffset(), -.22f);
+    QCOMPARE(ridgeser[2]->getOffset(), -.44f);
+    QCOMPARE(ridgeser[3]->getOffset(), -.66f);
 
 }

@@ -173,6 +173,9 @@ bool TraceChartSeries::pimpl::polyContains(const QPointF & pt) { return path.con
 
 void TraceChartSeries::pimpl::updateNorm()
 {
+    if (data.empty()) {
+        return;
+    }
     switch (chartstyle->getNormalization())
     {
     case ROIVert::NORMALIZATION::NONE:
