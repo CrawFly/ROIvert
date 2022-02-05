@@ -5,7 +5,7 @@ class Roivert;
 class StyleWidget;
 class ROIStyle;
 class ChartStyle;
-
+class ROIs;
 
 class tStyleWidget : public QObject
 {
@@ -17,6 +17,7 @@ private slots:
 
     void tROIColor();
     void tROIStyle();
+    void tChartColors();
     void tChartFonts();
     void tLineStyle();
     void tRidgeStyle();
@@ -24,7 +25,11 @@ private slots:
 private:
     Roivert* r;
     StyleWidget* s;
+    ROIs* rois;
+
     void addROI();
     std::vector<ROIStyle*> getROIStyles();
-    std::vector<ChartStyle*> getChartStyles();
+    std::vector<ChartStyle*> getLineChartStyles();
+
+    ChartStyle* getRidgeChartStyle();
 };
