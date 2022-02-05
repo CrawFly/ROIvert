@@ -444,7 +444,6 @@ void tTraceChartWidget::tridgeline() {
     QCOMPARE(series2->getOffset(), -1.5);
     QCOMPARE(series3->getOffset(), -3.);
 }
-
 // todo:
 // unclear how to test paint in general, other than a snapshot
 // saveasimage...feels like it might belong in fileio, needs a file fixture? But maybe this is the snapshot test?

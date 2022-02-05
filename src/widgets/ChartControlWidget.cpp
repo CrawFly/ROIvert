@@ -27,7 +27,9 @@ struct ChartControlWidget::pimpl {
         cmdAutoTimeRange.setChecked(true);
 
         spinTMin.setMaximum(86400);
+        spinTMin.setObjectName("spinTMin");
         spinTMax.setMaximum(86400);
+        spinTMax.setObjectName("spinTMax");
     }
 
     void doLayout() {
@@ -45,7 +47,7 @@ struct ChartControlWidget::pimpl {
 
     void adjustTimeSpinners(ChartControlWidget* w) {
         emit w->timeRangeChanged(spinTMin.value(), spinTMax.value());
-        spinTMin.setMaximum(spinTMax.value());
+        spinTMin.setMaximum(spinTMax.value() - .01);
         spinTMax.setMinimum(spinTMin.value() + .01);
         cmdAutoTimeRange.setChecked(false); 
     }
@@ -83,7 +85,7 @@ void ChartControlWidget::setAutoTMax() {
         impl->spinTMax.blockSignals(true);
         auto tmax = impl->tview->makeAllTimeLimitsAuto();
         impl->spinTMin.setValue(0);
-        impl->spinTMin.setMaximum(tmax);
+        impl->spinTMin.setMaximum(tmax-.01);
         impl->spinTMax.setValue(tmax);
         impl->spinTMax.setMinimum(0);
         impl->spinTMin.blockSignals(false);

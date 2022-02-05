@@ -23,6 +23,8 @@ target_sources(ROIVertTest
         tSettings.h
         tTraceChartWidget.cpp
         tTraceChartWidget.h
+	tTraceViewWidget.cpp
+	tTraceViewWidget.h
         tVideoControllerWidget.cpp
         tVideoControllerWidget.h
         tVideoData.cpp

@@ -31,7 +31,6 @@ private slots:
     void taxisthickness();
 
     void tridgeline();
-
 private:
     TraceChartWidget* chart;
     TraceChartAxis* xaxis;

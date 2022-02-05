@@ -34,6 +34,8 @@ struct TraceViewWidget::pimpl
     void init(TraceViewWidget* par) {
         chartcontrols = std::make_unique<ChartControlWidget>(par);
         chartcontrols->setObjectName("chartcontrols");
+
+        
     }
     void doLayout()
     {
@@ -107,7 +109,6 @@ struct TraceViewWidget::pimpl
             auto cs = chart->getStyle();
             cs->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
             chart->getXAxis()->setManualLimits(tmin, tmax);
-            auto ser = chart->getSeries()[0];
             chart->updateStyle();
         }
         coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::MANAGED);
@@ -204,13 +205,9 @@ void TraceViewWidget::updateMinimumHeight() {
 void TraceViewWidget::updateTMax(float tmax) {
     impl->tmaxifnocharts = tmax;
     impl->chartcontrols->setAutoTMax();
-
 }
 double TraceViewWidget::makeAllTimeLimitsAuto() {
     auto charts = impl->getLineCharts();
-    if (charts.empty()) {
-        return impl->tmaxifnocharts;
-    }
     for (auto& chart : charts) {
         auto cs = chart->getStyle();
         cs->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
@@ -219,5 +216,8 @@ double TraceViewWidget::makeAllTimeLimitsAuto() {
     impl->coreLineStyle->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
     impl->coreRidgeStyle->setXLimitStyle(ROIVert::LIMITSTYLE::AUTO);
     impl->ridgeChart->updateStyle();
+    if (charts.empty()) {
+        return impl->tmaxifnocharts;
+    }
     return std::get<1>(impl->ridgeChart->getXAxis()->getLimits());
 }
