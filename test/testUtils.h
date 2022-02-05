@@ -2,23 +2,23 @@
 #include <vector>
 #include "opencv2/opencv.hpp"
 #include <QString>
+#include <QFile>
 class VideoData;
-class QFile;
 
 constexpr double EPS = .0000001;
 
+class filescopeguard {
+public:
+    filescopeguard(QFile* f) : file(f) {}
+    ~filescopeguard() { file->remove(); }
+private:
+    QFile* file;
+};
 enum class datasettype {
     ONESTACK,
     MULTIPLESTACKS,
     SINGLEFRAMES,
     DEADPIX
-};
-class filescopeguard {
-public:
-    filescopeguard(QFile* f);
-    ~filescopeguard();
-private:
-    QFile* file;
 };
 
 template<class T> class ROIVertMat3D {
