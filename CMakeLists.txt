@@ -35,6 +35,7 @@ add_executable(ROIVertTest "")
 # *** still struggling to link statically to MSVC libs
 #set_property(TARGET ROIVert PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 #set_property(TARGET ROIVertLib PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+#set_property(TARGET ROIVertTest PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 target_sources(ROIVert 
     PRIVATE

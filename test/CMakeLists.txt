@@ -1,8 +1,8 @@
 target_sources(ROIVertTest
     PRIVATE
         tmain.cpp
-	testUtils.cpp
-	testUtils.h
+        testUtils.cpp
+        testUtils.h
         tChartStyle.cpp
         tChartStyle.h
         tColormapPickWidget.cpp
@@ -21,10 +21,12 @@ target_sources(ROIVertTest
         tROIStyle.h
         tSettings.cpp
         tSettings.h
+        tStyleWidget.cpp
+        tStyleWidget.h
         tTraceChartWidget.cpp
         tTraceChartWidget.h
-	tTraceViewWidget.cpp
-	tTraceViewWidget.h
+        tTraceViewWidget.cpp
+        tTraceViewWidget.h
         tVideoControllerWidget.cpp
         tVideoControllerWidget.h
         tVideoData.cpp

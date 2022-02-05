@@ -84,6 +84,7 @@ struct StyleWidget::pimpl
         lay->addWidget(new QLabel("Applies to selected ROI(s)"));
         lay->addWidget(roicolor);
         lay->addStretch();
+        roicolor->setObjectName("roicolor");
         return ret;
     }
     QWidget* ROIStyleTab()
@@ -96,18 +97,21 @@ struct StyleWidget::pimpl
         roilinewidth->setOrientation(Qt::Horizontal);
         roilinewidth->setPageStep(1);
         roilinewidth->setSingleStep(1);
+        roilinewidth->setObjectName("roilinewidth");
 
         roiselsize->setMinimum(0);
         roiselsize->setMaximum(30);
         roiselsize->setOrientation(Qt::Horizontal);
         roiselsize->setPageStep(1);
         roiselsize->setSingleStep(1);
+        roiselsize->setObjectName("roiselsize");
 
         roifillopacity->setMinimum(0);
         roifillopacity->setMaximum(255);
         roifillopacity->setOrientation(Qt::Horizontal);
         roifillopacity->setPageStep(8);
         roifillopacity->setSingleStep(1);
+        roifillopacity->setObjectName("roifillopacity");
 
         lay->addRow("Line Width", roilinewidth);
         lay->addRow("Selecter Size", roiselsize);
@@ -125,6 +129,8 @@ struct StyleWidget::pimpl
             auto rowlay2 = new QHBoxLayout;
             auto black = new QToolButton;
             auto white = new QToolButton;
+            black->setObjectName("black");
+            white->setObjectName("white");
             rowlay2->addWidget(black);
             rowlay2->addWidget(white);
 
@@ -137,6 +143,10 @@ struct StyleWidget::pimpl
             { chartforecolor->setColor(Qt::black); });
             connect(white, &QToolButton::clicked, white, [=]
             { chartforecolor->setColor(Qt::white); });
+
+            chartforecolor->setObjectName("chartforecolor");
+            chartbackcolor->setObjectName("chartbackcolor");
+
         }
 
         lay->addWidget(chartforecolor);
@@ -184,6 +194,10 @@ struct StyleWidget::pimpl
         lay->addRow("Font:", chartfont);
         lay->addRow("Label Size:", chartlabelfontsize);
         lay->addRow("Tick Size:", charttickfontsize);
+
+        chartfont->setObjectName("chartfont");
+        chartlabelfontsize->setObjectName("chartlabelfontsize");
+        charttickfontsize->setObjectName("charttickfontsize");
         return ret;
     }
 
@@ -198,7 +212,9 @@ struct StyleWidget::pimpl
         linefill->setMinimum(0);
         linefill->setMaximum(255);
         linefill->setOrientation(Qt::Horizontal);
+        linefill->setObjectName("linefill");
         linenorm->addItems({ "None", "Zero to One", "L1 Norm", "L2 Norm", "Z Score", "Median IQR" });
+        linenorm->setObjectName("linenorm");
 
         lay->addRow("Line Width:", linewidth);
         lay->addRow("Fill Opacity:", linefill);
@@ -206,6 +222,9 @@ struct StyleWidget::pimpl
         lay->addRow("Grid:", linegrid);
         lay->addRow("Match Y Axes:", linematchy);
         lay->addRow("Normalization:", linenorm);
+        linegradient->setObjectName("linegradient");
+        linegrid->setObjectName("linegrid");
+        linematchy->setObjectName("linematchy");
         return ret;
     }
     QWidget* ChartRidgeTab()
@@ -226,6 +245,12 @@ struct StyleWidget::pimpl
         lay->addRow("Fill Gradient:", ridgegradient);
         lay->addRow("Grid:", ridgegrid);
         lay->addRow("Offset:", ridgeoverlap);
+        ridgewidth->setObjectName("ridgewidth");
+        ridgefill->setObjectName("ridgefill");
+        ridgeoverlap->setObjectName("ridgeoverlap");
+        ridgegradient->setObjectName("ridgegradient");
+        ridgegrid->setObjectName("ridgegrid");
+
         return ret;
     }
 
