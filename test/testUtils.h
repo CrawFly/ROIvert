@@ -219,14 +219,14 @@ public:
         }
         return ROIVertMat3D<T>(divdata, nframes, nrows, ncols);
     }
-    bool operator==(const ROIVertMat3D<T>& rhs){ 
+    bool operator==(const ROIVertMat3D<T>& rhs) const{
         if (data.size() != rhs.data.size() ||
             nrows != rhs.nrows || ncols != rhs.ncols) {
             return false;
         }
         for (size_t i = 0; i < data.size(); ++i) {
-            if (data[i] != rhs.data[i]) { 
-                return false 
+            if (data[i] != rhs.data[i]) {
+                return false;
             };
         }
         return true;
@@ -240,7 +240,6 @@ public:
         }
         for (size_t i = 0; i < lhs.data.size(); ++i) {
             if (std::abs(lhs.data[i] - rhs.data[i]) > tol) { 
-                qDebug() << lhs.data[i] << rhs.data[i];
                 return false;
             };
         }
@@ -310,14 +309,14 @@ public:
             return ROIVertMat3D<T>();
         }
         auto meandouble = getSumProjection() / nframes;
-        return meandouble.cast<T>();
+        return meandouble.template cast<T>();
     }
     ROIVertMat3D<double> getSumProjection() {
         std::vector<double> sumvec(nrows*ncols, 0);
         ROIVertMat3D<double> sumprojection(sumvec, 1, nrows, ncols);
         
         for (size_t i = 0; i < nframes; ++i) {
-            sumprojection = sumprojection + getSlice(i).cast<double>();
+            sumprojection = sumprojection + getSlice(i).template cast<double>();
         }
         return sumprojection;
     }

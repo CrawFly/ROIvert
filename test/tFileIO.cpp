@@ -52,7 +52,7 @@ struct tFileIO::objptrs {
     }
 };
 
-tFileIO::tFileIO() : ptrs(std::make_unique<objptrs>()) { }
+tFileIO::tFileIO() : ptrs(new objptrs) { }
 
 void tFileIO::init() {
     fileio = new FileIO(ptrs->rois, &ptrs->tview, &ptrs->vdata);

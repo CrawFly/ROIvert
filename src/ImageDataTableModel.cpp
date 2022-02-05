@@ -124,11 +124,10 @@ QVariant ImageDataTableModel::data(const QModelIndex& index, int role) const {
         return impl->getData(index);
     case Qt::SizeHintRole:
         return QVariant();
-
     case Qt::FontRole:
         return QFont();
     case Qt::TextAlignmentRole:
-        return Qt::AlignVCenter | Qt::AlignLeft;
+        return QVariant(Qt::AlignVCenter | Qt::AlignLeft);
     default:
         return QVariant();
     }

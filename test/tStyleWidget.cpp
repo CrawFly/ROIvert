@@ -345,10 +345,12 @@ void tStyleWidget::tRidgeStyle()
     QCOMPARE(getRidgeChartStyle()->getTraceBrush().color().alpha(), 120);
     QCOMPARE(getRidgeChartStyle()->getTraceFillGradient(), true);
     QCOMPARE(getRidgeChartStyle()->getGrid(), true);
-    auto& ridgeser = ridgechart.getSeries();
-    QCOMPARE(ridgeser.size(), 2);
-    QCOMPARE(ridgeser[0]->getOffset(), 0.f);
-    QCOMPARE(ridgeser[1]->getOffset(), -.22f);
+    {
+        const auto& ridgeser = ridgechart.getSeries();
+        QCOMPARE(ridgeser.size(), 2);
+        QCOMPARE(ridgeser[0]->getOffset(), 0.f);
+        QCOMPARE(ridgeser[1]->getOffset(), -.22f);
+    }
     
 
 
@@ -359,11 +361,13 @@ void tStyleWidget::tRidgeStyle()
     QCOMPARE(getRidgeChartStyle()->getTraceBrush().color().alpha(), 120);
     QCOMPARE(getRidgeChartStyle()->getTraceFillGradient(), true);
     QCOMPARE(getRidgeChartStyle()->getGrid(), true);
-    ridgeser = ridgechart.getSeries();
-    QCOMPARE(ridgeser.size(), 4);
-    QCOMPARE(ridgeser[0]->getOffset(), 0.f);
-    QCOMPARE(ridgeser[1]->getOffset(), -.22f);
-    QCOMPARE(ridgeser[2]->getOffset(), -.44f);
-    QCOMPARE(ridgeser[3]->getOffset(), -.66f);
+    {
+        const auto& ridgeser = ridgechart.getSeries();
+        QCOMPARE(ridgeser.size(), 4);
+        QCOMPARE(ridgeser[0]->getOffset(), 0.f);
+        QCOMPARE(ridgeser[1]->getOffset(), -.22f);
+        QCOMPARE(ridgeser[2]->getOffset(), -.44f);
+        QCOMPARE(ridgeser[3]->getOffset(), -.66f);
+    }
 
 }

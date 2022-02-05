@@ -1,5 +1,6 @@
 #include "VideoData.h"
 
+#include <thread>
 #include <QDebug>
 #include <QFile>
 #include <QRect>
@@ -146,7 +147,7 @@ namespace
 
 struct VideoData::pimpl
 {
-    pimpl::pimpl(VideoData *parent = nullptr) : par(parent) {
+    pimpl(VideoData *parent = nullptr) : par(parent) {
         const auto proccount = std::thread::hardware_concurrency();
         nthreads = std::max(proccount - 1, static_cast<uint>(2));
     }
