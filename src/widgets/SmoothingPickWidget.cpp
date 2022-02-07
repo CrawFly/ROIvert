@@ -30,7 +30,7 @@ SmoothingPickWidget::SmoothingPickWidget(QWidget* parent) : QWidget(parent)
     cmbBlur->setToolTip(tr("Choose a smoothing method for the display of images (this does not affect charts):"
         "\n  Box: Take the mean in a moving rectangle."
         "\n  Median: Take the median in a moving rectangle."
-        "\n  Gaussian: Use a Gaussian kernel to wait the moving average."
+        "\n  Gaussian: Use a Gaussian kernel to weight the moving average."
         "\n  Bilateral: A Gaussian filter applied spatially with a second Gaussian applied to pixel intensity difference."));
     cmbBlur->setObjectName("cmbBlur");
 
