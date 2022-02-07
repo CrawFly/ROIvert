@@ -95,12 +95,12 @@ void tVideoData::tload() {
     bool issame = ROIVertMat3D<uint8_t>::almostequal(DffData, ExpectedDff, 2);
     QVERIFY(issame);
     
-    //if (multithread) {
-      //  QVERIFY(data->getNthreads() > 1);
-    //}
-    //else {
-        //QCOMPARE(data->getNthreads(), 1);
-    //}
+    if (multithread) {
+        QVERIFY(data->getNthreads() > 1);
+    }
+    else {
+        QCOMPARE(data->getNthreads(), 1);
+    }
 }
 
 void tVideoData::tproj_raw() {
@@ -373,13 +373,8 @@ void tVideoData::thistogram() {
     loaddataset(data);
     std::vector<float> histogram(255);
     data->getHistogram(true, histogram);
-#ifdef NDEBUG
     QCOMPARE(histogram.size(), 256);
     QCOMPARE(histogram[0], 2);
     auto histsum = std::accumulate(histogram.begin(), histogram.end(), 0);
     QCOMPARE(histsum, 240);
-#else
-    QEXPECT_FAIL("", "opencv histograms fail sporadically in DEBUG builds", Abort);
-    QCOMPARE(1, 2);
-#endif // NDEBUG
 }
