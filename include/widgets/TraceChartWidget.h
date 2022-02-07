@@ -153,7 +153,7 @@ public:
     int getLength() const noexcept override;
     std::tuple<double, double> getMargins() const override;
     int getThickness() const noexcept override;
-    virtual std::tuple<double, double> getLimits() const;
+    virtual std::tuple<double, double> getLimits() const override;
 
 protected:
     virtual ROIVert::LIMITSTYLE getLimitStyle() const override;

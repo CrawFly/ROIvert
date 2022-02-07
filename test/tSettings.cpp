@@ -79,12 +79,14 @@ void tSettings::applyCustomValuesToWidgets() {
 }
 
 void tSettings::tsavesettings() {
-    QVERIFY(QSettings().allKeys().isEmpty());
+    QSettings s;
+    s.setFallbacksEnabled(false);
+    s.clear();
+    QVERIFY(s.allKeys().isEmpty());
     applyCustomValuesToWidgets();
 
     rsettings->saveSettings();
 
-    QSettings s;
     auto groups = s.childGroups();
     QCOMPARE(groups.length(), 5);
     QVERIFY(groups.contains("FileIO"));

@@ -20,7 +20,7 @@ private slots:
 
 private:
     struct objptrs;
-    std::unique_ptr<objptrs> ptrs;
+    objptrs* ptrs;
     FileIO* fileio;
 };
 // void exportROIs(QString filename) const;
