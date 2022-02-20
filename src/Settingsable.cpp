@@ -5,8 +5,8 @@
 Settingsable::Settingsable()
 {
     auto tb = new QToolBar;
-    reset = new QAction(QIcon(":/icons/dockreset.png"), "");
-    save = new QAction(QIcon(":/icons/docksave.png"), "");
+    reset = new QAction(QIcon::fromTheme("set_reset"), "");
+    save = new QAction(QIcon::fromTheme("set_save"), "");
     reset->setToolTip(QObject::tr("Reset settings for this window."));
     save->setToolTip(QObject::tr("Toggle whether settings for this window carried over to the next session."));
     save->setCheckable(true);

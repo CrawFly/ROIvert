@@ -66,7 +66,7 @@ struct ImageDataTableModel::pimpl
         if (files.size() > 10) {
             progress.setWindowModality(Qt::WindowModal);
             progress.setCancelButton(nullptr);
-            progress.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
+            progress.setWindowIcon(QIcon::fromTheme("crown"));
             progress.show();
         }
 

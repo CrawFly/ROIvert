@@ -74,7 +74,9 @@ struct Roivert::pimpl
 
 Roivert::Roivert(QWidget* parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
-{
+{   
+    QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() + QStringList({":/icons/light", ":/icons/dark"}));
+    QIcon::setThemeName("light");
 
     QApplication::setOrganizationName("Neuroph");
     impl->makeObjects(this);
@@ -87,7 +89,7 @@ Roivert::Roivert(QWidget* parent) :
 
     doConnect(); // todo: consider move to impl
     impl->makeToolbar(this);
-    setWindowIcon(QIcon(":/icons/GreenCrown.png"));
+    setWindowIcon(QIcon::fromTheme("crown"));
 
     impl->screensize = QDesktopWidget().availableGeometry(this).size();
 }
@@ -267,14 +269,14 @@ void Roivert::pimpl::makeObjects(Roivert * par)
     fileio = std::make_unique<FileIO>(rois.get(), traceviewwidget.get(), viddata.get());
 
     ROIGroup = std::make_unique<QActionGroup>(par);
-    actROIEllipse = std::make_unique<QAction>(QIcon(":/icons/ROIEllipse.png"), "", ROIGroup.get());
-    actROIPoly = std::make_unique<QAction>(QIcon(":/icons/ROIPoly.png"), "", ROIGroup.get());
-    actROIRect = std::make_unique<QAction>(QIcon(":/icons/ROIRect.png"), "", ROIGroup.get());
-    actROISelect = std::make_unique<QAction>(QIcon(":/icons/ROISelect.png"), "", ROIGroup.get());
+    actROIEllipse = std::make_unique<QAction>(QIcon::fromTheme("roi_ellipse"), "", ROIGroup.get());
+    actROIPoly = std::make_unique<QAction>(QIcon::fromTheme("roi_poly"), "", ROIGroup.get());
+    actROIRect = std::make_unique<QAction>(QIcon::fromTheme("roi_rect"), "", ROIGroup.get());
+    actROISelect = std::make_unique<QAction>(QIcon::fromTheme("roi_select"), "", ROIGroup.get());
     
-    actShowImageDataWindow = std::make_unique<QAction>(QIcon(":/icons/t_ImgData.png"), "", par);
+    actShowImageDataWindow = std::make_unique<QAction>(QIcon::fromTheme("win_imgdata"), "", par);
 
-    actReset = std::make_unique<QAction>(QIcon(":/icons/dockreset.png"), "");
+    actReset = std::make_unique<QAction>(QIcon::fromTheme("set_reset"), "");
     actReset->setShortcut(QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_R));
     par->addAction(actReset.get());
 
@@ -376,10 +378,10 @@ void Roivert::pimpl::makeToolbar(Roivert * par)
     });
 
 
-    imagesettingswidget->toggleViewAction()->setIcon(QIcon(":/icons/t_ImgSettings.png"));
-    traceviewwidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Charts.png"));
-    fileiowidget->toggleViewAction()->setIcon(QIcon(":/icons/t_io.png"));
-    stylewidget->toggleViewAction()->setIcon(QIcon(":/icons/t_Colors.png"));
+    imagesettingswidget->toggleViewAction()->setIcon(QIcon::fromTheme("wid_imgsettings"));
+    traceviewwidget->toggleViewAction()->setIcon(QIcon::fromTheme("wid_chart"));
+    fileiowidget->toggleViewAction()->setIcon(QIcon::fromTheme("wid_io"));
+    stylewidget->toggleViewAction()->setIcon(QIcon::fromTheme("wid_style"));
 
     ui.mainToolBar->addAction(imagesettingswidget->toggleViewAction());
     ui.mainToolBar->addAction(traceviewwidget->toggleViewAction());
@@ -402,4 +404,24 @@ void Roivert::pimpl::makeToolbar(Roivert * par)
     ui.mainToolBar->setFloatable(false);
     ui.mainToolBar->toggleViewAction()->setVisible(false);
     par->addToolBar(Qt::LeftToolBarArea, ui.mainToolBar);
+}
+
+void Roivert::changeEvent(QEvent *event)
+{
+#ifdef Q_OS_MACOS
+    // These aren't "examples". They're literally the actual values.
+    constexpr int OSX_LIGHT_MODE = 236;
+    constexpr int OSX_DARK_MODE = 50;
+
+    if (event->type() == QEvent::PaletteChange) {
+        auto bg = palette().color(QPalette::Active, QPalette::Window);
+        if (bg.lightness() == OSX_LIGHT_MODE) {
+            QIcon::setThemeName("light");
+        } else {
+            QIcon::setThemeName("dark");
+        }
+    }
+#else
+    Q_UNUSED(event)
+#endif
 }

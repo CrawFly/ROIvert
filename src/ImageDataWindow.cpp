@@ -247,7 +247,7 @@ ImageDataWindow::ImageDataWindow(QWidget* parent) : DialogWithSettings(parent, Q
 {
     setModal(true);
     setWindowTitle("Load Dataset");
-    setWindowIcon(QIcon(":/icons/GreenCrown.png"));
+    setWindowIcon(QIcon::fromTheme("crown"));
     setAcceptDrops(true);
     
     impl->init(&toplay);
