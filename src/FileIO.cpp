@@ -89,7 +89,6 @@ FileIO::~FileIO() = default;
 
 void FileIO::exportTraces(QString filename, bool includeheader, bool includetime) const
 {
-    // exportTraces needs rewrite, should be easier now (as it's a mat!)
     QMessageBox msg;
     msg.setWindowIcon(QIcon(":/icons/GreenCrown.png"));
     msg.setIcon(QMessageBox::Warning);
