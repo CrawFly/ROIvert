@@ -5,11 +5,11 @@ Directories=48x48
 
 [48x48]
 Size=48
-Type=Scalable
+Type=Fixed
 Context=Actions
 
 [48x48@2]
 Size=48
-Type=Scalable
+Type=Fixed
 Scale=2
 Context=Actions

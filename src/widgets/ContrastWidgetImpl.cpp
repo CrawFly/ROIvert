@@ -134,10 +134,13 @@ namespace ContrastWidgetImpl
     ContrastChart::ContrastChart(QWidget* parent)
         : QGraphicsView(parent)
     {
+        
+        auto bg = palette().color(QPalette::Active, QPalette::Window);
+        
         QGraphicsScene* scene = new QGraphicsScene(0, 0, 1, 1);
         setRenderHints(QPainter::Antialiasing);
 
-        scene->setBackgroundBrush(Qt::white);
+        scene->setBackgroundBrush(QColor(bg));
 
         setScene(scene);
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -145,19 +148,19 @@ namespace ContrastWidgetImpl
 
         // Histogram
         HistPath = new QGraphicsPathItem;
-        setHistogramColor(Qt::black, 2);
+        setHistogramColor(QColor(255-bg.red(),255-bg.green(),255-bg.blue()), 2);
         scene->addItem(HistPath);
 
         // Overlays to mark out of min/max
         QGraphicsRectItem* leftOverlayRect = new QGraphicsRectItem;
         leftOverlayRect->setRect(0, -1, 0, 3);
         leftOverlayRect->setPen(Qt::NoPen);
-        leftOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
+        leftOverlayRect->setBrush(QBrush(QColor(bg.red(), bg.green(), bg.blue(), 200)));
         scene->addItem(leftOverlayRect);
         QGraphicsRectItem* rightOverlayRect = new QGraphicsRectItem;
         rightOverlayRect->setRect(1, -1, 0, 3);
         rightOverlayRect->setPen(QPen(Qt::NoPen));
-        rightOverlayRect->setBrush(QBrush(QColor(255, 255, 255, 200)));
+        rightOverlayRect->setBrush(QBrush(QColor(bg.red(), bg.green(), bg.blue(), 200)));
         scene->addItem(rightOverlayRect);
 
         // min/max lines
@@ -212,13 +215,15 @@ namespace ContrastWidgetImpl
     }
     void ContrastChart::setHistogramColor(QColor clr, qreal linewidth, bool dogradfill)
     {
+        auto bg = palette().color(QPalette::Active, QPalette::Window);
+        
         QPen pen(clr, linewidth);
         pen.setCosmetic(true);
         HistPath->setPen(pen);
         if (dogradfill)
         {
             QLinearGradient lGrad(.5, 1, .5, 0);
-            lGrad.setColorAt(0, Qt::white);
+            lGrad.setColorAt(0, bg);
             clr.setAlpha(20);
             lGrad.setColorAt(.5, clr);
             clr.setAlpha(70);
