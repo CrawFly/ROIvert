@@ -43,6 +43,20 @@ target_sources(ROIVert
         roivert.qrc
 )
 
+set_source_files_properties(GreenCrown MACOSX_PACKAGE_LOCATION "Resources")
+
+set_target_properties(ROIVert PROPERTIES
+    MACOSX_BUNDLE TRUE
+    MACOSX_BUNDLE_BUNDLE_NAME ROIVert
+    MACOSX_BUNDLE_BUNDLE_VERSION 1
+    MACOSX_BUNDLE_SHORT_VERSION_STRING 1
+    MACOSX_BUNDLE_ICON_FILE GreenCrown
+    MACOSX_BUNDLE_GUI_IDENTIFIER com.dbulkin.ROIVert
+    MACOSX_RPATH TRUE
+    XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME YES
+    RESOURCE GreenCrown)
+
+
 if(WIN32)
     target_sources(ROIVert
         PRIVATE

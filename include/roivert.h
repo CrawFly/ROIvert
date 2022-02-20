@@ -31,4 +31,5 @@ private:
 
     void doConnect();
     void updateContrastWidget(bool isDff);
+    void setIconTheme();
 };

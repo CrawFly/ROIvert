@@ -76,7 +76,7 @@ Roivert::Roivert(QWidget* parent) :
     QMainWindow(parent), impl(std::make_unique<pimpl>())
 {   
     QIcon::setThemeSearchPaths(QIcon::themeSearchPaths() + QStringList({":/icons/light", ":/icons/dark"}));
-    QIcon::setThemeName("light");
+    setIconTheme();
 
     QApplication::setOrganizationName("Neuroph");
     impl->makeObjects(this);
@@ -409,19 +409,26 @@ void Roivert::pimpl::makeToolbar(Roivert * par)
 void Roivert::changeEvent(QEvent *event)
 {
 #ifdef Q_OS_MACOS
-    // These aren't "examples". They're literally the actual values.
-    constexpr int OSX_LIGHT_MODE = 236;
-    constexpr int OSX_DARK_MODE = 50;
-
     if (event->type() == QEvent::PaletteChange) {
-        auto bg = palette().color(QPalette::Active, QPalette::Window);
-        if (bg.lightness() == OSX_LIGHT_MODE) {
-            QIcon::setThemeName("light");
-        } else {
-            QIcon::setThemeName("dark");
-        }
+        setIconTheme();
     }
 #else
     Q_UNUSED(event)
+#endif
+}
+
+void Roivert::setIconTheme() {
+constexpr int OSX_LIGHT_MODE = 236;
+constexpr int OSX_DARK_MODE = 50;
+    
+#ifdef Q_OS_MACOS
+    auto bg = palette().color(QPalette::Active, QPalette::Window);
+    if (bg.lightness() == OSX_LIGHT_MODE) {
+        QIcon::setThemeName("light");
+    } else {
+        QIcon::setThemeName("dark");
+    }
+#else
+    QIcon::setThemeName("light");
 #endif
 }
