@@ -11,7 +11,8 @@
 
 int main(int argc, char* argv[])
 {
-    QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    // This makes windows much worse on 4k, potentially leave it for mac
+    //QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QApplication a(argc, argv);
     Roivert w;
 
