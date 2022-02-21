@@ -1,4 +1,5 @@
 #include <QMainWindow>
+#include <cmath>
 #include <QtTest/QtTest>
 
 #include "tTraceChartWidget.h"
@@ -74,7 +75,7 @@ void tTraceChartWidget::tnormalization_data() {
     QTest::newRow("MEDIQR") << (int)ROIVert::NORMALIZATION::MEDIQR << "df/f (IQR units)" << -1.f << 1.f;
     QTest::newRow("NONE") << (int)ROIVert::NORMALIZATION::NONE << "df/f" << 0.f << 4.f;
     QTest::newRow("ZEROTOONE") << (int)ROIVert::NORMALIZATION::ZEROTOONE << "df/f (0-1)" << 0.f << 1.f;
-    QTest::newRow("ZSCORE") << (int)ROIVert::NORMALIZATION::ZSCORE << "df/f (z units)" << -std::sqrtf(2.f) << std::sqrtf(2.f);
+    QTest::newRow("ZSCORE") << (int)ROIVert::NORMALIZATION::ZSCORE << "df/f (z units)" << -sqrtf(2.f) << sqrtf(2.f);
 }
 
 void tTraceChartWidget::tnormalization() {

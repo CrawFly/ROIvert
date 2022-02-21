@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <QAbstractTableModel>
 
 class ImageDataTableModel : public QAbstractTableModel

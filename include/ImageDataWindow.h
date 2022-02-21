@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include "DialogWithSettings.h"
 
 class ImageDataWindow : public DialogWithSettings

@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 #include <QObject>
 #include "ROI/ROIStyle.h"
 #include "ROIVertEnums.h"

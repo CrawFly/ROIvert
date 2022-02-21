@@ -1,5 +1,5 @@
 #include "widgets/ContrastWidgetImpl.h"
-
+#include <cmath>
 #include <QDebug>
 #include <QGraphicsSceneMouseEvent>
 

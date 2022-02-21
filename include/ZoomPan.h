@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include <cmath>
 #include <QObject>
 
 class QGraphicsView;

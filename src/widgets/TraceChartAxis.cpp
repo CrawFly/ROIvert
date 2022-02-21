@@ -1,5 +1,5 @@
 #include "widgets/TraceChartWidget.h"
-
+#include <cmath>
 #include <QDebug>
 #include <QPainter>
 

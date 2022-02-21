@@ -1,5 +1,5 @@
 #include "widgets/VideoControllerWidget.h"
-
+#include <cmath>
 #include <QBoxLayout>
 #include <QDial>
 #include <QElapsedTimer>

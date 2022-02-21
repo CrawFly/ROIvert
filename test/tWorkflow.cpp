@@ -2,7 +2,7 @@
 #include <QtTest/QtTest>
 #include "opencv2/opencv.hpp"
 
-#include <QGUIApplication>
+#include <QGuiApplication>
 #include <QActionGroup>
 #include <QLineEdit>
 #include <QRadioButton>

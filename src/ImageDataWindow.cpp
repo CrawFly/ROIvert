@@ -2,6 +2,7 @@
 
 #include "ImageDataTableModel.h"
 
+#include <cmath>
 #include <QIcon>
 #include <QBoxLayout>
 #include <QGridLayout>

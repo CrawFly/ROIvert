@@ -6,7 +6,7 @@
 #include <QTimer>
 #include <QDesktopWidget>
 #include <QPainter>
-#include <QGUIApplication>
+#include <QGuiApplication>
 #include <QScreen>
 
 int main(int argc, char* argv[])

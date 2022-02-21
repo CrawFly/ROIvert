@@ -131,7 +131,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
             out << "\"ROI " + QString::number(i + 1) + "\",";
         }
         out << "\"ROI " + QString::number(ntraces) + "\"";
-        out << Qt::endl;
+        out << "\n";
     }
 
     for (size_t t = 0; t < nframes; ++t)
@@ -146,7 +146,7 @@ void FileIO::exportTraces(QString filename, bool includeheader, bool includetime
             out << traces[trace][t] << ",";
         }
         out << traces[ntraces - 1][t];
-        out << Qt::endl;
+        out << "\n";
     }
     file.flush();
     file.close();
