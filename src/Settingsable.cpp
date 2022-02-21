@@ -17,8 +17,8 @@ Settingsable::Settingsable()
     tb->addWidget(blank);
     tb->addAction(reset);
     tb->addAction(save);
-    tb->setIconSize(QSize(24, 36));
-    tb->setFixedHeight(36);
+    tb->setIconSize(QSize(18, 24));
+    tb->setFixedHeight(24);
 
     toplay.addWidget(tb);
     toplay.setContentsMargins(0, 0, 0, 0);
