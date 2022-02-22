@@ -24,22 +24,22 @@ ROIVert is a software tool for drawing regions of interest of videos, and comput
 &nbsp;&nbsp;
 
 ## What: What is ROIVert? (source)
-ROIVert is a (soon multiplatform) C++ based application that emphasizes ease of use and performance. A [Qt](https://www.qt.io/) front-end allows manipulation of a variety of controls and display of plots, and an [OpenCV](https://opencv.org/) back-end provides quick processing.
+ROIVert is a multiplatform C++ based application that emphasizes ease of use and performance. A [Qt](https://www.qt.io/) front-end allows manipulation of a variety of controls and display of plots, and an [OpenCV](https://opencv.org/) back-end provides quick processing. ROIVert is backed by a full test suite and an engineered UI.
 
 &nbsp;&nbsp;
 
 ## Why: ROIVert's history
-Some friends of ROIVert's original author at [Cornell](https://nbb.cornell.edu/) (and [Hobart and William Smith Colleges](https://www2.hws.edu/academics/biology/)) were working on a epifluorescence microscope. The idea was that they could have a microscope that they could use for [calcium imaging](https://en.wikipedia.org/wiki/Calcium_imaging) in lab classes.
+Some friends of ROIVert's author at [Cornell](https://nbb.cornell.edu/) (and [Hobart and William Smith Colleges](https://www2.hws.edu/academics/biology/)) were working on a epifluorescence microscope. The idea was that they could have a microscope that they could use for [calcium imaging](https://en.wikipedia.org/wiki/Calcium_imaging) in lab classes.
 
 Traditionally, these kinds of experiments use some pretty advanced (i.e. expensive) equipment, which means that only a handful of undergraduates get exposure to the methods (those that work in research labs). But the actual hardware requirements are pretty minimal, so it seemed feasible to build something inexpensive that could provide access to students (including those from disadvantaged backgrounds).
 
 One of these profs wrote:
 >The next phase of the project is to quantitate the imaging data. I was wondering if you knew of a user-friendly program (that is also inexpensive or free) to accomplish this? 
 
-Sadly the answer was no. There's certainly free software out there, but it tends to be difficult to use. Indeed, this is generally true for scientific software (not just the free stuff). Folks in academia are happy to whip up some code to tackle computational problems. But software engineering doesn't seem to enter the mix, and the user interface in scientific software is typically unengineered, unemphasized, and unfriendly.
+Sadly the answer was no. There's certainly free software out there, but it tends to be difficult to use. General image processing tools for biologists provide massive power, but their interface is intimidating. Other custom tools written in high-level numeric analysis scripting languages can be slow, difficult to install, and prone to bugs.
 
 ROIVert's creator wrote:
->My gut reaction was that the free program for analyzing imaging data is [imagej](https://imagej.nih.gov/ij/), which is pretty unfriendly. I guess free and unfriendly normally go hand-in-hand in software? My other reaction was - maybe I could write something for you guys! 
+>My gut reaction was that the free program for analyzing imaging data is [imagej](https://imagej.nih.gov/ij/), which is pretty unfriendly. There are probably some tools in Python and MATLAB, but I'd guess they'd be slow and painful to install, and maybe a little buggy. My other reaction was - maybe I could write something for you guys! 
 
 And with that, ROIVert was born!
 
@@ -54,16 +54,12 @@ Pronounce ROIVert however you like, we're not pronounciation snobs here. The aut
 &nbsp;&nbsp;
 
 ## How: How to run ROIVert
-If you're not interested in the code, and instead want to use ROIVert, we suggest you head over to [roivert.net](http://roivert.net). We have the same binaries here, but the ROIVert site is easier to use and you'll find tutorials there too.
+If you're not interested in the code, and instead want to use ROIVert, head over to [roivert.net](http://roivert.net). We have the same binaries here, but the ROIVert site is easier to use and you'll find tutorials there too.
 
 &nbsp;&nbsp;
 
 ## How: How to build
-ROIVert relies on a standard CMake build system, but work is in progress to strengthen the CMake files and make ROIVert more easily ported. ROIVert depends on Qt5 (v1.0beta used 5.15.0) and OpenCV (v1.0beta used OpenCV440). Successful prototype builds have been achieved on macOS and linux.
-
-The current plan is to establish a successful build process for MacOS and then work on abstracting some tooling for makefile generation. Early attempts with a CMake based approach were successful in Windows and linux.
-
-If you'd like to build and are having trouble, reach out to [repo name]@[repo name].net
+ROIVert relies on a CMake build system. ROIVert depends on Qt5 (tested with 5.15.0 and 5.15.2), OpenCV (tested with OpenCV 4.4.0), and TinyTIFF. Version 1.1 was built on Windows, Linux, and MacOS. If you'd like to build and are having trouble, reach out to [repo name]@[repo name].net. ROIVert comes with a full test suite which can be run directly via CLI (use ROIVertTest.exe -h for more information).
 
 &nbsp;&nbsp;
 
@@ -71,29 +67,24 @@ If you'd like to build and are having trouble, reach out to [repo name]@[repo na
 A list of other major changes in ROIVert over the prototype version can be found at http://roivert.net/releasenotes.html
 
 Next major feature targets are:
- - internal: Test framework.
- - external: Image stabalization, chart aspect ratio.
-
+ - Image stabalization/motion correction
+ - Dark mode for Windows
+ - Color palettes
+ - Image chart
+ 
 &nbsp;&nbsp;
 
 ## How: How to get Involved
-ROIVert needs you! ROIVert was written using the one-guy-in-his-spare-time model. We're open to help in all ways, but currently seeking some specific expertise. If you can help please contact us at [repo name]@[repo name].net
-
-- **Image Processing**: Image stablization and automatic blob detection are the next big target features for ROIVert. Help is needed at all levels (algorithm, ui design, etc.).
-- **Documentation**: ROIVert needs content creators who can help teach how to be an effective user.
- - **Test**: ROIVert's test are under development. 
- - **Site**: The [roivert.net](http://www.roivert.net) site needs some actual design! (and some html skills).
- - **Translation**: We'd like to internationalize ROIVert and provide translation of ROIVert's messages. To do this, we need some multi-lingual folks!
- - **Code Signing**: ROIVert now can be distributed on macOS (release coming soon), but work is needed to sign ROIVert for Windows.
+ROIVert needs you! If you can help with development, documentation, testing, translation, or web design please contact us at [repo name]@[repo name].net
 
 &nbsp;&nbsp;
  
 ## License
 ROIVert is provided under the MIT license.
 
-ROIVert includes dependencies on some other open source libraries (OpenCV and Qt). See [license.txt](license.txt) for more info. 
+ROIVert includes dependencies on some other open source libraries (OpenCV, Qt, TinyTiff). See [license.txt](license.txt) for more info. 
 
-The author(s) of ROIVert are not lawyers, and while we can wrap our heads around neuroscience, microscopy, software design and implementation, the requirements of licensing totally elude us. If we've inadvertently violated licensing requirements please contact us at [repo name]@[repo name].net and we'll immediately act to correct it. 
+If we've inadvertently violated licensing requirements please contact us at [repo name]@[repo name].net and we'll immediately act to correct our misuse. 
 
 &nbsp;&nbsp;
 
