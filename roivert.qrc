@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/light/index.theme</file>
+        <file>icons/light/48x48/crown.png</file>
+        <file>icons/light/48x48/vid_back.png</file>
+        <file>icons/light/48x48/vid_play.png</file>
+        <file>icons/light/48x48/vid_repeat.png</file>
+        <file>icons/light/48x48/vid_stop.png</file>
+        <file>icons/light/48x48/vid_forward.png</file>
+        <file>icons/light/48x48/roi_ellipse.png</file>
+        <file>icons/light/48x48/roi_poly.png</file>
+        <file>icons/light/48x48/roi_rect.png</file>
+        <file>icons/light/48x48/roi_select.png</file>
+        <file>icons/light/48x48/win_imgdata.png</file>
+        <file>icons/light/48x48/wid_imgsettings.png</file>
+        <file>icons/light/48x48/wid_chart.png</file>
+        <file>icons/light/48x48/wid_io.png</file>
+        <file>icons/light/48x48/wid_style.png</file>
+        <file>icons/light/48x48/set_reset.png</file>
+        <file>icons/light/48x48/set_save.png</file>
+        <file>icons/dark/index.theme</file>
+        <file>icons/dark/48x48/crown.png</file>
+        <file>icons/dark/48x48/vid_back.png</file>
+        <file>icons/dark/48x48/vid_play.png</file>
+        <file>icons/dark/48x48/vid_repeat.png</file>
+        <file>icons/dark/48x48/vid_stop.png</file>
+        <file>icons/dark/48x48/vid_forward.png</file>
+        <file>icons/dark/48x48/roi_ellipse.png</file>
+        <file>icons/dark/48x48/roi_poly.png</file>
+        <file>icons/dark/48x48/roi_rect.png</file>
+        <file>icons/dark/48x48/roi_select.png</file>
+        <file>icons/dark/48x48/win_imgdata.png</file>
+        <file>icons/dark/48x48/wid_imgsettings.png</file>
+        <file>icons/dark/48x48/wid_chart.png</file>
+        <file>icons/dark/48x48/wid_io.png</file>
+        <file>icons/dark/48x48/wid_style.png</file>
+        <file>icons/dark/48x48/set_reset.png</file>
+        <file>icons/dark/48x48/set_save.png</file>
+        <file>splash.png</file>
+    </qresource>
+</RCC>
